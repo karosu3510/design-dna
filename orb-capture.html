@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Orb Capture — Voice Dashboard</title>
+<style>
+  :root{--bg:#000;--card:#141416;--card2:#1d1e23;--line:rgba(255,255,255,.07);--text:#f7f7f8;--muted:#9a9aa0;--dim:#4c4d55;--red:#ff4f37;--white:#f2f2f3}
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{width:1100px;height:720px;overflow:hidden;background:#000;color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Inter",system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+  body{display:grid;place-items:center}
+  .stage{position:relative;width:1100px;height:720px;background:#000;overflow:hidden}
+  .phone{position:absolute;left:50%;top:50%;width:393px;height:852px;transform:translate(-50%,-50%) scale(.80);transform-origin:center;background:#000;border:1px solid rgba(255,255,255,.08);border-radius:30px;overflow:hidden;box-shadow:0 0 0 1px rgba(255,255,255,.02),0 28px 90px rgba(0,0,0,.7)}
+  .top{height:144px;padding:48px 30px 0;display:flex;align-items:flex-start;gap:18px}.title{font-size:34px;line-height:1;font-weight:800;letter-spacing:-.055em}.chev{width:15px;height:15px;border-right:3px solid #8b8c92;border-bottom:3px solid #8b8c92;transform:rotate(45deg);margin-top:14px}.spacer{flex:1}.avatar{width:56px;height:56px;border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle at 35% 28%,#4b4c56,#25262e 70%);font-size:18px;font-weight:800;box-shadow:inset 0 1px 0 rgba(255,255,255,.10)}.gear{width:54px;height:54px;display:grid;place-items:center;color:#a7a8ad}.gear svg{width:34px;height:34px}
+  .capture{margin:0 30px 28px;height:394px;border-radius:34px;background:var(--card);border:1px solid rgba(255,255,255,.05);box-shadow:inset 0 1px 0 rgba(255,255,255,.035);padding:34px 30px;position:relative}.cap-head{display:flex;align-items:center}.rec{width:46px;height:46px;border-radius:50%;background:rgba(255,79,55,.10);display:grid;place-items:center}.rec i{width:14px;height:14px;border-radius:50%;background:var(--red);box-shadow:0 0 16px rgba(255,79,55,.55);animation:pulse 1.6s ease-in-out infinite}@keyframes pulse{50%{transform:scale(.72);opacity:.75}}.cap-label{font-size:15px;font-weight:800;letter-spacing:.11em;text-transform:uppercase;color:#3f4048;margin-left:4px}.timer{margin-left:auto;color:var(--red);font-size:24px;font-weight:800;letter-spacing:.02em;font-variant-numeric:tabular-nums}.dotwave{position:absolute;left:46px;right:46px;top:160px;height:155px;display:grid;grid-template-columns:repeat(26,1fr);grid-auto-rows:10px;gap:14px 9px;align-content:center}.dotwave span{width:8px;height:8px;border-radius:50%;background:#828388;opacity:.72;transition:opacity .18s linear,background .18s linear}.cursor{position:absolute;left:50%;top:142px;width:4px;height:162px;border-radius:999px;background:var(--red);box-shadow:0 0 11px rgba(255,79,55,.75)}.meeting{position:absolute;left:44px;bottom:48px}.meeting h2{font-size:26px;line-height:1.1;font-weight:800;letter-spacing:-.04em;margin-bottom:10px}.meeting p{font-size:23px;color:var(--muted);font-weight:700;letter-spacing:-.02em}.micbtn{position:absolute;right:40px;bottom:46px;width:62px;height:62px;border-radius:50%;background:#1d1e23;border:1px solid rgba(255,255,255,.07);display:grid;place-items:center;color:var(--red)}.micbtn svg{width:30px;height:30px}
+  .actions{display:grid;grid-template-columns:1fr 1fr 1fr;gap:18px;margin:0 30px 68px}.action{height:126px;border-radius:28px;background:var(--card);border:1px solid rgba(255,255,255,.06);padding:28px 22px;position:relative;box-shadow:inset 0 1px 0 rgba(255,255,255,.035)}.action h3{font-size:25px;line-height:.98;font-weight:800;letter-spacing:-.05em}.action svg{position:absolute;right:24px;bottom:24px;width:30px;height:30px;color:#8d8e94}.action.primary{background:#eee;color:#070707}.action.primary svg{color:#111}
+  .section{display:flex;align-items:center;margin:0 30px 28px}.section h2{font-size:32px;font-weight:800;letter-spacing:-.055em}.section a{margin-left:auto;color:#9a9aa0;font-size:26px;font-weight:800;text-decoration:none;letter-spacing:-.04em}.recent{margin:0 30px;display:grid;gap:20px}.row{display:grid;grid-template-columns:52px 1fr 30px;gap:16px;align-items:center}.waveicon{height:44px;display:flex;align-items:center;gap:3px}.waveicon i{width:3px;border-radius:999px;background:#f2f2f3}.waveicon i:nth-child(1){height:14px}.waveicon i:nth-child(2){height:22px}.waveicon i:nth-child(3){height:32px}.waveicon i:nth-child(4){height:18px}.rtitle{font-size:25px;font-weight:800;letter-spacing:-.04em}.rmeta{font-size:22px;color:#9a9aa0;font-weight:700;margin-top:4px}.row svg{width:30px;height:30px;color:#7d7e84}
+  .player{position:absolute;left:30px;right:30px;bottom:148px;height:76px;border-radius:26px;background:#1d1e23;display:grid;grid-template-columns:64px 1fr 44px 64px 44px;gap:14px;align-items:center;padding:10px 18px;box-shadow:0 14px 34px rgba(0,0,0,.48),inset 0 1px 0 rgba(255,255,255,.055);z-index:10}.cover{width:56px;height:56px;border-radius:14px;background:radial-gradient(circle at 63% 22%,#b06d4a,#562012 70%)}.song{font-size:23px;font-weight:800;letter-spacing:-.035em}.artist{font-size:21px;color:#9a9aa0;font-weight:700;margin-top:4px}.ctrl{color:#f2f2f3;display:grid;place-items:center}.playpause{width:58px;height:58px;border-radius:50%;background:#303139;display:grid;place-items:center}.tabbar{position:absolute;left:30px;right:30px;bottom:20px;height:84px;border-top:1px solid rgba(255,255,255,.14);display:flex;align-items:center;justify-content:space-between;padding:0 18px}.tab{color:#8f9096}.tab svg{width:34px;height:34px}.orb{width:84px;height:84px;border-radius:50%;background:#1d1e23;display:grid;place-items:center;color:#fff;box-shadow:inset 0 1px 0 rgba(255,255,255,.05)}.orb svg{width:45px;height:45px}
+</style>
+</head>
+<body>
+<div class="stage">
+  <main class="phone" aria-label="Orb Capture voice dashboard">
+    <header class="top"><h1 class="title">Your Orb</h1><span class="chev"></span><span class="spacer"></span><div class="avatar">JM</div><div class="gear"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2v3M12 19v3M4.93 4.93l2.12 2.12M16.95 16.95l2.12 2.12M2 12h3M19 12h3M4.93 19.07l2.12-2.12M16.95 7.05l2.12-2.12"/><circle cx="12" cy="12" r="4"/></svg></div></header>
+    <section class="capture"><div class="cap-head"><div class="rec"><i></i></div><div class="cap-label">Now Capturing</div><div class="timer" id="timer">00:23:06</div></div><div class="dotwave" id="dotwave"></div><div class="cursor"></div><div class="meeting"><h2>Team Standup</h2><p>Living Room · 6 voices</p></div><button class="micbtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3z"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3M8 21h8"/></svg></button></section>
+    <section class="actions"><div class="action"><h3>Start<br>Meeting</h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3z"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3M8 21h8"/></svg></div><div class="action primary"><h3>Play<br>Music</h3><svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 18V5l11-2v13a3 3 0 1 1-2-2.83V7.2l-7 1.27V18a3 3 0 1 1-2 0z"/></svg></div><div class="action"><h3>Rooms</h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="4" width="6" height="6" rx="1"/><rect x="14" y="4" width="6" height="6" rx="1"/><rect x="4" y="14" width="6" height="6" rx="1"/><rect x="14" y="14" width="6" height="6" rx="1"/></svg></div></section>
+    <section class="section"><h2>Recent Captures</h2><a>View All</a></section>
+    <div class="recent"><div class="row"><div class="waveicon"><i></i><i></i><i></i><i></i></div><div><div class="rtitle">Interview — Noor A.</div><div class="rmeta">28 min · Yesterday, 3:05 PM</div></div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 18l6-6-6-6"/></svg></div></div>
+    <div class="player"><div class="cover"></div><div><div class="song">Cold Apartment</div><div class="artist">Vagabon</div></div><div class="ctrl"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zm3 6 9-6v12z"/></svg></div><div class="playpause"><svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M8 5h3v14H8zm5 0h3v14h-3z"/></svg></div><div class="ctrl"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 6h2v12h-2zM6 18l9-6-9-6z"/></svg></div></div>
+    <nav class="tabbar"><span class="tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 12h2M8 8v8M12 5v14M16 9v6M20 11v2"/></svg></span><span class="orb"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2.6" fill="currentColor"/></svg></span><span class="tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2v3M12 19v3M4.93 4.93l2.12 2.12M16.95 16.95l2.12 2.12M2 12h3M19 12h3M4.93 19.07l2.12-2.12M16.95 7.05l2.12-2.12"/><circle cx="12" cy="12" r="4"/></svg></span></nav>
+  </main>
+</div>
+<script>
+(() => {
+  const wave=document.getElementById('dotwave');
+  const total=26*8;
+  for(let i=0;i<total;i++){const s=document.createElement('span');wave.appendChild(s)}
+  const dots=[...wave.children];
+  const timer=document.getElementById('timer');
+  const start=23*60+6;
+  function tick(now){
+    const sec=start+Math.floor(now/1000);
+    timer.textContent='00:'+String(Math.floor(sec/60)).padStart(2,'0')+':'+String(sec%60).padStart(2,'0');
+    dots.forEach((d,i)=>{const col=i%26,row=Math.floor(i/26);const a=.38+.62*Math.max(0,Math.sin(col*.7+now*.003)+Math.cos(row*1.3+now*.002));d.style.opacity=Math.min(1,.28+a*.46);d.style.background=a>.78?'#f1f1f2':'#8d8e92'});
+    requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+})();
+</script>
+</body>
+</html>

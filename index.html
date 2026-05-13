@@ -1,0 +1,1934 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Design DNA — endless designs, just scroll</title>
+<style>
+  :root{
+    --bg:#0a0a0a;--bg-soft:#111;--bg-card:#151515;
+    --border:rgba(255,255,255,0.08);--border-strong:rgba(255,255,255,0.16);
+    --text:#f5f5f5;--text-soft:#a1a1a1;--text-mute:#666;
+    --accent:#e8f060;--accent-ink:#111;--radius:14px;
+    --side-w:56px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Inter","SF Pro Text","Helvetica Neue",Arial,sans-serif;-webkit-font-smoothing:antialiased}
+  a{color:inherit;text-decoration:none}
+  button{font-family:inherit;cursor:pointer}
+
+  /* ─── 左侧极窄 Sidebar ─── */
+  .sidebar{position:fixed;left:0;top:0;bottom:0;width:var(--side-w);background:var(--bg);border-right:1px solid var(--border);display:flex;flex-direction:column;align-items:center;padding:10px 0;z-index:90;gap:4px}
+  .side-mid{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;width:100%}
+  .side-logo{width:30px;height:30px;border-radius:9px;background:#0F0F10;display:flex;align-items:center;justify-content:center;color:#fff;margin-bottom:6px;border:1px solid rgba(255,255,255,.08);transition:transform .15s ease}
+  .side-logo:hover{transform:scale(1.04)}
+  .side-tab{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;color:var(--text-soft);background:transparent;border:0;transition:all .15s ease;position:relative}
+  .side-tab:hover{background:rgba(255,255,255,.05);color:var(--text)}
+  .side-tab.active{background:rgba(255,255,255,.08);color:var(--text)}
+  .side-tab.active::before{content:'';position:absolute;left:-10px;top:50%;transform:translateY(-50%);width:2px;height:18px;background:var(--accent);border-radius:0 2px 2px 0}
+  .side-tip{position:absolute;left:46px;top:50%;transform:translateY(-50%) translateX(-4px);background:#1c1c1c;color:#fff;padding:5px 10px;border-radius:6px;font-size:12px;white-space:nowrap;opacity:0;pointer-events:none;transition:all .15s ease;border:1px solid var(--border);z-index:80}
+  .side-tab:hover .side-tip{opacity:1;transform:translateY(-50%) translateX(0)}
+  .side-spacer{flex:1}
+  .side-avatar{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#E8DFD2,#5E6AD2);margin-top:auto;margin-bottom:8px;position:relative;z-index:100;pointer-events:auto}
+  /* 扩大头像点击热区，避免点歪 */
+  .side-avatar::after{content:'';position:absolute;inset:-10px;border-radius:50%;z-index:1}
+
+  /* ─── 顶部社区切换已移除 ─── */
+
+  /* ─── 主区瀑布流：CSS Grid masonry（行 8px，按内容高度 span） ─── */
+  .stage{margin-left:var(--side-w);padding:8px 8px 120px;min-height:100vh}
+  /* 基线 3 列 —— 每行 3 张卡，是默认状态。
+     超宽屏升到 6 列基线，常规卡 span 2（仍 3/行），仅"竖屏窄卡"span 1（6/行）。
+     窄屏退到 2 列。 */
+  .feed{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));grid-auto-rows:8px;gap:8px;grid-auto-flow:dense}
+  .feed > .card{grid-column:span 2}
+  .card.is-narrow{grid-column:span 1}
+  @media (max-width:1680px){
+    .feed{grid-template-columns:repeat(3,minmax(0,1fr))}
+    .feed > .card,.card.is-narrow{grid-column:span 1}
+  }
+  @media (max-width:900px){
+    .feed{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .feed > .card,.card.is-narrow{grid-column:span 1}
+  }
+  .card{margin:0;background:var(--bg-card);border:1px solid var(--border);border-radius:10px;overflow:hidden;position:relative;cursor:pointer;transition:transform .2s ease,border-color .2s ease;animation:rise .5s ease both}
+  @keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+  .card:hover{border-color:var(--border-strong)}
+  .card-frame{width:100%;display:block;border:0;background:#fff}
+  .card-preview{position:absolute;inset:0;z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:24px;text-align:center;background:linear-gradient(180deg,#1a1a1a,#111);color:#fff;pointer-events:auto}
+  .card-preview::before{content:'';position:absolute;inset:12px;border:1px solid rgba(255,255,255,.08);border-radius:8px;pointer-events:none}
+  .card-preview-title{font-size:15px;font-weight:600;max-width:80%;line-height:1.35;color:#f5f5f5}
+  .card-preview-sub{font-size:11px;color:var(--text-mute)}
+  /* dashboard 卡用 transform scale 缩放：iframe 用绝对定位 + 固定逻辑宽 */
+  .card.has-scale{position:relative}
+  .card.has-scale > .card-frame{position:absolute;top:0;left:0;width:auto}
+  /* [REMOVED] .card-meta / .card-title / .icon-btn —— 底部 hover 操作条已并入右上角 .card-actions */
+  .card-badge{position:absolute;top:8px;right:8px;display:flex;gap:4px;align-items:center;padding:3px 7px;background:rgba(0,0,0,.45);backdrop-filter:blur(6px);border-radius:999px;font-size:10px;color:#fff;opacity:0;transition:opacity .2s ease;z-index:3}
+  .card:hover .card-badge{opacity:1}
+
+  /* ─── Hover 右上角操作组：收藏 + 点赞 ─── */
+  .card-actions{position:absolute;top:8px;right:8px;display:flex;gap:4px;opacity:0;transform:translateY(-4px);transition:opacity .18s ease, transform .18s ease;pointer-events:none;z-index:5}
+  .card:hover .card-actions{opacity:1;transform:none;pointer-events:auto}
+  .card:hover .card-badge{opacity:0;pointer-events:none}                       /* hover 时 badge 让位给 actions */
+  .card-actions .act{width:28px;height:28px;border-radius:8px;border:1px solid rgba(255,255,255,.14);background:rgba(0,0,0,.62);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);color:#fff;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;padding:0;transition:background .15s ease,border-color .15s ease,color .15s ease,transform .15s ease}
+  .card-actions .act:hover{background:rgba(0,0,0,.82);border-color:rgba(255,255,255,.26);transform:translateY(-1px)}
+  .card-actions .act svg{width:14px;height:14px;display:block;transition:fill .15s ease}
+  .card-actions .act.is-on{background:#fff;border-color:#fff;color:#111}
+  .card-actions .act.is-on svg{fill:currentColor}
+  @keyframes actPop{0%{transform:scale(1)}40%{transform:scale(1.22)}100%{transform:scale(1)}}
+  .card-actions .act.pop svg{animation:actPop .35s ease}
+
+  /* ─── Hover 浮出操作：设为精选 ─── */
+  .card-fav{position:absolute;top:8px;left:8px;display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 10px 0 8px;background:rgba(0,0,0,.62);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.12);border-radius:8px;font-size:11px;font-weight:500;color:#fff;cursor:pointer;opacity:0;transform:translateY(-4px);transition:opacity .18s ease, transform .18s ease, background .15s ease;z-index:4;letter-spacing:.01em}
+  .card:hover .card-fav{opacity:1;transform:none}
+  .card-fav:hover{background:rgba(0,0,0,.82);border-color:rgba(255,255,255,.22)}
+  .card-fav svg{width:13px;height:13px;flex-shrink:0;transition:fill .15s ease,stroke .15s ease}
+  .card-fav.is-on svg{fill:#fff}
+  @keyframes featPulse{0%{box-shadow:0 0 0 0 rgba(255,255,255,.35)}70%{box-shadow:0 0 0 10px rgba(255,255,255,0)}100%{box-shadow:0 0 0 0 rgba(255,255,255,0)}}
+  .card-fav.pulse{animation:featPulse .6s ease}
+
+  .sentinel{height:60px;display:flex;align-items:center;justify-content:center;color:var(--text-mute);font-size:13px}
+  .dot-loader{display:inline-flex;gap:4px}
+  .dot-loader span{width:6px;height:6px;border-radius:50%;background:var(--text-mute);animation:bounce 1.2s infinite ease-in-out}
+  .dot-loader span:nth-child(2){animation-delay:.15s}
+  .dot-loader span:nth-child(3){animation-delay:.3s}
+  @keyframes bounce{0%,80%,100%{transform:scale(.6);opacity:.4}40%{transform:scale(1);opacity:1}}
+
+  /* ─── 底部浮动 Prompt 条 ─── */
+  .prompt-dock{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:55;width:min(640px,calc(100vw - 80px - var(--side-w)));margin-left:calc(var(--side-w) / 2)}
+  .prompt-wrap{background:rgba(20,20,20,0.92);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);border:1px solid var(--border-strong);border-radius:16px;padding:10px 10px 8px;box-shadow:0 16px 48px -12px rgba(0,0,0,.7),0 0 0 1px rgba(255,255,255,.02)}
+  .prompt-input{width:100%;background:transparent;border:0;outline:0;color:var(--text);font-size:14px;resize:none;min-height:24px;max-height:120px;padding:6px 8px;font-family:inherit;line-height:1.5}
+  .prompt-input::placeholder{color:var(--text-mute)}
+  .prompt-bar{display:flex;align-items:center;gap:6px;padding-top:4px}
+  .chip{display:inline-flex;align-items:center;gap:6px;height:26px;padding:0 10px;border-radius:999px;font-size:11.5px;color:var(--text-soft);background:rgba(255,255,255,0.04);border:1px solid var(--border);cursor:pointer;transition:all .15s ease}
+  .chip:hover{background:rgba(255,255,255,.08);color:var(--text)}
+  .chip.active{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+  .chip-swatch{width:9px;height:9px;border-radius:3px}
+  .submit{margin-left:auto;width:30px;height:30px;border-radius:8px;border:0;background:var(--accent);color:var(--accent-ink);font-weight:600;font-size:14px;display:inline-flex;align-items:center;justify-content:center}
+  .submit:hover{background:#d9e152}
+
+  /* ─── 左下浮动 chips（视图模式） ─── */
+  .view-dock{position:fixed;left:calc(var(--side-w) + 14px);bottom:18px;z-index:55;display:flex;gap:6px;pointer-events:none}
+  .view-dock > *{pointer-events:auto}
+  .view-chip{display:inline-flex;align-items:center;gap:5px;height:28px;padding:0 10px;border-radius:999px;font-size:11.5px;color:var(--text-soft);background:rgba(20,20,20,0.85);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid var(--border);cursor:pointer;transition:all .15s ease}
+  .view-chip:hover{color:var(--text);border-color:var(--border-strong)}
+  .view-chip.active{color:var(--text);background:rgba(40,40,40,0.95)}
+
+  /* ─── 右下"生成中"浮卡 ─── */
+  .gen-toast{position:fixed;right:14px;bottom:18px;z-index:55;width:240px;padding:12px 14px;background:rgba(15,15,15,0.95);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid var(--border);border-radius:12px;box-shadow:0 12px 32px -8px rgba(0,0,0,.7);transform:translateY(20px);opacity:0;pointer-events:none;transition:all .25s cubic-bezier(.4,.2,.2,1)}
+  .gen-toast.show{transform:none;opacity:1;pointer-events:auto}
+  .gen-toast-row{display:flex;align-items:center;gap:10px}
+  .gen-spinner{width:18px;height:18px;border-radius:50%;border:2px solid var(--border);border-top-color:var(--accent);animation:spin 1s linear infinite;flex-shrink:0}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .gen-title{font-size:12px;font-weight:500;color:var(--text);flex:1;min-width:0}
+  .gen-sub{font-size:10.5px;color:var(--text-mute);margin-top:2px}
+  .gen-close{width:20px;height:20px;border-radius:6px;border:0;background:transparent;color:var(--text-mute);display:inline-flex;align-items:center;justify-content:center;flex-shrink:0}
+  .gen-close:hover{background:rgba(255,255,255,.06);color:var(--text)}
+  .gen-bar{height:2px;background:var(--border);border-radius:99px;margin-top:10px;overflow:hidden}
+  .gen-bar-fill{height:100%;background:var(--accent);width:30%;animation:slide 1.4s ease-in-out infinite}
+  @keyframes slide{0%{margin-left:-30%}100%{margin-left:100%}}
+
+  /* ─── Detail（整页 · 参考 Variant：面包屑返回） ─── */
+  .detail-view{position:fixed;inset:0;left:var(--side-w);background:var(--bg);z-index:70;display:flex;flex-direction:column;opacity:0;pointer-events:none;transform:translateY(6px);transition:opacity .22s ease, transform .22s ease}
+  .detail-view.open{opacity:1;pointer-events:auto;transform:none}
+  body.is-detail{overflow:hidden}
+  /* 进入详情时，隐藏主 feed 附属 UI，避免穿透 */
+  body.is-detail .prompt-dock,
+  body.is-detail .view-dock,
+  body.is-detail .gen-toast,
+  body.is-detail .saved-panel,
+  body.is-detail .style-drawer{opacity:0;pointer-events:none;transition:opacity .15s ease}
+
+  .detail-top{height:52px;flex-shrink:0;padding:0 24px;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--border);background:var(--bg);position:sticky;top:0;z-index:2}
+  .crumb{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text-soft);min-width:0}
+  .crumb-link{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:8px;color:var(--text-soft);background:transparent;border:0;cursor:pointer;font:inherit;transition:background .15s ease, color .15s ease}
+  .crumb-link:hover{background:rgba(255,255,255,.06);color:var(--text)}
+  .crumb-sep{color:var(--text-mute);font-size:12px;user-select:none}
+  .crumb-current{color:var(--text);font-weight:500;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:44vw}
+  .detail-top-actions{margin-left:auto;display:flex;align-items:center;gap:6px}
+  .detail-sref{font-size:11.5px;color:var(--text-mute);margin-right:6px;font-variant-numeric:tabular-nums}
+
+  .detail-body{flex:1;overflow:auto;padding:20px 32px 40px;display:flex;justify-content:center}
+  .detail-stage{width:min(1600px,100%);display:flex;flex-direction:column;gap:14px}
+  .detail-frame-wrap{border-radius:14px;overflow:hidden;background:transparent}
+  .detail-frame{width:100%;border:0;background:transparent;display:block}
+  .detail-meta-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:0 2px;font-size:12.5px;color:var(--text-soft)}
+  .detail-meta-row .dot{width:3px;height:3px;border-radius:50%;background:var(--text-mute)}
+
+  .drawer-sub{font-size:12px;color:var(--text-mute)}
+  .btn{display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 12px;border-radius:8px;font-size:12.5px;font-weight:500;border:1px solid var(--border-strong);background:transparent;color:var(--text);transition:background .15s ease}
+  .btn:hover{background:rgba(255,255,255,0.04)}
+  .btn-icon{width:32px;padding:0;justify-content:center}
+
+  /* ─── Saved Panel ─── */
+  .saved-panel{position:fixed;left:calc(var(--side-w) + 8px);top:50px;width:280px;max-height:60vh;overflow:auto;background:var(--bg-soft);border:1px solid var(--border);border-radius:12px;padding:12px;z-index:60;opacity:0;pointer-events:none;transform:translateY(-8px);transition:all .2s ease}
+  .saved-panel.open{opacity:1;pointer-events:auto;transform:none}
+  .saved-panel h3{margin:0 0 10px;font-size:13px;font-weight:500;color:var(--text-soft)}
+  .saved-item{display:flex;gap:10px;padding:8px;border-radius:8px;cursor:pointer}
+  .saved-item:hover{background:rgba(255,255,255,.04)}
+  .saved-thumb{width:44px;height:44px;border-radius:8px;background:#fff;flex-shrink:0;overflow:hidden}
+  .saved-thumb iframe{width:220px;height:220px;border:0;transform:scale(.2);transform-origin:top left;pointer-events:none}
+  .saved-meta{font-size:12px;color:var(--text-soft);line-height:1.4;overflow:hidden}
+  .saved-empty{color:var(--text-mute);font-size:12px;text-align:center;padding:18px 0}
+
+  /* ─── Style Drawer（左侧 sidebar 展开） ─── */
+  .style-drawer{position:fixed;left:var(--side-w);top:0;bottom:0;width:280px;background:var(--bg-soft);border-right:1px solid var(--border);z-index:55;transform:translateX(-100%);transition:transform .25s cubic-bezier(.4,.2,.2,1);display:flex;flex-direction:column;padding:16px 14px}
+  .style-drawer.open{transform:none}
+  .style-drawer h3{margin:6px 4px 12px;font-size:12px;color:var(--text-soft);font-weight:500;letter-spacing:.04em;text-transform:uppercase}
+  .style-list{display:flex;flex-direction:column;gap:4px}
+  .style-list .chip{justify-content:flex-start;height:34px;width:100%;font-size:13px;padding:0 12px;border-radius:8px}
+
+  /* ─── 头像（可点击） ─── */
+  .side-avatar{cursor:pointer;transition:transform .15s ease, box-shadow .15s ease}
+  .side-avatar:hover{transform:scale(1.06);box-shadow:0 0 0 2px rgba(255,255,255,.12)}
+  .side-avatar.signed{background:#1a1a1a;display:flex;align-items:center;justify-content:center;color:var(--text);font-size:12px;font-weight:600;letter-spacing:.02em}
+
+  /* ─── 登录 Modal ─── */
+  .auth-mask{position:fixed;inset:0;background:rgba(0,0,0,.62);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:200;display:none;align-items:center;justify-content:center;animation:fadeIn .18s ease}
+  .auth-mask.open{display:flex}
+  @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+  @keyframes pop{from{opacity:0;transform:translateY(8px) scale(.98)}to{opacity:1;transform:none}}
+  .auth-card{width:380px;background:#0f0f0f;border:1px solid var(--border);border-radius:16px;padding:32px 28px 26px;box-shadow:0 24px 60px rgba(0,0,0,.55);animation:pop .22s cubic-bezier(.4,.2,.2,1)}
+  .auth-close{position:absolute;top:14px;right:14px;width:28px;height:28px;border-radius:8px;border:0;background:transparent;color:var(--text-soft);cursor:pointer;display:flex;align-items:center;justify-content:center}
+  .auth-close:hover{background:rgba(255,255,255,.06);color:var(--text)}
+  .auth-card{position:relative}
+  .auth-logo{width:42px;height:42px;border-radius:10px;background:var(--accent);color:#000;font-weight:700;display:flex;align-items:center;justify-content:center;font-size:22px;margin:0 auto 14px}
+  .auth-title{text-align:center;font-size:18px;font-weight:600;color:var(--text);margin-bottom:6px}
+  .auth-sub{text-align:center;font-size:13px;color:var(--text-soft);margin-bottom:22px}
+  .auth-btn{width:100%;height:42px;border-radius:10px;border:1px solid var(--border);background:rgba(255,255,255,.04);color:var(--text);font-size:14px;font-weight:500;display:flex;align-items:center;justify-content:center;gap:10px;cursor:pointer;transition:all .15s ease;margin-bottom:8px}
+  .auth-btn:hover{background:rgba(255,255,255,.08);border-color:var(--border-strong)}
+  .auth-btn.primary{background:var(--accent);color:#000;border-color:var(--accent);font-weight:600}
+  .auth-btn.primary:hover{background:#f5e896}
+  .auth-btn:disabled{opacity:.5;cursor:not-allowed}
+  .auth-divider{display:flex;align-items:center;gap:10px;color:var(--text-soft);font-size:11px;margin:14px 0;text-transform:uppercase;letter-spacing:.06em}
+  .auth-divider::before,.auth-divider::after{content:'';flex:1;height:1px;background:var(--border)}
+  .auth-input{width:100%;height:42px;border-radius:10px;border:1px solid var(--border);background:rgba(255,255,255,.03);color:var(--text);font-size:14px;padding:0 14px;outline:none;transition:border-color .15s ease;margin-bottom:10px;font-family:inherit}
+  .auth-input:focus{border-color:var(--accent)}
+  .auth-foot{text-align:center;font-size:12px;color:var(--text-soft);margin-top:14px;line-height:1.6}
+  .auth-foot a{color:var(--text);text-decoration:underline;cursor:pointer}
+  .auth-back{display:inline-flex;align-items:center;gap:4px;font-size:12px;color:var(--text-soft);background:transparent;border:0;cursor:pointer;margin-bottom:10px;padding:0}
+  .auth-back:hover{color:var(--text)}
+  .auth-otp{display:flex;gap:8px;justify-content:center;margin:6px 0 14px}
+  .auth-otp input{width:42px;height:48px;text-align:center;font-size:18px;font-weight:600;border-radius:10px;border:1px solid var(--border);background:rgba(255,255,255,.03);color:var(--text);outline:none;font-family:inherit}
+  .auth-otp input:focus{border-color:var(--accent)}
+  .auth-step{display:none}
+  .auth-step.show{display:block}
+  .auth-msg{font-size:12px;color:var(--text-soft);text-align:center;margin-bottom:10px}
+  .auth-msg.error{color:#ff6b6b}
+
+  /* ─── 头像气泡菜单 ─── */
+  .user-pop{position:fixed;left:calc(var(--side-w) + 8px);bottom:14px;width:220px;background:#0f0f0f;border:1px solid var(--border);border-radius:12px;box-shadow:0 16px 40px rgba(0,0,0,.5);padding:6px;z-index:150;display:none;animation:pop .18s cubic-bezier(.4,.2,.2,1)}
+  .user-pop.open{display:block}
+  .user-pop .pop-head{padding:10px 12px 8px;border-bottom:1px solid var(--border);margin-bottom:4px}
+  .user-pop .pop-head .e{font-size:13px;color:var(--text);font-weight:500;word-break:break-all}
+  .user-pop .pop-head .t{font-size:11px;color:var(--text-soft);margin-top:2px}
+  .pop-item{display:flex;align-items:center;gap:10px;height:34px;padding:0 10px;border-radius:8px;color:var(--text-soft);font-size:13px;cursor:pointer;border:0;background:transparent;width:100%;text-align:left}
+  .pop-item:hover{background:rgba(255,255,255,.06);color:var(--text)}
+  .pop-item.danger:hover{color:#ff6b6b}
+
+  /* ─── 设置 Modal ─── */
+  .settings-mask{position:fixed;inset:0;background:rgba(0,0,0,.62);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:200;display:none;align-items:center;justify-content:center;animation:fadeIn .18s ease}
+  .settings-mask.open{display:flex}
+  .settings-card{position:relative;width:480px;max-height:78vh;background:#0f0f0f;border:1px solid var(--border);border-radius:16px;box-shadow:0 24px 60px rgba(0,0,0,.55);animation:pop .22s cubic-bezier(.4,.2,.2,1);display:flex;flex-direction:column;overflow:hidden}
+  .settings-head{display:flex;align-items:center;justify-content:space-between;padding:18px 22px 14px;border-bottom:1px solid var(--border)}
+  .settings-head h3{margin:0;font-size:15px;font-weight:600;letter-spacing:-.01em;color:var(--text)}
+  .settings-close{width:28px;height:28px;border-radius:8px;border:0;background:transparent;color:var(--text-soft);cursor:pointer;display:flex;align-items:center;justify-content:center}
+  .settings-close:hover{background:rgba(255,255,255,.06);color:var(--text)}
+  .settings-body{padding:18px 22px 20px;overflow:auto}
+  .settings-section{margin-bottom:18px}
+  .settings-section:last-child{margin-bottom:0}
+  .settings-label{font-size:11px;color:var(--text-soft);letter-spacing:.06em;text-transform:uppercase;margin-bottom:8px;font-weight:500}
+  .settings-desc{font-size:12px;color:var(--text-soft);margin-top:4px;line-height:1.5}
+  .lang-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:6px}
+  .lang-item{display:flex;align-items:center;gap:10px;height:42px;padding:0 12px;border-radius:10px;border:1px solid var(--border);background:rgba(255,255,255,.02);color:var(--text);font-size:13px;cursor:pointer;transition:all .15s ease;text-align:left;font-family:inherit;width:100%}
+  .lang-item:hover{background:rgba(255,255,255,.05);border-color:var(--border-strong)}
+  .lang-item.active{border-color:var(--accent);background:rgba(255,255,255,.04);box-shadow:inset 0 0 0 1px var(--accent)}
+  .lang-flag{font-size:18px;line-height:1;flex-shrink:0}
+  .lang-name{flex:1;display:flex;flex-direction:column;gap:1px;min-width:0}
+  .lang-native{font-size:13px;font-weight:500;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .lang-en{font-size:11px;color:var(--text-soft);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .lang-check{width:14px;height:14px;color:var(--accent);opacity:0;transition:opacity .12s ease;flex-shrink:0}
+  .lang-item.active .lang-check{opacity:1}
+  .settings-toast{position:absolute;left:50%;bottom:18px;transform:translateX(-50%) translateY(8px);background:rgba(20,20,20,.96);border:1px solid var(--border-strong);color:var(--text);font-size:12px;padding:8px 14px;border-radius:999px;opacity:0;pointer-events:none;transition:all .22s cubic-bezier(.4,.2,.2,1);box-shadow:0 8px 24px rgba(0,0,0,.5)}
+  .settings-toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+
+<!-- 左侧极窄 Sidebar -->
+<aside class="sidebar">
+  <div class="side-logo" title="Design DNA" aria-label="Design DNA">
+    <img src="logo.png" width="20" height="20" alt="Logo" style="width:20px;height:20px;object-fit:contain;filter:brightness(0) invert(1)"/>
+  </div>
+
+  <div class="side-mid">
+    <button class="side-tab" data-tab="style" data-i18n-title="navStyle">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/><circle cx="11" cy="11" r="2"/></svg>
+      <span class="side-tip" data-i18n="navStyle">风格</span>
+    </button>
+
+    <button class="side-tab active" data-tab="library" data-i18n-title="navLibrary">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>
+      <span class="side-tip" data-i18n="navLibrary">灵感库</span>
+    </button>
+
+    <button class="side-tab" data-tab="folders" data-i18n-title="navFolders">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+      <span class="side-tip" data-i18n="navFolders">文件夹</span>
+    </button>
+
+    <button class="side-tab" data-tab="saved" id="btnSaved" data-i18n-title="navSaved">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+      <span class="side-tip" data-i18n="navSavedHint">收藏 (S)</span>
+    </button>
+  </div>
+
+  <div class="side-avatar" id="sideAvatar" data-i18n-title="signIn"></div>
+</aside>
+
+<!-- 头像气泡菜单（已登录后展示） -->
+<div class="user-pop" id="userPop">
+  <div class="pop-head">
+    <div class="e" id="popEmail">user@example.com</div>
+    <div class="t" data-i18n="popAccount">个人账户</div>
+  </div>
+  <button class="pop-item" data-act="saved">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+    <span data-i18n="popSaved">我的收藏</span>
+  </button>
+  <button class="pop-item" data-act="settings">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+    <span data-i18n="settings">设置</span>
+  </button>
+  <button class="pop-item danger" data-act="logout">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+    <span data-i18n="logout">退出登录</span>
+  </button>
+</div>
+
+<!-- 设置 Modal -->
+<div class="settings-mask" id="settingsMask">
+  <div class="settings-card">
+    <div class="settings-head">
+      <h3 id="setTitle" data-i18n="settings">设置</h3>
+      <button class="settings-close" id="settingsClose" data-i18n-title="close">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="settings-body">
+      <div class="settings-section">
+        <div class="settings-label" id="setLangLabel">语言 · LANGUAGE</div>
+        <div class="lang-grid" id="langGrid"></div>
+        <div class="settings-desc" id="setLangDesc">选择界面显示语言。部分内容仍以原文呈现。</div>
+      </div>
+    </div>
+    <div class="settings-toast" id="setToast">已保存</div>
+  </div>
+</div>
+
+<!-- 登录 Modal -->
+<div class="auth-mask" id="authMask">
+  <div class="auth-card">
+    <button class="auth-close" id="authClose" data-i18n-title="close">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+
+    <!-- Step 1：选择登录方式 -->
+    <div class="auth-step show" data-step="choose">
+      <div class="auth-logo">V</div>
+      <div class="auth-title" data-i18n="authTitle">登录或注册</div>
+      <div class="auth-sub" data-i18n="authSub">使用你的账户继续创作</div>
+
+      <button class="auth-btn" data-oauth="google">
+        <svg width="16" height="16" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+        <span data-i18n="authGoogle">使用 Google 继续</span>
+      </button>
+      <button class="auth-btn" data-oauth="apple">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/></svg>
+        <span data-i18n="authApple">使用 Apple 继续</span>
+      </button>
+      <div class="auth-divider" data-i18n="authOr">或</div>
+      <button class="auth-btn" data-oauth="email">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        <span data-i18n="authEmail">使用邮箱继续</span>
+      </button>
+      <div class="auth-foot" data-i18n-html="authFoot">继续即代表同意 <a>服务条款</a> 与 <a>隐私政策</a></div>
+    </div>
+
+    <!-- Step 2：邮箱输入 -->
+    <div class="auth-step" data-step="email">
+      <button class="auth-back" id="authBack" data-i18n="authBack">← 返回</button>
+      <div class="auth-title" data-i18n="emailTitle">输入邮箱</div>
+      <div class="auth-sub" data-i18n="emailSub">我们会发送一封验证码邮件</div>
+      <input type="email" class="auth-input" id="authEmail" placeholder="you@example.com" autocomplete="email">
+      <div class="auth-msg" id="authMsg"></div>
+      <button class="auth-btn primary" id="authSend" data-i18n="sendCode">发送验证码</button>
+    </div>
+
+    <!-- Step 3：验证码 -->
+    <div class="auth-step" data-step="otp">
+      <button class="auth-back" id="authBackOtp" data-i18n="authBack">← 返回</button>
+      <div class="auth-title" data-i18n="otpTitle">输入验证码</div>
+      <div class="auth-sub"><span data-i18n="otpSub">已发送至</span> <span id="otpEmail"></span></div>
+      <div class="auth-otp" id="authOtp">
+        <input maxlength="1" inputmode="numeric"><input maxlength="1" inputmode="numeric"><input maxlength="1" inputmode="numeric"><input maxlength="1" inputmode="numeric"><input maxlength="1" inputmode="numeric"><input maxlength="1" inputmode="numeric">
+      </div>
+      <div class="auth-msg" id="otpMsg" data-i18n="otpDemo">演示模式：任意 6 位数字均可通过</div>
+      <button class="auth-btn primary" id="authVerify" data-i18n="otpVerify">验证并登录</button>
+    </div>
+  </div>
+</div>
+
+<!-- 顶部社区切换已移除 -->
+
+<!-- 风格抽屉（点 sidebar 风格 tab 展开） -->
+<aside class="style-drawer" id="styleDrawer">
+  <h3 data-i18n="navStyle">风格</h3>
+  <div class="style-list" id="styleRow"></div>
+</aside>
+
+<!-- 主区瀑布流 -->
+<main class="stage">
+  <div class="feed" id="feed"></div>
+  <div class="sentinel" id="sentinel"><span class="dot-loader"><span></span><span></span><span></span></span></div>
+</main>
+
+<!-- 左下：视图模式 chips -->
+<div class="view-dock">
+  <button class="view-chip active" data-view="grid" data-i18n-title="viewGrid">
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+    <span data-i18n="viewGrid">网格</span>
+  </button>
+  <button class="view-chip" data-view="collage" data-i18n-title="viewCollage">
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="3" y="3" width="8" height="12"/><rect x="13" y="3" width="8" height="6"/><rect x="13" y="11" width="8" height="10"/><rect x="3" y="17" width="8" height="4"/></svg>
+    <span data-i18n="viewCollage">拼贴</span>
+  </button>
+  <button class="view-chip" data-view="sort">
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M3 6h18"/><path d="M6 12h12"/><path d="M10 18h4"/></svg>
+    <span data-i18n="viewLatest">最新</span>
+  </button>
+</div>
+
+<!-- 底部浮动 Prompt 条 -->
+<div class="prompt-dock">
+  <div class="prompt-wrap">
+    <textarea id="prompt" class="prompt-input" data-i18n-ph="promptPh" placeholder="描述你想要的设计…  例如：AI 写作工具的落地页" rows="1"></textarea>
+    <div class="prompt-bar">
+      <button class="chip" id="styleDropper" data-i18n-title="styleDropper">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        <span data-i18n="navStyle">风格</span>
+      </button>
+      <span class="chip" id="srefChip">
+        <span class="chip-swatch" style="background:linear-gradient(135deg,#E8DFD2,#5E6AD2,#FFD83D)"></span>
+        <span id="srefLabel">auto</span>
+      </span>
+      <label class="chip" id="aiToggle" style="user-select:none">
+        <input type="checkbox" id="aiCheckbox" style="margin:0;width:11px;height:11px;accent-color:var(--accent)"/>
+        <span>AI</span>
+        <span id="aiStatus" style="font-size:10px;color:var(--text-mute)">…</span>
+      </label>
+      <button class="submit" id="btnGen" data-i18n-title="generate">↑</button>
+    </div>
+  </div>
+</div>
+
+<!-- 右下：生成中浮卡 -->
+<div class="gen-toast" id="genToast">
+  <div class="gen-toast-row">
+    <div class="gen-spinner"></div>
+    <div style="flex:1;min-width:0">
+      <div class="gen-title" id="genTitle">正在生成 12 个变体</div>
+      <div class="gen-sub" id="genSub">Auto mix · 大约 8 秒</div>
+    </div>
+    <button class="gen-close" id="genClose" data-i18n-title="close">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+  <div class="gen-bar"><div class="gen-bar-fill"></div></div>
+</div>
+
+<!-- Detail View（整页 · 面包屑返回，参考 Variant） -->
+<section class="detail-view" id="detailView" aria-hidden="true">
+  <div class="detail-top">
+    <nav class="crumb" aria-label="breadcrumb">
+      <button class="crumb-link" id="crumbHome" data-i18n-title="backHome">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12l9-9 9 9"/><path d="M5 10v10h14V10"/></svg>
+        <span data-i18n="home">Home</span>
+      </button>
+      <span class="crumb-sep">/</span>
+      <span class="crumb-current" id="dTitle" data-i18n="untitled">Untitled design</span>
+    </nav>
+    <div class="detail-top-actions">
+      <span class="detail-sref" id="dSub">—</span>
+      <button class="btn" id="dCopy" data-i18n="copyCode">Copy code</button>
+      <button class="btn" id="dSave" data-i18n="save">Save</button>
+      <button class="btn" id="dRemix" data-i18n="remixStyle">Remix this style</button>
+      <button class="btn" id="dMore" data-i18n="moreLikeThis">More like this</button>
+    </div>
+  </div>
+  <div class="detail-body">
+    <div class="detail-stage">
+      <div class="detail-frame-wrap">
+        <iframe class="detail-frame" id="dFrame" style="height:560px"></iframe>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="saved-panel" id="savedPanel">
+  <h3 data-i18n="savedTitle">Saved designs</h3>
+  <div id="savedList"><div class="saved-empty" data-i18n="savedEmpty">还没有收藏。悬停卡片点 ♥ 收藏。</div></div>
+</div>
+
+<script src="./templates.js?v=20260512-mercury5"></script>
+<script src="./lucid-drift-doc.js"></script>
+<script src="./chronicles-doc.js"></script>
+<script src="./hardware-console-doc.js"></script>
+<script src="./weaverine-doc.js"></script>
+<script src="./pocket-terminal-doc.js"></script>
+<script src="./anomaly-signal-doc.js"></script>
+<script src="./dmx-controller-doc.js"></script>
+<script src="./symmetry-ticket-doc.js"></script>
+<script src="./notion-knowledge-doc.js"></script>
+<script src="./chainx-dashboard-doc.js"></script>
+<script>
+const STYLES = window.VARIANT_STYLES;
+const TEMPLATES = window.VARIANT_TEMPLATES;
+
+function parsePrompt(raw){
+  const s=(raw||'').trim() || 'A beautiful product';
+  let headline = s.split(/[。.！!?？\n]/)[0].trim();
+  if(headline.length>40) headline = headline.slice(0,38)+'…';
+  const rest = s.slice(headline.length).replace(/^[。.！!?？\s]+/,'');
+  const sub = rest || 'Built to feel good and work hard.';
+  return { headline, sub, raw:s };
+}
+
+let idCounter = 1;
+function generateBatch(promptRaw, forcedStyle, n=8, opts){
+  const p = parsePrompt(promptRaw);
+  const out = [];
+  const used = new Set();
+  const isFirstBatch = !!(opts && opts.firstBatch);
+  // 已出现过的 styleLock 集合：同一个 styleLock 在 feed 中只允许出现一次
+  const excludeLocks = new Set((opts && opts.excludeStyleLocks) || []);
+  // 不规则高度：让卡片像 Variant 那样高低错落
+  const heightPool = [320, 380, 420, 480, 520, 560, 620, 720];
+  // 索引：哪些模板有 styleLock（必须搭配特定 style），哪些没有（通用）
+  const lockedIdx = [];
+  const freeIdx = [];
+  TEMPLATES.forEach((fn,i)=>{
+    try{ const probe = fn({headline:'probe'}, STYLES[0].tokens); if(probe && probe.styleLock) lockedIdx.push({i, lock:probe.styleLock}); else freeIdx.push(i); }
+    catch(e){ freeIdx.push(i); }
+  });
+  // 找 nothing 精选模板索引
+  const featuredIdx = lockedIdx.find(x=>x.lock==='nothing');
+  for(let i=0;i<n;i++){
+    let style = forcedStyle || STYLES[Math.floor(Math.random()*STYLES.length)];
+    let tplIdx; let tries=0;
+    let isFeatured = false;
+    // 第一批的第 0 张：强制用 nothing 精选卡（除非已被 pin 排除）
+    if(isFirstBatch && i===0 && featuredIdx && !excludeLocks.has('nothing')){
+      tplIdx = featuredIdx.i;
+      isFeatured = true;
+    } else if(isFirstBatch && i===1){
+      // 第一批第 2 张：强制用 marginalia 卡（index 5）
+      tplIdx = 5;
+    } else {
+      // 如果当前 style 有专属模板，30% 概率优先抽 locked 的（前提是该 lock 未在 feed 中出现过）
+      const matched = lockedIdx.filter(x=>x.lock===style.id && !excludeLocks.has(x.lock));
+      if(matched.length && Math.random()<0.3 && !used.has(matched[0].i)){
+        tplIdx = matched[0].i;
+      } else {
+        do { tplIdx = freeIdx[Math.floor(Math.random()*freeIdx.length)]; tries++ } while (used.has(tplIdx) && tries<freeIdx.length*2);
+      }
+    }
+    used.add(tplIdx);
+    if(used.size>=TEMPLATES.length) used.clear();
+    const design = TEMPLATES[tplIdx](p, style.tokens);
+    // 如果模板锁定了 style，强制切换
+    if(design.styleLock){
+      // 跳过：该 styleLock 在 feed 中已经出现过
+      if(excludeLocks.has(design.styleLock)){
+        i--; // 重新来过这一轮
+        continue;
+      }
+      excludeLocks.add(design.styleLock); // 后续同批次也不再出现
+      const locked = STYLES.find(s=>s.id===design.styleLock);
+      if(locked) style = locked;
+    }
+    // 覆盖原模板高度，但 styleLock 的模板保留自身高度（dashboard 不能压缩）
+    if(!design.styleLock){
+      design.height = heightPool[Math.floor(Math.random()*heightPool.length)];
+    }
+    out.push({
+      id: 'd' + (idCounter++).toString(36).padStart(4,'0'),
+      styleId: style.id, styleLabel: style.label,
+      sref: style.id + '-' + Math.random().toString(36).slice(2,7),
+      prompt: p.raw, featured: isFeatured, ...design
+    });
+  }
+  return out;
+}
+
+const feedEl = document.getElementById('feed');
+const sentinel = document.getElementById('sentinel');
+const promptEl = document.getElementById('prompt');
+const btnGen = document.getElementById('btnGen');
+const srefLabel = document.getElementById('srefLabel');
+const genToast = document.getElementById('genToast');
+const genTitle = document.getElementById('genTitle');
+const genSub   = document.getElementById('genSub');
+let currentStyle = null;
+const PERSIST_KEYS = ['variant_saved','variant_featured','variant_liked'];
+try{
+  const params = new URLSearchParams(location.search);
+  if(params.has('reset')){
+    PERSIST_KEYS.forEach(k=>localStorage.removeItem(k));
+    params.delete('reset');
+    const qs = params.toString();
+    history.replaceState({}, '', location.pathname + (qs ? '?' + qs : '') + location.hash);
+  }
+}catch(_){ }
+let savedMap = new Map(JSON.parse(localStorage.getItem('variant_saved')||'[]'));
+let featuredMap = new Map(JSON.parse(localStorage.getItem('variant_featured')||'[]'));
+let likedMap = new Map(JSON.parse(localStorage.getItem('variant_liked')||'[]'));
+const designStore = new Map();
+const lazyFrames = new Set();
+function loadLazyFrame(frame){
+  if(!frame || frame.__loaded) return;
+  frame.srcdoc = frame.__doc || '';
+  frame.__loaded = true;
+  if(frame.__preview) frame.__preview.style.display = 'none';
+}
+function pauseFrame(frame){
+  if(!frame || !frame.__loaded) return;
+  try{ frame.contentWindow.postMessage({type:'pause'},'*'); }catch(_){}
+}
+function resumeFrame(frame){
+  if(!frame || !frame.__loaded) return;
+  try{ frame.contentWindow.postMessage({type:'resume'},'*'); }catch(_){}
+}
+const cardFrameObserver = ('IntersectionObserver' in window) ? new IntersectionObserver((entries)=>{
+  entries.forEach(en=>{
+    const frame = en.target;
+    if(en.isIntersecting){
+      if(!frame.__loaded) loadLazyFrame(frame);
+      resumeFrame(frame);
+    } else {
+      pauseFrame(frame);
+    }
+  });
+},{ rootMargin:'300px 0px' }) : null;
+function observeCardFrame(frame){
+  lazyFrames.add(frame);
+  if(cardFrameObserver) cardFrameObserver.observe(frame);
+  else loadLazyFrame(frame);
+}
+
+function buildStyleChips(){
+  const row = document.getElementById('styleRow');
+  row.innerHTML='';
+  const autoBtn = document.createElement('button');
+  autoBtn.className='chip'+(!currentStyle?' active':'');
+  autoBtn.innerHTML = '<span class="chip-swatch" style="background:linear-gradient(135deg,#E8DFD2,#5E6AD2,#FFD83D)"></span>Auto mix';
+  autoBtn.onclick = ()=>{currentStyle=null;srefLabel.textContent='auto';buildStyleChips()};
+  row.appendChild(autoBtn);
+  STYLES.forEach(s=>{
+    const b = document.createElement('button');
+    b.className = 'chip' + (currentStyle && currentStyle.id===s.id?' active':'');
+    b.innerHTML = '<span class="chip-swatch" style="background:'+s.swatch+'"></span>'+s.label;
+    b.onclick = ()=>{
+      currentStyle = (currentStyle && currentStyle.id===s.id) ? null : s;
+      srefLabel.textContent = currentStyle ? currentStyle.id : 'auto';
+      buildStyleChips();
+    };
+    row.appendChild(b);
+  });
+}
+buildStyleChips();
+
+function makeCardEl(d){
+  const card = document.createElement('article');
+  card.className='card';
+  card.dataset.id = d.id;
+  card.title = '点击打开详情';
+
+  // ─── 默认每张卡占 1/3 行（CSS 已统一处理：6 列基线下 span 2）───
+  // 如果未来出现明显竖向窄卡（aspect ratio 高、内容稀疏），可在模板返回 narrow:true，这里加 .is-narrow。
+  if(d.narrow){
+    card.classList.add('is-narrow');
+  }
+
+  // ─── dashboard 卡（styleLock）按逻辑宽 1100 渲染，外层 transform 等比缩放 ───
+  // 这样 Linear/Nothing/Retro/Mercury/Nothing-Mobile 在 1/3 列宽下仍保持完整布局，仅整体变小。
+  const isDashboard = !!d.styleLock;
+  const LOGICAL_W = isDashboard ? 1100 : 0;
+  if(isDashboard) card.classList.add('has-scale');
+
+  const frame = document.createElement('iframe');
+  frame.className='card-frame';
+  frame.style.height = d.height + 'px';
+  if(isDashboard){
+    frame.style.width = LOGICAL_W + 'px';
+    frame.style.transformOrigin = 'top left';
+  }
+  frame.setAttribute('sandbox','allow-scripts');
+  const pauseScript = '<script>var __paused=false,__rafId=0;var __origRAF=window.requestAnimationFrame;window.requestAnimationFrame=function(cb){if(__paused){__rafId=0;return 0}return __origRAF.call(window,cb)};window.addEventListener("message",function(e){if(e.data&&e.data.type==="pause"){__paused=true;if(__rafId)cancelAnimationFrame(__rafId)}if(e.data&&e.data.type==="resume"){__paused=false;__origRAF.call(window,function(){})}});<\/script>';
+  frame.__doc = (d.doc || '').replace(/<\/head>/i, pauseScript + '</head>');
+  frame.__loaded = false;
+  card.appendChild(frame);
+
+  const preview = document.createElement('div');
+  preview.className = 'card-preview';
+  preview.innerHTML = '<div class="card-preview-title">'+(d.title||'Design preview')+'</div><div class="card-preview-sub">加载中...</div>';
+  frame.__preview = preview;
+  card.appendChild(preview);
+  observeCardFrame(frame);
+  frame.addEventListener('load', function(){ if(frame.__loaded && frame.__preview) frame.__preview.style.display = 'none'; });
+
+  // ─── 高度对齐策略 ───
+  // 1) 普通卡：按模板声明 d.height 直接 span。
+  // 2) dashboard 卡：以逻辑宽 LOGICAL_W 渲染 iframe，然后 scale = card 实际宽 / LOGICAL_W，
+  //    缩放后 card 高度 = d.height * scale。
+  // 3) grid span 用最终高度 ceil 到 16px 的整数倍。
+  function applyRowSpan(){
+    var cardW = card.clientWidth;
+    var fallbackH = (d.height || 360) + 2;
+    var cardH;
+    if(isDashboard && cardW > 0){
+      var scale = Math.min(1, cardW / LOGICAL_W);
+      frame.style.transform = 'scale(' + scale + ')';
+      cardH = Math.round((d.height || 360) * scale) + 2;
+    } else {
+      cardH = fallbackH;
+    }
+    var span = Math.ceil((cardH + 8) / 16);
+    card.style.gridRowEnd = 'span ' + span;
+    card.style.height = cardH + 'px';
+    card.style.alignSelf = 'start'; // 不被 grid track 拉伸
+  }
+  applyRowSpan();
+  // iframe 加载后再校正一次（仅 span，可能内容真实变高）
+  frame.addEventListener('load', function(){ requestAnimationFrame(applyRowSpan); });
+  // 兜底：图片/字体后续抵达可能改变高度
+  if(window.ResizeObserver){
+    var ro = new ResizeObserver(function(){ applyRowSpan(); });
+    ro.observe(card);
+  }
+
+  const badge = document.createElement('div');
+  badge.className='card-badge';
+  badge.textContent = d.styleLabel;
+  card.appendChild(badge);
+
+  if(d.featured && !d.pinned){
+    // 只持久化用户/生成精选；系统 pinned 卡不再写入 localStorage，避免完整 srcdoc 长期堆积造成卡顿。
+    if(!featuredMap.has(d.id)){
+      featuredMap.set(d.id, {
+        id:d.id, title:d.title, styleLabel:d.styleLabel, styleId:d.styleId,
+        sref:d.sref, prompt:d.prompt, doc:d.doc, height:d.height,
+        ts: Date.now()
+      });
+    }
+  }
+
+  // ─── Hover 浮出：设为精选按钮（所有卡统一） ───
+  {
+    const isOn = featuredMap.has(d.id);
+    const fav = document.createElement('button');
+    fav.type='button';
+    fav.className = 'card-fav' + (isOn ? ' is-on' : '');
+    fav.dataset.act = 'feature';
+    fav.title = isOn ? '取消精选' : '设为精选（前置到顶部）';
+    fav.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><span>'+(isOn?'已精选':'设为精选')+'</span>';
+    fav.addEventListener('click',(e)=>{
+      e.stopPropagation();
+      toggleFeatured(d, fav, card);
+    });
+    card.appendChild(fav);
+  }
+
+  // ─── Hover 右上角操作组：收藏 + 点赞（参考 Variant） ───
+  {
+    const actions = document.createElement('div');
+    actions.className = 'card-actions';
+
+    // 收藏（书签）
+    const saved = savedMap.has(d.id);
+    const saveBtn = document.createElement('button');
+    saveBtn.type='button';
+    saveBtn.className='act act-save' + (saved ? ' is-on' : '');
+    saveBtn.dataset.act = 'save';
+    saveBtn.title = saved ? tr('unfavTitle') : tr('favTitle');
+    saveBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="'+(saved?'currentColor':'none')+'" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>';
+    saveBtn.addEventListener('click',(e)=>{
+      e.stopPropagation();
+      toggleSaveAction(d, saveBtn);
+    });
+    actions.appendChild(saveBtn);
+
+    // 点赞（心形）
+    const liked = likedMap.has(d.id);
+    const likeBtn = document.createElement('button');
+    likeBtn.type='button';
+    likeBtn.className='act act-like' + (liked ? ' is-on' : '');
+    likeBtn.dataset.act = 'like';
+    likeBtn.title = liked ? '取消点赞' : '点赞';
+    likeBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="'+(liked?'currentColor':'none')+'" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>';
+    likeBtn.addEventListener('click',(e)=>{
+      e.stopPropagation();
+      toggleLikeAction(d, likeBtn);
+    });
+    actions.appendChild(likeBtn);
+
+    // 打开详情（↗ 外链箭头，单击也能开抽屉）
+    const openBtn = document.createElement('button');
+    openBtn.type='button';
+    openBtn.className='act act-open';
+    openBtn.dataset.act = 'open';
+    openBtn.title = '打开详情';
+    openBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="8 7 17 7 17 16"/></svg>';
+    openBtn.addEventListener('click',(e)=>{
+      e.stopPropagation();
+      openDetail(d);
+    });
+    actions.appendChild(openBtn);
+
+    card.appendChild(actions);
+  }
+
+  // 单击卡片主体 → 进入详情页（参考 Variant）
+  // 子按钮已通过 e.stopPropagation() 阻止冒泡，不受影响
+  card.addEventListener('click',()=>openDetail(d));
+  // 双击兜底（兼容旧交互习惯）
+  card.addEventListener('dblclick',()=>openDetail(d));
+
+  return card;
+}
+
+function appendDesigns(list){
+  // ★ 硬性约束：feed 中同一个 styleLock 只允许出现一次
+  //   这是最后一道闸门，无论卡片来自系统 pin / 用户精选 / 随机批次 / AI 批次，
+  //   只要 styleLock 在 feed 中已存在，就直接丢弃。
+  const seenLocks = new Set();
+  designStore.forEach(d => { if(d && d.styleLock) seenLocks.add(d.styleLock); });
+  const filtered = [];
+  list.forEach(d => {
+    if(!d) return;
+    if(d.styleLock){
+      if(seenLocks.has(d.styleLock)) return;   // 丢弃重复 dashboard
+      seenLocks.add(d.styleLock);
+    }
+    filtered.push(d);
+  });
+  const frag = document.createDocumentFragment();
+  filtered.forEach(d=>{ designStore.set(d.id,d); frag.appendChild(makeCardEl(d)); });
+  feedEl.appendChild(frag);
+  reorderFeed();
+}
+
+// 收集 feed 中已存在的 styleLock —— 同一个 dashboard 级模板只允许出现一次
+function collectUsedStyleLocks(){
+  const locks = new Set();
+  designStore.forEach(d=>{
+    if(d && d.styleLock) locks.add(d.styleLock);
+  });
+  return [...locks];
+}
+
+let loading=false;
+const io = new IntersectionObserver((entries)=>{
+  // [TEMP DISABLED] feed 临时只展示 nothing + retro-ascii，关闭无限滚动加载
+  return;
+  /*
+  entries.forEach(en=>{
+    if(en.isIntersecting && !loading){
+      loading=true;
+      const n = (aiCheckbox && aiCheckbox.checked && aiAvailable) ? 3 : 6;
+      Promise.resolve(smartGenerate(promptEl.value, n, false))
+        .finally(()=> setTimeout(()=>loading=false, 200));
+    }
+  });
+  */
+},{ rootMargin:'600px 0px' });
+io.observe(sentinel);
+
+function regenerate(){
+  const n = (aiCheckbox && aiCheckbox.checked && aiAvailable) ? 3 : 12;
+  smartGenerate(promptEl.value, n, true);
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+btnGen.addEventListener('click',regenerate);
+promptEl.addEventListener('keydown',(e)=>{
+  if((e.metaKey||e.ctrlKey) && e.key==='Enter'){ e.preventDefault(); regenerate(); }
+  if(e.key==='Enter' && !e.shiftKey && !e.isComposing){ e.preventDefault(); regenerate(); }
+});
+promptEl.addEventListener('input',()=>{
+  promptEl.style.height='auto';
+  promptEl.style.height = Math.min(120, promptEl.scrollHeight) + 'px';
+});
+
+document.getElementById('styleDropper').addEventListener('click', async ()=>{
+  const v = window.prompt('粘贴一个图片 URL 或网址（demo 用哈希挑一个预设）：','');
+  if(!v) return;
+  let h=0; for(let i=0;i<v.length;i++) h=(h*31+v.charCodeAt(i))>>>0;
+  currentStyle = STYLES[h % STYLES.length];
+  srefLabel.textContent = 'dropped·' + currentStyle.id;
+  buildStyleChips();
+});
+
+// ─── 风格抽屉（左 sidebar 第二个 tab） ───
+const styleDrawer = document.getElementById('styleDrawer');
+document.querySelectorAll('.side-tab').forEach(tab=>{
+  tab.addEventListener('click',()=>{
+    const t = tab.dataset.tab;
+    if(t === 'style'){
+      const open = styleDrawer.classList.toggle('open');
+      document.querySelectorAll('.side-tab').forEach(x=>x.classList.remove('active'));
+      tab.classList.add(open ? 'active' : '');
+      if(!open) document.querySelector('.side-tab[data-tab=library]').classList.add('active');
+      return;
+    }
+    if(t === 'library'){
+      // 灵感库 = feed 主视图：收起所有浮层，回到默认
+      styleDrawer.classList.remove('open');
+      if(document.getElementById('savedPanel')?.classList.contains('open')) toggleSavedPanel();
+      if(typeof closeDetail === 'function' && detailView?.classList.contains('open')) closeDetail();
+      document.querySelectorAll('.side-tab').forEach(x=>x.classList.remove('active'));
+      tab.classList.add('active');
+      return;
+    }
+    if(t === 'saved'){
+      toggleSavedPanel();
+      return;
+    }
+    styleDrawer.classList.remove('open');
+    document.querySelectorAll('.side-tab').forEach(x=>x.classList.remove('active'));
+    tab.classList.add('active');
+  });
+});
+
+// ─── 视图模式切换 ───
+document.querySelectorAll('.view-chip').forEach(b=>{
+  b.addEventListener('click',()=>{
+    if(b.dataset.view==='sort') return; // 排序按钮（demo 不切实际效果）
+    document.querySelectorAll('.view-chip').forEach(x=>{
+      if(x.dataset.view!=='sort') x.classList.remove('active');
+    });
+    b.classList.add('active');
+    if(b.dataset.view==='grid'){ feedEl.style.columnCount=''; feedEl.style.columnGap='8px'; }
+    if(b.dataset.view==='collage'){ feedEl.style.columnGap='4px'; }
+  });
+});
+
+// ─── Detail View（整页 + 面包屑返回） ───
+const detailView = document.getElementById('detailView');
+let currentDesign = null;
+function openDetail(d, opts){
+  currentDesign = d;
+  document.getElementById('dTitle').textContent = d.title || tr('untitled');
+  document.getElementById('dSub').textContent = (d.styleLabel ? d.styleLabel + ' · ' : '') + '--sref ' + (d.sref||'—');
+  const idEl = document.getElementById('dId');
+  if(idEl) idEl.textContent = '#' + d.id;
+  const pEl = document.getElementById('dPrompt');
+  if(pEl) pEl.textContent = d.prompt || '—';
+  // If card has an external URL, navigate directly instead of iframe
+  if(d.externalUrl){
+    window.location.href = d.externalUrl;
+    return;
+  }
+  const frame = document.getElementById('dFrame');
+  frame.setAttribute('sandbox','allow-scripts allow-same-origin');
+  // 详情页尽量把 iframe 撑大：基于视口高度动态算，最少 72vh，最多 92vh
+  const vh = window.innerHeight || 900;
+  const targetH = Math.min(Math.max((d.height||720) + 40, Math.round(vh * 0.72)), Math.round(vh * 0.92));
+  frame.style.height = targetH + 'px';
+    frame.removeAttribute('src');
+    // iframe 内部 html/body 默认白底 → 透出纯黑宿主，去掉 dashboard 外圈白细线
+    const reset = '<style>html,body{background:transparent !important;margin:0;padding:0}</style>';
+    frame.srcdoc = reset + d.doc;
+  detailView.classList.add('open');
+  detailView.setAttribute('aria-hidden','false');
+  document.body.classList.add('is-detail');
+  // 滚回顶，保证面包屑可见
+  const body = detailView.querySelector('.detail-body');
+  if(body) body.scrollTop = 0;
+  // URL hash 同步（支持浏览器后退）
+  if(!opts || !opts.skipHash){
+    try{ history.pushState({detail:d.id}, '', '#d/'+d.id); }catch(e){}
+  }
+}
+function closeDetail(opts){
+  detailView.classList.remove('open');
+  detailView.setAttribute('aria-hidden','true');
+  document.body.classList.remove('is-detail');
+  // 清空 iframe 以释放内存
+  const frame = document.getElementById('dFrame');
+  if(frame) frame.srcdoc = 'about:blank';
+  currentDesign = null;
+  if(!opts || !opts.skipHash){
+    if(location.hash.startsWith('#d/')){
+      try{ history.pushState({}, '', location.pathname + location.search); }catch(e){}
+    }
+  }
+}
+// 兼容旧调用（saved panel / dblclick / act-open 都可能调 openDrawer）
+const openDrawer = openDetail;
+const closeDrawer = closeDetail;
+
+document.getElementById('crumbHome').addEventListener('click', ()=>closeDetail());
+document.addEventListener('keydown',(e)=>{ if(e.key==='Escape' && document.body.classList.contains('is-detail')) closeDetail(); });
+
+// 浏览器前进/后退同步
+window.addEventListener('popstate', ()=>{
+  const m = location.hash.match(/^#d\/(.+)$/);
+  if(m){
+    const d = designStore.get(m[1]);
+    if(d){ openDetail(d, {skipHash:true}); return; }
+  }
+  // 无 hash → 回到首页
+  if(document.body.classList.contains('is-detail')) closeDetail({skipHash:true});
+});
+
+document.getElementById('dCopy').addEventListener('click', async ()=>{
+  if(!currentDesign) return;
+  try{ await navigator.clipboard.writeText(currentDesign.doc); flash(tr('copied')); }catch(e){ flash(tr('copyFailed')); }
+});
+document.getElementById('dSave').addEventListener('click', ()=>{
+  if(!currentDesign) return;
+  toggleSave(currentDesign);
+  flash(savedMap.has(currentDesign.id)?tr('favSaved'):tr('favRemoved'));
+});
+document.getElementById('dRemix').addEventListener('click', ()=>{
+  if(!currentDesign) return;
+  currentStyle = STYLES.find(s=>s.id===currentDesign.styleId);
+  srefLabel.textContent = currentStyle.id;
+  buildStyleChips();
+  closeDrawer();
+  regenerate();
+});
+document.getElementById('dMore').addEventListener('click', ()=>{
+  if(!currentDesign) return;
+  currentStyle = STYLES.find(s=>s.id===currentDesign.styleId);
+  promptEl.value = currentDesign.prompt;
+  srefLabel.textContent = currentStyle.id;
+  buildStyleChips();
+  closeDrawer();
+  regenerate();
+});
+
+function toggleSave(d, btn){
+  if(savedMap.has(d.id)) savedMap.delete(d.id);
+  else savedMap.set(d.id, { id:d.id, title:d.title, styleLabel:d.styleLabel, doc:d.doc, height:d.height });
+  localStorage.setItem('variant_saved', JSON.stringify([...savedMap.entries()]));
+  document.querySelectorAll('.card[data-id="'+d.id+'"] [data-act=save]').forEach(b=>{
+    if(savedMap.has(d.id)) b.classList.add('saved'); else b.classList.remove('saved');
+  });
+  syncSaveIcons(d.id);
+  renderSavedPanel();
+}
+
+// 右上角 hover 操作组：收藏切换（含图标填充、pop 动画、同步底部按钮 & 收藏面板）
+function toggleSaveAction(d, btn){
+  toggleSave(d);
+  btn.classList.add('pop');
+  setTimeout(()=>btn.classList.remove('pop'), 360);
+}
+
+// 右上角 hover 操作组：点赞切换（独立持久化，仅影响右上角图标）
+function toggleLikeAction(d, btn){
+  const wasOn = likedMap.has(d.id);
+  if(wasOn) likedMap.delete(d.id);
+  else likedMap.set(d.id, { id:d.id, ts:Date.now() });
+  localStorage.setItem('variant_liked', JSON.stringify([...likedMap.entries()]));
+  syncLikeIcons(d.id);
+  btn.classList.add('pop');
+  setTimeout(()=>btn.classList.remove('pop'), 360);
+}
+
+// 将所有同 id 卡片的"收藏"右上角图标状态对齐
+function syncSaveIcons(id){
+  const on = savedMap.has(id);
+  document.querySelectorAll('.card[data-id="'+id+'"] .card-actions .act-save').forEach(b=>{
+    b.classList.toggle('is-on', on);
+    b.title = on ? tr('unfavTitle') : tr('favTitle');
+    const svg = b.querySelector('svg');
+    if(svg) svg.setAttribute('fill', on ? 'currentColor' : 'none');
+  });
+}
+
+// 将所有同 id 卡片的"点赞"右上角图标状态对齐
+function syncLikeIcons(id){
+  const on = likedMap.has(id);
+  document.querySelectorAll('.card[data-id="'+id+'"] .card-actions .act-like').forEach(b=>{
+    b.classList.toggle('is-on', on);
+    b.title = on ? '取消点赞' : '点赞';
+    const svg = b.querySelector('svg');
+    if(svg) svg.setAttribute('fill', on ? 'currentColor' : 'none');
+  });
+}
+
+function toggleFeatured(d, btn, cardEl){
+  const wasOn = featuredMap.has(d.id);
+  if(wasOn){
+    featuredMap.delete(d.id);
+  } else {
+    // 持久化完整 doc 以便刷新后复原
+    featuredMap.set(d.id, {
+      id:d.id, title:d.title, styleLabel:d.styleLabel, styleId:d.styleId,
+      sref:d.sref, prompt:d.prompt, doc:d.doc, height:d.height,
+      ts: Date.now()
+    });
+  }
+  localStorage.setItem('variant_featured', JSON.stringify([...featuredMap.entries()]));
+
+  // 更新所有同 id 卡片的按钮态
+  document.querySelectorAll('.card[data-id="'+d.id+'"]').forEach(c=>{
+    const f = c.querySelector('[data-act=feature]');
+    if(!f) return;
+    if(featuredMap.has(d.id)){
+      f.classList.add('is-on');
+      f.classList.add('pulse');
+      setTimeout(()=>f.classList.remove('pulse'), 600);
+      f.querySelector('span').textContent = '已精选';
+      f.title = '取消精选';
+    } else {
+      f.classList.remove('is-on');
+      f.querySelector('span').textContent = '设为精选';
+      f.title = '设为精选（前置到顶部）';
+    }
+  });
+
+  if(!wasOn && cardEl){
+    // 设为精选 → 把卡片移到 feed 顶部
+    moveCardToFront(cardEl);
+    flash && flash('已置顶到精选');
+  } else {
+    reorderFeed();
+    flash && flash('已取消精选');
+  }
+}
+
+function moveCardToFront(cardEl){
+  if(!cardEl) return;
+  reorderFeed();
+  cardEl.style.animation = 'rise .55s ease both';
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+// ─── 全量重排：精选区（按 ts 倒序） + 非精选区（保持原顺序） ───
+function reorderFeed(){
+  if(!feedEl) return;
+  const cards = Array.from(feedEl.children).filter(el => el.classList && el.classList.contains('card'));
+  if(!cards.length) return;
+  const featured = [];
+  const others = [];
+  cards.forEach(el=>{
+    const id = el.getAttribute('data-id');
+    if(id && featuredMap.has(id)){
+      const ts = (featuredMap.get(id) && featuredMap.get(id).ts) || 0;
+      featured.push({ el, ts });
+    } else {
+      others.push(el);
+    }
+  });
+  // 精选区：按 ts 倒序（最新精选的在最上）
+  featured.sort((a,b)=>b.ts - a.ts);
+  const frag = document.createDocumentFragment();
+  featured.forEach(f => frag.appendChild(f.el));
+  others.forEach(el => frag.appendChild(el));
+  feedEl.appendChild(frag);
+}
+function renderSavedPanel(){
+  const list = document.getElementById('savedList');
+  if(savedMap.size===0){ list.innerHTML = '<div class="saved-empty">'+tr('savedEmpty')+'</div>'; return; }
+  list.innerHTML='';
+  [...savedMap.values()].reverse().forEach(item=>{
+    const row = document.createElement('div');
+    row.className='saved-item';
+    row.innerHTML = '<div class="saved-thumb"><iframe sandbox srcdoc="'+(item.doc||'').replace(/"/g,'&quot;')+'"></iframe></div>'+
+      '<div class="saved-meta"><div style="color:#fff">'+item.title+'</div><div>'+item.styleLabel+'</div></div>';
+    row.addEventListener('click',()=>{
+      const d = { id:item.id, title:item.title, styleLabel:item.styleLabel, sref:'saved', prompt:'', styleId:'', doc:item.doc, height:item.height };
+      openDrawer(d); toggleSavedPanel(false);
+    });
+    list.appendChild(row);
+  });
+}
+function toggleSavedPanel(force){
+  const p = document.getElementById('savedPanel');
+  const willOpen = force!==undefined ? force : !p.classList.contains('open');
+  p.classList.toggle('open', willOpen);
+}
+document.addEventListener('keydown',(e)=>{
+  if(e.target===promptEl) return;
+  if(e.key==='/'){ e.preventDefault(); promptEl.focus(); }
+  if(e.key==='s' || e.key==='S'){ toggleSavedPanel(); }
+});
+renderSavedPanel();
+
+// ─── 生成中浮卡 ───
+function showGenToast(prompt, n){
+  const sec = Math.max(2, Math.round(n*0.7));
+  const styleLabel = currentStyle ? currentStyle.label : tr('autoMix');
+  genTitle.textContent = tr('generating').replace('{n}', n);
+  genSub.textContent   = tr('generatingSub').replace('{style}', styleLabel).replace('{sec}', sec);
+  genToast.classList.add('show');
+}
+function hideGenToast(){ genToast.classList.remove('show'); }
+document.getElementById('genClose').addEventListener('click', hideGenToast);
+
+function flash(msg){
+  const t = document.createElement('div');
+  t.textContent = msg;
+  t.style.cssText='position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:#fff;color:#111;padding:9px 16px;border-radius:999px;font-size:12.5px;font-weight:500;z-index:999;box-shadow:0 8px 24px rgba(0,0,0,.3);animation:rise .2s ease';
+  document.body.appendChild(t);
+  setTimeout(()=>t.remove(),1400);
+}
+
+// 首屏
+promptEl.value = 'AI writing tool for thoughtful creators';
+
+// ───── AI mode ─────
+const aiCheckbox = document.getElementById('aiCheckbox');
+const aiStatus = document.getElementById('aiStatus');
+let aiAvailable = false;
+let aiModel = '';
+
+(async ()=>{
+  try{
+    const r = await fetch('/api/health');
+    const j = await r.json();
+    aiAvailable = !!j.hasKey;
+    aiModel = j.model || '';
+    aiStatus.textContent = aiAvailable ? 'on' : 'off';
+    aiStatus.style.color = aiAvailable ? '#9be39b' : '#e08a8a';
+    if(aiAvailable) aiCheckbox.checked = true;
+  }catch(e){
+    aiStatus.textContent = 'offline';
+    aiStatus.style.color = '#e08a8a';
+  }
+})();
+
+async function generateBatchAI(promptRaw, n){
+  const r = await fetch('/api/generate', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ prompt: promptRaw, n })
+  });
+  if(!r.ok){ const t = await r.text(); throw new Error('AI '+r.status+': '+t.slice(0,200)); }
+  const j = await r.json();
+  return j.designs.map((d)=>({
+    id: 'ai' + (idCounter++).toString(36).padStart(4,'0'),
+    title: d.title || 'Untitled',
+    height: Math.max(280, Math.min(720, d.height || 420)),
+    doc: d.doc,
+    styleId: 'ai', styleLabel: 'AI · '+(aiModel||'sonnet'),
+    sref: 'ai-'+Math.random().toString(36).slice(2,7),
+    prompt: promptRaw,
+  }));
+}
+
+async function smartGenerate(promptRaw, n, replace){
+  showGenToast(promptRaw, n);
+  if(aiCheckbox.checked && aiAvailable){
+    try{
+      const ai = await generateBatchAI(promptRaw, n);
+      if(replace){ designStore.clear(); feedEl.innerHTML=''; }
+      appendDesigns(ai);
+      hideGenToast();
+      return;
+    }catch(e){
+      console.warn('AI failed, falling back:', e.message);
+      flash('AI 失败，回退本地模板');
+    }
+  }
+  // 若 replace，先清仓再生成（此时排除集合应为空，让三张 dashboard 可重新出现）
+  if(replace){ designStore.clear(); feedEl.innerHTML=''; }
+  const local = generateBatch(promptRaw, currentStyle, n, { excludeStyleLocks: collectUsedStyleLocks() });
+  appendDesigns(local);
+  setTimeout(hideGenToast, 600);
+}
+
+// 首批 — pin 一张 styleLock dashboard 卡
+function buildPinnedFor(styleId, headlineFallback){
+  const p = parsePrompt(promptEl.value || headlineFallback || 'Design DNA');
+  const style = STYLES.find(s => s.id === styleId);
+  if(!style) return null;
+  // 动态查找带对应 styleLock 的模板
+  let tplIdx = -1;
+  for(let i=0;i<TEMPLATES.length;i++){
+    try{
+      const probe = TEMPLATES[i]({headline:'probe'}, style.tokens);
+      if(probe && probe.styleLock === styleId){ tplIdx = i; break; }
+    }catch(_){}
+  }
+  if(tplIdx < 0) return null;
+  const design = TEMPLATES[tplIdx](p, style.tokens);
+  return {
+    id: 'd' + (idCounter++).toString(36).padStart(4,'0'),
+    styleId: style.id, styleLabel: style.label,
+    sref: style.id + '-featured',
+    prompt: p.raw,
+    pinned: true,
+    featured: true,
+    ...design
+  };
+}
+// 首屏：用户精选（最优先） + Nothing pin + Mercury pin + 随机 10 张
+(function bootFeed(){
+  var firstBatch = [];
+  // 0) 清理 featuredMap 中的孤儿记录（styleId 已不存在的旧模板，例如已下线的 orbital）
+  //    并把所有精选卡的 id 规范化到 'feat-' 前缀，避免与新生成卡的随机 id 命名空间碰撞
+  try {
+    var validStyles = new Set(STYLES.map(s=>s.id));
+    var dirty = false;
+    var migrated = new Map();
+    [...featuredMap.entries()].forEach(([id, item])=>{
+      if(item && item.styleId && !validStyles.has(item.styleId)){
+        dirty = true; // drop orphan
+        return;
+      }
+      var newId = (id && id.indexOf('feat-')===0) ? id : ('feat-' + (item && item.id ? item.id : id));
+      if(newId !== id) dirty = true;
+      var newItem = Object.assign({}, item, { id: newId });
+      migrated.set(newId, newItem);
+    });
+    if(dirty){
+      featuredMap = migrated;
+      localStorage.setItem('variant_featured', JSON.stringify([...featuredMap.entries()]));
+    }
+  } catch(_){}
+  // 1) 用户精选：按时间倒序（最新精选的在最上面）
+  //    [TEMP] 仅放过 nothing + retro-ascii 两类，其他 styleId 临时屏蔽
+  //    ★ 同时跳过会被 §2 系统 pin 的 styleLock —— 让首屏拿到模板的最新动态版本，
+  //       而不是历史快照（避免时钟、波形等动态数据停在旧时间）
+  try {
+    var ALLOW_LOCKS = new Set(['nothing','retro-ascii','linear','nothing-mobile','mercury']);
+    var SYSTEM_PINNED = new Set(['nothing','retro-ascii','linear','nothing-mobile','mercury']); // 与 §2 保持一致
+    var feats = [...featuredMap.values()].sort((a,b)=>(b.ts||0)-(a.ts||0));
+    feats.forEach(item=>{
+      if(!ALLOW_LOCKS.has(item.styleId)) return;
+      if(SYSTEM_PINNED.has(item.styleId)) return; // 让位给 §2 的新鲜 pin
+      firstBatch.push({
+        id: item.id,
+        title: item.title,
+        styleLabel: item.styleLabel,
+        styleId: item.styleId || '',
+        styleLock: item.styleId || '', // 让 appendDesigns 去重器认得
+        sref: item.sref || 'user-featured',
+        prompt: item.prompt || '',
+        doc: item.doc,
+        height: item.height
+      });
+    });
+  } catch(_){}
+  // 2) 系统 pin —— 临时只保留 nothing + retro-ascii 两张 dashboard
+  var pinnedLocks = [];
+  try { var n = buildPinnedFor('nothing','Design DNA'); if(n){ firstBatch.push(n); pinnedLocks.push('nothing'); } } catch(_){}
+  try { var r = buildPinnedFor('retro-ascii','RETRO ASCII'); if(r){ firstBatch.push(r); pinnedLocks.push('retro-ascii'); } } catch(_){}
+  try { var l = buildPinnedFor('linear','Active cycle'); if(l){ firstBatch.push(l); pinnedLocks.push('linear'); } } catch(_){}
+  try { var nm = buildPinnedFor('nothing-mobile','Now Playing'); if(nm){ firstBatch.push(nm); pinnedLocks.push('nothing-mobile'); } } catch(_){}
+  // Mercury Treasury — 第 5 张 ceiling
+  try { var m = buildPinnedFor('mercury','Good afternoon, Lingfeng.'); if(m){ firstBatch.push(m); pinnedLocks.push('mercury'); } } catch(_){}
+  // Marginalia — 第 6 张 ceiling（无 styleLock，直接调用模板）
+  try {
+    var mp = parsePrompt('For cosy days');
+    var margDesign = TEMPLATES[5](mp, STYLES[0].tokens);
+    firstBatch.push(Object.assign({ id:'d-marginalia', styleId:'editorial', styleLabel:'Marginalia warm', sref:'marginalia-pin', prompt:mp.raw, pinned:true, externalUrl:'../marginalia/index.html' }, margDesign));
+  } catch(_){}
+  // Lucid Drift — WebGL shader weather card (live shader in thumbnail)
+  try {
+    firstBatch.push({
+      id:'d-lucid-drift', styleId:'pastel', styleLabel:'Lucid Drift', sref:'lucid-drift-pin', prompt:'Lucid Drift', pinned:true,
+      title:'Lucid Drift · Atmospheric Swell', height:720, styleLock:'lucid-drift',
+      doc: (typeof LUCID_DRIFT_DOC !== 'undefined') ? LUCID_DRIFT_DOC : '', externalUrl:'lucid-drift.html'
+    });
+  } catch(_){}
+  // Chronicles of Solitude — 水墨画卷卡片
+  try {
+    firstBatch.push({
+      id:'d-chronicles', styleId:'ink-scroll', styleLabel:'Ink scroll', sref:'chronicles-pin', prompt:'天地蜉蝣，沧海一粟', pinned:true,
+      title:'Chronicles of Solitude · 沧海一粟', height:720, styleLock:'chronicles',
+      doc: (typeof CHRONICLES_DOC !== 'undefined' && CHRONICLES_DOC) ? CHRONICLES_DOC : '', externalUrl:'chronicles-solitude.html'
+    });
+  } catch(_){}
+  // Hardware Console — Meteorological digital sys
+  try {
+    firstBatch.push({
+      id:'d-hardware-console', styleId:'hardware-console', styleLabel:'Hardware console', sref:'hardware-console-pin', prompt:'Meteorological digital sys', pinned:true,
+      title:'Meteorological Digital SYS · Tokyo', height:720, styleLock:'hardware-console',
+      doc: (typeof HARDWARE_CONSOLE_DOC !== 'undefined') ? HARDWARE_CONSOLE_DOC : '', externalUrl:'hardware-console.html'
+    });
+  } catch(_){}
+  // Weaverine — industrial editorial landing page
+  try {
+    firstBatch.push({
+      id:'d-weaverine', styleId:'industrial-editorial', styleLabel:'Industrial editorial', sref:'weaverine-pin', prompt:'Precision crafted polyester textiles', pinned:true,
+      title:'Weaverine · Precision crafted textiles', height:720, styleLock:'weaverine',
+      doc: (typeof WEAVERINE_DOC !== 'undefined') ? WEAVERINE_DOC : '', externalUrl:'weaverine-textiles.html'
+    });
+  } catch(_){}
+  // NeuroLink — pocket terminal hardware
+  try {
+    firstBatch.push({
+      id:'d-pocket-terminal', styleId:'pocket-terminal', styleLabel:'Pocket terminal', sref:'pocket-terminal-pin', prompt:'NeuroLink pocket terminal', pinned:true,
+      title:'NeuroLink Pocket Terminal', height:720, styleLock:'pocket-terminal',
+      doc: (typeof POCKET_TERMINAL_DOC !== 'undefined') ? POCKET_TERMINAL_DOC : '', externalUrl:'pocket-terminal.html'
+    });
+  } catch(_){}
+  // ANOMALY — generative oscilloscope signal field
+  try {
+    firstBatch.push({
+      id:'d-anomaly-signal', styleId:'anomaly-signal', styleLabel:'Signal field', sref:'anomaly-signal-pin', prompt:'ANOMALY signal interference field', pinned:true,
+      title:'ANOMALY · Signal interference field', height:720, styleLock:'anomaly-signal',
+      doc: (typeof ANOMALY_SIGNAL_DOC !== 'undefined') ? ANOMALY_SIGNAL_DOC : '', externalUrl:'anomaly-signal.html'
+    });
+  } catch(_){}
+  // DMX Field Controller — lighting console surface
+  try {
+    firstBatch.push({
+      id:'d-dmx-controller', styleId:'dmx-controller', styleLabel:'DMX controller', sref:'dmx-controller-pin', prompt:'DMX Field lighting controller', pinned:true,
+      title:'DMX Field Controller', height:720, styleLock:'dmx-controller',
+      doc: (typeof DMX_CONTROLLER_DOC !== 'undefined') ? DMX_CONTROLLER_DOC : '', externalUrl:'dmx-controller.html'
+    });
+  } catch(_){}
+  // Symmetry Breaking — halftone event ticket
+  try {
+    firstBatch.push({
+      id:'d-symmetry-ticket', styleId:'symmetry-ticket', styleLabel:'Halftone ticket', sref:'symmetry-ticket-pin', prompt:'Symmetry Breaking halftone event ticket', pinned:true,
+      title:'Symmetry Breaking · Halftone ticket', height:720, styleLock:'symmetry-ticket',
+      doc: (typeof SYMMETRY_TICKET_DOC !== 'undefined') ? SYMMETRY_TICKET_DOC : '', externalUrl:'symmetry-ticket.html'
+    });
+  } catch(_){}
+  // Notion Knowledge OS — project management and wiki dashboard
+  try {
+    firstBatch.push({
+      id:'d-notion-knowledge', styleId:'notion-knowledge', styleLabel:'Notion knowledge', sref:'notion-knowledge-pin', prompt:'Notion knowledge OS project management dashboard', pinned:true,
+      title:'Notion · Knowledge OS', height:720, styleLock:'notion-knowledge',
+      doc: (typeof NOTION_KNOWLEDGE_DOC !== 'undefined') ? NOTION_KNOWLEDGE_DOC : '', externalUrl:'notion-knowledge.html'
+    });
+  } catch(_){}
+  // Chainx — stock investment dashboard animation
+  try {
+    firstBatch.push({
+      id:'d-chainx-dashboard', styleId:'chainx-dashboard', styleLabel:'Investment dashboard', sref:'chainx-dashboard-pin', prompt:'Chainx stock investment dashboard', pinned:true,
+      title:'Chainx · Stock investment dashboard', height:720, styleLock:'chainx-dashboard',
+      doc: (typeof CHAINX_DASHBOARD_DOC !== 'undefined') ? CHAINX_DASHBOARD_DOC : '', externalUrl:'chainx-dashboard.html'
+    });
+  } catch(_){}
+  // 用户精选里若已含 styleLock 卡，同样计入排除
+  try {
+    firstBatch.forEach(function(c){
+      if(c && c.styleLock && pinnedLocks.indexOf(c.styleLock) < 0) pinnedLocks.push(c.styleLock);
+    });
+  } catch(_){}
+  // 3) [TEMP DISABLED] 随机批次先屏蔽，feed 只展示 nothing + retro-ascii
+  // try {
+  //   var more = generateBatch(promptEl.value, currentStyle, 10, { excludeStyleLocks: pinnedLocks });
+  //   firstBatch = firstBatch.concat(more);
+  // } catch(_){}
+  if (firstBatch.length === 0) {
+    var t = STYLES[0].tokens;
+    var p = parsePrompt('Hello Design DNA');
+    var fb = TEMPLATES[0](p, t);
+    firstBatch.push(Object.assign({ id:'fb0', styleId:'notion', styleLabel:'fallback', sref:'fb-0', prompt:p.raw }, fb));
+  }
+  appendDesigns(firstBatch);
+})();
+
+// ─── 登录系统 ───────────────────────────────────
+const AUTH_KEY = 'variant.auth.user';
+const authMask = document.getElementById('authMask');
+const authClose = document.getElementById('authClose');
+const sideAvatar = document.getElementById('sideAvatar');
+const userPop = document.getElementById('userPop');
+const popEmail = document.getElementById('popEmail');
+
+function getUser(){
+  try{ return JSON.parse(localStorage.getItem(AUTH_KEY) || 'null'); }catch{ return null; }
+}
+function setUser(u){
+  if(u){ localStorage.setItem(AUTH_KEY, JSON.stringify(u)); }
+  else { localStorage.removeItem(AUTH_KEY); }
+  renderAvatar();
+}
+function renderAvatar(){
+  const u = getUser();
+  if(u){
+    sideAvatar.classList.add('signed');
+    sideAvatar.textContent = (u.email || '?').trim()[0].toUpperCase();
+    sideAvatar.title = u.email;
+    sideAvatar.style.background = '#1a1a1a';
+    if(popEmail) popEmail.textContent = u.email;
+  }else{
+    sideAvatar.classList.remove('signed');
+    sideAvatar.textContent = '';
+    sideAvatar.title = '登录';
+    sideAvatar.style.background = '';
+  }
+}
+renderAvatar();
+
+// Modal 切步骤
+function showStep(name){
+  document.querySelectorAll('.auth-step').forEach(s=>{
+    s.classList.toggle('show', s.dataset.step === name);
+  });
+  if(name === 'email') setTimeout(()=>document.getElementById('authEmail').focus(), 50);
+  if(name === 'otp')   setTimeout(()=>document.querySelector('.auth-otp input').focus(), 50);
+}
+function openAuth(){
+  authMask.classList.add('open');
+  showStep('choose');
+  document.getElementById('authMsg').textContent = '';
+  document.getElementById('authEmail').value = '';
+  document.querySelectorAll('.auth-otp input').forEach(i=>i.value='');
+}
+function closeAuth(){ authMask.classList.remove('open'); }
+
+authClose.addEventListener('click', closeAuth);
+authMask.addEventListener('click', e=>{ if(e.target === authMask) closeAuth(); });
+document.addEventListener('keydown', e=>{
+  if(e.key === 'Escape' && authMask.classList.contains('open')) closeAuth();
+});
+
+// 头像点击
+sideAvatar.addEventListener('click', e=>{
+  e.stopPropagation();
+  console.log('[avatar] click fired', { user: getUser() });
+  const u = getUser();
+  if(u){
+    userPop.classList.toggle('open');
+  }else{
+    openAuth();
+  }
+});
+// 兜底：mousedown 也触发，避免某些事件被吞
+sideAvatar.addEventListener('mousedown', e=>{
+  console.log('[avatar] mousedown', e.target);
+});
+
+// 点击外部关闭气泡
+document.addEventListener('click', e=>{
+  if(!userPop.contains(e.target) && e.target !== sideAvatar){
+    userPop.classList.remove('open');
+  }
+});
+
+// 气泡菜单动作
+userPop.addEventListener('click', e=>{
+  const item = e.target.closest('.pop-item');
+  if(!item) return;
+  const act = item.dataset.act;
+  userPop.classList.remove('open');
+  if(act === 'logout'){
+    setUser(null);
+  }else if(act === 'saved'){
+    // 复用收藏面板（如果存在）
+    const sb = document.getElementById('btnSaved');
+    if(sb) sb.click();
+  }else if(act === 'settings'){
+    openSettings();
+  }
+});
+
+// ─── 设置面板 + 语言切换 ───
+const LANGS = [
+  { code:'zh-CN', flag:'🇨🇳', native:'简体中文', en:'Simplified Chinese' },
+  { code:'zh-TW', flag:'🇹🇼', native:'繁體中文', en:'Traditional Chinese' },
+  { code:'en',    flag:'🇺🇸', native:'English',  en:'English' },
+  { code:'ja',    flag:'🇯🇵', native:'日本語',   en:'Japanese' },
+  { code:'ko',    flag:'🇰🇷', native:'한국어',    en:'Korean' },
+  { code:'fr',    flag:'🇫🇷', native:'Français', en:'French' },
+  { code:'de',    flag:'🇩🇪', native:'Deutsch',  en:'German' },
+  { code:'es',    flag:'🇪🇸', native:'Español',  en:'Spanish' },
+  { code:'pt',    flag:'🇵🇹', native:'Português',en:'Portuguese' },
+  { code:'ru',    flag:'🇷🇺', native:'Русский',  en:'Russian' },
+  { code:'ar',    flag:'🇸🇦', native:'العربية',  en:'Arabic' },
+  { code:'hi',    flag:'🇮🇳', native:'हिन्दी',    en:'Hindi' }
+];
+
+const I18N = {
+  'zh-CN': {
+    settings:'设置', lang:'语言 · LANGUAGE', desc:'选择界面显示语言。部分内容仍以原文呈现。', saved:'已保存',
+    navStyle:'风格', navLibrary:'灵感库', navFolders:'文件夹', navSaved:'收藏', navSavedHint:'收藏 (S)',
+    signIn:'登录', close:'关闭', popAccount:'个人账户', popSaved:'我的收藏', logout:'退出登录',
+    authTitle:'登录或注册', authSub:'使用你的账户继续创作', authGoogle:'使用 Google 继续', authApple:'使用 Apple 继续',
+    authOr:'或', authEmail:'使用邮箱继续', authFoot:'继续即代表同意 <a>服务条款</a> 与 <a>隐私政策</a>',
+    authBack:'← 返回', emailTitle:'输入邮箱', emailSub:'我们会发送一封验证码邮件', sendCode:'发送验证码',
+    otpTitle:'输入验证码', otpSub:'已发送至', otpDemo:'演示模式：任意 6 位数字均可通过', otpVerify:'验证并登录',
+    viewGrid:'网格', viewCollage:'拼贴', viewLatest:'最新',
+    promptPh:'描述你想要的设计…  例如：AI 写作工具的落地页',
+    styleDropper:'粘贴一张图或一个 URL 吸取风格', generate:'生成 (⏎)',
+    backHome:'返回首页 (Esc)', home:'首页', untitled:'未命名设计',
+    copyCode:'复制代码', save:'收藏', remixStyle:'重混此风格', moreLikeThis:'类似设计',
+    savedTitle:'已收藏的设计', savedEmpty:'还没有收藏。悬停卡片点 ♥ 收藏。',
+    generating:'正在生成 {n} 个变体', generatingSub:'{style} · 大约 {sec} 秒',
+    autoMix:'自动混合', emailInvalid:'邮箱格式不正确', otpIncomplete:'请输入完整的 6 位验证码',
+    copied:'已复制！', copyFailed:'复制失败', favSaved:'已收藏', favRemoved:'已取消',
+    favTitle:'收藏', unfavTitle:'取消收藏'
+  },
+  'zh-TW': {
+    settings:'設定', lang:'語言 · LANGUAGE', desc:'選擇介面顯示語言。部分內容仍以原文呈現。', saved:'已儲存',
+    navStyle:'風格', navLibrary:'靈感庫', navFolders:'資料夾', navSaved:'收藏', navSavedHint:'收藏 (S)',
+    signIn:'登入', close:'關閉', popAccount:'個人帳戶', popSaved:'我的收藏', logout:'登出',
+    authTitle:'登入或註冊', authSub:'使用你的帳戶繼續創作', authGoogle:'使用 Google 繼續', authApple:'使用 Apple 繼續',
+    authOr:'或', authEmail:'使用電郵繼續', authFoot:'繼續即代表同意 <a>服務條款</a> 與 <a>隱私政策</a>',
+    authBack:'← 返回', emailTitle:'輸入電郵', emailSub:'我們會發送一封驗證碼郵件', sendCode:'發送驗證碼',
+    otpTitle:'輸入驗證碼', otpSub:'已發送至', otpDemo:'示範模式：任意 6 位數字均可通過', otpVerify:'驗證並登入',
+    viewGrid:'網格', viewCollage:'拼貼', viewLatest:'最新',
+    promptPh:'描述你想要的設計…  例如：AI 寫作工具的著陸頁',
+    styleDropper:'貼上一張圖或一個 URL 吸取風格', generate:'生成 (⏎)',
+    backHome:'返回首頁 (Esc)', home:'首頁', untitled:'未命名設計',
+    copyCode:'複製代碼', save:'收藏', remixStyle:'重混此風格', moreLikeThis:'類似設計',
+    savedTitle:'已收藏的設計', savedEmpty:'還沒有收藏。懸停卡片點 ♥ 收藏。',
+    generating:'正在生成 {n} 個變體', generatingSub:'{style} · 約 {sec} 秒',
+    autoMix:'自動混合', emailInvalid:'電郵格式不正確', otpIncomplete:'請輸入完整的 6 位驗證碼',
+    copied:'已複製！', copyFailed:'複製失敗', favSaved:'已收藏', favRemoved:'已取消',
+    favTitle:'收藏', unfavTitle:'取消收藏'
+  },
+  'en': {
+    settings:'Settings', lang:'LANGUAGE', desc:'Choose your interface language. Some content remains in its original language.', saved:'Saved',
+    navStyle:'Style', navLibrary:'Library', navFolders:'Folders', navSaved:'Saved', navSavedHint:'Saved (S)',
+    signIn:'Sign in', close:'Close', popAccount:'Personal account', popSaved:'My saved', logout:'Sign out',
+    authTitle:'Sign in or up', authSub:'Continue creating with your account', authGoogle:'Continue with Google', authApple:'Continue with Apple',
+    authOr:'or', authEmail:'Continue with email', authFoot:'By continuing you agree to <a>Terms</a> and <a>Privacy</a>',
+    authBack:'← Back', emailTitle:'Enter email', emailSub:'We will send you a verification code', sendCode:'Send code',
+    otpTitle:'Enter code', otpSub:'Sent to', otpDemo:'Demo mode: any 6 digits will work', otpVerify:'Verify & sign in',
+    viewGrid:'Grid', viewCollage:'Collage', viewLatest:'Latest',
+    promptPh:'Describe what you want…  e.g. landing page for an AI writing tool',
+    styleDropper:'Paste an image or URL to extract style', generate:'Generate (⏎)',
+    backHome:'Back home (Esc)', home:'Home', untitled:'Untitled design',
+    copyCode:'Copy code', save:'Save', remixStyle:'Remix this style', moreLikeThis:'More like this',
+    savedTitle:'Saved designs', savedEmpty:'Nothing saved yet. Hover a card and tap ♥.',
+    generating:'Generating {n} variants', generatingSub:'{style} · about {sec}s',
+    autoMix:'Auto mix', emailInvalid:'Invalid email format', otpIncomplete:'Please enter all 6 digits',
+    copied:'Copied!', copyFailed:'Copy failed', favSaved:'Saved', favRemoved:'Removed',
+    favTitle:'Save', unfavTitle:'Unsave'
+  },
+  'ja': {
+    settings:'設定', lang:'言語 · LANGUAGE', desc:'インターフェースの言語を選択します。一部のコンテンツは原文のままです。', saved:'保存しました',
+    navStyle:'スタイル', navLibrary:'ライブラリ', navFolders:'フォルダ', navSaved:'保存', navSavedHint:'保存 (S)',
+    signIn:'ログイン', close:'閉じる', popAccount:'個人アカウント', popSaved:'保存した項目', logout:'ログアウト',
+    authTitle:'ログインまたは登録', authSub:'アカウントで創作を続ける', authGoogle:'Google で続ける', authApple:'Apple で続ける',
+    authOr:'または', authEmail:'メールで続ける', authFoot:'続行することで <a>利用規約</a> と <a>プライバシー</a> に同意します',
+    authBack:'← 戻る', emailTitle:'メール入力', emailSub:'認証コードを送信します', sendCode:'コード送信',
+    otpTitle:'コード入力', otpSub:'送信先', otpDemo:'デモモード：任意の 6 桁が利用可能', otpVerify:'認証してログイン',
+    viewGrid:'グリッド', viewCollage:'コラージュ', viewLatest:'最新',
+    promptPh:'欲しいデザインを説明…  例：AI 執筆ツールの LP',
+    styleDropper:'画像または URL を貼り付けてスタイル抽出', generate:'生成 (⏎)',
+    backHome:'ホームに戻る (Esc)', home:'ホーム', untitled:'無題のデザイン',
+    copyCode:'コードをコピー', save:'保存', remixStyle:'このスタイルをリミックス', moreLikeThis:'似たデザイン',
+    savedTitle:'保存したデザイン', savedEmpty:'まだ保存はありません。カードにマウスを乗せて ♥ を押す。',
+    generating:'{n} 個のバリアントを生成中', generatingSub:'{style} · 約 {sec} 秒',
+    autoMix:'自動ミックス', emailInvalid:'メール形式が正しくありません', otpIncomplete:'6 桁すべて入力してください',
+    copied:'コピーしました！', copyFailed:'コピーに失敗', favSaved:'保存しました', favRemoved:'解除しました',
+    favTitle:'保存', unfavTitle:'保存解除'
+  },
+  'ko': {
+    settings:'설정', lang:'언어 · LANGUAGE', desc:'인터페이스 언어를 선택하세요. 일부 콘텐츠는 원어로 표시됩니다.', saved:'저장됨',
+    navStyle:'스타일', navLibrary:'라이브러리', navFolders:'폴더', navSaved:'저장', navSavedHint:'저장 (S)',
+    signIn:'로그인', close:'닫기', popAccount:'개인 계정', popSaved:'저장한 항목', logout:'로그아웃',
+    authTitle:'로그인 또는 가입', authSub:'계정으로 계속해서 만들어보세요', authGoogle:'Google로 계속', authApple:'Apple로 계속',
+    authOr:'또는', authEmail:'이메일로 계속', authFoot:'계속하면 <a>이용약관</a> 및 <a>개인정보처리방침</a>에 동의합니다',
+    authBack:'← 뒤로', emailTitle:'이메일 입력', emailSub:'인증 코드를 보내드립니다', sendCode:'코드 전송',
+    otpTitle:'코드 입력', otpSub:'전송됨', otpDemo:'데모 모드: 6 자리 숫자라면 통과', otpVerify:'확인 후 로그인',
+    viewGrid:'그리드', viewCollage:'콜라주', viewLatest:'최신',
+    promptPh:'원하는 디자인을 설명하세요…  예: AI 글쓰기 도구 랜딩 페이지',
+    styleDropper:'이미지 또는 URL 붙여넣기로 스타일 추출', generate:'생성 (⏎)',
+    backHome:'홈으로 (Esc)', home:'홈', untitled:'제목 없는 디자인',
+    copyCode:'코드 복사', save:'저장', remixStyle:'이 스타일 리믹스', moreLikeThis:'비슷한 디자인',
+    savedTitle:'저장한 디자인', savedEmpty:'저장된 항목이 없습니다. 카드 위 ♥ 를 누르세요.',
+    generating:'{n} 개의 변형 생성 중', generatingSub:'{style} · 약 {sec} 초',
+    autoMix:'자동 믹스', emailInvalid:'잘못된 이메일 형식', otpIncomplete:'6 자리를 모두 입력하세요',
+    copied:'복사됨!', copyFailed:'복사 실패', favSaved:'저장됨', favRemoved:'해제됨',
+    favTitle:'저장', unfavTitle:'저장 해제'
+  },
+  'fr': {
+    settings:'Paramètres', lang:'LANGUE', desc:'Choisissez la langue de l\u2019interface. Certains contenus restent dans leur langue d\u2019origine.', saved:'Enregistré',
+    navStyle:'Style', navLibrary:'Bibliothèque', navFolders:'Dossiers', navSaved:'Favoris', navSavedHint:'Favoris (S)',
+    signIn:'Connexion', close:'Fermer', popAccount:'Compte personnel', popSaved:'Mes favoris', logout:'Se déconnecter',
+    authTitle:'Connexion ou inscription', authSub:'Continuez à créer avec votre compte', authGoogle:'Continuer avec Google', authApple:'Continuer avec Apple',
+    authOr:'ou', authEmail:'Continuer avec l\u2019e-mail', authFoot:'En continuant vous acceptez les <a>Conditions</a> et la <a>Confidentialité</a>',
+    authBack:'← Retour', emailTitle:'Saisir l\u2019e-mail', emailSub:'Nous enverrons un code de vérification', sendCode:'Envoyer',
+    otpTitle:'Saisir le code', otpSub:'Envoyé à', otpDemo:'Mode démo : tout code à 6 chiffres fonctionne', otpVerify:'Vérifier et se connecter',
+    viewGrid:'Grille', viewCollage:'Collage', viewLatest:'Récent',
+    promptPh:'Décrivez votre design…  ex : page d\u2019accueil d\u2019un outil d\u2019écriture IA',
+    styleDropper:'Collez une image ou une URL pour extraire le style', generate:'Générer (⏎)',
+    backHome:'Accueil (Esc)', home:'Accueil', untitled:'Design sans titre',
+    copyCode:'Copier le code', save:'Enregistrer', remixStyle:'Remixer ce style', moreLikeThis:'Designs similaires',
+    savedTitle:'Designs enregistrés', savedEmpty:'Rien d\u2019enregistré. Survolez une carte et tapez ♥.',
+    generating:'Génération de {n} variantes', generatingSub:'{style} · environ {sec} s',
+    autoMix:'Mix auto', emailInvalid:'Format d\u2019e-mail invalide', otpIncomplete:'Saisissez les 6 chiffres',
+    copied:'Copié !', copyFailed:'Échec de la copie', favSaved:'Enregistré', favRemoved:'Retiré',
+    favTitle:'Enregistrer', unfavTitle:'Retirer'
+  },
+  'de': {
+    settings:'Einstellungen', lang:'SPRACHE', desc:'Wählen Sie die Oberflächensprache. Einige Inhalte bleiben in ihrer Originalsprache.', saved:'Gespeichert',
+    navStyle:'Stil', navLibrary:'Bibliothek', navFolders:'Ordner', navSaved:'Favoriten', navSavedHint:'Favoriten (S)',
+    signIn:'Anmelden', close:'Schließen', popAccount:'Persönliches Konto', popSaved:'Meine Favoriten', logout:'Abmelden',
+    authTitle:'Anmelden oder registrieren', authSub:'Mit Ihrem Konto weiter erstellen', authGoogle:'Mit Google fortfahren', authApple:'Mit Apple fortfahren',
+    authOr:'oder', authEmail:'Mit E-Mail fortfahren', authFoot:'Mit dem Fortfahren akzeptieren Sie die <a>AGB</a> und <a>Datenschutz</a>',
+    authBack:'← Zurück', emailTitle:'E-Mail eingeben', emailSub:'Wir senden Ihnen einen Bestätigungscode', sendCode:'Code senden',
+    otpTitle:'Code eingeben', otpSub:'Gesendet an', otpDemo:'Demo-Modus: Jeder 6-stellige Code funktioniert', otpVerify:'Prüfen & anmelden',
+    viewGrid:'Raster', viewCollage:'Collage', viewLatest:'Neueste',
+    promptPh:'Beschreiben Sie das gewünschte Design…  z. B. Landingpage für ein KI-Schreibtool',
+    styleDropper:'Bild oder URL einfügen, um Stil zu extrahieren', generate:'Generieren (⏎)',
+    backHome:'Zur Startseite (Esc)', home:'Start', untitled:'Unbenanntes Design',
+    copyCode:'Code kopieren', save:'Speichern', remixStyle:'Diesen Stil remixen', moreLikeThis:'Ähnliche Designs',
+    savedTitle:'Gespeicherte Designs', savedEmpty:'Noch nichts gespeichert. Bewegen Sie den Mauszeiger und klicken Sie ♥.',
+    generating:'Generiere {n} Varianten', generatingSub:'{style} · ca. {sec} s',
+    autoMix:'Auto-Mix', emailInvalid:'Ungültiges E-Mail-Format', otpIncomplete:'Bitte alle 6 Ziffern eingeben',
+    copied:'Kopiert!', copyFailed:'Kopieren fehlgeschlagen', favSaved:'Gespeichert', favRemoved:'Entfernt',
+    favTitle:'Speichern', unfavTitle:'Entfernen'
+  },
+  'es': {
+    settings:'Ajustes', lang:'IDIOMA', desc:'Elige el idioma de la interfaz. Parte del contenido se mantiene en su idioma original.', saved:'Guardado',
+    navStyle:'Estilo', navLibrary:'Biblioteca', navFolders:'Carpetas', navSaved:'Guardados', navSavedHint:'Guardados (S)',
+    signIn:'Iniciar sesión', close:'Cerrar', popAccount:'Cuenta personal', popSaved:'Mis guardados', logout:'Cerrar sesión',
+    authTitle:'Iniciar sesión o registrarse', authSub:'Sigue creando con tu cuenta', authGoogle:'Continuar con Google', authApple:'Continuar con Apple',
+    authOr:'o', authEmail:'Continuar con correo', authFoot:'Al continuar aceptas los <a>Términos</a> y la <a>Privacidad</a>',
+    authBack:'← Atrás', emailTitle:'Introduce el correo', emailSub:'Te enviaremos un código de verificación', sendCode:'Enviar código',
+    otpTitle:'Introduce el código', otpSub:'Enviado a', otpDemo:'Modo demo: cualquier código de 6 dígitos funciona', otpVerify:'Verificar e iniciar',
+    viewGrid:'Cuadrícula', viewCollage:'Collage', viewLatest:'Reciente',
+    promptPh:'Describe tu diseño…  p. ej. landing de una herramienta de escritura IA',
+    styleDropper:'Pega una imagen o URL para extraer el estilo', generate:'Generar (⏎)',
+    backHome:'Volver al inicio (Esc)', home:'Inicio', untitled:'Diseño sin título',
+    copyCode:'Copiar código', save:'Guardar', remixStyle:'Remezclar este estilo', moreLikeThis:'Diseños similares',
+    savedTitle:'Diseños guardados', savedEmpty:'Nada guardado aún. Pasa el cursor y pulsa ♥.',
+    generating:'Generando {n} variantes', generatingSub:'{style} · aprox. {sec} s',
+    autoMix:'Mezcla auto', emailInvalid:'Formato de correo no válido', otpIncomplete:'Introduce los 6 dígitos',
+    copied:'¡Copiado!', copyFailed:'Error al copiar', favSaved:'Guardado', favRemoved:'Eliminado',
+    favTitle:'Guardar', unfavTitle:'Quitar'
+  },
+  'pt': {
+    settings:'Definições', lang:'IDIOMA', desc:'Escolha o idioma da interface. Algum conteúdo permanece no idioma original.', saved:'Guardado',
+    navStyle:'Estilo', navLibrary:'Biblioteca', navFolders:'Pastas', navSaved:'Guardados', navSavedHint:'Guardados (S)',
+    signIn:'Entrar', close:'Fechar', popAccount:'Conta pessoal', popSaved:'Os meus guardados', logout:'Sair',
+    authTitle:'Entrar ou registar', authSub:'Continue a criar com a sua conta', authGoogle:'Continuar com Google', authApple:'Continuar com Apple',
+    authOr:'ou', authEmail:'Continuar com email', authFoot:'Ao continuar aceita os <a>Termos</a> e a <a>Privacidade</a>',
+    authBack:'← Voltar', emailTitle:'Insira o email', emailSub:'Enviaremos um código de verificação', sendCode:'Enviar código',
+    otpTitle:'Insira o código', otpSub:'Enviado para', otpDemo:'Modo demo: qualquer 6 dígitos funciona', otpVerify:'Verificar e entrar',
+    viewGrid:'Grelha', viewCollage:'Colagem', viewLatest:'Recente',
+    promptPh:'Descreva o design desejado…  ex. landing de uma ferramenta de escrita IA',
+    styleDropper:'Cole uma imagem ou URL para extrair estilo', generate:'Gerar (⏎)',
+    backHome:'Início (Esc)', home:'Início', untitled:'Design sem título',
+    copyCode:'Copiar código', save:'Guardar', remixStyle:'Remixar este estilo', moreLikeThis:'Designs semelhantes',
+    savedTitle:'Designs guardados', savedEmpty:'Ainda nada guardado. Passe o rato e toque em ♥.',
+    generating:'A gerar {n} variantes', generatingSub:'{style} · cerca de {sec} s',
+    autoMix:'Mistura auto', emailInvalid:'Formato de email inválido', otpIncomplete:'Introduza os 6 dígitos',
+    copied:'Copiado!', copyFailed:'Falha ao copiar', favSaved:'Guardado', favRemoved:'Removido',
+    favTitle:'Guardar', unfavTitle:'Remover'
+  },
+  'ru': {
+    settings:'Настройки', lang:'ЯЗЫК', desc:'Выберите язык интерфейса. Часть содержимого остаётся на языке оригинала.', saved:'Сохранено',
+    navStyle:'Стиль', navLibrary:'Библиотека', navFolders:'Папки', navSaved:'Избранное', navSavedHint:'Избранное (S)',
+    signIn:'Войти', close:'Закрыть', popAccount:'Личный аккаунт', popSaved:'Моё избранное', logout:'Выйти',
+    authTitle:'Вход или регистрация', authSub:'Продолжите создание с вашим аккаунтом', authGoogle:'Войти через Google', authApple:'Войти через Apple',
+    authOr:'или', authEmail:'Продолжить с email', authFoot:'Продолжая, вы соглашаетесь с <a>Условиями</a> и <a>Политикой</a>',
+    authBack:'← Назад', emailTitle:'Введите email', emailSub:'Мы отправим код подтверждения', sendCode:'Отправить код',
+    otpTitle:'Введите код', otpSub:'Отправлено на', otpDemo:'Демо-режим: подойдут любые 6 цифр', otpVerify:'Подтвердить и войти',
+    viewGrid:'Сетка', viewCollage:'Коллаж', viewLatest:'Новое',
+    promptPh:'Опишите дизайн…  напр. лендинг ИИ-редактора',
+    styleDropper:'Вставьте изображение или URL для извлечения стиля', generate:'Создать (⏎)',
+    backHome:'На главную (Esc)', home:'Главная', untitled:'Без названия',
+    copyCode:'Копировать код', save:'Сохранить', remixStyle:'Ремикс стиля', moreLikeThis:'Похожие',
+    savedTitle:'Сохранённые дизайны', savedEmpty:'Пока ничего не сохранено. Наведите и нажмите ♥.',
+    generating:'Генерация {n} вариантов', generatingSub:'{style} · около {sec} с',
+    autoMix:'Авто-микс', emailInvalid:'Неверный формат email', otpIncomplete:'Введите все 6 цифр',
+    copied:'Скопировано!', copyFailed:'Ошибка копирования', favSaved:'Сохранено', favRemoved:'Удалено',
+    favTitle:'Сохранить', unfavTitle:'Убрать'
+  },
+  'ar': {
+    settings:'الإعدادات', lang:'اللغة', desc:'اختر لغة الواجهة. يبقى بعض المحتوى بلغته الأصلية.', saved:'تم الحفظ',
+    navStyle:'النمط', navLibrary:'المكتبة', navFolders:'المجلدات', navSaved:'المحفوظات', navSavedHint:'المحفوظات (S)',
+    signIn:'تسجيل الدخول', close:'إغلاق', popAccount:'حساب شخصي', popSaved:'محفوظاتي', logout:'تسجيل الخروج',
+    authTitle:'تسجيل الدخول أو الاشتراك', authSub:'تابع الإنشاء بحسابك', authGoogle:'المتابعة بـ Google', authApple:'المتابعة بـ Apple',
+    authOr:'أو', authEmail:'المتابعة بالبريد', authFoot:'بالمتابعة فأنت توافق على <a>الشروط</a> و<a>الخصوصية</a>',
+    authBack:'← رجوع', emailTitle:'أدخل البريد', emailSub:'سنرسل رمز التحقق', sendCode:'إرسال الرمز',
+    otpTitle:'أدخل الرمز', otpSub:'أُرسل إلى', otpDemo:'وضع تجريبي: أي 6 أرقام تعمل', otpVerify:'تحقق وادخل',
+    viewGrid:'شبكة', viewCollage:'كولاج', viewLatest:'الأحدث',
+    promptPh:'صف التصميم المطلوب…  مثل: صفحة هبوط لأداة كتابة بالذكاء الاصطناعي',
+    styleDropper:'الصق صورة أو رابطًا لاستخراج النمط', generate:'إنشاء (⏎)',
+    backHome:'العودة للرئيسية (Esc)', home:'الرئيسية', untitled:'تصميم بدون عنوان',
+    copyCode:'نسخ الكود', save:'حفظ', remixStyle:'إعادة مزج هذا النمط', moreLikeThis:'تصاميم مشابهة',
+    savedTitle:'تصاميم محفوظة', savedEmpty:'لا يوجد محفوظات بعد. مرّر فوق البطاقة واضغط ♥.',
+    generating:'إنشاء {n} متغيرات', generatingSub:'{style} · حوالي {sec} ث',
+    autoMix:'مزج تلقائي', emailInvalid:'صيغة البريد غير صحيحة', otpIncomplete:'أدخل 6 أرقام كاملة',
+    copied:'تم النسخ!', copyFailed:'فشل النسخ', favSaved:'تم الحفظ', favRemoved:'تمت الإزالة',
+    favTitle:'حفظ', unfavTitle:'إزالة'
+  },
+  'hi': {
+    settings:'सेटिंग्स', lang:'भाषा', desc:'इंटरफ़ेस की भाषा चुनें. कुछ सामग्री मूल भाषा में रहती है.', saved:'सहेजा गया',
+    navStyle:'शैली', navLibrary:'लाइब्रेरी', navFolders:'फ़ोल्डर', navSaved:'सहेजे', navSavedHint:'सहेजे (S)',
+    signIn:'साइन इन', close:'बंद करें', popAccount:'व्यक्तिगत खाता', popSaved:'मेरे सहेजे', logout:'साइन आउट',
+    authTitle:'साइन इन या साइन अप', authSub:'अपने खाते से बनाते रहें', authGoogle:'Google से जारी रखें', authApple:'Apple से जारी रखें',
+    authOr:'या', authEmail:'ईमेल से जारी रखें', authFoot:'जारी रखकर आप <a>शर्तें</a> और <a>गोपनीयता</a> से सहमत हैं',
+    authBack:'← वापस', emailTitle:'ईमेल दर्ज करें', emailSub:'हम सत्यापन कोड भेजेंगे', sendCode:'कोड भेजें',
+    otpTitle:'कोड दर्ज करें', otpSub:'भेजा गया', otpDemo:'डेमो मोड: कोई भी 6 अंक काम करते हैं', otpVerify:'सत्यापित करें',
+    viewGrid:'ग्रिड', viewCollage:'कोलाज', viewLatest:'नवीनतम',
+    promptPh:'अपनी डिज़ाइन का वर्णन करें…  उदा. AI लेखन टूल का लैंडिंग पेज',
+    styleDropper:'शैली निकालने के लिए छवि या URL पेस्ट करें', generate:'जनरेट (⏎)',
+    backHome:'होम पर वापस (Esc)', home:'होम', untitled:'बेनाम डिज़ाइन',
+    copyCode:'कोड कॉपी करें', save:'सहेजें', remixStyle:'इस शैली को रीमिक्स', moreLikeThis:'समान डिज़ाइन',
+    savedTitle:'सहेजे गए डिज़ाइन', savedEmpty:'अभी कुछ सहेजा नहीं. कार्ड पर ♥ दबाएं.',
+    generating:'{n} वेरिएंट जनरेट हो रहे हैं', generatingSub:'{style} · लगभग {sec} सेकंड',
+    autoMix:'ऑटो मिक्स', emailInvalid:'अमान्य ईमेल प्रारूप', otpIncomplete:'कृपया सभी 6 अंक भरें',
+    copied:'कॉपी हो गया!', copyFailed:'कॉपी विफल', favSaved:'सहेजा गया', favRemoved:'हटाया गया',
+    favTitle:'सहेजें', unfavTitle:'हटाएं'
+  }
+};
+
+const settingsMask = document.getElementById('settingsMask');
+const settingsClose = document.getElementById('settingsClose');
+const langGrid = document.getElementById('langGrid');
+const setToast = document.getElementById('setToast');
+const CHECK_SVG = '<svg class="lang-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+
+function getLang(){ return localStorage.getItem('app:lang') || 'zh-CN'; }
+function tr(key, code){
+  // 防 TDZ：I18N 字典声明在文件下方，早期渲染（如 renderSavedPanel 首次执行）
+  // 直接读 const 会触发暂存死区 ReferenceError 中断整脚本，这里 try/catch 兜底
+  let dict;
+  try { dict = I18N; } catch(_) { return key; }
+  const c = code || getLang();
+  const t = dict[c] || dict['zh-CN'];
+  return (t && t[key]) || (dict['zh-CN'] && dict['zh-CN'][key]) || key;
+}
+function applyLang(code){
+  const t = I18N[code] || I18N['zh-CN'];
+  document.documentElement.lang = code;
+  document.documentElement.dir = (code === 'ar') ? 'rtl' : 'ltr';
+  // 通用遍历：textContent
+  document.querySelectorAll('[data-i18n]').forEach(el=>{
+    const k = el.getAttribute('data-i18n');
+    if (t[k] != null) el.textContent = t[k];
+  });
+  // innerHTML（含 <a> 链接的法律条款行）
+  document.querySelectorAll('[data-i18n-html]').forEach(el=>{
+    const k = el.getAttribute('data-i18n-html');
+    if (t[k] != null) el.innerHTML = t[k];
+  });
+  // title
+  document.querySelectorAll('[data-i18n-title]').forEach(el=>{
+    const k = el.getAttribute('data-i18n-title');
+    if (t[k] != null) el.title = t[k];
+  });
+  // placeholder
+  document.querySelectorAll('[data-i18n-ph]').forEach(el=>{
+    const k = el.getAttribute('data-i18n-ph');
+    if (t[k] != null) el.placeholder = t[k];
+  });
+  if(setToast) setToast.textContent = t.saved;
+  // 同步刷新语言列表的选中态
+  if (langGrid) langGrid.querySelectorAll('.lang-item').forEach(el=>{
+    el.classList.toggle('active', el.dataset.code === code);
+  });
+  // 通知 iframe 内卡片切语言
+  document.querySelectorAll('iframe[data-card]').forEach(f=>{
+    try{ f.contentWindow && f.contentWindow.postMessage({type:'lang', code}, '*'); }catch(_){}
+  });
+}
+function renderLangGrid(){
+  const cur = getLang();
+  langGrid.innerHTML = LANGS.map(l => `
+    <button class="lang-item${l.code===cur?' active':''}" data-code="${l.code}">
+      <span class="lang-flag">${l.flag}</span>
+      <span class="lang-name">
+        <span class="lang-native">${l.native}</span>
+        <span class="lang-en">${l.en}</span>
+      </span>
+      ${CHECK_SVG}
+    </button>
+  `).join('');
+}
+function openSettings(){
+  renderLangGrid();
+  applyLang(getLang());
+  settingsMask.classList.add('open');
+}
+function closeSettings(){ settingsMask.classList.remove('open'); }
+settingsClose.addEventListener('click', closeSettings);
+settingsMask.addEventListener('click', e=>{ if(e.target === settingsMask) closeSettings(); });
+document.addEventListener('keydown', e=>{
+  if(e.key === 'Escape' && settingsMask.classList.contains('open')) closeSettings();
+});
+langGrid.addEventListener('click', e=>{
+  const item = e.target.closest('.lang-item');
+  if(!item) return;
+  const code = item.dataset.code;
+  localStorage.setItem('app:lang', code);
+  applyLang(code);
+  setToast.classList.add('show');
+  clearTimeout(setToast._t);
+  setToast._t = setTimeout(()=> setToast.classList.remove('show'), 1400);
+});
+// 启动时根据持久化语言初始化
+applyLang(getLang());
+
+// Step 1：选邮箱/Google/Apple
+document.querySelectorAll('[data-oauth]').forEach(b=>{
+  b.addEventListener('click',()=>{
+    const kind = b.dataset.oauth;
+    if(kind === 'email'){ showStep('email'); return; }
+    // Google / Apple：demo 模拟直接登录
+    setUser({ email: kind === 'google' ? 'demo@gmail.com' : 'demo@icloud.com', via: kind });
+    closeAuth();
+  });
+});
+
+// Step 2：发送验证码
+document.getElementById('authBack').addEventListener('click', ()=>showStep('choose'));
+document.getElementById('authSend').addEventListener('click', ()=>{
+  const email = document.getElementById('authEmail').value.trim();
+  const msg = document.getElementById('authMsg');
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
+    msg.textContent = tr('emailInvalid');
+    msg.classList.add('error');
+    return;
+  }
+  msg.textContent = '';
+  msg.classList.remove('error');
+  document.getElementById('otpEmail').textContent = email;
+  showStep('otp');
+});
+document.getElementById('authEmail').addEventListener('keydown', e=>{
+  if(e.key === 'Enter') document.getElementById('authSend').click();
+});
+
+// Step 3：OTP 输入 + 验证
+const otpInputs = document.querySelectorAll('.auth-otp input');
+otpInputs.forEach((inp,idx)=>{
+  inp.addEventListener('input', e=>{
+    const v = e.target.value.replace(/[^0-9]/g,'').slice(-1);
+    e.target.value = v;
+    if(v && otpInputs[idx+1]) otpInputs[idx+1].focus();
+  });
+  inp.addEventListener('keydown', e=>{
+    if(e.key === 'Backspace' && !inp.value && otpInputs[idx-1]) otpInputs[idx-1].focus();
+    if(e.key === 'Enter') document.getElementById('authVerify').click();
+  });
+  inp.addEventListener('paste', e=>{
+    const txt = (e.clipboardData.getData('text') || '').replace(/[^0-9]/g,'').slice(0,6);
+    if(!txt) return;
+    e.preventDefault();
+    [...txt].forEach((c,i)=>{ if(otpInputs[i]) otpInputs[i].value = c; });
+    (otpInputs[Math.min(txt.length, 5)]).focus();
+  });
+});
+document.getElementById('authBackOtp').addEventListener('click', ()=>showStep('email'));
+document.getElementById('authVerify').addEventListener('click', ()=>{
+  const code = [...otpInputs].map(i=>i.value).join('');
+  const msg = document.getElementById('otpMsg');
+  if(code.length !== 6){
+    msg.textContent = tr('otpIncomplete');
+    msg.classList.add('error');
+    return;
+  }
+  setUser({ email: document.getElementById('authEmail').value.trim(), via: 'email' });
+  closeAuth();
+});
+</script>
+</body>
+</html>

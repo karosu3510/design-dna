@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Nothing System Grid</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Inter+Tight:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0a0a0a;
+    --panel:#111111;
+    --panel-2:#0e0e0e;
+    --line:#1f1f1f;
+    --line-2:#2a2a2a;
+    --ink:#f4f4f4;
+    --ink-2:#9a9a9a;
+    --ink-3:#5a5a5a;
+    --accent:#ff3b3b;
+    --green:#3ddc84;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--bg);color:var(--ink);font-family:"Inter Tight",system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+  body{padding:32px;min-height:100vh}
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(12,1fr);
+    grid-auto-rows:130px;
+    gap:14px;
+    max-width:1320px;
+    margin:0 auto;
+  }
+  .card{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:18px;
+    padding:20px 22px;
+    position:relative;
+    overflow:hidden;
+    display:flex;
+    flex-direction:column;
+  }
+  .card::before{
+    content:"";position:absolute;inset:0;
+    background-image:
+      linear-gradient(rgba(255,255,255,.012) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,.012) 1px, transparent 1px);
+    background-size:24px 24px;
+    pointer-events:none;
+  }
+  .meta{
+    display:flex;align-items:center;justify-content:space-between;
+    font-family:"Space Mono",monospace;
+    font-size:10px;letter-spacing:.18em;color:var(--ink-2);
+    text-transform:uppercase;
+    position:relative;z-index:2;
+  }
+  .led{width:6px;height:6px;border-radius:1px;background:var(--accent);box-shadow:0 0 8px var(--accent);animation:blink 2.4s infinite}
+  .led.idle{background:#444;box-shadow:none}
+  @keyframes blink{0%,40%{opacity:1}50%{opacity:.2}100%{opacity:1}}
+
+  /* DEVICE CLOCK */
+  .c-clock{grid-column:span 7;grid-row:span 3;}
+  .c-clock .body{display:flex;flex-direction:column;gap:12px;flex:1;margin-top:18px;position:relative;z-index:2}
+  .dot-time{display:flex;align-items:center;gap:10px;}
+  .dot-time canvas{display:block}
+  .clock-sub{font-family:"Space Mono",monospace;font-size:11px;color:var(--ink-2);letter-spacing:.16em;margin-top:14px}
+  .glyph-link{display:flex;flex-direction:column;align-items:flex-start;gap:10px}
+  .glyph-link .label{font-family:"Space Mono",monospace;font-size:10px;letter-spacing:.18em;color:var(--ink-2)}
+  .glyph-grid{display:grid;grid-template-columns:repeat(11,8px);grid-template-rows:repeat(11,8px);gap:3px}
+  .glyph-grid i{width:8px;height:8px;background:#262626;border-radius:1px;display:block}
+  .glyph-grid i.on{background:#f4f4f4}
+  .glyph-grid i.dim{background:#3a3a3a}
+  .clock-foot{
+    display:grid;grid-template-columns:repeat(3,1fr);gap:24px;
+    position:relative;z-index:2;margin-top:14px;padding-top:14px;border-top:1px dashed var(--line-2);
+  }
+  .stat .k{font-family:"Space Mono",monospace;font-size:10px;letter-spacing:.18em;color:var(--ink-2)}
+  .stat .v{font-family:"Space Mono",monospace;font-size:22px;color:var(--ink);margin-top:4px;letter-spacing:.04em}
+  .stat .u{font-family:"Space Mono",monospace;font-size:10px;color:var(--ink-3);letter-spacing:.18em;margin-top:2px}
+  .ticker{
+    position:relative;z-index:2;margin-top:14px;
+    font-family:"Space Mono",monospace;font-size:10px;letter-spacing:.18em;color:var(--ink-3);
+    border-top:1px solid var(--line);padding-top:12px;
+  }
+
+  /* NOW PLAYING */
+  .c-play{grid-column:span 5;grid-row:span 2;background:#fafafa;color:#0a0a0a;border-color:#fafafa}
+  .c-play::before{display:none}
+  .c-play .meta{color:#666}
+  .c-play h2{font-size:24px;font-weight:600;letter-spacing:-.01em;margin-top:14px;font-family:"Inter Tight"}
+  .c-play .desc{font-size:12px;color:#666;margin-top:4px}
+  .vu{display:flex;align-items:flex-end;gap:3px;margin-top:auto;height:54px}
+  .vu i{width:6px;background:#0a0a0a;border-radius:1px;display:block}
+  .vu i.lo{background:#bdbdbd}
+
+  /* GLYPH MATRIX */
+  .c-matrix{grid-column:span 3;grid-row:span 2}
+  .matrix{display:grid;grid-template-columns:repeat(auto-fill,10px);grid-auto-rows:10px;gap:3px;margin-top:14px;position:relative;z-index:2;flex:1;align-content:start;justify-content:start;overflow:hidden}
+  .matrix i{width:10px;height:10px;background:#262626;border-radius:1px}
+  .matrix i.on{background:#f4f4f4}
+  .matrix i.mid{background:#5a5a5a}
+
+  /* LOCAL SKY */
+  .c-sky{grid-column:span 2;grid-row:span 2}
+  .sky-temp{display:flex;align-items:flex-start;gap:4px;margin-top:14px;position:relative;z-index:2}
+  .sky-temp canvas{display:block}
+  .sky-temp .deg{font-family:"Space Mono",monospace;font-size:11px;color:var(--ink-2);letter-spacing:.18em;margin-top:4px}
+  .sky-desc{font-size:11px;color:var(--ink-2);margin-top:auto;font-family:"Space Mono",monospace;letter-spacing:.06em;position:relative;z-index:2}
+  .mini-glyph{display:grid;grid-template-columns:repeat(8,5px);gap:2px;margin-top:8px;position:relative;z-index:2}
+  .mini-glyph i{width:5px;height:5px;background:#262626;border-radius:1px}
+  .mini-glyph i.on{background:#9a9a9a}
+
+  /* RADIO TUNER */
+  .c-radio{grid-column:span 7;grid-row:span 2}
+  .tuner{position:relative;flex:1;margin-top:18px;z-index:2;display:flex;align-items:center;gap:24px}
+  .tuner .scale{flex:1;height:80px;position:relative;border-bottom:1px solid var(--line-2)}
+  .tuner .scale .tick{position:absolute;bottom:0;width:1px;background:var(--ink-3)}
+  .tuner .scale .tick.major{background:var(--ink-2);height:18px}
+  .tuner .scale .tick.minor{height:10px}
+  .tuner .scale .needle{position:absolute;top:0;width:14px;height:80px;display:flex;flex-direction:column;align-items:center;transform:translateX(-7px);transition:left .3s}
+  .tuner .scale .needle::before{content:"";width:1px;height:60px;background:var(--ink)}
+  .tuner .scale .needle::after{content:"";width:14px;height:14px;border:1px solid var(--ink);background:#0a0a0a;border-radius:2px;margin-top:-2px}
+  .tuner .scale .ends{position:absolute;left:0;right:0;bottom:-18px;display:flex;justify-content:space-between;font-family:"Space Mono",monospace;font-size:10px;color:var(--ink-3);letter-spacing:.18em}
+  .freq{font-family:"Space Mono",monospace;text-align:right}
+  .freq .big{font-size:42px;color:var(--ink);letter-spacing:.02em;line-height:1}
+  .freq .small{font-size:10px;color:var(--ink-2);letter-spacing:.18em;margin-top:8px}
+
+  /* CPU */
+  .c-cpu{grid-column:span 3;grid-row:span 2}
+  .cpu-val{display:flex;align-items:baseline;gap:4px;margin-top:12px;position:relative;z-index:2}
+  .cpu-val .n{font-family:"Space Mono",monospace;font-size:34px;letter-spacing:.02em}
+  .cpu-val .p{font-family:"Space Mono",monospace;font-size:14px;color:var(--ink-2)}
+  .cpu-spark{flex:1;margin-top:6px;position:relative;z-index:2}
+  .cpu-foot{display:flex;justify-content:space-between;font-family:"Space Mono",monospace;font-size:10px;color:var(--ink-3);letter-spacing:.18em;position:relative;z-index:2}
+
+  /* BATTERY */
+  .c-batt{grid-column:span 2;grid-row:span 2}
+  .batt-val{margin-top:12px;position:relative;z-index:2}
+  .batt-num{display:flex;gap:6px;align-items:flex-start}
+  .batt-num canvas{display:block}
+  .batt-bar{display:flex;gap:2px;margin-top:auto;position:relative;z-index:2;padding:6px 0}
+  .batt-bar i{flex:1;height:18px;background:#1f1f1f;border-radius:1px}
+  .batt-bar i.on{background:var(--green)}
+  .batt-foot{display:flex;justify-content:space-between;font-family:"Space Mono",monospace;font-size:10px;color:var(--ink-3);letter-spacing:.18em;margin-top:6px;position:relative;z-index:2}
+
+  /* QUICK BUS */
+  .c-bus{grid-column:span 4;grid-row:span 2}
+  .bus-list{display:flex;flex-direction:column;gap:10px;margin-top:14px;position:relative;z-index:2}
+  .bus-row{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:#0e0e0e;border:1px solid var(--line);border-radius:8px}
+  .bus-row .name{font-size:13px;color:var(--ink)}
+  .bus-row .ind{display:grid;grid-template-columns:repeat(3,5px);grid-auto-rows:5px;gap:1.5px}
+  .bus-row .ind i{width:5px;height:5px;background:#262626;border-radius:1px}
+  .bus-row .ind i.on{background:#f4f4f4}
+
+  /* FOCUS RING */
+  .c-focus{grid-column:span 3;grid-row:span 2}
+  .focus-body{display:flex;align-items:center;gap:14px;margin-top:14px;position:relative;z-index:2;flex:1}
+  .focus-time{font-family:"Space Mono",monospace;font-size:24px}
+  .focus-desc{font-size:11px;color:var(--ink-2);margin-top:6px;font-family:"Space Mono",monospace;letter-spacing:.1em}
+  .focus-bar{display:flex;gap:2px;margin-top:auto;position:relative;z-index:2}
+  .focus-bar i{flex:1;height:14px;background:#1f1f1f;border-radius:1px}
+  .focus-bar i.on{background:#f4f4f4}
+
+  /* NETWORK */
+  .c-net{grid-column:span 3;grid-row:span 2}
+  .net-row{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:12px;position:relative;z-index:2}
+  .net-row .k{font-family:"Space Mono",monospace;font-size:10px;color:var(--ink-2);letter-spacing:.18em}
+  .net-row .v{font-family:"Space Mono",monospace;font-size:18px;color:var(--ink);margin-top:2px}
+  .net-foot{display:flex;justify-content:space-between;font-family:"Space Mono",monospace;font-size:10px;color:var(--ink-3);letter-spacing:.18em;margin-top:auto;position:relative;z-index:2}
+
+  /* AMBIENT VU */
+  .c-amb{grid-column:span 2;grid-row:span 2}
+  .amb-vu{display:flex;align-items:flex-end;gap:3px;flex:1;margin-top:14px;position:relative;z-index:2;height:60px}
+  .amb-vu i{flex:1;background:#3a3a3a;border-radius:1px}
+  .amb-vu i.hot{background:var(--accent)}
+  .amb-foot{display:grid;grid-template-columns:1fr 1fr;gap:18px;position:relative;z-index:2;margin-top:8px}
+  .amb-foot .k{font-family:"Space Mono",monospace;font-size:10px;color:var(--ink-2);letter-spacing:.18em}
+  .amb-foot .v{font-family:"Space Mono",monospace;font-size:14px;color:var(--ink);margin-top:2px}
+</style>
+</head>
+<body>
+
+<div class="grid">
+
+  <!-- DEVICE CLOCK -->
+  <div class="card c-clock">
+    <div class="meta"><span>DEVICE CLOCK</span><span class="led"></span></div>
+    <div class="body">
+      <div>
+        <div class="dot-time"><canvas id="dotClock" width="380" height="86"></canvas></div>
+        <div class="clock-sub" id="dateLine">SAT, APR 25 :58</div>
+      </div>
+    </div>
+    <div class="clock-foot">
+      <div class="stat"><div class="k">UPTIME</div><div class="v" id="uptime">18:28:21</div></div>
+      <div class="stat"><div class="k">THREADS</div><div class="v">141</div></div>
+      <div class="stat"><div class="k">LATENCY</div><div class="v">24</div><div class="u">MS</div></div>
+    </div>
+    <div class="ticker">GLYPH SEQUENCER ARMED  //  THERMAL NOMINAL  //  RADIO MESH CLEAN</div>
+  </div>
+
+  <!-- NOW PLAYING -->
+  <div class="card c-play">
+    <div class="meta"><span>NOW PLAYING</span><span class="led idle" style="background:#bdbdbd"></span></div>
+    <h2>Nightcall / device mix</h2>
+    <div class="desc">Internal speaker pair · adaptive low-latency</div>
+    <div class="vu" id="vuBars"></div>
+  </div>
+
+  <!-- GLYPH MATRIX -->
+  <div class="card c-matrix">
+    <div class="meta"><span>GLYPH MATRIX</span><span class="led idle"></span></div>
+    <div class="matrix" id="matrix"></div>
+  </div>
+
+  <!-- LOCAL SKY -->
+  <div class="card c-sky">
+    <div class="meta"><span>LOCAL SKY</span><span class="led idle"></span></div>
+    <div class="sky-temp"><canvas id="skyTemp" width="84" height="40"></canvas><span class="deg">°C</span></div>
+    <div class="mini-glyph" id="miniGlyph"></div>
+    <div class="sky-desc">thin cloud / steady pressure</div>
+  </div>
+
+  <!-- RADIO TUNER -->
+  <div class="card c-radio">
+    <div class="meta"><span>RADIO TUNER</span><span class="led idle"></span></div>
+    <div class="tuner">
+      <div class="scale" id="tunerScale">
+        <div class="needle" id="needle" style="left:60%"></div>
+        <div class="ends"><span>88.1</span><span>108.0</span></div>
+      </div>
+      <div class="freq">
+        <div class="big">98.7</div>
+        <div class="small">98.7 MHZ · 58DB CLEAN</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CPU LOAD -->
+  <div class="card c-cpu">
+    <div class="meta"><span>CPU LOAD</span><span class="led idle"></span></div>
+    <div class="cpu-val"><span class="n" id="cpuN">32</span><span class="p">%</span></div>
+    <canvas class="cpu-spark" id="cpuSpark" width="240" height="80"></canvas>
+    <div class="cpu-foot"><span>8C</span><span>40.7°</span></div>
+  </div>
+
+  <!-- BATTERY -->
+  <div class="card c-batt">
+    <div class="meta"><span>BATTERY</span><span class="led idle"></span></div>
+    <div class="batt-val">
+      <div class="batt-num"><canvas id="battNum" width="64" height="34"></canvas><span class="deg" style="font-family:Space Mono,monospace;font-size:11px;color:var(--ink-2);letter-spacing:.18em;margin-top:4px">%</span></div>
+    </div>
+    <div class="batt-bar" id="battBar"></div>
+    <div class="batt-foot"><span>CHARGING</span><span>7H 40M</span></div>
+  </div>
+
+  <!-- QUICK BUS -->
+  <div class="card c-bus">
+    <div class="meta"><span>QUICK BUS</span><span class="led idle"></span></div>
+    <div class="bus-list">
+      <div class="bus-row"><span class="name">Wi-Fi 6E</span><span class="ind" data-on="6"></span></div>
+      <div class="bus-row"><span class="name">Glyph Sync</span><span class="ind" data-on="9"></span></div>
+      <div class="bus-row"><span class="name">Mic Gate</span><span class="ind" data-on="3"></span></div>
+      <div class="bus-row"><span class="name">Focus Lock</span><span class="ind" data-on="5"></span></div>
+    </div>
+  </div>
+
+  <!-- FOCUS RING -->
+  <div class="card c-focus">
+    <div class="meta"><span>FOCUS RING</span><span class="led idle"></span></div>
+    <div class="focus-body">
+      <canvas id="focusRing" width="86" height="86"></canvas>
+      <div>
+        <div class="focus-time">20:02</div>
+        <div class="focus-desc">deep work block</div>
+      </div>
+    </div>
+    <div class="focus-bar" id="focusBar"></div>
+  </div>
+
+  <!-- NETWORK -->
+  <div class="card c-net">
+    <div class="meta"><span>NETWORK</span><span class="led idle"></span></div>
+    <div class="net-row">
+      <div><div class="k">DOWN</div><div class="v">188 MB</div></div>
+      <div><div class="k">RTT</div><div class="v">48 MS</div></div>
+    </div>
+    <canvas id="netSpark" width="240" height="60" style="margin-top:8px;position:relative;z-index:2"></canvas>
+    <div class="net-foot"><span>3G</span><span>0.01%</span></div>
+  </div>
+
+  <!-- AMBIENT VU -->
+  <div class="card c-amb">
+    <div class="meta"><span>AMBIENT VU</span><span class="led idle"></span></div>
+    <div class="amb-vu" id="ambVu"></div>
+    <div class="amb-foot">
+      <div><div class="k">NOISE</div><div class="v">53DB</div></div>
+      <div><div class="k">AQI</div><div class="v">037</div></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+/* ======= dot-matrix renderer ======= */
+const DOT_MAP = {
+  "0":["01110","10001","10011","10101","11001","10001","01110"],
+  "1":["00100","01100","00100","00100","00100","00100","01110"],
+  "2":["01110","10001","00001","00010","00100","01000","11111"],
+  "3":["11110","00001","00001","01110","00001","00001","11110"],
+  "4":["00010","00110","01010","10010","11111","00010","00010"],
+  "5":["11111","10000","11110","00001","00001","10001","01110"],
+  "6":["00110","01000","10000","11110","10001","10001","01110"],
+  "7":["11111","00001","00010","00100","01000","01000","01000"],
+  "8":["01110","10001","10001","01110","10001","10001","01110"],
+  "9":["01110","10001","10001","01111","00001","00010","01100"],
+  ":":["00000","00100","00100","00000","00100","00100","00000"],
+  " ":["00000","00000","00000","00000","00000","00000","00000"]
+};
+function drawDots(ctx, text, scale=8, color="#f4f4f4", gap=2){
+  ctx.clearRect(0,0,ctx.canvas.width,ctx.canvas.height);
+  let x=0;
+  for(const ch of text){
+    const m = DOT_MAP[ch] || DOT_MAP[" "];
+    for(let r=0;r<7;r++){
+      for(let c=0;c<5;c++){
+        if(m[r][c]==="1"){
+          ctx.fillStyle=color;
+          ctx.fillRect(x+c*scale, r*scale, scale-gap, scale-gap);
+        }else{
+          ctx.fillStyle="#1f1f1f";
+          ctx.fillRect(x+c*scale, r*scale, scale-gap, scale-gap);
+        }
+      }
+    }
+    x += 6*scale;
+  }
+}
+
+/* clock */
+const clockCanvas = document.getElementById("dotClock");
+const clockCtx = clockCanvas.getContext("2d");
+function tickClock(){
+  const d = new Date();
+  const hh = String(d.getHours()).padStart(2,"0");
+  const mm = String(d.getMinutes()).padStart(2,"0");
+  drawDots(clockCtx, hh+":"+mm, 10);
+  const days=["SUN","MON","TUE","WED","THU","FRI","SAT"];
+  const months=["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"];
+  document.getElementById("dateLine").textContent =
+    `${days[d.getDay()]}, ${months[d.getMonth()]} ${String(d.getDate()).padStart(2,"0")}  :${String(d.getSeconds()).padStart(2,"0")}`;
+}
+tickClock(); setInterval(tickClock,1000);
+
+/* sky temp */
+const skyCtx = document.getElementById("skyTemp").getContext("2d");
+function drawSky(){ drawDots(skyCtx,"28",5); }
+drawSky();
+
+/* battery number */
+const battCtx = document.getElementById("battNum").getContext("2d");
+drawDots(battCtx, "92", 5);
+
+/* uptime */
+let upS = 18*3600 + 28*60 + 21;
+setInterval(()=>{ upS++;
+  const h=String(Math.floor(upS/3600)).padStart(2,"0");
+  const m=String(Math.floor(upS/60)%60).padStart(2,"0");
+  const s=String(upS%60).padStart(2,"0");
+  document.getElementById("uptime").textContent = `${h}:${m}:${s}`;
+},1000);
+
+/* glyph grid removed */
+(function(){
+  const g = document.getElementById("glyphGrid");
+  if(!g) return;
+  const pat = [
+    "00111111100",
+    "01000000010",
+    "01010101010",
+    "01010001010",
+    "01010101010",
+    "01000000010",
+    "01010101010",
+    "01010101010",
+    "01010001010",
+    "01000000010",
+    "00111111100",
+  ];
+  for(let r=0;r<11;r++) for(let c=0;c<11;c++){
+    const i=document.createElement("i");
+    if(pat[r][c]==="1") i.classList.add("on");
+    else if(Math.random()<.18) i.classList.add("dim");
+    g.appendChild(i);
+  }
+  // animate
+  setInterval(()=>{
+    const cells = g.querySelectorAll("i");
+    cells.forEach(c=>{
+      if(!c.classList.contains("on") && Math.random()<.04){
+        c.classList.toggle("dim");
+      }
+    });
+  }, 600);
+})();
+
+/* glyph matrix — fill card */
+(function(){
+  const g = document.getElementById("matrix");
+  const cells = [];
+  function build(){
+    g.innerHTML = "";
+    cells.length = 0;
+    const w = g.clientWidth, h = g.clientHeight;
+    const cell = 10, gap = 3;
+    const cols = Math.max(1, Math.floor((w + gap) / (cell + gap)));
+    const rows = Math.max(1, Math.floor((h + gap) / (cell + gap)));
+    const total = cols * rows;
+    for(let i=0;i<total;i++){
+      const el = document.createElement("i");
+      const r = Math.random();
+      if(r<.3) el.classList.add("on");
+      else if(r<.7) el.classList.add("mid");
+      g.appendChild(el);
+      cells.push(el);
+    }
+  }
+  build();
+  window.addEventListener("resize", build);
+  setInterval(()=>{
+    if(!cells.length) return;
+    for(let k=0;k<8;k++){
+      const c = cells[Math.floor(Math.random()*cells.length)];
+      c.className=""; const r=Math.random();
+      if(r<.3) c.classList.add("on"); else if(r<.7) c.classList.add("mid");
+    }
+  }, 400);
+})();
+
+/* mini glyph 8x4 */
+(function(){
+  const g = document.getElementById("miniGlyph");
+  for(let i=0;i<8*4;i++){
+    const el = document.createElement("i");
+    if(Math.random()<.4) el.classList.add("on");
+    g.appendChild(el);
+  }
+})();
+
+/* VU bars */
+(function(){
+  const g = document.getElementById("vuBars");
+  const N = 38;
+  const bars = [];
+  for(let i=0;i<N;i++){
+    const b = document.createElement("i");
+    bars.push(b); g.appendChild(b);
+  }
+  function tick(){
+    bars.forEach((b,i)=>{
+      const base = Math.sin(i/3+Date.now()/300)*0.4 + 0.55;
+      const h = Math.max(8, base*54 + (Math.random()*16-8));
+      b.style.height = h+"px";
+      b.classList.toggle("lo", h<22);
+    });
+  }
+  tick(); setInterval(tick, 140);
+})();
+
+/* radio tuner ticks */
+(function(){
+  const s = document.getElementById("tunerScale");
+  for(let i=0;i<60;i++){
+    const t = document.createElement("div");
+    t.className = "tick " + (i%5===0?"major":"minor");
+    t.style.left = (i/59*100) + "%";
+    s.appendChild(t);
+  }
+  let pos = 60;
+  setInterval(()=>{
+    pos += (Math.random()-.5)*2;
+    pos = Math.max(20, Math.min(85, pos));
+    document.getElementById("needle").style.left = pos+"%";
+  }, 1400);
+})();
+
+/* CPU sparkline */
+(function(){
+  const c = document.getElementById("cpuSpark");
+  const ctx = c.getContext("2d");
+  const W=c.width, H=c.height;
+  const data = Array.from({length:50},()=>30+Math.random()*20);
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    ctx.strokeStyle="#f4f4f4"; ctx.lineWidth=1.5;
+    ctx.beginPath();
+    data.forEach((v,i)=>{
+      const x = i/(data.length-1)*W;
+      const y = H - (v/80)*H;
+      i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+    });
+    ctx.stroke();
+  }
+  draw();
+  setInterval(()=>{
+    data.push(28+Math.random()*22); data.shift();
+    document.getElementById("cpuN").textContent = Math.round(data[data.length-1]);
+    draw();
+  }, 800);
+})();
+
+/* battery bar */
+(function(){
+  const g = document.getElementById("battBar");
+  const N = 16;
+  for(let i=0;i<N;i++){
+    const b = document.createElement("i");
+    if(i < Math.round(N*.92)) b.classList.add("on");
+    g.appendChild(b);
+  }
+})();
+
+/* focus ring */
+(function(){
+  const c = document.getElementById("focusRing");
+  const ctx = c.getContext("2d");
+  let p = 0.62;
+  function draw(){
+    ctx.clearRect(0,0,86,86);
+    ctx.strokeStyle="#262626"; ctx.lineWidth=8;
+    ctx.beginPath(); ctx.arc(43,43,32,0,Math.PI*2); ctx.stroke();
+    ctx.strokeStyle="#f4f4f4"; ctx.lineWidth=8; ctx.lineCap="butt";
+    ctx.beginPath(); ctx.arc(43,43,32,-Math.PI/2,-Math.PI/2 + Math.PI*2*p); ctx.stroke();
+  }
+  draw();
+})();
+
+/* focus bar */
+(function(){
+  const g = document.getElementById("focusBar");
+  for(let i=0;i<16;i++){
+    const b = document.createElement("i");
+    if(i<11) b.classList.add("on");
+    g.appendChild(b);
+  }
+})();
+
+/* network sparkline */
+(function(){
+  const c = document.getElementById("netSpark");
+  const ctx = c.getContext("2d");
+  const W=c.width, H=c.height;
+  const data = Array.from({length:40},()=>20+Math.random()*30);
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    ctx.strokeStyle="#f4f4f4"; ctx.lineWidth=1.5;
+    ctx.beginPath();
+    data.forEach((v,i)=>{
+      const x = i/(data.length-1)*W;
+      const y = H - (v/60)*H;
+      i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+    });
+    ctx.stroke();
+  }
+  draw();
+  setInterval(()=>{ data.push(15+Math.random()*40); data.shift(); draw(); },900);
+})();
+
+/* ambient vu */
+(function(){
+  const g = document.getElementById("ambVu");
+  const N = 22;
+  const bars=[];
+  for(let i=0;i<N;i++){
+    const b=document.createElement("i");
+    bars.push(b); g.appendChild(b);
+  }
+  function tick(){
+    bars.forEach((b,i)=>{
+      const v = Math.random()*0.7+0.2;
+      b.style.height = (v*60)+"px";
+      b.classList.toggle("hot", i>=N-3 && Math.random()<.4);
+    });
+  }
+  tick(); setInterval(tick, 380);
+})();
+
+/* quick bus indicators */
+(function(){
+  document.querySelectorAll(".bus-row .ind").forEach(el=>{
+    const on = parseInt(el.dataset.on||"0",10);
+    for(let i=0;i<9;i++){
+      const dot = document.createElement("i");
+      if(i<on) dot.classList.add("on");
+      el.appendChild(dot);
+    }
+  });
+})();
+</script>
+</body>
+</html>

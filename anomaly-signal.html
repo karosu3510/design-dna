@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>ANOMALY — Signal interference field</title>
+<style>
+  :root{--bg:#000;--hud:#9a9a9a;--signal:#e8e8e8;--signal-mid:#9a9a9a;--signal-dim:#565656}
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{width:1100px;height:720px;overflow:hidden;background:#000;color:var(--hud);font-family:"Rajdhani","Orbitron","Eurostile",ui-monospace,monospace;-webkit-font-smoothing:antialiased}
+  .stage{position:relative;width:1100px;height:720px;background:#000;overflow:hidden}
+  canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+  .hud{position:absolute;inset:0;pointer-events:none;color:rgba(170,170,170,.86)}
+  .title{position:absolute;left:0;top:20px;font-size:31px;line-height:1;letter-spacing:.28em;font-weight:300;text-transform:uppercase;color:rgba(185,185,185,.9)}
+  .window{position:absolute;right:38px;top:30px;display:flex;gap:26px;align-items:center;font-size:28px;letter-spacing:.22em;color:rgba(185,185,185,.82)}
+  .ruler{position:absolute;left:0;right:0;height:1px;background:rgba(150,150,150,.58)}
+  .ruler.top{top:78px}.ruler.bottom{bottom:85px}
+  .ruler::before{content:"";position:absolute;left:36px;right:36px;top:0;height:28px;background:repeating-linear-gradient(90deg,rgba(170,170,170,.56) 0 1px,transparent 1px 34px)}
+  .ruler.bottom::before{top:-27px}.ruler.top::before{top:0}
+  .grid{position:absolute;left:0;right:0;top:78px;bottom:85px;background:repeating-linear-gradient(90deg,rgba(110,110,110,.18) 0 1px,transparent 1px 138px);opacity:.9}
+  .axis{position:absolute;bottom:31px;left:0;right:0;display:flex;justify-content:space-between;padding:0 0 0 0;font-size:24px;letter-spacing:.16em;color:rgba(180,180,180,.82)}
+  .cross{position:absolute;width:44px;height:44px;opacity:.55}.cross::before,.cross::after{content:"";position:absolute;background:rgba(180,180,180,.38)}.cross::before{left:0;right:0;top:50%;height:1px}.cross::after{top:0;bottom:0;left:50%;width:1px}.c1{left:118px;top:245px}.c2{left:120px;top:408px}.c3{left:525px;top:376px}.c4{right:118px;top:245px}.c5{right:118px;top:408px}
+  .small{position:absolute;left:6px;bottom:30px;font-size:24px;line-height:1;color:rgba(180,180,180,.82)}
+</style>
+</head>
+<body>
+<div class="stage" aria-label="ANOMALY signal interference field">
+  <canvas id="scope"></canvas>
+  <div class="hud">
+    <div class="title">ANOMALY</div>
+    <div class="window"><span>−</span><span>▢</span><span>▢</span></div>
+    <div class="ruler top"></div><div class="ruler bottom"></div><div class="grid"></div>
+    <div class="cross c1"></div><div class="cross c2"></div><div class="cross c3"></div><div class="cross c4"></div><div class="cross c5"></div>
+    <div class="axis"><span>8</span><span>−6</span><span>−4</span><span>−2</span><span>0</span><span>+2</span><span>+4</span><span>+6</span><span>+</span></div>
+    <div class="small">⊞</div>
+  </div>
+</div>
+<script>
+(() => {
+  const canvas=document.getElementById('scope');
+  const ctx=canvas.getContext('2d');
+  const W=1100,H=720;
+  let dpr=1;
+  function resize(){dpr=Math.min(window.devicePixelRatio||1,1.5);canvas.width=W*dpr;canvas.height=H*dpr;ctx.setTransform(dpr,0,0,dpr,0,0)}
+  resize(); window.addEventListener('resize',resize);
+  function n(x){return Math.sin(x*12.9898)*43758.5453%1}
+  function smoothNoise(x,seed){const i=Math.floor(x),f=x-i;const u=f*f*(3-2*f);const a=n(i+seed*37.2),b=n(i+1+seed*37.2);return a*(1-u)+b*u}
+  function env(t){const pinch=Math.exp(-Math.pow((t-.5)/.13,2));return .28 + (1-pinch)*1.08}
+  function ribbon(time,opt){
+    const {layers,color,amp,base,freq,phase,fill}=opt;
+    for(let l=0;l<layers;l++){
+      const off=(l-(layers-1)/2)/layers;
+      ctx.beginPath();
+      for(let x=-20;x<=W+20;x+=4){
+        const t=x/W;
+        const e=env(t);
+        const f=freq*(1+off*.16);
+        const wave=Math.sin(t*f+time*phase+off*8)*.58 + Math.sin(t*(f*.43)+time*phase*.62+off*11)*.34 + (smoothNoise(t*18+time*.035,l)-.5)*.45;
+        const y=base + wave*amp*e + off*amp*1.7*e;
+        if(x===-20) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+      }
+      ctx.strokeStyle=color; ctx.lineWidth=fill?1.1:.85; ctx.globalAlpha=fill?0.13:0.42; ctx.stroke();
+    }
+    ctx.globalAlpha=1;
+  }
+  function filledRibbon(time,color,amp,base,freq,phase){
+    ctx.beginPath();
+    for(let x=0;x<=W;x+=4){const t=x/W;const y=base+(Math.sin(t*freq+time*phase)*.55+Math.sin(t*freq*.47-time*.31)*.25)*amp*env(t); if(x===0)ctx.moveTo(x,y);else ctx.lineTo(x,y)}
+    for(let x=W;x>=0;x-=4){const t=x/W;const y=base-(Math.sin(t*freq+time*phase)*.55+Math.sin(t*freq*.47-time*.31)*.25)*amp*env(t); ctx.lineTo(x,y)}
+    ctx.closePath();ctx.fillStyle=color;ctx.globalAlpha=.28;ctx.fill();ctx.globalAlpha=1;
+  }
+  function contours(time){
+    ctx.lineWidth=1.25;ctx.globalAlpha=.34;
+    for(let k=0;k<10;k++){
+      ctx.beginPath();
+      for(let x=-30;x<=W+30;x+=8){
+        const t=x/W;
+        const drift=Math.sin(t*12+k*.7+time*.22)*28 + Math.sin(t*25+k+time*.13)*10;
+        const y=90+k*64+drift+Math.sin(t*3.5+k*.4)*90;
+        if(x===-30)ctx.moveTo(x,y);else ctx.lineTo(x,y);
+      }
+      ctx.strokeStyle='rgba(155,155,155,.42)';ctx.stroke();
+    }
+    ctx.globalAlpha=1;
+  }
+  function sparks(time){
+    ctx.fillStyle='rgba(210,210,210,.36)';
+    for(let i=0;i<120;i++){const x=(Math.sin(i*17.13)*43758.5%1+1)%1*W;const y=(Math.sin(i*31.7+time*.03)*12345.3%1+1)%1*H; if(x>420&&x<660&&y>130&&y<540)ctx.fillRect(x,y,1,1)}
+  }
+  function draw(now){
+    const time=now*.001;
+    ctx.clearRect(0,0,W,H);
+    ctx.fillStyle='#000';ctx.fillRect(0,0,W,H);
+    contours(time);
+    sparks(time);
+    filledRibbon(time,'rgba(210,210,210,.22)',112,360,18,.95);
+    filledRibbon(time,'rgba(120,120,120,.32)',78,362,12,.62);
+    ribbon(time,{layers:90,color:'rgba(105,105,105,.78)',amp:116,base:360,freq:22,phase:1.1,fill:true});
+    ribbon(time,{layers:56,color:'rgba(235,235,235,.82)',amp:96,base:360,freq:47,phase:1.35,fill:false});
+    ribbon(time,{layers:36,color:'rgba(150,150,150,.58)',amp:128,base:350,freq:33,phase:-.92,fill:false});
+    ctx.globalCompositeOperation='lighter';
+    ribbon(time,{layers:14,color:'rgba(255,255,255,.60)',amp:80,base:354,freq:64,phase:1.65,fill:false});
+    ctx.globalCompositeOperation='source-over';
+    requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw);
+})();
+</script>
+</body>
+</html>

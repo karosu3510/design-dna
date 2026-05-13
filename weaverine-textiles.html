@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Weaverine — precision crafted textiles</title>
+<style>
+  :root{
+    --paper:#e6e4dc;
+    --ink:#111111;
+    --line:#111111;
+    --orange:#ff5b1e;
+    --green:#6fa277;
+    --red:#9a1605;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{width:1440px;height:720px;overflow:hidden;background:var(--paper);color:var(--ink);font-family:"Arial Narrow","HelveticaNeue-CondensedBold","Roboto Condensed","Impact",sans-serif;-webkit-font-smoothing:antialiased;text-rendering:geometricPrecision}
+  .page{position:relative;width:100%;height:100%;display:grid;grid-template-rows:54px 292px 338px 36px;background:var(--paper)}
+  .top{display:grid;grid-template-columns:140px 1fr 92px 120px;border-bottom:1px solid var(--line);height:54px}
+  .brand{border-right:1px solid var(--line);display:flex;align-items:center;padding-left:18px;font-size:24px;line-height:1;font-weight:900;letter-spacing:-.04em;text-transform:uppercase}
+  .nav{display:flex;justify-content:center;align-items:center;gap:50px;border-right:1px solid var(--line)}
+  .nav a{font-size:16px;line-height:1;font-weight:900;letter-spacing:.04em;text-transform:uppercase;text-decoration:none;color:var(--ink)}
+  .lang{border-right:1px solid var(--line);display:flex;align-items:center;justify-content:center;gap:10px;font:700 10px ui-monospace,monospace;letter-spacing:.16em;text-transform:uppercase}.lang span:last-child{opacity:.34}
+  .quote{display:flex;align-items:center;justify-content:center;background:#111;color:var(--paper);font-size:17px;font-weight:900;letter-spacing:.04em;text-transform:uppercase}
+  .hero{border-bottom:1px solid var(--line);display:flex;align-items:flex-start;padding:12px 22px 0 22px;overflow:hidden}
+  .title{font-size:126px;line-height:.80;letter-spacing:-.055em;font-weight:900;text-transform:uppercase;max-width:none;width:100%;transform:scaleX(1.02);transform-origin:left top;white-space:nowrap}
+  .info{display:grid;grid-template-columns:400px 400px 1fr;border-bottom:1px solid var(--line)}
+  .copy{border-right:1px solid var(--line);padding:38px 18px 24px;display:flex;flex-direction:column;justify-content:space-between;font-family:Arial,Helvetica,sans-serif}
+  .copy p{font-size:16px;line-height:1.5;letter-spacing:-.01em;max-width:278px}
+  .copy .bottom{display:flex;justify-content:space-between;font:700 10px ui-monospace,monospace;letter-spacing:.16em;text-transform:uppercase;color:rgba(17,17,17,.7)}
+  .metric{border-right:1px solid var(--line);padding:36px 18px 28px;display:flex;flex-direction:column;justify-content:space-between}
+  .metric .label{font:700 10px ui-monospace,monospace;letter-spacing:.22em;text-transform:uppercase;color:rgba(17,17,17,.7);margin-bottom:14px}
+  .metric .value{font-family:"Arial Narrow","Impact",sans-serif;font-size:42px;line-height:1;font-weight:900;letter-spacing:-.06em}.metric .value span{font-size:19px;letter-spacing:.04em;margin-left:7px;color:rgba(17,17,17,.62)}
+  .scale{display:grid;gap:12px}.scale .bar{height:2px;background:var(--ink)}.scale .row{display:flex;justify-content:space-between;font:700 10px ui-monospace,monospace;letter-spacing:.16em;text-transform:uppercase;color:rgba(17,17,17,.7)}
+  .visual{position:relative;background:var(--orange);overflow:hidden}
+  .visual .corner{position:absolute;top:20px;font:700 10px ui-monospace,monospace;letter-spacing:.18em}.visual .corner.l{left:20px}.visual .corner.r{right:20px}
+  .orb{position:absolute;left:50%;top:50%;width:158px;height:158px;border-radius:50%;transform:translate(-50%,-50%)}
+  .orb.dark{background:#080302;left:45%;z-index:2}.orb.red{background:var(--red);left:57%;mix-blend-mode:multiply;opacity:.96}
+  .dots{position:absolute;right:16px;top:50%;display:grid;gap:7px;transform:translateY(-50%)}.dots i{width:5px;height:5px;border-radius:50%;background:#8a1e05}
+  .arrow{position:absolute;right:30px;bottom:26px;width:58px;height:58px;border-radius:50%;background:#111;display:grid;place-items:center;color:var(--green)}
+  .arrow svg{width:28px;height:28px;transition:transform .18s ease}.visual:hover .arrow svg{transform:translateX(3px)}
+  .strip{background:var(--green);border-top:1px solid var(--line)}
+</style>
+</head>
+<body>
+<main class="page" aria-label="Weaverine industrial textile landing page">
+  <header class="top">
+    <div class="brand">Weaverine</div>
+    <nav class="nav"><a>Home</a><a>About</a><a>Services</a><a>Products</a></nav>
+    <div class="lang"><span>EN</span><b>/</b><span>ZH</span></div>
+    <div class="quote">Get quote</div>
+  </header>
+  <section class="hero">
+    <h1 class="title">Precision crafted<br/>polyester textiles</h1>
+  </section>
+  <section class="info">
+    <div class="copy">
+      <p>Your reliable mill partner for home textiles. Over three decades of family expertise engineering regenerated, embossed, stain-resistant, and printed polyester fabrics.</p>
+      <div class="bottom"><span>Sys. ver 2.0</span><span>Est. 1990</span></div>
+    </div>
+    <div class="metric">
+      <div>
+        <div class="label">Width range</div>
+        <div class="value">114–160<span>CM</span></div>
+      </div>
+      <div class="scale">
+        <div class="bar"></div>
+        <div class="row"><span>Operational scale</span><span>Max</span></div>
+      </div>
+    </div>
+    <div class="visual">
+      <div class="corner l">←</div><div class="corner r">D</div>
+      <div class="orb red"></div><div class="orb dark"></div>
+      <div class="dots"><i></i><i></i></div>
+      <div class="arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13"/><path d="m13 6 6 6-6 6"/></svg></div>
+    </div>
+  </section>
+  <div class="strip"></div>
+</main>
+</body>
+</html>
