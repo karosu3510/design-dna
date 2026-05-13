@@ -1,0 +1,55 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8"/>
+<title>Ceiling Templates — Preview</title>
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;padding:40px 32px 80px;background:#F3EFE7;font-family:"Inter Tight","Inter",system-ui;color:#1a1a1a}
+  h1{font-family:"Fraunces",Georgia,serif;font-weight:400;font-style:italic;font-size:48px;letter-spacing:-.03em;margin:0 0 6px}
+  .lead{color:#6a6a6a;font-size:14px;margin:0 0 32px;max-width:720px;line-height:1.55}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(380px,1fr));gap:24px;max-width:1400px;margin:0 auto}
+  .slot{background:#fff;border:.8px solid #e2dac9;border-radius:12px;overflow:hidden;box-shadow:0 20px 60px -30px rgba(0,0,0,.2)}
+  .slot iframe{width:100%;display:block;border:0}
+  .cap{display:flex;justify-content:space-between;align-items:baseline;padding:14px 18px;border-top:.8px solid #efe8d8;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:#6a6a6a}
+  .cap b{color:#1a1a1a;font-weight:500;letter-spacing:.22em}
+  .wrap-head{max-width:1400px;margin:0 auto 32px}
+</style>
+</head>
+<body>
+
+<div class="wrap-head">
+  <h1>Ceiling templates</h1>
+  <p class="lead">两个天花板方向预览：左侧 <b>Magazine Editorial</b>（衬线巨字 + 12 栏参考线 + 胶片颗粒 + 首字下沉），右侧 <b>Nothing Schematic</b>（点阵背景 + 工程线稿圆 + 刻度/标注 + 循环计数）。和之前那些"换皮肤"的模板对比，看这个方向是不是你想要的天花板。</p>
+</div>
+
+<div class="grid">
+  <div class="slot">
+    <iframe id="f1" height="620" sandbox="allow-scripts"></iframe>
+    <div class="cap"><b>№ 01 · Magazine Editorial</b><span>Fraunces · 12-col · grain</span></div>
+  </div>
+  <div class="slot">
+    <iframe id="f2" height="560" sandbox="allow-scripts"></iframe>
+    <div class="cap"><b>№ 02 · Nothing Schematic</b><span>Space Mono · dot-grid · engineering</span></div>
+  </div>
+</div>
+
+<script src="./templates.js?v=20260510-5"></script>
+<script>
+  const STYLES = window.VARIANT_STYLES;
+  const TEMPLATES = window.VARIANT_TEMPLATES;
+  const p = { headline:'Design DNA', sub:'An essay on taste, tension, and the quiet violence of a well-set page.', raw:'Design DNA' };
+
+  // Editorial 用 editorial token（米白 + 衬线）
+  const editorial = STYLES.find(s=>s.id==='editorial');
+  const d1 = TEMPLATES[0](p, editorial.tokens);
+  document.getElementById('f1').srcdoc = d1.doc;
+
+  // Nothing Schematic 用 nothing token（黑 + 红点）
+  const pN = { headline:'Phone (2)', sub:'A study of nothing, rendered in dots and silence.', raw:'Phone (2)' };
+  const nothing = STYLES.find(s=>s.id==='nothing');
+  const d2 = TEMPLATES[1](pN, nothing.tokens);
+  document.getElementById('f2').srcdoc = d2.doc;
+</script>
+</body>
+</html>
