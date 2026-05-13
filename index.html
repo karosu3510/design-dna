@@ -59,8 +59,6 @@
   .card-preview::before{content:'';position:absolute;inset:12px;border:1px solid rgba(255,255,255,.08);border-radius:8px;pointer-events:none}
   .card-preview-title{font-size:15px;font-weight:600;max-width:80%;line-height:1.35;color:#f5f5f5}
   .card-preview-sub{font-size:11px;color:var(--text-mute)}
-  .card-preview-btn{height:30px;border-radius:8px;border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.08);color:#fff;padding:0 12px;font-size:12px}
-  .card-preview-btn:hover{background:rgba(255,255,255,.14)}
   /* dashboard 卡用 transform scale 缩放：iframe 用绝对定位 + 固定逻辑宽 */
   .card.has-scale{position:relative}
   .card.has-scale > .card-frame{position:absolute;top:0;left:0;width:auto}
@@ -596,23 +594,46 @@ let featuredMap = new Map(JSON.parse(localStorage.getItem('variant_featured')||'
 let likedMap = new Map(JSON.parse(localStorage.getItem('variant_liked')||'[]'));
 const designStore = new Map();
 const lazyFrames = new Set();
+const visibleFrames = new Set();
+const MAX_ACTIVE_FRAMES = 3;
+let frameReconcileQueued = false;
 function unloadLazyFrame(frame){
   if(!frame || !frame.__loaded) return;
   frame.removeAttribute('srcdoc');
   frame.__loaded = false;
+  if(frame.__preview) frame.__preview.style.display = 'flex';
 }
 function loadLazyFrame(frame){
   if(!frame || frame.__loaded) return;
   frame.srcdoc = frame.__doc || '';
   frame.__loaded = true;
+  if(frame.__preview) frame.__preview.style.display = 'none';
+}
+function scheduleFrameReconcile(){
+  if(frameReconcileQueued) return;
+  frameReconcileQueued = true;
+  requestAnimationFrame(reconcileVisibleFrames);
+}
+function reconcileVisibleFrames(){
+  frameReconcileQueued = false;
+  const ranked = [...visibleFrames].sort((a,b)=>{
+    const ar = a.getBoundingClientRect(), br = b.getBoundingClientRect();
+    return Math.abs(ar.top - 72) - Math.abs(br.top - 72);
+  });
+  const active = new Set(ranked.slice(0, MAX_ACTIVE_FRAMES));
+  lazyFrames.forEach(frame=>{
+    if(active.has(frame)) loadLazyFrame(frame);
+    else unloadLazyFrame(frame);
+  });
 }
 const cardFrameObserver = ('IntersectionObserver' in window) ? new IntersectionObserver((entries)=>{
   entries.forEach(en=>{
     const frame = en.target;
-    if(en.isIntersecting) loadLazyFrame(frame);
-    else unloadLazyFrame(frame);
+    if(en.isIntersecting) visibleFrames.add(frame);
+    else visibleFrames.delete(frame);
   });
-},{ rootMargin:'900px 0px' }) : null;
+  scheduleFrameReconcile();
+},{ rootMargin:'160px 0px' }) : null;
 function observeCardFrame(frame){
   lazyFrames.add(frame);
   if(cardFrameObserver) cardFrameObserver.observe(frame);
@@ -673,13 +694,10 @@ function makeCardEl(d){
 
   const preview = document.createElement('div');
   preview.className = 'card-preview';
-  preview.innerHTML = '<div class="card-preview-title">'+(d.title||'Design preview')+'</div><div class="card-preview-sub">点击卡片打开详情，或按需加载缩略预览</div><button class="card-preview-btn" type="button">加载预览</button>';
-  preview.querySelector('button').addEventListener('click', function(e){
-    e.stopPropagation();
-    loadLazyFrame(frame);
-    preview.style.display = 'none';
-  });
+  preview.innerHTML = '<div class="card-preview-title">'+(d.title||'Design preview')+'</div><div class="card-preview-sub">动态预览排队中 · 点击打开完整页面</div>';
+  frame.__preview = preview;
   card.appendChild(preview);
+  observeCardFrame(frame);
 
   // ─── 高度对齐策略 ───
   // 1) 普通卡：按模板声明 d.height 直接 span。
