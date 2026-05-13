@@ -485,7 +485,7 @@
 <script src="./anomaly-signal-doc.js"></script>
 <script src="./dmx-controller-doc.js"></script>
 <script src="./symmetry-ticket-doc.js"></script>
-<script src="./notion-homepage-doc.js"></script>
+<script src="./notion-knowledge-doc.js"></script>
 <script>
 const STYLES = window.VARIANT_STYLES;
 const TEMPLATES = window.VARIANT_TEMPLATES;
@@ -1345,12 +1345,12 @@ function buildPinnedFor(styleId, headlineFallback){
       doc: (typeof SYMMETRY_TICKET_DOC !== 'undefined') ? SYMMETRY_TICKET_DOC : '', externalUrl:'symmetry-ticket.html'
     });
   } catch(_){}
-  // Notion Homepage — all-in-one workspace landing page
+  // Notion Knowledge OS — project management and wiki dashboard
   try {
     firstBatch.push({
-      id:'d-notion-homepage', styleId:'notion-homepage', styleLabel:'Notion homepage', sref:'notion-homepage-pin', prompt:'Notion all-in-one workspace homepage', pinned:true,
-      title:'Notion · All-in-one workspace', height:720, styleLock:'notion-homepage',
-      doc: (typeof NOTION_HOMEPAGE_DOC !== 'undefined') ? NOTION_HOMEPAGE_DOC : '', externalUrl:'notion-homepage.html'
+      id:'d-notion-knowledge', styleId:'notion-knowledge', styleLabel:'Notion knowledge', sref:'notion-knowledge-pin', prompt:'Notion knowledge OS project management dashboard', pinned:true,
+      title:'Notion · Knowledge OS', height:720, styleLock:'notion-knowledge',
+      doc: (typeof NOTION_KNOWLEDGE_DOC !== 'undefined') ? NOTION_KNOWLEDGE_DOC : '', externalUrl:'notion-knowledge.html'
     });
   } catch(_){}
   // 用户精选里若已含 styleLock 卡，同样计入排除
