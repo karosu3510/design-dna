@@ -40,15 +40,15 @@
   /* 基线 3 列 —— 每行 3 张卡，是默认状态。
      超宽屏升到 6 列基线，常规卡 span 2（仍 3/行），仅"竖屏窄卡"span 1（6/行）。
      窄屏退到 2 列。 */
-  .feed{display:grid;grid-template-columns:1fr;grid-auto-rows:auto;gap:16px}
-  .feed > .card{grid-column:span 1}
+  .feed{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));grid-auto-rows:8px;gap:8px;grid-auto-flow:dense}
+  .feed > .card{grid-column:span 2}
   .card.is-narrow{grid-column:span 1}
   @media (max-width:1680px){
-    .feed{grid-template-columns:1fr}
+    .feed{grid-template-columns:repeat(3,minmax(0,1fr))}
     .feed > .card,.card.is-narrow{grid-column:span 1}
   }
   @media (max-width:900px){
-    .feed{grid-template-columns:1fr}
+    .feed{grid-template-columns:repeat(2,minmax(0,1fr))}
     .feed > .card,.card.is-narrow{grid-column:span 1}
   }
   .card{margin:0;background:var(--bg-card);border:1px solid var(--border);border-radius:10px;overflow:hidden;position:relative;cursor:pointer;transition:transform .2s ease,border-color .2s ease;animation:rise .5s ease both}
@@ -595,7 +595,7 @@ let likedMap = new Map(JSON.parse(localStorage.getItem('variant_liked')||'[]'));
 const designStore = new Map();
 const lazyFrames = new Set();
 const visibleFrames = new Set();
-const MAX_ACTIVE_FRAMES = 1;
+const MAX_ACTIVE_FRAMES = 6;
 let frameReconcileQueued = false;
 function unloadLazyFrame(frame){
   if(!frame || !frame.__loaded) return;
