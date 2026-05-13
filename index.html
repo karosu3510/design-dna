@@ -575,10 +575,43 @@ const genToast = document.getElementById('genToast');
 const genTitle = document.getElementById('genTitle');
 const genSub   = document.getElementById('genSub');
 let currentStyle = null;
+const PERSIST_KEYS = ['variant_saved','variant_featured','variant_liked'];
+try{
+  const params = new URLSearchParams(location.search);
+  if(params.has('reset')){
+    PERSIST_KEYS.forEach(k=>localStorage.removeItem(k));
+    params.delete('reset');
+    const qs = params.toString();
+    history.replaceState({}, '', location.pathname + (qs ? '?' + qs : '') + location.hash);
+  }
+}catch(_){ }
 let savedMap = new Map(JSON.parse(localStorage.getItem('variant_saved')||'[]'));
 let featuredMap = new Map(JSON.parse(localStorage.getItem('variant_featured')||'[]'));
 let likedMap = new Map(JSON.parse(localStorage.getItem('variant_liked')||'[]'));
 const designStore = new Map();
+const lazyFrames = new Set();
+function unloadLazyFrame(frame){
+  if(!frame || !frame.__loaded) return;
+  frame.removeAttribute('srcdoc');
+  frame.__loaded = false;
+}
+function loadLazyFrame(frame){
+  if(!frame || frame.__loaded) return;
+  frame.srcdoc = frame.__doc || '';
+  frame.__loaded = true;
+}
+const cardFrameObserver = ('IntersectionObserver' in window) ? new IntersectionObserver((entries)=>{
+  entries.forEach(en=>{
+    const frame = en.target;
+    if(en.isIntersecting) loadLazyFrame(frame);
+    else unloadLazyFrame(frame);
+  });
+},{ rootMargin:'900px 0px' }) : null;
+function observeCardFrame(frame){
+  lazyFrames.add(frame);
+  if(cardFrameObserver) cardFrameObserver.observe(frame);
+  else loadLazyFrame(frame);
+}
 
 function buildStyleChips(){
   const row = document.getElementById('styleRow');
@@ -628,8 +661,10 @@ function makeCardEl(d){
     frame.style.transformOrigin = 'top left';
   }
   frame.setAttribute('sandbox','allow-scripts');
-  frame.srcdoc = d.doc;
+  frame.__doc = d.doc || '';
+  frame.__loaded = false;
   card.appendChild(frame);
+  observeCardFrame(frame);
 
   // ─── 高度对齐策略 ───
   // 1) 普通卡：按模板声明 d.height 直接 span。
@@ -666,13 +701,13 @@ function makeCardEl(d){
   badge.textContent = d.styleLabel;
   card.appendChild(badge);
 
-  if(d.pinned || d.featured){
-    // 系统预置卡：默认写入 featuredMap，与用户精选同质（仅排序前置，无视觉特殊化）
+  if(d.featured && !d.pinned){
+    // 只持久化用户/生成精选；系统 pinned 卡不再写入 localStorage，避免完整 srcdoc 长期堆积造成卡顿。
     if(!featuredMap.has(d.id)){
       featuredMap.set(d.id, {
         id:d.id, title:d.title, styleLabel:d.styleLabel, styleId:d.styleId,
         sref:d.sref, prompt:d.prompt, doc:d.doc, height:d.height,
-        ts: Date.now() + 1e12 // 系统预置时间戳大，永远在最前
+        ts: Date.now()
       });
     }
   }
