@@ -55,6 +55,12 @@
   @keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
   .card:hover{border-color:var(--border-strong)}
   .card-frame{width:100%;display:block;border:0;background:#fff}
+  .card-preview{position:absolute;inset:0;z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:24px;text-align:center;background:linear-gradient(180deg,#1a1a1a,#111);color:#fff;pointer-events:auto}
+  .card-preview::before{content:'';position:absolute;inset:12px;border:1px solid rgba(255,255,255,.08);border-radius:8px;pointer-events:none}
+  .card-preview-title{font-size:15px;font-weight:600;max-width:80%;line-height:1.35;color:#f5f5f5}
+  .card-preview-sub{font-size:11px;color:var(--text-mute)}
+  .card-preview-btn{height:30px;border-radius:8px;border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.08);color:#fff;padding:0 12px;font-size:12px}
+  .card-preview-btn:hover{background:rgba(255,255,255,.14)}
   /* dashboard 卡用 transform scale 缩放：iframe 用绝对定位 + 固定逻辑宽 */
   .card.has-scale{position:relative}
   .card.has-scale > .card-frame{position:absolute;top:0;left:0;width:auto}
@@ -664,7 +670,16 @@ function makeCardEl(d){
   frame.__doc = d.doc || '';
   frame.__loaded = false;
   card.appendChild(frame);
-  observeCardFrame(frame);
+
+  const preview = document.createElement('div');
+  preview.className = 'card-preview';
+  preview.innerHTML = '<div class="card-preview-title">'+(d.title||'Design preview')+'</div><div class="card-preview-sub">点击卡片打开详情，或按需加载缩略预览</div><button class="card-preview-btn" type="button">加载预览</button>';
+  preview.querySelector('button').addEventListener('click', function(e){
+    e.stopPropagation();
+    loadLazyFrame(frame);
+    preview.style.display = 'none';
+  });
+  card.appendChild(preview);
 
   // ─── 高度对齐策略 ───
   // 1) 普通卡：按模板声明 d.height 直接 span。
