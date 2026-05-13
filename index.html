@@ -594,46 +594,31 @@ let featuredMap = new Map(JSON.parse(localStorage.getItem('variant_featured')||'
 let likedMap = new Map(JSON.parse(localStorage.getItem('variant_liked')||'[]'));
 const designStore = new Map();
 const lazyFrames = new Set();
-const visibleFrames = new Set();
-const MAX_ACTIVE_FRAMES = 6;
-let frameReconcileQueued = false;
-function unloadLazyFrame(frame){
-  if(!frame || !frame.__loaded) return;
-  frame.removeAttribute('srcdoc');
-  frame.__loaded = false;
-  if(frame.__preview) frame.__preview.style.display = 'flex';
-}
 function loadLazyFrame(frame){
   if(!frame || frame.__loaded) return;
   frame.srcdoc = frame.__doc || '';
   frame.__loaded = true;
   if(frame.__preview) frame.__preview.style.display = 'none';
 }
-function scheduleFrameReconcile(){
-  if(frameReconcileQueued) return;
-  frameReconcileQueued = true;
-  requestAnimationFrame(reconcileVisibleFrames);
+function pauseFrame(frame){
+  if(!frame || !frame.__loaded) return;
+  try{ frame.contentWindow.postMessage({type:'pause'},'*'); }catch(_){}
 }
-function reconcileVisibleFrames(){
-  frameReconcileQueued = false;
-  const ranked = [...visibleFrames].sort((a,b)=>{
-    const ar = a.getBoundingClientRect(), br = b.getBoundingClientRect();
-    return Math.abs(ar.top - 72) - Math.abs(br.top - 72);
-  });
-  const active = new Set(ranked.slice(0, MAX_ACTIVE_FRAMES));
-  lazyFrames.forEach(frame=>{
-    if(active.has(frame)) loadLazyFrame(frame);
-    else unloadLazyFrame(frame);
-  });
+function resumeFrame(frame){
+  if(!frame || !frame.__loaded) return;
+  try{ frame.contentWindow.postMessage({type:'resume'},'*'); }catch(_){}
 }
 const cardFrameObserver = ('IntersectionObserver' in window) ? new IntersectionObserver((entries)=>{
   entries.forEach(en=>{
     const frame = en.target;
-    if(en.isIntersecting) visibleFrames.add(frame);
-    else visibleFrames.delete(frame);
+    if(en.isIntersecting){
+      if(!frame.__loaded) loadLazyFrame(frame);
+      resumeFrame(frame);
+    } else {
+      pauseFrame(frame);
+    }
   });
-  scheduleFrameReconcile();
-},{ rootMargin:'160px 0px' }) : null;
+},{ rootMargin:'300px 0px' }) : null;
 function observeCardFrame(frame){
   lazyFrames.add(frame);
   if(cardFrameObserver) cardFrameObserver.observe(frame);
@@ -688,16 +673,18 @@ function makeCardEl(d){
     frame.style.transformOrigin = 'top left';
   }
   frame.setAttribute('sandbox','allow-scripts');
-  frame.__doc = d.doc || '';
+  const pauseScript = '<script>var __paused=false,__rafId=0;var __origRAF=window.requestAnimationFrame;window.requestAnimationFrame=function(cb){if(__paused){__rafId=0;return 0}return __origRAF.call(window,cb)};window.addEventListener("message",function(e){if(e.data&&e.data.type==="pause"){__paused=true;if(__rafId)cancelAnimationFrame(__rafId)}if(e.data&&e.data.type==="resume"){__paused=false;__origRAF.call(window,function(){})}});<\/script>';
+  frame.__doc = (d.doc || '').replace(/<\/head>/i, pauseScript + '</head>');
   frame.__loaded = false;
   card.appendChild(frame);
 
   const preview = document.createElement('div');
   preview.className = 'card-preview';
-  preview.innerHTML = '<div class="card-preview-title">'+(d.title||'Design preview')+'</div><div class="card-preview-sub">动态预览排队中 · 点击打开完整页面</div>';
+  preview.innerHTML = '<div class="card-preview-title">'+(d.title||'Design preview')+'</div><div class="card-preview-sub">加载中...</div>';
   frame.__preview = preview;
   card.appendChild(preview);
   observeCardFrame(frame);
+  frame.addEventListener('load', function(){ if(frame.__loaded && frame.__preview) frame.__preview.style.display = 'none'; });
 
   // ─── 高度对齐策略 ───
   // 1) 普通卡：按模板声明 d.height 直接 span。
