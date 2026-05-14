@@ -481,6 +481,7 @@
 </div>
 
 <script src="./templates.js?v=20260512-mercury5"></script>
+<script src="./marginalia-doc.js"></script>
 <script src="./lucid-drift-doc.js"></script>
 <script src="./chronicles-doc.js"></script>
 <script src="./hardware-console-doc.js"></script>
@@ -491,6 +492,8 @@
 <script src="./symmetry-ticket-doc.js"></script>
 <script src="./notion-knowledge-doc.js"></script>
 <script src="./chainx-dashboard-doc.js"></script>
+<script src="./nathan-smith-doc.js"></script>
+<!-- lumi removed -->
 <script>
 const STYLES = window.VARIANT_STYLES;
 const TEMPLATES = window.VARIANT_TEMPLATES;
@@ -1331,11 +1334,13 @@ function buildPinnedFor(styleId, headlineFallback){
   try { var nm = buildPinnedFor('nothing-mobile','Now Playing'); if(nm){ firstBatch.push(nm); pinnedLocks.push('nothing-mobile'); } } catch(_){}
   // Mercury Treasury — 第 5 张 ceiling
   try { var m = buildPinnedFor('mercury','Good afternoon, Lingfeng.'); if(m){ firstBatch.push(m); pinnedLocks.push('mercury'); } } catch(_){}
-  // Marginalia — 第 6 张 ceiling（无 styleLock，直接调用模板）
+  // Marginalia — warm editorial microsite (live 1100x720 thumbnail)
   try {
-    var mp = parsePrompt('For cosy days');
-    var margDesign = TEMPLATES[5](mp, STYLES[0].tokens);
-    firstBatch.push(Object.assign({ id:'d-marginalia', styleId:'editorial', styleLabel:'Marginalia warm', sref:'marginalia-pin', prompt:mp.raw, pinned:true, externalUrl:'../marginalia/index.html' }, margDesign));
+    firstBatch.push({
+      id:'d-marginalia', styleId:'editorial', styleLabel:'Marginalia warm', sref:'marginalia-pin', prompt:'For cosy days', pinned:true,
+      title:'Marginalia · For cosy days', height:720, styleLock:'marginalia',
+      doc: (typeof MARGINALIA_DOC !== 'undefined') ? MARGINALIA_DOC : '', externalUrl:'marginalia.html'
+    });
   } catch(_){}
   // Lucid Drift — WebGL shader weather card (live shader in thumbnail)
   try {
@@ -1417,6 +1422,17 @@ function buildPinnedFor(styleId, headlineFallback){
       doc: (typeof CHAINX_DASHBOARD_DOC !== 'undefined') ? CHAINX_DASHBOARD_DOC : '', externalUrl:'chainx-dashboard.html'
     });
   } catch(_){}
+  // Unicorn Image Reveal — removed from inspiration library
+  // Jitter Release Notes — removed from inspiration library
+  // Nathan Smith — direct Webflow portfolio clone
+  try {
+    firstBatch.push({
+      id:'d-nathan-smith', styleId:'nathan-smith', styleLabel:'Webflow portfolio', sref:'nathan-smith-pin', prompt:'Nathan Smith interactive Webflow portfolio clone', pinned:true,
+      title:'Nathan Smith · Design & Art Direction', height:720, styleLock:'nathan-smith',
+      doc: (typeof NATHAN_SMITH_DOC !== 'undefined') ? NATHAN_SMITH_DOC : '', externalUrl:'nathan-smith.html'
+    });
+  } catch(_){}
+  // LUMI — removed (effect not satisfactory)
   // 用户精选里若已含 styleLock 卡，同样计入排除
   try {
     firstBatch.forEach(function(c){
