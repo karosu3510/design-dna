@@ -54,8 +54,8 @@
   .card{margin:0;background:var(--bg-card);border:1px solid var(--border);border-radius:10px;overflow:hidden;position:relative;cursor:pointer;transition:transform .2s ease,border-color .2s ease;animation:rise .5s ease both}
   @keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
   .card:hover{border-color:var(--border-strong)}
-  .card-frame{width:100%;display:block;border:0;background:#fff}
-  .card-preview{position:absolute;inset:0;z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:24px;text-align:center;background:linear-gradient(180deg,#1a1a1a,#111);color:#fff;pointer-events:auto}
+  .card-frame{width:100%;display:block;border:0;background:#fff;pointer-events:none}
+  .card-preview{position:absolute;inset:0;z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:24px;text-align:center;background:linear-gradient(180deg,#1a1a1a,#111);color:#fff;pointer-events:none}
   .card-preview::before{content:'';position:absolute;inset:12px;border:1px solid rgba(255,255,255,.08);border-radius:8px;pointer-events:none}
   .card-preview-title{font-size:15px;font-weight:600;max-width:80%;line-height:1.35;color:#f5f5f5}
   .card-preview-sub{font-size:11px;color:var(--text-mute)}
@@ -496,6 +496,7 @@
 <script src="./lorenzo-daldosso-doc.js"></script>
 <script src="./carrot-tech-doc.js"></script>
 <script src="./superhi-plus-doc.js"></script>
+<script src="./a-record-doc.js"></script>
 <!-- mono-x7 removed -->
 <!-- lumi removed -->
 <script>
@@ -789,19 +790,6 @@ function makeCardEl(d){
     });
     actions.appendChild(likeBtn);
 
-    // 打开详情（↗ 外链箭头，单击也能开抽屉）
-    const openBtn = document.createElement('button');
-    openBtn.type='button';
-    openBtn.className='act act-open';
-    openBtn.dataset.act = 'open';
-    openBtn.title = '打开详情';
-    openBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="8 7 17 7 17 16"/></svg>';
-    openBtn.addEventListener('click',(e)=>{
-      e.stopPropagation();
-      openDetail(d);
-    });
-    actions.appendChild(openBtn);
-
     card.appendChild(actions);
   }
 
@@ -885,34 +873,46 @@ document.getElementById('styleDropper').addEventListener('click', async ()=>{
   buildStyleChips();
 });
 
-// ─── 风格抽屉（左 sidebar 第二个 tab） ───
+// ─── Sidebar tabs ───
 const styleDrawer = document.getElementById('styleDrawer');
+function setSideTab(name){
+  document.querySelectorAll('.side-tab').forEach(x=>x.classList.toggle('active', x.dataset.tab === name));
+}
 document.querySelectorAll('.side-tab').forEach(tab=>{
   tab.addEventListener('click',()=>{
     const t = tab.dataset.tab;
+    const savedPanel = document.getElementById('savedPanel');
+
     if(t === 'style'){
-      const open = styleDrawer.classList.toggle('open');
-      document.querySelectorAll('.side-tab').forEach(x=>x.classList.remove('active'));
-      tab.classList.add(open ? 'active' : '');
-      if(!open) document.querySelector('.side-tab[data-tab=library]').classList.add('active');
+      setSideTab('style');
+      if(savedPanel) savedPanel.classList.remove('open');
+      styleDrawer.classList.add('open');
       return;
     }
+
     if(t === 'library'){
       // 灵感库 = feed 主视图：收起所有浮层，回到默认
+      setSideTab('library');
       styleDrawer.classList.remove('open');
-      if(document.getElementById('savedPanel')?.classList.contains('open')) toggleSavedPanel();
+      if(savedPanel) savedPanel.classList.remove('open');
       if(typeof closeDetail === 'function' && detailView?.classList.contains('open')) closeDetail();
-      document.querySelectorAll('.side-tab').forEach(x=>x.classList.remove('active'));
-      tab.classList.add('active');
       return;
     }
+
     if(t === 'saved'){
-      toggleSavedPanel();
+      setSideTab('saved');
+      styleDrawer.classList.remove('open');
+      toggleSavedPanel(true);
       return;
     }
-    styleDrawer.classList.remove('open');
-    document.querySelectorAll('.side-tab').forEach(x=>x.classList.remove('active'));
-    tab.classList.add('active');
+
+    if(t === 'folders'){
+      setSideTab('folders');
+      styleDrawer.classList.remove('open');
+      if(savedPanel) savedPanel.classList.remove('open');
+      if(typeof flash === 'function') flash('文件夹视图');
+      return;
+    }
   });
 });
 
@@ -1167,6 +1167,12 @@ function toggleSavedPanel(force){
   const p = document.getElementById('savedPanel');
   const willOpen = force!==undefined ? force : !p.classList.contains('open');
   p.classList.toggle('open', willOpen);
+  if(willOpen){
+    setSideTab('saved');
+    if(styleDrawer) styleDrawer.classList.remove('open');
+  } else if(!styleDrawer || !styleDrawer.classList.contains('open')) {
+    setSideTab('library');
+  }
 }
 document.addEventListener('keydown',(e)=>{
   if(e.target===promptEl) return;
@@ -1338,6 +1344,14 @@ function buildPinnedFor(styleId, headlineFallback){
   try { var nm = buildPinnedFor('nothing-mobile','Now Playing'); if(nm){ firstBatch.push(nm); pinnedLocks.push('nothing-mobile'); } } catch(_){}
   // Mercury Treasury — 第 5 张 ceiling
   try { var m = buildPinnedFor('mercury','Good afternoon, Lingfeng.'); if(m){ firstBatch.push(m); pinnedLocks.push('mercury'); } } catch(_){}
+  // a.Record — warm minimal audio dashboard (1:1 from reference screenshot)
+  try {
+    firstBatch.push({
+      id:'d-a-record', styleId:'a-record', styleLabel:'Warm audio dashboard', sref:'a-record-pin', prompt:'a.Record warm minimal vocal tracking dashboard', pinned:true,
+      title:'a.Record · Vocal tracking', height:720, styleLock:'a-record',
+      doc: (typeof A_RECORD_DOC !== 'undefined') ? A_RECORD_DOC : '', externalUrl:'a-record.html'
+    });
+  } catch(_){}
   // Marginalia — warm editorial microsite (live 1100x720 thumbnail)
   try {
     firstBatch.push({
@@ -1460,6 +1474,7 @@ function buildPinnedFor(styleId, headlineFallback){
       doc: (typeof SUPERHI_PLUS_DOC !== 'undefined') ? SUPERHI_PLUS_DOC : '', externalUrl:'https://superhi.plus/?ref=godly'
     });
   } catch(_){}
+  // a.Record — registered earlier (after Mercury) for higher feed position
   // Mono X7 — removed (effect not satisfactory)
   // LUMI — removed (effect not satisfactory)
   // 用户精选里若已含 styleLock 卡，同样计入排除
