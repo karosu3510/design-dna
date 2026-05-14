@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Marginalia preview</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;1,9..144,300;1,9..144,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--paper:#efebe2;--ink:#1a1612;--muted:#786f63;--mustard:#d8ad43;--clay:#b55831;--stone:#cfc8b8;--serif:'Fraunces',ui-serif,Georgia,serif;--mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;height:100%;overflow:hidden;background:var(--paper);color:var(--ink);font-family:var(--serif);-webkit-font-smoothing:antialiased}
+.stage{position:relative;width:1100px;height:720px;background:radial-gradient(circle at 50% 40%,#f4f0e7 0,#efebe2 52%,#e5dfd2 100%);overflow:hidden}
+.grain{position:absolute;inset:0;opacity:.18;mix-blend-mode:multiply;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' seed='7'/><feColorMatrix values='0 0 0 0 0.12 0 0 0 0 0.10 0 0 0 0 0.08 0 0 0 .18 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>")}
+.stack{position:absolute;left:136px;top:48px;width:850px;height:620px;filter:drop-shadow(0 26px 42px rgba(26,22,18,.18))}
+.card{position:absolute;border-radius:4px;box-shadow:0 28px 52px -24px rgba(26,22,18,.28);will-change:transform}
+.receipt{right:0;top:2px;width:410px;height:600px;background:var(--stone);transform:rotate(2.4deg);z-index:1;padding:74px 46px 70px 96px;color:rgba(26,22,18,.92)}
+.receipt:before{content:'';position:absolute;left:64px;top:30px;bottom:30px;border-left:1px dashed rgba(26,22,18,.34)}
+.receipt .stamp{position:absolute;right:52px;top:58px;width:94px;height:94px;border:1px dashed rgba(26,22,18,.55);border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;font-family:var(--mono);font-size:9px;line-height:1.55;letter-spacing:.18em;text-transform:uppercase;color:rgba(26,22,18,.62)}
+.receipt .stamp b{font-size:9px;color:var(--ink);margin-top:4px;letter-spacing:.18em}
+.receipt .rows{margin-top:142px;display:flex;flex-direction:column;gap:44px}
+.receipt label{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:rgba(26,22,18,.48);margin-bottom:15px}
+.receipt .val{font-size:28px;line-height:1.05;border-bottom:1px solid rgba(26,22,18,.38);padding-bottom:11px;white-space:nowrap}
+.receipt .tear{position:absolute;left:86px;right:34px;bottom:72px;height:1px;background-image:linear-gradient(to right,rgba(26,22,18,.35) 50%,transparent 50%);background-size:7px 1px}
+.receipt .cut{position:absolute;left:86px;right:34px;bottom:36px;display:flex;justify-content:space-between;align-items:center;font-family:var(--mono);font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:rgba(26,22,18,.45)}
+.envelope{left:398px;top:58px;width:330px;height:575px;background:var(--clay);transform:rotate(1.35deg);z-index:2;border-radius:3px}
+.envelope span{position:absolute;right:48px;top:50%;transform:translateY(-50%) rotate(180deg);writing-mode:vertical-rl;font-family:var(--mono);font-size:10px;letter-spacing:.43em;color:rgba(239,235,226,.78);white-space:nowrap;text-transform:uppercase}
+.postcard{left:0;top:18px;width:485px;height:612px;background:var(--mustard);transform:rotate(-1.45deg);z-index:3;padding:62px 56px 54px;display:flex;flex-direction:column;border-radius:3px}
+.postcard .cutout{position:absolute;left:50%;top:0;transform:translateX(-50%);width:104px;height:54px;background:var(--paper);border-radius:0 0 999px 999px}
+.eyebrow{font-family:var(--mono);font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:rgba(26,22,18,.58);margin-bottom:48px}
+.title{font-size:76px;line-height:.9;font-weight:400;letter-spacing:-.03em;font-variation-settings:'opsz' 144}
+.title em{display:block;font-size:78px;font-weight:400;font-style:italic;margin-top:4px}
+.foot{margin-top:auto;position:relative;min-height:116px;display:flex;align-items:flex-end;justify-content:space-between}
+.at{font-size:36px;line-height:.92}.at span{display:block}.at .name{font-style:italic;font-size:50px;margin-top:6px}
+.seal{position:absolute;right:0;bottom:0;width:70px;height:70px;border-radius:50%;background:var(--ink);color:var(--mustard);display:flex;align-items:center;justify-content:center}
+.seal svg{width:27px;height:27px}
+@media (prefers-reduced-motion:no-preference){.postcard{animation:float1 8s ease-in-out infinite}.envelope{animation:float2 9s ease-in-out infinite}.receipt{animation:float3 10s ease-in-out infinite}@keyframes float1{50%{transform:rotate(-1.45deg) translateY(-5px)}}@keyframes float2{50%{transform:rotate(1.35deg) translateY(-3px)}}@keyframes float3{50%{transform:rotate(2.4deg) translateY(-4px)}}}
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="grain"></div>
+  <div class="stack">
+    <article class="card receipt">
+      <div class="stamp">Official<br>receipt<b>No. 992</b></div>
+      <div class="rows">
+        <div><label>Reader</label><div class="val">Elena V. Rostova</div></div>
+        <div><label>Issue</label><div class="val">Vol VII · Spring 26</div></div>
+        <div><label>Delivered</label><div class="val">12 May 2026</div></div>
+      </div>
+      <div class="tear"></div><div class="cut"><span>receipt</span><span>⌘</span></div>
+    </article>
+    <article class="card envelope"><span>Tel +45 (0) 33 14 · Mail post@marginalia.press · DK</span></article>
+    <article class="card postcard">
+      <div class="cutout"></div>
+      <div class="eyebrow">Editor's letter · 14 min</div>
+      <h1 class="title">For cosy<em>days</em></h1>
+      <div class="foot">
+        <div class="at"><span>at</span><span class="name">Marginalia</span></div>
+        <div class="seal" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="16" cy="16" r="10"/><circle cx="12" cy="14" r="1.2" fill="currentColor" stroke="none"/><circle cx="20" cy="14" r="1.2" fill="currentColor" stroke="none"/><path d="M11 20 Q16 24 21 20"/></svg></div>
+      </div>
+    </article>
+  </div>
+</div>
+</body>
+</html>
