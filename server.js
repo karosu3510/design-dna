@@ -4,22 +4,30 @@ import http from 'node:http';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import 'dotenv/config';
-import Anthropic from '@anthropic-ai/sdk';
+try {
+  await import('dotenv/config');
+} catch (_) {
+  // dotenv is optional: static preview should still boot without node_modules.
+}
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PORT = process.env.PORT || 5173;
 const MODEL = process.env.ANTHROPIC_MODEL || 'claude-sonnet-4-5';
 const BATCH_SIZE = Number(process.env.BATCH_SIZE || 3);
 
-if (!process.env.ANTHROPIC_API_KEY) {
+let client = null;
+if (process.env.ANTHROPIC_API_KEY) {
+  try {
+    const { default: Anthropic } = await import('@anthropic-ai/sdk');
+    client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+  } catch (_) {
+    console.warn('\n⚠️  @anthropic-ai/sdk 未安装 —— /api/generate 将返回 503。');
+    console.warn('   运行 npm install 后可启用 AI 生成；静态灵感库预览不受影响。\n');
+  }
+} else {
   console.warn('\n⚠️  ANTHROPIC_API_KEY 未设置 —— /api/generate 将返回 503。');
-  console.warn('   把 key 写入 .env：echo "ANTHROPIC_API_KEY=sk-ant-xxx" > .env\n');
+  console.warn('   把 key 写入 .env：echo "ANTHROPIC_API_KEY=sk-ant-xxx" > .env；静态灵感库预览不受影响。\n');
 }
-
-const client = process.env.ANTHROPIC_API_KEY
-  ? new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
-  : null;
 
 // ───── 静态文件 ─────
 const MIME = {
@@ -29,6 +37,9 @@ const MIME = {
   '.json': 'application/json; charset=utf-8',
   '.svg':  'image/svg+xml',
   '.png':  'image/png',
+  '.jpg':  'image/jpeg',
+  '.jpeg': 'image/jpeg',
+  '.webp': 'image/webp',
   '.ico':  'image/x-icon',
 };
 function serveStatic(req, res) {
