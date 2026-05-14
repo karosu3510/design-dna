@@ -495,7 +495,8 @@
 <script src="./nathan-smith-doc.js"></script>
 <script src="./lorenzo-daldosso-doc.js"></script>
 <script src="./carrot-tech-doc.js"></script>
-<script src="./mono-x7-doc.js"></script>
+<script src="./superhi-plus-doc.js"></script>
+<!-- mono-x7 removed -->
 <!-- lumi removed -->
 <script>
 const STYLES = window.VARIANT_STYLES;
@@ -1451,14 +1452,15 @@ function buildPinnedFor(styleId, headlineFallback){
       doc: (typeof CARROT_TECH_DOC !== 'undefined') ? CARROT_TECH_DOC : '', externalUrl:'carrot-tech.html'
     });
   } catch(_){}
-  // Mono X7 — stable black-and-white device canvas card
+  // SuperHi Plus — direct Next/WebGL ball pool mirror
   try {
     firstBatch.push({
-      id:'d-mono-x7', styleId:'mono-x7', styleLabel:'3D device UI', sref:'mono-x7-pin', prompt:'FRAMED Mono X7 black and white device interface inspiration', pinned:true,
-      title:'FRAMED · Mono X7', height:720, styleLock:'mono-x7',
-      doc: (typeof MONO_X7_DOC !== 'undefined') ? MONO_X7_DOC : '', externalUrl:'mono-x7.html'
+      id:'d-superhi-plus', styleId:'superhi-plus', styleLabel:'WebGL ball pool', sref:'superhi-plus-pin', prompt:'SuperHi Plus direct mirror with WebGL ball pool and blue split layout', pinned:true,
+      title:'SuperHi Plus · Cooperative content', height:720, styleLock:'superhi-plus',
+      doc: (typeof SUPERHI_PLUS_DOC !== 'undefined') ? SUPERHI_PLUS_DOC : '', externalUrl:'https://superhi.plus/?ref=godly'
     });
   } catch(_){}
+  // Mono X7 — removed (effect not satisfactory)
   // LUMI — removed (effect not satisfactory)
   // 用户精选里若已含 styleLock 卡，同样计入排除
   try {
