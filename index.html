@@ -493,6 +493,9 @@
 <script src="./notion-knowledge-doc.js"></script>
 <script src="./chainx-dashboard-doc.js"></script>
 <script src="./nathan-smith-doc.js"></script>
+<script src="./lorenzo-daldosso-doc.js"></script>
+<script src="./carrot-tech-doc.js"></script>
+<script src="./mono-x7-doc.js"></script>
 <!-- lumi removed -->
 <script>
 const STYLES = window.VARIANT_STYLES;
@@ -1430,6 +1433,30 @@ function buildPinnedFor(styleId, headlineFallback){
       id:'d-nathan-smith', styleId:'nathan-smith', styleLabel:'Webflow portfolio', sref:'nathan-smith-pin', prompt:'Nathan Smith interactive Webflow portfolio clone', pinned:true,
       title:'Nathan Smith · Design & Art Direction', height:720, styleLock:'nathan-smith',
       doc: (typeof NATHAN_SMITH_DOC !== 'undefined') ? NATHAN_SMITH_DOC : '', externalUrl:'nathan-smith.html'
+    });
+  } catch(_){}
+  // Lorenzo Dal Dosso — direct Nuxt typography portfolio mirror
+  try {
+    firstBatch.push({
+      id:'d-lorenzo-daldosso', styleId:'lorenzo-daldosso', styleLabel:'Nuxt typography', sref:'lorenzo-daldosso-pin', prompt:'Lorenzo Dal Dosso IT specialist typography site mirror', pinned:true,
+      title:'Lorenzo Dal Dosso · IT Specialist', height:720, styleLock:'lorenzo-daldosso',
+      doc: (typeof LORENZO_DALDOSSO_DOC !== 'undefined') ? LORENZO_DALDOSSO_DOC : '', externalUrl:'lorenzo-daldosso.html'
+    });
+  } catch(_){}
+  // Carrot — animated SVG morph hero
+  try {
+    firstBatch.push({
+      id:'d-carrot-tech', styleId:'carrot-tech', styleLabel:'Animated SVG', sref:'carrot-tech-pin', prompt:'Carrot circularity gap animated morphing SVG hero', pinned:true,
+      title:'Carrot · Circularity gap', height:720, styleLock:'carrot-tech',
+      doc: (typeof CARROT_TECH_DOC !== 'undefined') ? CARROT_TECH_DOC : '', externalUrl:'carrot-tech.html'
+    });
+  } catch(_){}
+  // Mono X7 — stable black-and-white device canvas card
+  try {
+    firstBatch.push({
+      id:'d-mono-x7', styleId:'mono-x7', styleLabel:'3D device UI', sref:'mono-x7-pin', prompt:'FRAMED Mono X7 black and white device interface inspiration', pinned:true,
+      title:'FRAMED · Mono X7', height:720, styleLock:'mono-x7',
+      doc: (typeof MONO_X7_DOC !== 'undefined') ? MONO_X7_DOC : '', externalUrl:'mono-x7.html'
     });
   } catch(_){}
   // LUMI — removed (effect not satisfactory)
