@@ -497,6 +497,8 @@
 <script src="./carrot-tech-doc.js"></script>
 <script src="./superhi-plus-doc.js"></script>
 <script src="./a-record-doc.js"></script>
+<script src="./book-gallery-3d-doc.js"></script>
+<script src="./delphi-three-doc.js"></script>
 <!-- mono-x7 removed -->
 <!-- lumi removed -->
 <script>
@@ -1350,6 +1352,22 @@ function buildPinnedFor(styleId, headlineFallback){
       id:'d-a-record', styleId:'a-record', styleLabel:'Warm audio dashboard', sref:'a-record-pin', prompt:'a.Record warm minimal vocal tracking dashboard', pinned:true,
       title:'a.Record · Vocal tracking', height:720, styleLock:'a-record',
       doc: (typeof A_RECORD_DOC !== 'undefined') ? A_RECORD_DOC : '', externalUrl:'a-record.html'
+    });
+  } catch(_){}
+  // Book Gallery — CodePen 3D page flip
+  try {
+    firstBatch.push({
+      id:'d-book-gallery-3d', styleId:'book-gallery-3d', styleLabel:'3D page flip', sref:'codepen-rnraxwz', prompt:'CodePen RNRaXwZ 3D book gallery page flip', pinned:true,
+      title:'Book Gallery · 3D page flip', height:720, styleLock:'book-gallery-3d',
+      doc: (typeof BOOK_GALLERY_3D_DOC !== 'undefined') ? BOOK_GALLERY_3D_DOC : '', externalUrl:'book-gallery-3d.html'
+    });
+  } catch(_){}
+  // Delphi — Three.js infinite perspective tunnel
+  try {
+    firstBatch.push({
+      id:'d-delphi-three', styleId:'delphi-three', styleLabel:'Three.js tunnel', sref:'delphi-three-pin', prompt:'Delphi Three clone yourself infinite 3D perspective grid tunnel', pinned:true,
+      title:'Delphi · Clone yourself', height:720, styleLock:'delphi-three',
+      doc: (typeof DELPHI_THREE_DOC !== 'undefined') ? DELPHI_THREE_DOC : '', externalUrl:'delphi-three.html'
     });
   } catch(_){}
   // Marginalia — warm editorial microsite (live 1100x720 thumbnail)
