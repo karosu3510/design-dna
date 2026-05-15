@@ -1,0 +1,78 @@
+{
+  "$schema": "https://design-tokens.github.io/community-group/format/",
+  "name": "a.Record Design System",
+  "version": "1.0.0",
+  "description": "Warm audio dashboard / soft neumorphism. Cream-on-white palette, Inter + Geist Mono typography, generous rounded corners.",
+  "color": {
+    "bg":      { "$value": "#eceae3", "$type": "color", "$description": "Canvas / page background" },
+    "shell":   { "$value": "#ffffff", "$type": "color", "$description": "Card surface" },
+    "hero":    { "$value": "#f1efe9", "$type": "color", "$description": "Hero panel" },
+    "soft":    { "$value": "#e8e6df", "$type": "color", "$description": "Secondary surface" },
+    "softer":  { "$value": "#efedf0", "$type": "color", "$description": "Tertiary surface" },
+    "line":    { "$value": "rgba(28,28,26,0.08)", "$type": "color", "$description": "Hairline border" },
+    "line-2":  { "$value": "rgba(28,28,26,0.05)", "$type": "color", "$description": "Subtle hairline" },
+    "ink":     { "$value": "#1c1c1a", "$type": "color", "$description": "Primary text" },
+    "ink-2":   { "$value": "#5b5a55", "$type": "color", "$description": "Secondary text" },
+    "ink-3":   { "$value": "#92908a", "$type": "color", "$description": "Tertiary text / caption" },
+    "ink-4":   { "$value": "#bfbdb5", "$type": "color", "$description": "Disabled / decorative" },
+    "rec":     { "$value": "#f24a3a", "$type": "color", "$description": "Recording / destructive accent (use sparingly)" }
+  },
+  "font": {
+    "family": {
+      "sans": { "$value": "Inter, 'Helvetica Neue', Arial, sans-serif", "$type": "fontFamily" },
+      "mono": { "$value": "'Geist Mono', 'SF Mono', ui-monospace, Menlo, monospace", "$type": "fontFamily" }
+    },
+    "size": {
+      "display": { "$value": "62px", "$type": "dimension" },
+      "h1":      { "$value": "34px", "$type": "dimension" },
+      "xl":      { "$value": "20px", "$type": "dimension" },
+      "lg":      { "$value": "17px", "$type": "dimension" },
+      "md":      { "$value": "15px", "$type": "dimension" },
+      "base":    { "$value": "13.5px", "$type": "dimension" },
+      "sm":      { "$value": "12.5px", "$type": "dimension" },
+      "xs":      { "$value": "11.5px", "$type": "dimension" },
+      "cap":     { "$value": "10.5px", "$type": "dimension" },
+      "mini":    { "$value": "9.5px", "$type": "dimension" }
+    },
+    "tracking": {
+      "tight": { "$value": "-0.025em" },
+      "snug":  { "$value": "-0.01em" },
+      "base":  { "$value": "-0.005em" },
+      "cap":   { "$value": "0.18em" },
+      "cap-2": { "$value": "0.20em" }
+    }
+  },
+  "spacing": {
+    "1": { "$value": "4px",  "$type": "dimension" },
+    "2": { "$value": "8px",  "$type": "dimension" },
+    "3": { "$value": "12px", "$type": "dimension" },
+    "4": { "$value": "16px", "$type": "dimension" },
+    "5": { "$value": "20px", "$type": "dimension" },
+    "6": { "$value": "24px", "$type": "dimension" },
+    "7": { "$value": "28px", "$type": "dimension" },
+    "8": { "$value": "32px", "$type": "dimension" }
+  },
+  "radius": {
+    "shell": { "$value": "30px", "$type": "dimension" },
+    "panel": { "$value": "20px", "$type": "dimension" },
+    "card":  { "$value": "16px", "$type": "dimension" },
+    "tile":  { "$value": "14px", "$type": "dimension" },
+    "pill":  { "$value": "999px", "$type": "dimension" }
+  },
+  "shadow": {
+    "shell": { "$value": "0 1px 0 rgba(255,255,255,0.9) inset, 0 24px 60px rgba(40,38,32,0.10), 0 4px 14px rgba(40,38,32,0.05)" },
+    "glass": { "$value": "0 14px 30px rgba(35,33,28,0.08)" },
+    "pill":  { "$value": "0 1px 1px rgba(28,28,26,0.03)" }
+  },
+  "motion": {
+    "ease": {
+      "out":  { "$value": "cubic-bezier(0.22, 0.61, 0.36, 1)" },
+      "soft": { "$value": "cubic-bezier(0.4, 0, 0.2, 1)" }
+    },
+    "duration": {
+      "fast": { "$value": "120ms" },
+      "base": { "$value": "240ms" },
+      "slow": { "$value": "600ms" }
+    }
+  }
+}
