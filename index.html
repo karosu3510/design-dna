@@ -502,6 +502,7 @@
 <script src="./webgl-magazine-doc.js?v=202605151122"></script>
 <script src="./pixel-gooey-tooltip-doc.js"></script>
 <script src="./skeleton-fluid-reveal-doc.js"></script>
+<script src="./card-beam-animation-doc.js"></script>
 <!-- mono-x7 removed -->
 <!-- lumi removed -->
 <script>
@@ -1395,6 +1396,14 @@ function buildPinnedFor(styleId, headlineFallback){
       id:'d-skeleton-fluid-reveal', styleId:'skeleton-fluid-reveal', styleLabel:'WebGPU x-ray', sref:'codrops-skeleton-fluid', prompt:'Codrops Skeleton Fluid Reveal WebGPU x-ray fluid CRT effect', pinned:true,
       title:'Skeleton Fluid Reveal · X-ray', height:720, styleLock:'skeleton-fluid-reveal',
       doc: (typeof SKELETON_FLUID_REVEAL_DOC !== 'undefined') ? SKELETON_FLUID_REVEAL_DOC : '', externalUrl:'skeleton-fluid-reveal.html'
+    });
+  } catch(_){}
+  // Card Beam Animation — Evervault-style scanner card stream
+  try {
+    firstBatch.push({
+      id:'d-card-beam-animation', styleId:'card-beam-animation', styleLabel:'Scanner cards', sref:'codepen-xbwaqxE', prompt:'CodePen blacklead studio Card Beam Animation Evervault scanner cards', pinned:true,
+      title:'Card Beam Animation · Scanner stream', height:720, styleLock:'card-beam-animation',
+      doc: (typeof CARD_BEAM_ANIMATION_DOC !== 'undefined') ? CARD_BEAM_ANIMATION_DOC : '', externalUrl:'card-beam-animation.html'
     });
   } catch(_){}
   // Marginalia — warm editorial microsite (live 1100x720 thumbnail)
