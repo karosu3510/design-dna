@@ -505,6 +505,7 @@
 <script src="./card-beam-animation-doc.js"></script>
 <!-- flip-horizontal-lenis removed -->
 <script src="./pixel-transition-doc.js"></script>
+<script src="./makeway-grid-effect-doc.js"></script>
 <!-- mono-x7 removed -->
 <!-- lumi removed -->
 <script>
@@ -1415,6 +1416,14 @@ function buildPinnedFor(styleId, headlineFallback){
       id:'d-pixel-transition', styleId:'pixel-transition', styleLabel:'Pixel transition', sref:'codrops-pixel-transition', prompt:'Codrops Pixel Transition grid overlay page transition', pinned:true,
       title:'Pixel Transition · Grid reveal', height:720, styleLock:'pixel-transition',
       doc: (typeof PIXEL_TRANSITION_DOC !== 'undefined') ? PIXEL_TRANSITION_DOC : '', externalUrl:'pixel-transition.html'
+    });
+  } catch(_){}
+  // Make Way Grid — Codrops adjoining grid expansion effect
+  try {
+    firstBatch.push({
+      id:'d-makeway-grid-effect', styleId:'makeway-grid-effect', styleLabel:'Make-way grid', sref:'codrops-makeway-grid', prompt:'Codrops Make Way Grid Effect adjoining items expand selected grid image', pinned:true,
+      title:'Make Way Grid · Expanding cells', height:720, styleLock:'makeway-grid-effect',
+      doc: (typeof MAKEWAY_GRID_EFFECT_DOC !== 'undefined') ? MAKEWAY_GRID_EFFECT_DOC : '', externalUrl:'makeway-grid-effect.html'
     });
   } catch(_){}
   // Marginalia — warm editorial microsite (live 1100x720 thumbnail)
