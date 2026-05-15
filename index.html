@@ -107,12 +107,7 @@
   .submit{margin-left:auto;width:30px;height:30px;border-radius:8px;border:0;background:var(--accent);color:var(--accent-ink);font-weight:600;font-size:14px;display:inline-flex;align-items:center;justify-content:center}
   .submit:hover{background:#d9e152}
 
-  /* ─── 左下浮动 chips（视图模式） ─── */
-  .view-dock{position:fixed;left:calc(var(--side-w) + 14px);bottom:18px;z-index:55;display:flex;gap:6px;pointer-events:none}
-  .view-dock > *{pointer-events:auto}
-  .view-chip{display:inline-flex;align-items:center;gap:5px;height:28px;padding:0 10px;border-radius:999px;font-size:11.5px;color:var(--text-soft);background:rgba(20,20,20,0.85);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid var(--border);cursor:pointer;transition:all .15s ease}
-  .view-chip:hover{color:var(--text);border-color:var(--border-strong)}
-  .view-chip.active{color:var(--text);background:rgba(40,40,40,0.95)}
+  /* ─── 左下浮动 chips（视图模式）已移除 ─── */
 
   /* ─── 右下"生成中"浮卡 ─── */
   .gen-toast{position:fixed;right:14px;bottom:18px;z-index:55;width:240px;padding:12px 14px;background:rgba(15,15,15,0.95);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid var(--border);border-radius:12px;box-shadow:0 12px 32px -8px rgba(0,0,0,.7);transform:translateY(20px);opacity:0;pointer-events:none;transition:all .25s cubic-bezier(.4,.2,.2,1)}
@@ -134,7 +129,6 @@
   body.is-detail{overflow:hidden}
   /* 进入详情时，隐藏主 feed 附属 UI，避免穿透 */
   body.is-detail .prompt-dock,
-  body.is-detail .view-dock,
   body.is-detail .gen-toast,
   body.is-detail .saved-panel,
   body.is-detail .style-drawer{opacity:0;pointer-events:none;transition:opacity .15s ease}
@@ -392,22 +386,6 @@
   <div class="feed" id="feed"></div>
   <div class="sentinel" id="sentinel"><span class="dot-loader"><span></span><span></span><span></span></span></div>
 </main>
-
-<!-- 左下：视图模式 chips -->
-<div class="view-dock">
-  <button class="view-chip active" data-view="grid" data-i18n-title="viewGrid">
-    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
-    <span data-i18n="viewGrid">网格</span>
-  </button>
-  <button class="view-chip" data-view="collage" data-i18n-title="viewCollage">
-    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="3" y="3" width="8" height="12"/><rect x="13" y="3" width="8" height="6"/><rect x="13" y="11" width="8" height="10"/><rect x="3" y="17" width="8" height="4"/></svg>
-    <span data-i18n="viewCollage">拼贴</span>
-  </button>
-  <button class="view-chip" data-view="sort">
-    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M3 6h18"/><path d="M6 12h12"/><path d="M10 18h4"/></svg>
-    <span data-i18n="viewLatest">最新</span>
-  </button>
-</div>
 
 <!-- 底部浮动 Prompt 条 -->
 <div class="prompt-dock">
@@ -924,18 +902,7 @@ document.querySelectorAll('.side-tab').forEach(tab=>{
   });
 });
 
-// ─── 视图模式切换 ───
-document.querySelectorAll('.view-chip').forEach(b=>{
-  b.addEventListener('click',()=>{
-    if(b.dataset.view==='sort') return; // 排序按钮（demo 不切实际效果）
-    document.querySelectorAll('.view-chip').forEach(x=>{
-      if(x.dataset.view!=='sort') x.classList.remove('active');
-    });
-    b.classList.add('active');
-    if(b.dataset.view==='grid'){ feedEl.style.columnCount=''; feedEl.style.columnGap='8px'; }
-    if(b.dataset.view==='collage'){ feedEl.style.columnGap='4px'; }
-  });
-});
+// ─── 视图模式切换（已移除 view-dock chips） ───
 
 // ─── Detail View（整页 + 面包屑返回） ───
 const detailView = document.getElementById('detailView');
