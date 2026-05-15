@@ -724,12 +724,9 @@ main{width:1100px;height:720px;min-height:720px;overflow:hidden}
  */
 const preloadFonts = id => {
     return new Promise((resolve) => {
-        WebFont.load({
-            typekit: {
-                id: id
-            },
-            active: resolve
-        });
+        if (!window.WebFont) { resolve(); return; }
+        WebFont.load({ typekit: { id }, active: resolve, inactive: resolve });
+        setTimeout(resolve, 1200);
     });
 };
 
@@ -743,10 +740,7 @@ const preloadImages = (selector = 'img') => {
     });
 };
 
-export {
-    preloadFonts,
-    preloadImages
-};
+// preload helpers are inlined; no module exports in standalone build.
 
 // Cell class definition
 class Cell {
@@ -1008,7 +1002,8 @@ Promise.all([
     preloadImages('.intro__image, .content__img-inner'), 
     preloadFonts('ctp6pec')
 ]).then(() => document.body.classList.remove('loading'));
-setTimeout(()=>{const img=document.querySelector('.intro__image'); if(img) img.click();},1800);
+setTimeout(()=>document.body.classList.remove('loading'), 1600);
+setTimeout(()=>{const img=document.querySelector('.intro__image'); if(img) img.click();},2600);
 setInterval(()=>{const back=document.querySelector('.content--open .content__back'); if(back) back.click(); setTimeout(()=>{const imgs=[...document.querySelectorAll('.intro__image')]; const img=imgs[Math.floor(Math.random()*Math.min(5,imgs.length))]; if(img) img.click();},1700);},7600);
 </script>
 </body>
