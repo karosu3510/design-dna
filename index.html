@@ -499,6 +499,7 @@
 <script src="./a-record-doc.js"></script>
 <script src="./book-gallery-3d-doc.js"></script>
 <script src="./delphi-three-doc.js"></script>
+<script src="./webgl-magazine-doc.js"></script>
 <!-- mono-x7 removed -->
 <!-- lumi removed -->
 <script>
@@ -1368,6 +1369,14 @@ function buildPinnedFor(styleId, headlineFallback){
       id:'d-delphi-three', styleId:'delphi-three', styleLabel:'Three.js tunnel', sref:'delphi-three-pin', prompt:'Delphi Three clone yourself infinite 3D perspective grid tunnel', pinned:true,
       title:'Delphi · Clone yourself', height:720, styleLock:'delphi-three',
       doc: (typeof DELPHI_THREE_DOC !== 'undefined') ? DELPHI_THREE_DOC : '', externalUrl:'delphi-three.html'
+    });
+  } catch(_){}
+  // WebGL Magazine — source-based WebGL magazine carousel
+  try {
+    firstBatch.push({
+      id:'d-webgl-magazine', styleId:'webgl-magazine', styleLabel:'WebGL magazine', sref:'webgl-magazine-pin', prompt:'J0SUKE WebGL Magazine infinite shader magazine carousel', pinned:true,
+      title:'WebGL Magazine · Infinite spread', height:720, styleLock:'webgl-magazine',
+      doc: (typeof WEBGL_MAGAZINE_DOC !== 'undefined') ? WEBGL_MAGAZINE_DOC : '', externalUrl:'webgl-magazine.html'
     });
   } catch(_){}
   // Marginalia — warm editorial microsite (live 1100x720 thumbnail)
