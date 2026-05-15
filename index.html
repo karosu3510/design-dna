@@ -4,6 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Design DNA — endless designs, just scroll</title>
+<script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
 <style>
   :root{
     --bg:#0a0a0a;--bg-soft:#111;--bg-card:#151515;
@@ -728,17 +729,17 @@ function makeCardEl(d){
     }
   }
 
-  // ─── Hover 浮出：复制代码按钮（所有卡统一） ───
+  // ─── Hover 浮出：下载素材包（HTML + design system zip） ───
   {
     const fav = document.createElement('button');
     fav.type='button';
     fav.className = 'card-fav';
-    fav.dataset.act = 'copy-code';
-    fav.title = '复制该卡片的 HTML 源代码';
-    fav.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg><span>复制代码</span>';
+    fav.dataset.act = 'download-kit';
+    fav.title = '下载该卡片素材包（HTML + Design System）';
+    fav.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg><span>下载素材包</span>';
     fav.addEventListener('click',(e)=>{
       e.stopPropagation();
-      copyCardCode(d, fav);
+      downloadCardKit(d, fav);
     });
     card.appendChild(fav);
   }
@@ -1098,6 +1099,110 @@ async function copyCardCode(d, btn){
   }catch(err){
     console.warn('copyCardCode failed:', err);
     if(typeof flash === 'function'){ flash('复制失败'); }
+  }
+}
+
+// ─── 下载卡片素材包（HTML + Design System zip） ───
+// 约定：如果项目存在 kits/<cardId>/，则一并打包；否则回退到只打 HTML
+async function downloadCardKit(d, btn){
+  // 卡片 id：去掉前缀 'd-' 作为 kit slug，例如 d-a-record → a-record
+  const slug = (d.id||'').replace(/^d-/, '') || (d.styleLock || 'card');
+  const setLoading = (on)=>{
+    if(!btn) return;
+    const span = btn.querySelector('span');
+    btn.dataset.busy = on ? '1' : '';
+    if(span) span.textContent = on ? '打包中…' : '下载素材包';
+  };
+
+  try{
+    if(typeof JSZip === 'undefined') throw new Error('JSZip not loaded');
+    setLoading(true);
+
+    const zip = new JSZip();
+    const folder = zip.folder(slug + '-kit');
+
+    // ① 卡片 HTML：优先 externalUrl，回退 srcdoc
+    let html = '';
+    if(d.externalUrl){
+      try{
+        const r = await fetch(d.externalUrl, {cache:'no-cache'});
+        if(r.ok) html = await r.text();
+      }catch(_){}
+    }
+    if(!html && d.doc) html = String(d.doc);
+
+    // ② 探测 kits/<slug>/ 目录是否存在 design-system 文件
+    const kitBase = './kits/' + slug + '/';
+    const tryFiles = ['design-system.css','design-system.md','design-tokens.json','README.md'];
+    const fetched = {};
+    let hasKit = false;
+    await Promise.all(tryFiles.map(async (f)=>{
+      try{
+        const r = await fetch(kitBase + f, {cache:'no-cache'});
+        if(r.ok){
+          const txt = await r.text();
+          // 简单 sanity check：HTML 404 fallback 通常是 <!DOCTYPE html>
+          if(!/^\s*<!DOCTYPE html/i.test(txt) || f.endsWith('.html')){
+            fetched[f] = txt;
+            hasKit = true;
+          }
+        }
+      }catch(_){}
+    }));
+
+    // ③ 若 kit 中带了自己的 index.html / 资源就用它，否则注入卡片 HTML
+    if(html){
+      // 若存在 design-system.css，自动在卡片 HTML 顶部注入引用提示注释
+      folder.file('index.html', html);
+    }
+    if(hasKit){
+      Object.entries(fetched).forEach(([name, txt])=>{
+        folder.file(name, txt);
+      });
+    } else {
+      // 回退 README，让 zip 至少自描述
+      const fallback = [
+        '# ' + (d.title || slug) + ' · Inspiration Card',
+        '',
+        'Source: Design DNA inspiration library',
+        'Card id: `' + d.id + '`',
+        '',
+        '> Design system file not yet authored for this card.',
+        '> The HTML in `index.html` is self-contained; styles live inline.',
+        '',
+        'Origin: ' + (d.externalUrl || '(srcdoc)'),
+      ].join('\n');
+      folder.file('README.md', fallback);
+    }
+
+    // ④ 生成 blob 并触发下载
+    const blob = await zip.generateAsync({type:'blob'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = slug + '-kit.zip';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(()=>URL.revokeObjectURL(url), 1500);
+
+    setLoading(false);
+    if(btn){
+      btn.classList.add('pulse');
+      const span = btn.querySelector('span');
+      if(span) span.textContent = '已下载';
+      setTimeout(()=>{
+        btn.classList.remove('pulse');
+        if(span) span.textContent = '下载素材包';
+      }, 1100);
+    }
+    if(typeof flash === 'function'){
+      flash(hasKit ? ('已下载 · ' + slug + '-kit.zip') : ('已下载（无 design system）· ' + slug + '-kit.zip'));
+    }
+  }catch(err){
+    console.warn('downloadCardKit failed:', err);
+    setLoading(false);
+    if(typeof flash === 'function'){ flash('下载失败：' + (err.message||err)); }
   }
 }
 
