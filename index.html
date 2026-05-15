@@ -504,6 +504,7 @@
 <script src="./skeleton-fluid-reveal-doc.js?v=202605151348"></script>
 <script src="./card-beam-animation-doc.js"></script>
 <script src="./flip-horizontal-lenis-doc.js"></script>
+<script src="./pixel-transition-doc.js"></script>
 <!-- mono-x7 removed -->
 <!-- lumi removed -->
 <script>
@@ -1413,6 +1414,14 @@ function buildPinnedFor(styleId, headlineFallback){
       id:'d-flip-horizontal-lenis', styleId:'flip-horizontal-lenis', styleLabel:'GSAP Flip gallery', sref:'codepen-raNBjqz', prompt:'CodePen GSAP Flip horizontal scroll Lenis gallery interaction', pinned:true,
       title:'Flip Gallery · Horizontal Lenis', height:720, styleLock:'flip-horizontal-lenis',
       doc: (typeof FLIP_HORIZONTAL_LENIS_DOC !== 'undefined') ? FLIP_HORIZONTAL_LENIS_DOC : '', externalUrl:'flip-horizontal-lenis.html'
+    });
+  } catch(_){}
+  // Pixel Transition — Codrops grid pixel page transition
+  try {
+    firstBatch.push({
+      id:'d-pixel-transition', styleId:'pixel-transition', styleLabel:'Pixel transition', sref:'codrops-pixel-transition', prompt:'Codrops Pixel Transition grid overlay page transition', pinned:true,
+      title:'Pixel Transition · Grid reveal', height:720, styleLock:'pixel-transition',
+      doc: (typeof PIXEL_TRANSITION_DOC !== 'undefined') ? PIXEL_TRANSITION_DOC : '', externalUrl:'pixel-transition.html'
     });
   } catch(_){}
   // Marginalia — warm editorial microsite (live 1100x720 thumbnail)
