@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Delphi — Clone yourself</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:1100px;height:720px;overflow:hidden;background:#fff;color:#0f0f0f;font-family:Inter,system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased}
+.stage{position:absolute;left:0;top:0;width:1100px;height:720px;overflow:hidden;background:#fff;transform-origin:top left}
+#delphiCanvas{position:absolute;inset:0;width:100%;height:100%;display:block;z-index:0;background:#fff}
+.nav{position:absolute;left:0;right:0;top:0;height:72px;z-index:20;display:flex;align-items:center;justify-content:space-between;padding:0 38px;pointer-events:none}
+.logo{pointer-events:auto;display:flex;align-items:center;gap:6px;color:#050505;font-size:14px;font-weight:600;letter-spacing:-.04em}.logo .cmd{font-family:Georgia,serif;font-style:italic;font-size:18px;line-height:1;margin-right:1px}
+.links{position:absolute;left:50%;top:22px;transform:translateX(-50%);display:flex;align-items:center;gap:30px;pointer-events:auto}.links a{font-size:12px;font-weight:600;color:#5a5d63;text-decoration:none;letter-spacing:-.02em}.moon{width:28px;height:28px;border:0;border-radius:999px;background:rgba(0,0,0,.045);display:grid;place-items:center;color:#111}.moon svg{width:14px;height:14px}
+.cta{pointer-events:auto;border:0;border-radius:999px;background:#050505;color:#fff;height:38px;padding:0 18px;font-size:12px;font-weight:700;letter-spacing:-.02em;display:flex;align-items:center;gap:7px;box-shadow:0 1px 1px rgba(0,0,0,.08)}
+.hero{position:absolute;inset:0;z-index:10;display:flex;align-items:center;justify-content:center;pointer-events:none;text-align:center}.hero-inner{transform:translateY(14px);display:flex;flex-direction:column;align-items:center;max-width:650px;padding:0 20px;opacity:0;animation:heroIn 1.15s cubic-bezier(.22,1,.36,1) .35s forwards}@keyframes heroIn{from{opacity:0;transform:translateY(44px) scale(.95)}to{opacity:1;transform:translateY(14px) scale(1)}}
+h1{font-size:96px;line-height:.86;font-weight:900;letter-spacing:-.085em;color:#050505;margin-bottom:24px}.sub{font-size:16px;line-height:1.35;font-weight:500;color:#656565;max-width:440px;margin-bottom:30px;letter-spacing:-.035em}.sub .accent{color:#e85d35;font-weight:700}.actions{display:flex;align-items:center;gap:22px;pointer-events:auto}.try{height:42px;border:0;border-radius:999px;background:#050505;color:#fff;padding:0 28px;font-size:12px;font-weight:700;letter-spacing:-.02em}.examples{border:0;background:transparent;color:#111;font-size:12px;font-weight:700;letter-spacing:-.02em;padding:10px 0}.examples span{display:inline-block;margin-left:4px}
+.footer{position:absolute;right:20px;bottom:16px;z-index:20;color:rgba(0,0,0,.28);font-size:9px;font-weight:500;letter-spacing:-.01em;pointer-events:none}
+.scroll-capture{position:absolute;inset:0;z-index:30;pointer-events:auto;background:transparent}.nav,.hero,.footer{pointer-events:none}.nav > *,.links,.actions{pointer-events:auto}.hint{position:absolute;left:50%;bottom:18px;transform:translateX(-50%);z-index:20;color:rgba(0,0,0,.24);font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;opacity:.75;pointer-events:none}
+@media(max-width:760px){h1{font-size:64px}.nav{padding:0 24px}.links{display:none}.cta{height:34px;padding:0 14px}.sub{font-size:14px}}
+</style>
+</head>
+<body>
+<div class="stage">
+  <canvas id="delphiCanvas"></canvas>
+  <div class="scroll-capture" aria-hidden="true"></div>
+  <nav class="nav">
+    <div class="logo"><span class="cmd">⌘</span><span>Delphi</span></div>
+    <div class="links"><a>Use Cases</a><a>Discover</a><a>About</a><button class="moon" aria-label="Toggle theme"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></button></div>
+    <button class="cta">Get started now <span>→</span></button>
+  </nav>
+  <section class="hero">
+    <div class="hero-inner">
+      <h1>Clone<br>yourself.</h1>
+      <p class="sub">Build the digital version of you to scale your expertise and availability, <span class="accent">infinitely</span></p>
+      <div class="actions"><button class="try">Try now</button><button class="examples">See examples <span>→</span></button></div>
+    </div>
+  </section>
+  <div class="footer">© 2026 Delphi Clone.</div>
+  <div class="hint">scroll / drag to travel</div>
+</div>
+<script type="module">
+import * as THREE from 'https://esm.sh/three@0.160.0';
+
+const W=1100,H=720;
+const stage=document.querySelector('.stage');
+function fit(){const vw=window.innerWidth||W,vh=window.innerHeight||H;const s=Math.min(vw/W,vh/H);stage.style.transform=`scale(${s})`;stage.style.left=Math.max(0,(vw-W*s)/2)+'px';stage.style.top=Math.max(0,(vh-H*s)/2)+'px'}
+window.addEventListener('resize',fit);fit();
+
+const canvas=document.getElementById('delphiCanvas');
+const scene=new THREE.Scene();
+scene.background=new THREE.Color(0xffffff);
+scene.fog=new THREE.FogExp2(0xffffff,0.016);
+const camera=new THREE.PerspectiveCamera(70,W/H,.1,1000);
+camera.position.set(0,0,0);
+const renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:false,powerPreference:'high-performance'});
+renderer.setSize(W,H,false);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));
+
+const TUNNEL_WIDTH=24,TUNNEL_HEIGHT=16,SEGMENT_DEPTH=6,NUM_SEGMENTS=16, FLOOR_COLS=6, WALL_ROWS=4;
+const COL_WIDTH=TUNNEL_WIDTH/FLOOR_COLS, ROW_HEIGHT=TUNNEL_HEIGHT/WALL_ROWS;
+const imageUrls=[
+'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=600&fit=crop','https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?q=80&w=600&fit=crop','https://images.unsplash.com/photo-1517841905240-472988babdf9?q=80&w=600&fit=crop','https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?q=80&w=600&fit=crop','https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=600&fit=crop','https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=600&fit=crop','https://images.unsplash.com/photo-1488161628813-99c974c76949?q=80&w=600&fit=crop','https://images.unsplash.com/photo-1521119989659-a83eee488058?q=80&w=600&fit=crop','https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=600&fit=crop','https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=600&fit=crop','https://images.unsplash.com/photo-1664575602276-acd073f104c1?q=80&w=600&fit=crop','https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=600&fit=crop','https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=600&fit=crop','https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?q=80&w=600&fit=crop'
+];
+const loader=new THREE.TextureLoader();
+const texCache=new Map();
+function loadTexture(url,mat){
+  if(texCache.has(url)){mat.map=texCache.get(url);mat.opacity=.66;mat.needsUpdate=true;return}
+  loader.load(url,tex=>{tex.colorSpace=THREE.SRGBColorSpace;tex.minFilter=THREE.LinearFilter;texCache.set(url,tex);mat.map=tex;mat.needsUpdate=true;fadeMat(mat,.66,780)});
+}
+function fadeMat(mat,target,dur){const start=performance.now(),from=mat.opacity;function f(t){const p=Math.min(1,(t-start)/dur);mat.opacity=from+(target-from)*(1-Math.pow(1-p,3));if(p<1)requestAnimationFrame(f)}requestAnimationFrame(f)}
+function rng(seed){let x=Math.sin(seed*999.137)*10000;return x-Math.floor(x)}
+function addImg(group,pos,rot,wd,ht,seed){const url=imageUrls[Math.floor(rng(seed)*imageUrls.length)];const geom=new THREE.PlaneGeometry(wd-.4,ht-.4);const mat=new THREE.MeshBasicMaterial({transparent:true,opacity:0,side:THREE.DoubleSide,depthWrite:false});loadTexture(url,mat);const m=new THREE.Mesh(geom,mat);m.position.copy(pos);m.rotation.copy(rot);m.name='slab_image';group.add(m)}
+function populateImages(group,w,h,d,seedBase){let lf=-999,lc=-999,ll=-999,lr=-999;for(let i=0;i<FLOOR_COLS;i++){if(i>lf+1&&rng(seedBase+i*3)>.68){addImg(group,new THREE.Vector3(-w+i*COL_WIDTH+COL_WIDTH/2,-h,-d/2),new THREE.Euler(-Math.PI/2,0,0),COL_WIDTH,d,seedBase+i*9);lf=i}}for(let i=0;i<FLOOR_COLS;i++){if(i>lc+1&&rng(seedBase+40+i*5)>.78){addImg(group,new THREE.Vector3(-w+i*COL_WIDTH+COL_WIDTH/2,h,-d/2),new THREE.Euler(Math.PI/2,0,0),COL_WIDTH,d,seedBase+80+i);lc=i}}for(let i=0;i<WALL_ROWS;i++){if(i>ll+1&&rng(seedBase+90+i*7)>.62){addImg(group,new THREE.Vector3(-w,-h+i*ROW_HEIGHT+ROW_HEIGHT/2,-d/2),new THREE.Euler(0,Math.PI/2,0),d,ROW_HEIGHT,seedBase+130+i);ll=i}}for(let i=0;i<WALL_ROWS;i++){if(i>lr+1&&rng(seedBase+160+i*7)>.62){addImg(group,new THREE.Vector3(w,-h+i*ROW_HEIGHT+ROW_HEIGHT/2,-d/2),new THREE.Euler(0,-Math.PI/2,0),d,ROW_HEIGHT,seedBase+200+i);lr=i}}}
+function clearImages(group){const rm=[];group.traverse(c=>{if(c.name==='slab_image')rm.push(c)});rm.forEach(c=>{group.remove(c);c.geometry.dispose();if(c.material.map)c.material.map.dispose();c.material.dispose()})}
+function createSegment(zPos,idx){const group=new THREE.Group();group.position.z=zPos;group.userData.seed=idx+1;const w=TUNNEL_WIDTH/2,h=TUNNEL_HEIGHT/2,d=SEGMENT_DEPTH;const mat=new THREE.LineBasicMaterial({color:0xb0b0b0,transparent:true,opacity:.48});const geo=new THREE.BufferGeometry();const v=[];for(let i=0;i<=FLOOR_COLS;i++){const x=-w+i*COL_WIDTH;v.push(x,-h,0,x,-h,-d);v.push(x,h,0,x,h,-d)}for(let i=1;i<WALL_ROWS;i++){const y=-h+i*ROW_HEIGHT;v.push(-w,y,0,-w,y,-d);v.push(w,y,0,w,y,-d)}v.push(-w,-h,0,w,-h,0);v.push(-w,h,0,w,h,0);v.push(-w,-h,0,-w,h,0);v.push(w,-h,0,w,h,0);geo.setAttribute('position',new THREE.Float32BufferAttribute(v,3));group.add(new THREE.LineSegments(geo,mat));populateImages(group,w,h,d,idx+1);return group}
+const segments=[];for(let i=0;i<NUM_SEGMENTS;i++){const seg=createSegment(-i*SEGMENT_DEPTH,i);scene.add(seg);segments.push(seg)}
+let targetScroll=0,auto=0,drag=false,lastY=0,paused=false;
+const capture=document.querySelector('.scroll-capture');
+capture.addEventListener('wheel',e=>{e.preventDefault();targetScroll+=e.deltaY*.9;auto=0},{passive:false});
+capture.addEventListener('pointerdown',e=>{drag=true;lastY=e.clientY;capture.setPointerCapture(e.pointerId)});
+capture.addEventListener('pointermove',e=>{if(!drag)return;targetScroll+=(lastY-e.clientY)*8;lastY=e.clientY;auto=0});
+capture.addEventListener('pointerup',()=>{drag=false});
+document.addEventListener('visibilitychange',()=>{paused=document.hidden});
+function recycle(seg,camZ){clearImages(seg);seg.userData.seed+=NUM_SEGMENTS;const w=TUNNEL_WIDTH/2,h=TUNNEL_HEIGHT/2,d=SEGMENT_DEPTH;populateImages(seg,w,h,d,seg.userData.seed)}
+function animate(){requestAnimationFrame(animate);if(paused)return;auto+=.72;targetScroll+=.32;const targetZ=-(targetScroll+auto)*.05;camera.position.z+=(targetZ-camera.position.z)*.095;const camZ=camera.position.z;const tunnelLength=NUM_SEGMENTS*SEGMENT_DEPTH;segments.forEach(seg=>{if(seg.position.z>camZ+SEGMENT_DEPTH){let minZ=0;segments.forEach(s=>minZ=Math.min(minZ,s.position.z));seg.position.z=minZ-SEGMENT_DEPTH;recycle(seg,camZ)}if(seg.position.z<camZ-tunnelLength-SEGMENT_DEPTH){let maxZ=-999999;segments.forEach(s=>maxZ=Math.max(maxZ,s.position.z));seg.position.z=maxZ+SEGMENT_DEPTH;recycle(seg,camZ)}});renderer.render(scene,camera)}
+animate();
+</script>
+</body>
+</html>
