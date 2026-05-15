@@ -78,7 +78,7 @@
   @keyframes actPop{0%{transform:scale(1)}40%{transform:scale(1.22)}100%{transform:scale(1)}}
   .card-actions .act.pop svg{animation:actPop .35s ease}
 
-  /* ─── Hover 浮出操作：设为精选 ─── */
+  /* ─── Hover 浮出操作：复制代码 ─── */
   .card-fav{position:absolute;top:8px;left:8px;display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 10px 0 8px;background:rgba(0,0,0,.62);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.12);border-radius:8px;font-size:11px;font-weight:500;color:#fff;cursor:pointer;opacity:0;transform:translateY(-4px);transition:opacity .18s ease, transform .18s ease, background .15s ease;z-index:4;letter-spacing:.01em}
   .card:hover .card-fav{opacity:1;transform:none}
   .card-fav:hover{background:rgba(0,0,0,.82);border-color:rgba(255,255,255,.22)}
@@ -750,18 +750,17 @@ function makeCardEl(d){
     }
   }
 
-  // ─── Hover 浮出：设为精选按钮（所有卡统一） ───
+  // ─── Hover 浮出：复制代码按钮（所有卡统一） ───
   {
-    const isOn = featuredMap.has(d.id);
     const fav = document.createElement('button');
     fav.type='button';
-    fav.className = 'card-fav' + (isOn ? ' is-on' : '');
-    fav.dataset.act = 'feature';
-    fav.title = isOn ? '取消精选' : '设为精选（前置到顶部）';
-    fav.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><span>'+(isOn?'已精选':'设为精选')+'</span>';
+    fav.className = 'card-fav';
+    fav.dataset.act = 'copy-code';
+    fav.title = '复制该卡片的 HTML 源代码';
+    fav.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg><span>复制代码</span>';
     fav.addEventListener('click',(e)=>{
       e.stopPropagation();
-      toggleFeatured(d, fav, card);
+      copyCardCode(d, fav);
     });
     card.appendChild(fav);
   }
@@ -1085,8 +1084,57 @@ function syncLikeIcons(id){
   });
 }
 
+// ─── 复制卡片源代码 ───
+async function copyCardCode(d, btn){
+  let code = '';
+  let label = '';
+  try{
+    if(d.externalUrl){
+      // 优先获取外链独立页源码（如 carrot-tech.html）
+      const res = await fetch(d.externalUrl, {cache:'no-cache'});
+      if(res.ok){
+        code = await res.text();
+        label = d.externalUrl;
+      }
+    }
+    if(!code && d.doc){
+      // 回退到 srcdoc 字符串
+      code = String(d.doc);
+      label = d.id + ' (srcdoc)';
+    }
+    if(!code){ throw new Error('no source'); }
+
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      await navigator.clipboard.writeText(code);
+    } else {
+      const ta = document.createElement('textarea');
+      ta.value = code;
+      ta.style.position = 'fixed'; ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+    }
+
+    // 视觉反馈
+    if(btn){
+      btn.classList.add('pulse');
+      const span = btn.querySelector('span');
+      const old = span ? span.textContent : '';
+      if(span) span.textContent = '已复制';
+      setTimeout(()=>{
+        btn.classList.remove('pulse');
+        if(span) span.textContent = old || '复制代码';
+      }, 1100);
+    }
+    if(typeof flash === 'function'){ flash('已复制 · ' + label); }
+  }catch(err){
+    console.warn('copyCardCode failed:', err);
+    if(typeof flash === 'function'){ flash('复制失败'); }
+  }
+}
+
 function toggleFeatured(d, btn, cardEl){
-  const wasOn = featuredMap.has(d.id);
   if(wasOn){
     featuredMap.delete(d.id);
   } else {
