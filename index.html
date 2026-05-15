@@ -500,6 +500,7 @@
 <script src="./book-gallery-3d-doc.js"></script>
 <script src="./delphi-three-doc.js"></script>
 <script src="./webgl-magazine-doc.js?v=202605151122"></script>
+<script src="./pixel-gooey-tooltip-doc.js"></script>
 <!-- mono-x7 removed -->
 <!-- lumi removed -->
 <script>
@@ -1377,6 +1378,14 @@ function buildPinnedFor(styleId, headlineFallback){
       id:'d-webgl-magazine', styleId:'webgl-magazine', styleLabel:'WebGL magazine', sref:'webgl-magazine-pin', prompt:'J0SUKE WebGL Magazine infinite shader magazine carousel', pinned:true,
       title:'WebGL Magazine · Infinite spread', height:720, styleLock:'webgl-magazine',
       doc: (typeof WEBGL_MAGAZINE_DOC !== 'undefined') ? WEBGL_MAGAZINE_DOC : '', externalUrl:'webgl-magazine.html'
+    });
+  } catch(_){}
+  // Pixel Gooey Tooltip — Codrops segmented tooltip animation
+  try {
+    firstBatch.push({
+      id:'d-pixel-gooey-tooltip', styleId:'pixel-gooey-tooltip', styleLabel:'Pixel tooltip', sref:'codrops-pixel-gooey', prompt:'Codrops segmented pixel gooey tooltip animation', pinned:true,
+      title:'Pixel Gooey Tooltip · Segmented animation', height:720, styleLock:'pixel-gooey-tooltip',
+      doc: (typeof PIXEL_GOOEY_TOOLTIP_DOC !== 'undefined') ? PIXEL_GOOEY_TOOLTIP_DOC : '', externalUrl:'pixel-gooey-tooltip.html'
     });
   } catch(_){}
   // Marginalia — warm editorial microsite (live 1100x720 thumbnail)
