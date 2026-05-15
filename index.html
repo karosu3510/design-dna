@@ -504,7 +504,7 @@
 <script src="./skeleton-fluid-reveal-doc.js?v=202605151348"></script>
 <script src="./card-beam-animation-doc.js"></script>
 <script src="./flip-horizontal-lenis-doc.js"></script>
-<script src="./pixel-transition-doc.js"></script>
+<!-- pixel-transition removed -->
 <!-- mono-x7 removed -->
 <!-- lumi removed -->
 <script>
@@ -1416,14 +1416,7 @@ function buildPinnedFor(styleId, headlineFallback){
       doc: (typeof FLIP_HORIZONTAL_LENIS_DOC !== 'undefined') ? FLIP_HORIZONTAL_LENIS_DOC : '', externalUrl:'flip-horizontal-lenis.html'
     });
   } catch(_){}
-  // Pixel Transition — Codrops grid pixel page transition
-  try {
-    firstBatch.push({
-      id:'d-pixel-transition', styleId:'pixel-transition', styleLabel:'Pixel transition', sref:'codrops-pixel-transition', prompt:'Codrops Pixel Transition grid overlay page transition', pinned:true,
-      title:'Pixel Transition · Grid reveal', height:720, styleLock:'pixel-transition',
-      doc: (typeof PIXEL_TRANSITION_DOC !== 'undefined') ? PIXEL_TRANSITION_DOC : '', externalUrl:'pixel-transition.html'
-    });
-  } catch(_){}
+  // Pixel Transition — removed (effect not satisfactory)
   // Marginalia — warm editorial microsite (live 1100x720 thumbnail)
   try {
     firstBatch.push({
