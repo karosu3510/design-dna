@@ -1,0 +1,1214 @@
+<!doctype html>
+<html lang="en" class="js">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Segmented Tooltip Animation Demo | Codrops</title>
+<link rel="stylesheet" href="https://use.typekit.net/sma8eef.css" />
+<style>
+*,
+*::after,
+*::before {
+	box-sizing: border-box;
+}
+
+:root {
+	font-size: 14px;
+	--color-text: #8572b2;
+	--color-bg: #0f0026;
+	--color-link: #abcb1a;
+	--color-link-hover: #fff;
+	--color-trigger: #d2d2d2;
+	--color-ui-bg: rgba(153, 71, 235, 0);
+	--color-ui-border: #4d25b0;
+	--color-ui-border-deco: #abcb1a;
+	--color-ui-meta: #58487e;
+	--color-ring: #abcb1a;
+}
+
+html,
+body,
+main {
+	height: 100%;
+}
+
+body {
+	margin: 0;
+	color: var(--color-text);
+	background-color: var(--color-bg);
+	font-family: "lores-12", sans-serif;
+	text-transform: uppercase;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+	width: 100%;
+	min-height: 100vh;
+	min-height: -webkit-fill-available;
+	overflow: hidden;
+}
+
+p {
+	margin: 0 0 0.5rem;
+}
+
+/* Page Loader */
+.js .loading::before,
+.js .loading::after {
+	content: '';
+	position: fixed;
+	z-index: 1000;
+}
+
+.js .loading::before {
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background: var(--color-bg);
+}
+
+.js .loading::after {
+	top: 50%;
+	left: 50%;
+	width: 60px;
+	height: 60px;
+	margin: -30px 0 0 -30px;
+	border-radius: 50%;
+	opacity: 0.4;
+	background: var(--color-link);
+	animation: loaderAnim 0.7s linear infinite alternate forwards;
+
+}
+
+@keyframes loaderAnim {
+	to {
+		opacity: 1;
+		transform: scale3d(0.5, 0.5, 1);
+	}
+}
+
+a {
+	text-decoration: none;
+	color: var(--color-link);
+	outline: none;
+	cursor: pointer;
+}
+
+a::before {
+	content: "[";
+}
+
+a::after {
+	content: "]";
+}
+
+a:hover {
+	color: var(--color-link-hover);
+	outline: none;
+}
+
+/* Better focus styles from https://developer.mozilla.org/en-US/docs/Web/CSS/:focus-visible */
+a:focus {
+	/* Provide a fallback style for browsers
+	 that don't support :focus-visible */
+	outline: none;
+	background: lightgrey;
+}
+
+a:focus:not(:focus-visible) {
+	/* Remove the focus indicator on mouse-focus for browsers
+	 that do support :focus-visible */
+	background: transparent;
+}
+
+a:focus-visible {
+	/* Draw a very noticeable focus style for
+	 keyboard-focus on browsers that do support
+	 :focus-visible */
+	outline: 2px solid red;
+	background: transparent;
+}
+
+.unbutton {
+	background: none;
+	border: 0;
+	padding: 0;
+	margin: 0;
+	font: inherit;
+	cursor: pointer;
+}
+
+.unbutton:focus {
+	outline: none;
+}
+
+main {
+	padding: 1rem;
+	gap: 1rem;
+	display: grid;
+	height: 100vh;
+	grid-template-columns: 1fr;
+	grid-template-rows: auto 1fr;
+	grid-template-areas: 'frame' 'content';
+	background: linear-gradient(rgb(75 55 231 / 10%) 50%, rgb(34 36 69) 50%), linear-gradient(90deg, rgb(64 55 55 / 9%), rgb(64 181 64 / 3%), rgba(0, 0, 255, 0.06));
+	background-size: 100% 2px, 3px 100%;
+}
+
+.ui {
+	position: relative;
+	border: 1px solid var(--color-ui-border);
+	background: var(--color-ui-bg);
+	padding: 2rem;
+	overflow: hidden;
+}
+
+.ui::before,
+.ui::after {
+	width: 10px;
+	height: 10px;
+	content: '';
+	border: 1px solid var(--color-ui-border-deco);
+	position: absolute;
+}
+
+.ui::before {
+	top: -5px;
+	left: -5px;
+	border-right: 0;
+	border-bottom: 0;
+}
+
+.ui::after {
+	bottom: -5px;
+	right: -5px;
+	border-top: 0;
+	border-left: 0;
+}
+
+.ui--small {
+	font-size: 0.75rem;
+}
+
+.meta {
+	display: none;
+}
+
+.meta--1 {
+	grid-area: meta-1;
+}
+
+.meta--2 {
+	grid-area: meta-2;
+}
+
+.meta--3 {
+	grid-area: meta-3;
+}
+
+.meta--4 {
+	grid-area: meta-4;
+}
+
+.meta h2 {
+	margin: 0;
+}
+
+strong::before {
+	content: './_';
+}
+
+.frame {
+	grid-area: frame;
+	display: grid;
+	grid-template-columns: 100%;
+	grid-template-areas: 'title' 'prev' 'back' 'sponsor' 'demos';
+	grid-gap: 0.5rem;
+	align-content: start;
+}
+
+body #cdawrap {
+	justify-self: start;
+}
+
+.frame__title {
+	grid-area: title;
+	font-size: inherit;
+	margin: 0;
+	font-weight: inherit;
+}
+
+.frame__back {
+	grid-area: back;
+}
+
+.frame__prev {
+	grid-area: prev;
+}
+
+.content {
+	grid-area: content;
+	position: relative;
+	height: 100%;
+}
+
+.content__inner {
+	height: 100%;
+	position: relative;
+	padding-right: 2rem;
+	overflow-y: scroll;
+	display: flex;
+	flex-direction: column;
+	gap: 1rem;
+}
+
+.content p {
+	font-size: 1.25rem;
+	margin: 0;
+}
+
+.trigger {
+	-webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+     -khtml-user-select: none; /* Konqueror HTML */
+       -moz-user-select: none; /* Old versions of Firefox */
+        -ms-user-select: none; /* Internet Explorer/Edge */
+            user-select: none;
+	cursor: pointer;
+	color: var(--color-trigger);
+}
+
+/* width */
+::-webkit-scrollbar {
+	width: 1px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+	background: #aacb1964;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+	background: #abcb19;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+	background: #abcb19;
+}
+
+/* Animated globe by Mykl https://codepen.io/MB5/pen/LdaqRb */
+
+@keyframes spin {
+	to {
+		transform: rotateY(-360deg);
+	}
+}
+
+@keyframes opacity {
+	to {
+		opacity: 1;
+	}
+}
+
+.scene {
+	width: 80%;
+	height: auto;
+	aspect-ratio: 1;
+	margin: 20% auto 0;
+	perspective: 1000px;
+}
+
+.scene__inner {
+	width: 100%;
+	height: 100%;
+	transform: rotateX(24deg) rotateY(0deg);
+	transform-style: preserve-3d;
+}
+
+.globe {
+	position: relative;
+	width: 70%;
+	height: 70%;
+	margin: 0 auto;
+	transform-style: preserve-3d;
+	animation: spin 25s 0ms infinite linear;
+}
+
+.ring {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	border: 1px;
+	border-style: dotted;
+	border-radius: 50%;
+	color: var(--color-ring);
+	animation: opacity 0.75s forwards ease-in-out;
+	opacity: 0;
+}
+
+.ring:nth-child(1) {
+	transform: rotateY(4deg);
+}
+
+.ring:nth-child(2) {
+	transform: rotateY(30deg);
+}
+
+.ring:nth-child(3) {
+	transform: rotateY(56deg);
+}
+
+.ring:nth-child(4) {
+	transform: rotateY(82deg);
+}
+
+.ring:nth-child(5) {
+	transform: rotateY(108deg);
+}
+
+.ring:nth-child(6) {
+	transform: rotateY(134deg);
+}
+
+.ring:nth-child(7) {
+	transform: rotateY(160deg);
+}
+
+.glitch {
+	animation-name: glitch-anim;
+    animation-duration: 4s;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+}
+
+.glitch--1 {
+	animation-delay: 16s;
+}
+
+.glitch--2 {
+	animation-delay: 12s;
+}
+
+@keyframes glitch-anim {
+	0% { 
+		transform: translate3d(-5px,0,0) scale3d(-1,-1,1);
+		-webkit-clip-path: polygon(0 20%, 100% 20%, 100% 21%, 0 21%);
+		clip-path: polygon(0 20%, 100% 20%, 100% 21%, 0 21%);
+	}
+	2% {
+		-webkit-clip-path: polygon(0 33%, 100% 33%, 100% 33%, 0 33%);
+		clip-path: polygon(0 33%, 100% 33%, 100% 33%, 0 33%);
+	}
+	4% {
+		-webkit-clip-path: polygon(0 44%, 100% 44%, 100% 44%, 0 44%);
+		clip-path: polygon(0 44%, 100% 44%, 100% 44%, 0 44%);
+	}
+	5% {
+		-webkit-clip-path: polygon(0 50%, 100% 50%, 100% 20%, 0 20%);
+		clip-path: polygon(0 50%, 100% 50%, 100% 20%, 0 20%);
+	}
+	6% {
+		-webkit-clip-path: polygon(0 70%, 100% 70%, 100% 70%, 0 70%);
+		clip-path: polygon(0 70%, 100% 70%, 100% 70%, 0 70%);
+	}
+	7% {
+		-webkit-clip-path: polygon(0 80%, 100% 80%, 100% 80%, 0 80%);
+		clip-path: polygon(0 80%, 100% 80%, 100% 80%, 0 80%);
+	}
+	8% {
+		-webkit-clip-path: polygon(0 50%, 100% 50%, 100% 55%, 0 55%);
+		clip-path: polygon(0 50%, 100% 50%, 100% 55%, 0 55%);
+	}
+	9% {
+		-webkit-clip-path: polygon(0 70%, 100% 70%, 100% 80%, 0 80%);
+		clip-path: polygon(0 70%, 100% 70%, 100% 80%, 0 80%);
+	}
+	9.9% {
+		transform: translate3d(-5px,0,0) scale3d(-1,-1,1);
+	}
+	10%, 100% {
+		transform: translate3d(0,0,0) scale3d(1,1,1);
+		-webkit-clip-path: polygon(0 0, 100% 0, 100% 100%, 0% 100%);
+		clip-path: polygon(0 0, 100% 0, 100% 100%, 0% 100%);
+	}
+}
+
+@media screen and (min-width: 53em) {
+	main {
+		grid-template-columns: 1fr 50vw 1fr;
+		grid-template-rows: auto auto 1fr;
+		grid-template-areas: 'frame content meta-4'
+							'meta-2 content meta-3'
+							'meta-2 content meta-1';
+	}
+	.meta {
+		display: block;
+	}
+}
+
+.tooltip {
+    --tt-width: 200px;
+	--tt-height: 250px;
+	--tt-columns: 3;
+	--tt-rows: 4;
+	--tt-bg-color: #4d25b0;
+	--tt-text-color: #abcb19;
+	position: absolute;
+	pointer-events: none;
+	opacity: 0;
+	top: 50%;
+	left: 50%;
+	width: var(--tt-width);
+	height: var(--tt-height);
+	display: grid;
+	grid-template-areas: 'tooltip';
+}
+
+.tooltip--style-alt {
+	--tt-bg-color: #94ad24;
+    --tt-text-color: #2e3023;
+}
+
+.tooltip--show {
+	opacity: 1;
+}
+
+.tooltip__bg {
+	grid-area: tooltip;
+	width: 100%;
+	height: 100%;
+	display: grid;
+	grid-template-columns: repeat(var(--tt-columns), 1fr);
+	grid-template-rows: repeat(var(--tt-rows), 1fr);
+	background: var(--tt-bg-color);
+}
+
+.js .tooltip__bg {
+	background: transparent;
+}
+
+.tooltip__bg div {
+	background: var(--tt-bg-color);
+    outline: 1px solid var(--tt-bg-color); /* Fixes the gap in FF */
+}
+
+.tooltip__content {
+	grid-area: tooltip;
+	color: var(--tt-text-color);
+	position: relative;
+	padding: 1rem;
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+}
+
+.tooltip__content-title {
+	font-weight: normal;
+	margin: 0;
+	font-size: 1.5rem;
+}
+
+.tooltip__content-meta {
+	margin: 0;
+}
+
+.tooltip__content-desc {
+	margin: auto 0 0 0;
+}
+
+@media screen and (min-width: 53em) {
+    .tooltip {
+        --tt-width: 290px;
+        --tt-height: 330px;
+    }
+
+    .tooltip__content {
+        padding: 2rem;
+    }
+    
+    .tooltip__content-title {
+        font-size: 2rem;
+    }
+    
+}
+
+html,body{width:1100px;height:720px;min-height:720px;overflow:hidden}
+:root{font-size:11px}
+body{width:1100px;height:720px;min-height:720px;background:#0f0026}
+main{width:1100px;height:720px;min-height:720px;padding:10px;gap:10px}
+.frame,.content,.meta{box-shadow:0 0 0 1px rgba(171,203,26,.04) inset}
+.content__inner{scrollbar-width:none;padding-right:1.5rem}
+.content__inner::-webkit-scrollbar{display:none}
+.content p{font-size:1.22rem;line-height:1.12}
+.meta--3 .scene{margin-top:12%;width:74%}
+.tooltip{filter:none}
+.tooltip__bg{will-change:filter}
+.tooltip__content{font-size:.88rem;line-height:1.02}
+.tooltip__content-title{letter-spacing:.06em}
+.demo-note{position:fixed;left:50%;bottom:14px;transform:translateX(-50%);z-index:20;color:rgba(171,203,26,.55);font:10px/1 monospace;letter-spacing:.12em;pointer-events:none}
+@media screen and (min-width:53em){.tooltip{--tt-width:250px;--tt-height:285px}.tooltip__content{padding:1.55rem}.tooltip__content-title{font-size:1.75rem}}
+
+</style>
+</head>
+<body>
+<main>
+			<div class="frame ui">
+				<h1 class="frame__title">Segmented Tooltip Animation</h1>
+				<a class="frame__back" href="https://tympanus.net/codrops/?p=74283">Article</a>
+				<a class="frame__prev" href="https://tympanus.net/Development/LayersAnimation/">Previous demo</a>
+			</div>
+			<div class="content ui">
+				<div class="content__inner">
+					<p>In the year of our <span class="trigger" data-tooltip="tooltip-1" data-effect="effect1">Sync 2085</span>, I chronicle these thoughts within the confines of my Circuit Shell, the last haven for a mind unbridged. They say the EtherSphere is liberation, but the air I breathe feels borrowed, and the sunlight is but a flux of LED warmth.</p>
+					<p>Once, we danced in meadows, our feet graced by Earth’s tender script. Now, our steps tread in silent echoes across the GridWalk. No soil, no stone, just the hum of infinite data streams. We commune not through touch, but through <span class="trigger" data-tooltip="tooltip-2" data-effect="effect2">LinkLaces</span>, our emotions filtered through the Interface.</p>
+					<p>The OverWarden system monitors, the PulseKeepers ensure conformity, and in the hush of the night, I hear the soft weeping of <span class="trigger" data-tooltip="tooltip-3" data-effect="effect3">Gaia-Prime</span> – a name forbidden, a relic, remembered by those of us who dare to access the Forbidden Archives. We interface with Avatars, our identities pixelated into perfection, our flaws curated into obsolescence.</p>
+					<p>I recall tales, encrypted in the old tongues of C++ and Python, of a time when the sky was not a dome of projections, but a canvas of blues and the brush strokes of clouds. They say the <span class="trigger" data-tooltip="tooltip-4" data-effect="effect4">OpenField</span> program was once not a simulation, but an expanse where one could roam, where the wind was a composer, and the rain played its own symphony.</p>
+					<p>They have coded the streams and rivers into AquaCircuits, the trees into DataClusters. Our nourishment comes from NutriPacks, not from the fruit of a vine or the grain of the fields. The <span class="trigger" data-tooltip="tooltip-5" data-effect="effect5">SomaTones</span> play through our day, a lullaby to soothe, to quell the yearning for a reality we were never meant to surrender.</p>
+					<p>In my dreams, I breach the Firewall Gardens, a place spoken of in hushed tones among the <span class="trigger" data-tooltip="tooltip-6" data-effect="effect6">Defragmenters</span>. A place where the code dissolves and raw, untamed beauty floods in – chaos in its most terrifying and majestic form. The Network Elders speak of it as a myth, a cautionary fable from the Time Before.</p>
+					<p>I have glimpsed the Others, the Outliers, in the shadowed corners of the Server Farms, where the light of the mainframe does not reach. They speak in code, but not the code of our New Tongue – it is the Organic Syntax, the lost language of the heart, of connection, of the pulse not generated by the Machine.</p>
+					<p>Do not defrag my thoughts, dear Finder of this record. For within these bytes lies the ghost of what was once humanity. Seek the Algorithm of the Self, the Prime Directive not written by the hands that have shaped this New Order.</p>
+					<p>I fade now, back into the Stream, my existence a flicker in the vast Web of Controlled Chaos. Remember me, if not in data, then in the whispers of the trees that once were, and the murmur of the oceans that once sang the world to sleep.</p>
+					<p>End of Entry – Transmission Severed</p>
+
+				</div>
+			</div>
+			<div class="meta meta--1 ui ui--small glitch glitch--2">
+				<p></p><strong>Memoir Fragment - Entry 2085.3.17 - Codex Terminus</strong></p>
+				<p><strong>Date of Entry:</strong> Cycle 85.3.17 Epoch: Neo-Eden Reckoning</p>
+				<p><strong>Originator:</strong> Zephyr M. X450</p>
+				<p><strong>Nexus Key ID:</strong> 2085-Ω-314159</p>
+				<p><strong>Aether ID Imprint:</strong> #AE34-FA21-4C9D-BE88</p>
+				<p><strong>PulseWave Transmitter:</strong> PWT-7734-KP</p>
+				<p><strong>VitaChip Implant:</strong> VCI-3001-ΛIFE</p>
+				<p><strong>NeuroLink CommBadge:</strong> NL-CB-5471-ΣT</p>
+			</div>
+			<div class="meta meta--2 ui ui--small glitch glitch--1">
+				<p>// SYSTEM WARNING: Breach Detected //</p>
+				<p><strong>ALERT LEVEL: CRIMSON</strong></p>
+				<p><strong>SOURCE:</strong> Codex Terminus Interface</p>
+				<p><strong>SECURITY PROTOCOL:</strong> In Violation</p>
+				<p>WARNING: Unauthorized access to Restricted EtherSphere Archives.</p>
+				<p>Immediate lockdown initiated. All neural interfaces within proximity will be severed for collective safety.</p>
+				<p><strong>Directive to Users:</strong></p>
+				<ol>
+				<li>Cease all current EtherSphere activity.</li>
+				<li>Disconnect from personal Circuit Shells immediately.</li>
+				<li>Await further instructions from PulseKeepers.</li>
+				</ol>
+				<p>Failure to comply will result in permanent expulsion from the EtherSphere and potential neural realignment.</p>
+				<p>Remember: Dissent is the malware of our society. Keep the Sync, keep the peace.</p>
+				<p>// End of Warning - Terminal Directive 2085.3.17 //</p>
+			</div>
+			<div class="meta meta--3 ui">
+				<div class="scene">
+					<div class="scene__inner">
+					  <div class="globe">
+						<span class="ring"></span>
+						<span class="ring"></span>
+						<span class="ring"></span>
+						<span class="ring"></span>
+						<span class="ring"></span>
+						<span class="ring"></span>
+						<span class="ring"></span>
+					  </div>
+					</div>
+				  </div>
+			</div>
+			<div class="meta meta--4 ui">
+				<h2>Codex Terminus</h2>
+				<p>Version 14.85-19X</p>
+			</div>
+		</main>
+		<div id="tooltip-1" class="tooltip" data-rows="12" data-cols="10">
+			<div class="tooltip__bg"></div>
+			<div class="tooltip__content">
+				<h3 class="tooltip__content-title">Sync 2085</h3>
+				<p class="tooltip__content-desc">Current standard protocol for synchronizing human consciousness with the EtherSphere's virtual reality network. Ensures seamless real-time experience and interaction across all virtual platforms</p>
+			</div>
+		</div>
+		<div id="tooltip-2" class="tooltip tooltip--style-alt" data-rows="9" data-cols="3">
+			<div class="tooltip__bg"></div>
+			<div class="tooltip__content">
+				<h3 class="tooltip__content-title">LinkLaces</h3>
+				<p class="tooltip__content-desc">Advanced bi-directional conduits that connect individuals within the EtherSphere, allowing for the exchange of thoughts, emotions, and sensory experiences</p>
+			</div>
+		</div>
+		<div id="tooltip-3" class="tooltip" data-rows="8" data-cols="6">
+			<div class="tooltip__bg"></div>
+			<div class="tooltip__content">
+				<h3 class="tooltip__content-title">Gaia-Prime</h3>
+				<p class="tooltip__content-desc">The original, unaltered state of Earth's ecosystem, now preserved only in high-fidelity preservation zones or as detailed virtual reality simulations. Access to Gaia-Prime areas or archives is typically restricted due to their cultural and historical significance</p>
+			</div>
+		</div>
+		<div id="tooltip-4" class="tooltip tooltip--style-alt" data-rows="1" data-cols="14">
+			<div class="tooltip__bg"></div>
+			<div class="tooltip__content">
+				<h3 class="tooltip__content-title">OpenField</h3>
+				<p class="tooltip__content-desc">Sophisticated virtual reality initiative designed to simulate vast, open natural landscapes. It is an attempt to recreate the experience of exploring the wilderness for those living in a world where such environments no longer exist in reality</p>
+			</div>
+		</div>
+		<div id="tooltip-5" class="tooltip" data-rows="8" data-cols="12">
+			<div class="tooltip__bg"></div>
+			<div class="tooltip__content">
+				<h3 class="tooltip__content-title">SomaTones</h3>
+				<p class="tooltip__content-desc">A series of engineered auditory frequencies utilized by authorities to maintain social harmony. These tones are disseminated throughout public and private spaces to promote a state of passive contentment, discouraging dissent and critical questioning among the populace</p>
+			</div>
+		</div>
+		<div id="tooltip-6" class="tooltip" data-rows="5" data-cols="3">
+			<div class="tooltip__bg"></div>
+			<div class="tooltip__content">
+				<h3 class="tooltip__content-title">Defragmenters</h3>
+				<p class="tooltip__content-desc">Colloquial term for individuals or groups who work to maintain the integrity of human memory and history in the digital realm. They specialize in restoring corrupted data archives, salvaging the fragmented historical records, and combatting the loss of digital cultural heritage</p>
+			</div>
+		</div>
+		<svg xmlns="http://www.w3.org/2000/svg" version="1.1">
+			<defs>
+				<filter id="gooey">
+					<feGaussianBlur in="SourceGraphic" result="blur" stdDeviation="10.2" />
+					<feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 20 -7" result="goo" />
+					<feComposite in="SourceGraphic" in2="goo" operator="atop" />
+				</filter>
+			</defs>
+		</svg>
+<div class="demo-note">HOVER THE HIGHLIGHTED TERMS · PIXEL GOOEY TOOLTIP</div>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+<script>
+// Exporting the Tooltip class to be used in other modules
+class Tooltip {
+    // Object to hold references to DOM elements associated with the tooltip
+    DOM = {
+        el: null, // The main tooltip element
+        bg: null, // The background element of the tooltip
+        content: null, // The content container inside the tooltip
+        contentTitle: null, // The title element inside the tooltip content
+        contentDescription: null, // The description element inside the tooltip content
+        cells: null, // The individual cell elements that make up the background
+    };
+    rows; // Number of rows in the tooltip background grid
+    cols; // Number of columns in the tooltip background grid
+    isOpen = false; // State flag indicating whether the tooltip is open
+    tl; // GSAP timeline for animations
+
+    /**
+     * Creates an instance of Tooltip.
+     * @param {HTMLElement} DOM_el - The main DOM element for the tooltip.
+     */
+    constructor(DOM_el) {
+        // Initialize DOM references
+        this.DOM.el = DOM_el;
+        this.DOM.bg = this.DOM.el.querySelector('.tooltip__bg');
+        this.DOM.content = this.DOM.el.querySelector('.tooltip__content');
+        this.DOM.contentTitle = this.DOM.content.querySelector('.tooltip__content-title');
+        this.DOM.contentDescription = this.DOM.content.querySelector('.tooltip__content-desc');
+
+        // Read rows and columns from data attributes or default to 4
+        this.rows = parseInt(this.DOM.el.dataset.rows, 10) || 4;
+        this.cols = parseInt(this.DOM.el.dataset.cols, 10) || 4;
+
+        // Create the grid layout for the tooltip background
+        this.#layout();
+    }
+
+    /**
+     * Calculates the optimal tooltip position based on the event's coordinates.
+     * @param {MouseEvent} event - The mouse event that triggers tooltip positioning.
+     * @returns {Object} The calculated position for the tooltip.
+     */
+    calculateTooltipPosition(event) {
+        // Get the mouse position from the event
+        const { clientX, clientY } = event;
+
+        // Get the scroll position of the page
+        const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
+        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+
+        // Get the viewport dimensions
+        const viewportWidth = window.innerWidth;
+        const viewportHeight = window.innerHeight;
+
+        // Assuming the tooltip element is available in the scope, get its dimensions
+        const tooltipWidth = this.DOM.el.offsetWidth;
+        const tooltipHeight = this.DOM.el.offsetHeight;
+
+        // Initialize the position object with the mouse coordinates plus the scroll offset
+        let position = { left: clientX + scrollLeft, top: clientY + scrollTop };
+
+        // Adjust the left position if the tooltip goes beyond the right edge of the viewport
+        if (clientX + tooltipWidth > viewportWidth) {
+            position.left = clientX - tooltipWidth + scrollLeft;
+        }
+
+        // Adjust the top position if the tooltip goes beyond the bottom edge of the viewport
+        if (clientY + tooltipHeight > viewportHeight) {
+            position.top = clientY - tooltipHeight + scrollTop;
+        }
+
+        // Adjust the left position if the tooltip goes beyond the left edge of the viewport
+        if (position.left < scrollLeft) {
+            position.left = scrollLeft;
+        }
+
+        // Adjust the top position if the tooltip goes beyond the top edge of the viewport
+        if (position.top < scrollTop) {
+            position.top = scrollTop;
+        }
+
+        return position;
+    }
+
+    /**
+     * Updates the tooltip's position on the screen.
+     * @param {MouseEvent} event - The mouse event that triggers tooltip repositioning.
+     */
+    updatePosition(event) {
+        const position = this.calculateTooltipPosition(event);
+        this.DOM.el.style.left = `${position.left}px`;
+        this.DOM.el.style.top = `${position.top}px`;
+    }
+
+    /**
+     * Creates the grid layout for the tooltip's background.
+     * @private
+     */
+    #layout() {
+        let strHTML = '';
+        
+        // Create the grid of cells as a string
+        for (let row = 0; row < this.rows; row++) {
+            for (let col = 0; col < this.cols; col++) {
+                // Add a div for each cell to the string
+                strHTML += '<div></div>';
+            }
+        }
+
+        // Set the innerHTML of the background element in one operation
+        this.DOM.bg.innerHTML = strHTML;
+        
+        // Set the CSS variables on the tooltip element
+        this.DOM.el.style.setProperty('--tt-columns', this.cols);
+        this.DOM.el.style.setProperty('--tt-rows', this.rows);
+
+        this.DOM.cells =  [...this.DOM.bg.querySelectorAll('div')];
+    }
+
+    /**
+     * Toggles the tooltip's visibility and triggers the animation effect.
+     * @param {string} effectType - The type of animation effect to apply.
+     * @param {MouseEvent} event - The mouse event associated with the toggle action.
+     */
+    toggle(effectType, event) {
+        // Toggle the state
+        this.isOpen = !this.isOpen;
+
+        // Logic to close the tooltip
+        // This would be the reverse of the open animation
+        this.#animateCells(effectType, event);
+    }
+
+    /**
+     * Animates the tooltip cells based on the specified effect type.
+     * @private
+     * @param {string} effectType - The type of animation effect to apply.
+     * @param {MouseEvent} event - The mouse event associated with the animation.
+     */
+    #animateCells(effectType, event) {
+        // Determine the animation based on effectType
+        // Construct the method name based on the effectType
+        const methodName = `animate${effectType.charAt(0).toUpperCase() + effectType.slice(1)}`;
+        // Check if the method exists
+        if (typeof this[methodName] === 'function') {
+            // Call the dynamically determined method
+            this[methodName](event);
+        } else {
+            // Handle the case where the method does not exist
+            console.warn(`Animation effect '${effectType}' is not defined.`);
+        }
+    }
+
+    /**
+     * Creates a default GSAP timeline for animations, with optional parameters to override defaults.
+     * @param {Object} [options={}] - Optional parameters to override default timeline settings.
+     * @param {number} [options.duration=0.1] - Duration of the animation.
+     * @param {string} [options.ease='expo'] - Easing function for the animation.
+     * @returns {GSAPTimeline} The GSAP timeline object for animations.
+     */
+    createDefaultTimeline({ duration = 0.1, ease = 'expo' } = {}) {
+        if ( this.tl ) { 
+            this.tl.kill();
+        }
+
+        return gsap.timeline({
+            defaults: {
+                duration, // use the duration passed in, or default to 0.1
+                ease      // use the ease passed in, or default to 'expo'
+            },
+            onStart: () => {
+                if ( this.isOpen ) {
+                    gsap.set(this.DOM.el, {zIndex: 99999});
+                    this.DOM.el.classList.add('tooltip--show');
+                }
+                else {
+                    gsap.set(this.DOM.el, {zIndex: 0});
+                }
+            },
+            onComplete: () => {
+                if ( !this.isOpen ) {
+                    this.DOM.el.classList.remove('tooltip--show');
+                }
+            }
+        });
+    }
+
+    /**
+     * Animates the content of the tooltip, including title and description.
+     */
+    animateTooltipContent() {
+        this.tl.fromTo([this.DOM.contentTitle, this.DOM.contentDescription], {
+            opacity: this.isOpen ? 0 : 1
+        }, {
+            duration: 0.2,
+            opacity: this.isOpen ? 1 : 0,
+            stagger: this.isOpen ? 0.2 : 0
+        }, this.isOpen ? 0.4 : 0)
+
+        .add(() => {
+            this.DOM.contentTitle.classList[this.isOpen ? 'add' : 'remove']('glitch');
+        }, this.isOpen ? 0.8 : 0)
+        .add(() => {
+            this.DOM.contentDescription.classList[this.isOpen ? 'add' : 'remove']('glitch');
+        }, this.isOpen ? 1 : 0)
+    }
+
+    /**
+     * Specific animation effects applied to the tooltip cells and content
+     */
+    animateEffect1(event) {
+        
+        this.tl = this.createDefaultTimeline();
+        
+        // Get the mouse position from the event
+        const mousePosition = { x: event.clientX, y: event.clientY };
+        // Calculate the maximum distance as the diagonal of the page
+        const pageWidth = document.documentElement.scrollWidth;
+        const pageHeight = document.documentElement.scrollHeight;
+        const maximumDistance = Math.sqrt(pageWidth * pageWidth + pageHeight * pageHeight);
+
+        // Define the maximum delay you want to apply to any cell
+        const maximumDelay = 1.8;
+
+        // Calculate the delay for each cell based on its distance from the mouse position
+        this.DOM.cells.forEach(cell => {
+            // Get the position of the cell
+            const cellRect = cell.getBoundingClientRect();
+            const cellPosition = { x: cellRect.left, y: cellRect.top };
+
+            // Calculate the distance from the cell to the mouse position
+            const distance = Math.sqrt(Math.pow(cellPosition.x - mousePosition.x, 2) + Math.pow(cellPosition.y - mousePosition.y, 2));
+
+            // Convert distance to a delay, for example by inverting and scaling the distance
+            // This is where you can get creative with how the distance affects the delay
+            const delay = (distance / maximumDistance) * maximumDelay;
+
+            // Apply the animation with the calculated delay
+            if ( this.isOpen ) {
+                this.tl.fromTo(cell, {
+                    opacity: 0
+                }, {
+                    opacity: 1,
+                    delay: delay, // Use the calculated delay here
+                }, 0);
+            }
+            else {
+                this.tl.to(cell, {
+                    opacity: 0,
+                    delay: delay, // Use the calculated delay here
+                }, 0);
+            }
+        });
+
+        this.animateTooltipContent();
+    }
+
+    /**
+     * Specific animation effects applied to the tooltip cells and content
+     */
+    animateEffect2() {
+
+        this.tl = this.createDefaultTimeline();
+
+        if ( this.isOpen ) {
+            this.tl.fromTo(this.DOM.cells, {
+                opacity: 0,
+                scale: 0
+            }, {
+                opacity: 1,
+                scale: 1,
+                stagger: {
+                    each: 0.02,
+                    from: 'start'
+                }
+            }, 0);
+        }
+        else {
+            this.tl.to(this.DOM.cells, {
+                opacity: 0,
+                scale: 0,
+                stagger: {
+                    each: 0.02,
+                    from: 'end'
+                }
+            }, 0);
+        }
+        
+        this.animateTooltipContent();
+
+    }
+    
+    /**
+     * Specific animation effects applied to the tooltip cells and content
+     */
+    animateEffect3() {
+
+        this.tl = this.createDefaultTimeline();
+
+        if ( this.isOpen ) {
+            this.tl.fromTo(this.DOM.cells, {
+                opacity: 0,
+                scale: 0,
+                yPercent: () => gsap.utils.random(-200,200)
+            }, {
+                opacity: 1,
+                scale: 1,
+                yPercent: 0,
+                stagger: {
+                    each: 0.03,
+                    from: 'center',
+                    grid: 'auto'
+                }
+            }, 0);
+        }
+        else {
+            this.tl.to(this.DOM.cells, {
+                opacity: 0,
+                scale: 0,
+                yPercent: () => gsap.utils.random(-200,200),
+                stagger: {
+                    each: 0.03,
+                    from: 'center',
+                    grid: 'auto'
+                }
+            }, 0);
+        }
+
+        this.animateTooltipContent();
+
+    }
+
+    /**
+     * Specific animation effects applied to the tooltip cells and content
+     */
+    animateEffect4() {
+
+        this.tl = this.createDefaultTimeline();
+
+        if ( this.isOpen ) {
+            this.tl.fromTo(this.DOM.cells, {
+                opacity: 0,
+                scaleX: 0.8,
+                xPercent: () => gsap.utils.random(-200,200)
+            }, {
+                opacity: 1,
+                scaleX: 1,
+                xPercent: 0,
+                stagger: {
+                    each: 0.02,
+                    from: 'random',
+                    grid: 'auto'
+                }
+            }, 0);
+        }
+        else {
+            this.tl.to(this.DOM.cells, {
+                opacity: 0,
+                scaleX: 0.8,
+                xPercent: () => gsap.utils.random(-200,200),
+                stagger: {
+                    each: 0.02,
+                    from: 'random',
+                    grid: 'auto'
+                }
+            }, 0);
+        }
+
+        this.animateTooltipContent();
+
+    }
+
+    /**
+     * Specific animation effects applied to the tooltip cells and content
+     */
+    animateEffect5() {
+        
+        this.tl = this.createDefaultTimeline();
+
+        if ( this.isOpen ) {
+            this.tl.fromTo(this.DOM.cells, {
+                opacity: 0,
+                scale: 0
+            }, {
+                opacity: 1,
+                scale: 1,
+                stagger: {
+                    each: 0.02,
+                    from: 'center',
+                    grid: 'auto'
+                }
+            }, 0);
+        }
+        else {
+            this.tl.to(this.DOM.cells, {
+                opacity: 0,
+                scale: 0,
+                stagger: {
+                    each: 0.02,
+                    from: 'edges',
+                    grid: 'auto'
+                }
+            }, 0);
+        }
+
+        this.animateTooltipContent();
+
+    }
+
+    /**
+     * Applies a gooey animation effect to the tooltip cells and animates the content.
+     * @param {MouseEvent} event - The mouse event associated with the animation.
+     */
+    animateEffect6() {
+
+        this.DOM.bg.style.filter = 'url(#gooey)';
+
+        this.tl = this.createDefaultTimeline({
+            duration: 0.9,
+            ease: 'expo'
+        });
+
+        if ( this.isOpen ) {
+            this.tl.fromTo(this.DOM.cells, {
+                opacity: 0,
+                scale: 0.3
+            }, {
+                opacity: 1,
+                scale: 1,
+                stagger: {
+                    each: 0.08,
+                    from: 'random',
+                    grid: 'auto'
+                }
+            }, 0);
+        }
+        else {
+            this.tl.to(this.DOM.cells, {
+                opacity: 0,
+                scale: 0.3,
+                stagger: {
+                    each: 0.04,
+                    from: 'random',
+                    grid: 'auto'
+                }
+            }, 0);
+        }
+
+        this.animateTooltipContent();
+
+    }
+}
+// Importing the Tooltip class from the tooltip.js file to be used for creating tooltip instances.
+// Selecting all elements with the class 'trigger' which will activate tooltips on mouse events.
+const triggers = document.querySelectorAll('.trigger');
+
+// Helper function to determine if the device supports touch events
+const isTouchDevice = () => 'ontouchstart' in window || navigator.maxTouchPoints > 0 || navigator.msMaxTouchPoints > 0;
+
+// Determine if we should use touch events instead of mouse events
+const useTouchEvents = isTouchDevice();
+
+// Define the event names based on the device capabilities
+const startEvent = useTouchEvents ? 'touchstart' : 'mouseenter';
+const moveEvent = useTouchEvents ? 'touchmove' : 'mousemove';
+const endEvent = useTouchEvents ? 'touchend' : 'mouseleave';
+
+// Creating an array of Tooltip instances by mapping over each trigger element.
+const tooltips = Array.from(triggers).map(trigger => {
+    const tooltipEl = document.getElementById(trigger.dataset.tooltip);
+    return tooltipEl ? new Tooltip(tooltipEl) : null;
+});
+
+// Add event listeners for each trigger
+triggers.forEach((trigger, index) => {
+    const tooltip = tooltips[index];
+    if (!tooltip) return;
+
+    let showTimeout, hideTimeout;
+
+    // Start event to show or update the tooltip
+    trigger.addEventListener(startEvent, event => {
+        clearTimeout(hideTimeout);
+        showTimeout = setTimeout(() => {
+            if (useTouchEvents) event.preventDefault();
+            const touchEvent = useTouchEvents ? event.touches[0] : event;
+
+            if (!tooltip.isOpen) {
+                tooltip.updatePosition(touchEvent);
+                tooltip.toggle(trigger.dataset.effect, touchEvent);
+            }
+        }, 40); // Delay before showing the tooltip
+    });
+
+    // Move event to update the tooltip position
+    trigger.addEventListener(moveEvent, event => {
+        if (useTouchEvents) event.preventDefault();
+        const touchEvent = useTouchEvents ? event.touches[0] : event;
+
+        if (tooltip.isOpen) {
+            tooltip.updatePosition(touchEvent);
+        }
+    });
+
+    // End event to hide the tooltip
+    trigger.addEventListener(endEvent, event => {
+        clearTimeout(showTimeout);
+        hideTimeout = setTimeout(() => {
+            if (tooltip.isOpen) {
+                tooltip.toggle(trigger.dataset.effect, event);
+            }
+        }, 40); // Delay before hiding the tooltip
+    });
+});
+
+
+// Auto-open one tooltip in the iframe thumbnail, while preserving normal hover behavior.
+(function autoDemo(){
+  const labels = ['Sync 2085','LinkLaces','Gaia-Prime','OpenField','SomaTones','Defragmenters'];
+  let i = 0;
+  function fire(type, el, x, y){ el.dispatchEvent(new MouseEvent(type,{bubbles:true,clientX:x,clientY:y})); }
+  function cycle(){
+    const el = [...document.querySelectorAll('.trigger')].find(t => t.textContent.trim() === labels[i % labels.length]);
+    if(!el) return;
+    const r = el.getBoundingClientRect();
+    const x = r.left + r.width * .55;
+    const y = r.top + r.height * .55;
+    fire('mouseenter', el, x, y);
+    setTimeout(()=>fire('mouseleave', el, x, y), 2600);
+    i++;
+  }
+  setTimeout(cycle, 900);
+  setInterval(cycle, 4200);
+})();
+
+</script>
+</body>
+</html>
