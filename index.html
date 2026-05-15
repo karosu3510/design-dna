@@ -501,6 +501,7 @@
 <script src="./delphi-three-doc.js"></script>
 <script src="./webgl-magazine-doc.js?v=202605151122"></script>
 <script src="./pixel-gooey-tooltip-doc.js"></script>
+<script src="./skeleton-fluid-reveal-doc.js"></script>
 <!-- mono-x7 removed -->
 <!-- lumi removed -->
 <script>
@@ -1386,6 +1387,14 @@ function buildPinnedFor(styleId, headlineFallback){
       id:'d-pixel-gooey-tooltip', styleId:'pixel-gooey-tooltip', styleLabel:'Pixel tooltip', sref:'codrops-pixel-gooey', prompt:'Codrops segmented pixel gooey tooltip animation', pinned:true,
       title:'Pixel Gooey Tooltip · Segmented animation', height:720, styleLock:'pixel-gooey-tooltip',
       doc: (typeof PIXEL_GOOEY_TOOLTIP_DOC !== 'undefined') ? PIXEL_GOOEY_TOOLTIP_DOC : '', externalUrl:'pixel-gooey-tooltip.html'
+    });
+  } catch(_){}
+  // Skeleton Fluid Reveal — Codrops WebGPU x-ray fluid reveal
+  try {
+    firstBatch.push({
+      id:'d-skeleton-fluid-reveal', styleId:'skeleton-fluid-reveal', styleLabel:'WebGPU x-ray', sref:'codrops-skeleton-fluid', prompt:'Codrops Skeleton Fluid Reveal WebGPU x-ray fluid CRT effect', pinned:true,
+      title:'Skeleton Fluid Reveal · X-ray', height:720, styleLock:'skeleton-fluid-reveal',
+      doc: (typeof SKELETON_FLUID_REVEAL_DOC !== 'undefined') ? SKELETON_FLUID_REVEAL_DOC : '', externalUrl:'skeleton-fluid-reveal.html'
     });
   } catch(_){}
   // Marginalia — warm editorial microsite (live 1100x720 thumbnail)
