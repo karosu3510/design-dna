@@ -150,6 +150,9 @@ function _mountIframe(card){
   var revealed = false;
   var reveal = function(){
     if(revealed) return; revealed = true;
+    // 卸载守卫：如果在等待期间卡片被 unmount（card.__live=false），不要再 hide preview，
+    // 避免用户滚回来看到 preview 已被前一次 mount 的 setTimeout 隐藏掉而 iframe 还没 parse 完 → 黑屏
+    if(!card.__live) return;
     card.classList.add('is-live');
     var p = card.__preview;
     if(p && !p.__hiding){
@@ -181,6 +184,12 @@ var _liveObserver = ('IntersectionObserver' in window) ? new IntersectionObserve
     if(e.isIntersecting){
       if(!card.__live) _mountIframe(card);
     } else {
+      // dashboard 卡（5 张）一旦 mount 就常驻：
+      // 1) 反复 unmount/remount 会重新 parse 几十 KB srcdoc + 重启内部 RAF，
+      //    滚回顶部时 5 张同时排队会让主线程卡死，preview 还没消失就被 setTimeout 强制隐藏 → 黑屏。
+      // 2) 5 张常驻 RAF 实测 gap 仍稳定 8-17ms，远低于 30 张 iframe 全活的崩溃阈值。
+      // 3) 浏览器对完全离屏的 iframe 会自动 throttle 内部动画，CPU 负担可忽略。
+      if(card.__isDashboard) return;
       if(card.__live) _unmountLive(card);
     }
   });
