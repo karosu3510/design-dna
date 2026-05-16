@@ -8,12 +8,13 @@
    <link rel="stylesheet" href="./design-system.css">
    ========================================================= */
 
-@import url('https://fonts.googleapis.com/css2?family=VT323&family=Inter:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&family=VT323&family=Inter:wght@400;500;600&display=swap');
 
 :root{
   /* ---------- Typography ---------- */
-  --gl-font-pixel: 'VT323','Press Start 2P',ui-monospace,Menlo,monospace;
-  --gl-font-sans:  'Inter','Helvetica Neue',Arial,sans-serif;
+  --gl-font-pixel:   'Silkscreen','VT323','Press Start 2P',ui-monospace,Menlo,monospace;
+  --gl-font-display: 'Silkscreen','VT323',ui-monospace,Menlo,monospace;
+  --gl-font-sans:    'Inter','Helvetica Neue',Arial,sans-serif;
 
   /* Type scale (px). The pixel face renders at large sizes by design;
      small UI text falls back to Inter for readability. */
@@ -125,11 +126,15 @@ html,body{
 
 /* Pixel display (largest numeric — clock) */
 .gl-display{
-  font-family: var(--gl-font-pixel);
-  font-size: var(--gl-fs-display);
+  font-family: var(--gl-font-display);
+  font-weight: 700;
+  font-size: 88px;
   line-height: 1;
   color: var(--gl-c-ink);
   font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+  -webkit-font-smoothing: none;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* Recording status dot (the one allowed red) */
