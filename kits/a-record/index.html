@@ -89,36 +89,36 @@
   <!-- Sidebar nav -->
   <aside class="nav">
     <div class="nav-brand"><div class="mark"></div><span>a.Record</span></div>
-    <div class="nav-sub">Design System · v1.0</div>
+    <div class="nav-sub">设计系统 · v1.0</div>
 
-    <div class="nav-cap">Foundations</div>
-    <a class="nav-link active" href="#overview"><span class="num">00</span>Overview</a>
-    <a class="nav-link" href="#color"><span class="num">01</span>Color</a>
-    <a class="nav-link" href="#type"><span class="num">02</span>Typography</a>
-    <a class="nav-link" href="#spacing"><span class="num">03</span>Spacing & radius</a>
-    <a class="nav-link" href="#motion"><span class="num">04</span>Motion</a>
+    <div class="nav-cap">基础</div>
+    <a class="nav-link active" href="#overview"><span class="num">00</span>概览</a>
+    <a class="nav-link" href="#color"><span class="num">01</span>色彩</a>
+    <a class="nav-link" href="#type"><span class="num">02</span>字体</a>
+    <a class="nav-link" href="#spacing"><span class="num">03</span>间距与圆角</a>
+    <a class="nav-link" href="#motion"><span class="num">04</span>动效</a>
 
-    <div class="nav-cap">Components</div>
-    <a class="nav-link" href="#c-shell"><span class="num">05</span>Shell</a>
-    <a class="nav-link" href="#c-pill"><span class="num">06</span>Pill</a>
-    <a class="nav-link" href="#c-glass"><span class="num">07</span>Glass panel</a>
-    <a class="nav-link" href="#c-status"><span class="num">08</span>Status dot</a>
-    <a class="nav-link" href="#c-mono"><span class="num">09</span>Mono display</a>
-    <a class="nav-link" href="#c-meter"><span class="num">10</span>Meter ring</a>
-    <a class="nav-link" href="#c-spectrum"><span class="num">11</span>Spectrum</a>
-    <a class="nav-link" href="#c-cap"><span class="num">12</span>Cap label</a>
+    <div class="nav-cap">组件</div>
+    <a class="nav-link" href="#c-shell"><span class="num">05</span>外壳</a>
+    <a class="nav-link" href="#c-pill"><span class="num">06</span>胶囊按钮</a>
+    <a class="nav-link" href="#c-glass"><span class="num">07</span>毛玻璃面板</a>
+    <a class="nav-link" href="#c-status"><span class="num">08</span>状态指示</a>
+    <a class="nav-link" href="#c-mono"><span class="num">09</span>等宽数字</a>
+    <a class="nav-link" href="#c-meter"><span class="num">10</span>仪表圆环</a>
+    <a class="nav-link" href="#c-spectrum"><span class="num">11</span>频谱</a>
+    <a class="nav-link" href="#c-cap"><span class="num">12</span>大写小标签</a>
 
-    <div class="nav-cap">Examples</div>
-    <a class="nav-link" href="#ex-original"><span class="num">13</span>Original</a>
-    <a class="nav-link" href="#ex-settings"><span class="num">14</span>Settings page</a>
+    <div class="nav-cap">示例页面</div>
+    <a class="nav-link" href="#ex-original"><span class="num">13</span>原始卡片</a>
+    <a class="nav-link" href="#ex-settings"><span class="num">14</span>设置页（衍生用例）</a>
 
-    <div class="nav-cap">For AI</div>
-    <a class="nav-link" href="#ai"><span class="num">15</span>Cursor / Claude rules</a>
-    <a class="nav-link" href="#tw"><span class="num">16</span>Tailwind preset</a>
+    <div class="nav-cap">AI 接入</div>
+    <a class="nav-link" href="#ai"><span class="num">15</span>Cursor / Claude 提示词</a>
+    <a class="nav-link" href="#tw"><span class="num">16</span>Tailwind 预设</a>
 
     <button class="download-pill" id="dlBtn">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-      Download full kit
+      下载完整素材包
     </button>
   </aside>
 
@@ -313,7 +313,7 @@ If a request requires a saturated color, sharp shadow, or display serif, push ba
   document.getElementById('dlBtn').addEventListener('click', async function(){
     var btn = this;
     var orig = btn.innerHTML;
-    btn.innerHTML = 'Packaging…';
+    btn.innerHTML = '打包中…';
     try{
       // Lazily inject JSZip if not present
       if(typeof JSZip === 'undefined'){
@@ -341,11 +341,11 @@ If a request requires a saturated color, sharp shadow, or display serif, push ba
       var a = document.createElement('a'); a.href = url; a.download = 'a-record-kit.zip';
       document.body.appendChild(a); a.click(); document.body.removeChild(a);
       setTimeout(function(){ URL.revokeObjectURL(url); }, 1500);
-      btn.innerHTML = '✓ Downloaded';
+      btn.innerHTML = '✓ 已下载';
       setTimeout(function(){ btn.innerHTML = orig; }, 1400);
     }catch(err){
       console.warn(err);
-      btn.innerHTML = 'Failed';
+      btn.innerHTML = '下载失败';
       setTimeout(function(){ btn.innerHTML = orig; }, 1500);
     }
   });
