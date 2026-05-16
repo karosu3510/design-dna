@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Mercury · Component · Range tabs</title>
+<link rel="stylesheet" href="../design-system.css">
+<style>
+  body{display:grid;place-items:center;min-height:100vh;padding:48px}
+  .demo-tag{position:absolute;top:18px;left:24px;font-family:var(--mc-font-mono);font-size:11px;color:var(--mc-c-mute);letter-spacing:.06em;text-transform:uppercase}
+</style>
+</head>
+<body>
+<span class="demo-tag">07 · range tabs</span>
+<div class="mc-tabs" id="tabs">
+  <button>7D</button>
+  <button class="is-active">30D</button>
+  <button>90D</button>
+  <button>YTD</button>
+  <button>1Y</button>
+</div>
+<script>
+  document.getElementById('tabs').addEventListener('click', function(e){
+    if (e.target.tagName !== 'BUTTON') return;
+    document.querySelectorAll('#tabs button').forEach(function(b){ b.classList.remove('is-active'); });
+    e.target.classList.add('is-active');
+  });
+</script>
+</body>
+</html>

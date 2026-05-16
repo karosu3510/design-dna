@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Mercury · Component · Sidebar nav</title>
+<link rel="stylesheet" href="../design-system.css">
+<style>
+  body{display:grid;place-items:center;min-height:100vh;padding:48px}
+  .demo-tag{position:absolute;top:18px;left:24px;font-family:var(--mc-font-mono);font-size:11px;color:var(--mc-c-mute);letter-spacing:.06em;text-transform:uppercase}
+  .sidebar{width:240px;padding:18px 12px;background:var(--mc-c-surface);border:1px solid var(--mc-c-hair);border-radius:var(--mc-r-card);box-shadow:var(--mc-shadow-card)}
+  .brand{display:flex;align-items:center;gap:8px;padding:0 10px;margin-bottom:8px}
+  .brand .mark{width:22px;height:22px;border-radius:6px;background:var(--mc-c-ink);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-weight:700;font-size:13px}
+  .brand .name{font-weight:600;color:var(--mc-c-ink)}
+  .brand .sub{font-size:11px;color:var(--mc-c-mute)}
+</style>
+</head>
+<body>
+<span class="demo-tag">06 · sidebar nav</span>
+<aside class="sidebar">
+  <div class="brand">
+    <span class="mark">M</span>
+    <div><div class="name">Mercury</div><div class="sub">Hello Labs, Inc.</div></div>
+  </div>
+
+  <a class="mc-nav is-active">⊞ Overview</a>
+  <a class="mc-nav">⊟ Accounts<span class="mc-nav-tail">8</span></a>
+  <a class="mc-nav">↔ Send & Receive</a>
+  <a class="mc-nav">▭ Cards</a>
+  <a class="mc-nav">⌘ Treasury<span class="mc-nav-tail">2</span></a>
+  <a class="mc-nav">⏵ Approvals<span class="mc-nav-tail">3</span></a>
+
+  <div class="mc-section">Accounts</div>
+  <div class="mc-acct">
+    <span class="mc-avatar mc-avatar--ck">CK</span>
+    <div class="mc-acct-meta">
+      <span class="mc-acct-name">Checking</span>
+      <span class="mc-acct-sub">··2104</span>
+    </div>
+    <span class="mc-acct-bal">$4,182,937.50</span>
+  </div>
+  <div class="mc-acct">
+    <span class="mc-avatar mc-avatar--sv">SV</span>
+    <div class="mc-acct-meta">
+      <span class="mc-acct-name">Savings</span>
+      <span class="mc-acct-sub">··2218</span>
+    </div>
+    <span class="mc-acct-bal">$1,250,000.00</span>
+  </div>
+  <div class="mc-acct">
+    <span class="mc-avatar mc-avatar--io">IO</span>
+    <div class="mc-acct-meta">
+      <span class="mc-acct-name">IO · Operations</span>
+      <span class="mc-acct-sub">··0044</span>
+    </div>
+    <span class="mc-acct-bal">$312,800.18</span>
+  </div>
+</aside>
+</body>
+</html>

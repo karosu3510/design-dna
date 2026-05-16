@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Mercury · Component · Status pills</title>
+<link rel="stylesheet" href="../design-system.css">
+<style>
+  body{display:grid;place-items:center;min-height:100vh;padding:48px}
+  .demo-tag{position:absolute;top:18px;left:24px;font-family:var(--mc-font-mono);font-size:11px;color:var(--mc-c-mute);letter-spacing:.06em;text-transform:uppercase}
+  .demo{width:520px}
+  .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+</style>
+</head>
+<body>
+<span class="demo-tag">03 · status pills</span>
+<article class="mc-card demo">
+  <span class="mc-eyebrow" style="margin-bottom:10px;display:block">Semantic chips</span>
+  <div class="row" style="margin-bottom:12px">
+    <span class="mc-pill mc-pill--pos">↑ 4.32%</span>
+    <span class="mc-pill mc-pill--neg">↓ 2.10%</span>
+    <span class="mc-pill mc-pill--warn">Pending review</span>
+    <span class="mc-pill mc-pill--info">Stable</span>
+    <span class="mc-pill mc-pill--neutral">5.21% APY</span>
+  </div>
+  <div class="row" style="font-family:var(--mc-font-mono);font-size:11px;color:var(--mc-c-mute);letter-spacing:.06em;text-transform:uppercase">
+    <span>POS</span><span>·</span><span>NEG</span><span>·</span><span>WARN</span><span>·</span><span>INFO</span><span>·</span><span>NEUTRAL</span>
+  </div>
+</article>
+</body>
+</html>

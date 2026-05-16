@@ -1,0 +1,393 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Mercury Banking · Design System</title>
+<link rel="stylesheet" href="./design-system.css">
+<style>
+  body{min-height:100vh;background:var(--mc-c-bg);color:var(--mc-c-ink);font-family:var(--mc-font-sans)}
+  .layout{display:grid;grid-template-columns:268px 1fr;min-height:100vh}
+
+  .nav{padding:32px 22px;border-right:1px solid var(--mc-c-hair);position:sticky;top:0;height:100vh;overflow-y:auto;background:var(--mc-c-surface)}
+  .nav-brand{display:flex;align-items:center;gap:10px;font-size:15px;font-weight:600;color:var(--mc-c-ink);margin-bottom:6px;letter-spacing:-.005em}
+  .nav-brand .mark{width:22px;height:22px;border-radius:6px;background:var(--mc-c-ink);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;flex-shrink:0}
+  .nav-sub{font-family:var(--mc-font-mono);font-size:11px;color:var(--mc-c-mute);letter-spacing:.06em;text-transform:uppercase;margin-bottom:24px;padding-left:32px}
+
+  .nav-cap{font-family:var(--mc-font-sans);font-size:11px;font-weight:500;color:var(--mc-c-mute);letter-spacing:.06em;text-transform:uppercase;padding:0 10px;margin:18px 0 6px}
+  .nav-link{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:8px;font-size:13.5px;color:var(--mc-c-ink-3);cursor:pointer;text-decoration:none}
+  .nav-link:hover{background:var(--mc-c-surface-mute);color:var(--mc-c-ink)}
+  .nav-link.active{background:var(--mc-c-surface-mute);color:var(--mc-c-ink);font-weight:550}
+  .nav-link.active::before{content:'›';margin-right:4px;color:var(--mc-c-p-500)}
+  .nav-link .num{font-family:var(--mc-font-mono);font-size:11px;color:var(--mc-c-mute);width:22px}
+
+  .download-pill{margin-top:18px;height:36px;width:100%;background:var(--mc-c-p-500);color:#fff;display:inline-flex;align-items:center;justify-content:center;gap:8px;font-family:var(--mc-font-sans);font-size:13px;border:0;cursor:pointer;font-weight:500;border-radius:var(--mc-r-tile);box-shadow:var(--mc-shadow-cta)}
+  .download-pill:hover{background:var(--mc-c-p-600)}
+  .wb-pill{margin-top:8px;height:36px;width:100%;background:var(--mc-c-surface);color:var(--mc-c-ink);display:inline-flex;align-items:center;justify-content:center;gap:8px;font-family:var(--mc-font-sans);font-size:13px;border:1px solid var(--mc-c-hair-2);cursor:pointer;font-weight:500;border-radius:var(--mc-r-tile)}
+  .wb-pill:hover{background:var(--mc-c-surface-mute)}
+  .wb-pill svg,.download-pill svg{width:14px;height:14px}
+
+  main{padding:48px 56px;max-width:1000px}
+  .hero{margin-bottom:36px}
+  .hero h1{font-family:var(--mc-font-sans);font-size:64px;line-height:1;color:var(--mc-c-ink);letter-spacing:-.025em;font-weight:600}
+  .hero .lead{margin-top:18px;font-size:15px;color:var(--mc-c-ink-3);max-width:600px;line-height:1.7}
+
+  .panel{margin-bottom:18px}
+  .panel-card{background:var(--mc-c-surface);border:1px solid var(--mc-c-hair);border-radius:var(--mc-r-card);padding:24px 28px;box-shadow:var(--mc-shadow-card)}
+  .panel-card h2{font-family:var(--mc-font-sans);font-size:24px;color:var(--mc-c-ink);letter-spacing:-.01em;margin-bottom:6px;font-weight:600}
+  .panel-card h2 .num{font-family:var(--mc-font-mono);color:var(--mc-c-mute);margin-right:10px;font-size:14px;letter-spacing:.06em;font-weight:400;text-transform:uppercase}
+  .panel-card .desc{font-size:14px;color:var(--mc-c-ink-3);margin-bottom:18px;line-height:1.6;max-width:680px}
+
+  .swatch-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:10px}
+  .swatch{display:flex;flex-direction:column;gap:6px}
+  .swatch .chip{height:54px;border:1px solid var(--mc-c-hair);border-radius:8px}
+  .swatch .name{font-size:12px;color:var(--mc-c-ink);font-weight:500}
+  .swatch .hex{font-family:var(--mc-font-mono);font-size:11px;color:var(--mc-c-mute)}
+
+  .type-row{display:flex;align-items:baseline;justify-content:space-between;padding:14px 0;border-top:1px solid var(--mc-c-hair)}
+  .type-row:first-child{border-top:0}
+  .type-row .demo{color:var(--mc-c-ink)}
+  .type-row .meta{font-family:var(--mc-font-mono);font-size:11px;color:var(--mc-c-mute);letter-spacing:.06em;text-transform:uppercase}
+
+  .sp-grid{display:grid;grid-template-columns:repeat(8,1fr);gap:8px}
+  .sp-cell{background:var(--mc-c-surface-mute);border-radius:8px;display:flex;flex-direction:column;align-items:center;padding:12px 4px;gap:6px}
+  .sp-cell .bar{background:var(--mc-c-ink);height:4px;border-radius:2px}
+  .sp-cell .name{font-family:var(--mc-font-mono);font-size:10px;color:var(--mc-c-mute);letter-spacing:.06em;text-transform:uppercase}
+
+  .comp-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .comp{background:var(--mc-c-surface);border:1px solid var(--mc-c-hair);border-radius:8px;overflow:hidden}
+  .comp header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--mc-c-hair);background:var(--mc-c-surface-mute)}
+  .comp header b{font-family:var(--mc-font-sans);font-size:12px;color:var(--mc-c-ink-2);font-weight:500}
+  .comp header a{font-family:var(--mc-font-mono);font-size:11px;color:var(--mc-c-mute);text-decoration:none}
+  .comp iframe{width:100%;height:280px;border:0;display:block;background:var(--mc-c-bg)}
+
+  .example{border:1px solid var(--mc-c-hair);border-radius:8px;overflow:hidden}
+  .example header{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--mc-c-hair);background:var(--mc-c-surface-mute)}
+  .example header b{font-family:var(--mc-font-sans);font-size:13px;font-weight:500;color:var(--mc-c-ink-2)}
+  .example header a{font-family:var(--mc-font-mono);font-size:11px;color:var(--mc-c-mute);text-decoration:none}
+  .example iframe{width:100%;height:720px;border:0;display:block}
+
+  pre.code{background:var(--mc-c-surface-mute);color:var(--mc-c-ink);border:1px solid var(--mc-c-hair);border-radius:8px;padding:18px;font-family:var(--mc-font-mono);font-size:12.5px;overflow-x:auto;line-height:1.6}
+  pre.code .c{color:var(--mc-c-mute)}
+  pre.code .k{color:var(--mc-c-p-600)}
+  pre.code .s{color:var(--mc-c-pos)}
+
+  .ai-toolbar{display:flex;gap:8px;margin-bottom:14px;align-items:center}
+  .copy-btn{height:30px;padding:0 14px;background:var(--mc-c-surface);border:1px solid var(--mc-c-hair-2);border-radius:8px;font-family:var(--mc-font-sans);font-size:12px;color:var(--mc-c-ink-3);cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;font-weight:500}
+  .copy-btn:hover{background:var(--mc-c-surface-mute);color:var(--mc-c-ink)}
+
+  footer{margin-top:32px;padding:24px 0;border-top:1px solid var(--mc-c-hair);font-family:var(--mc-font-mono);font-size:11px;color:var(--mc-c-mute);display:flex;justify-content:space-between;letter-spacing:.06em}
+  footer a{color:inherit;text-decoration:none}
+</style>
+</head>
+<body>
+<div class="layout">
+  <aside class="nav">
+    <div class="nav-brand"><span class="mark">M</span><span>Mercury</span></div>
+    <div class="nav-sub">设计系统 · v1.0</div>
+
+    <div class="nav-cap">基础</div>
+    <a class="nav-link active" href="#overview"><span class="num">00</span>概览</a>
+    <a class="nav-link" href="#color"><span class="num">01</span>色彩</a>
+    <a class="nav-link" href="#type"><span class="num">02</span>字体</a>
+    <a class="nav-link" href="#spacing"><span class="num">03</span>间距与圆角</a>
+    <a class="nav-link" href="#motion"><span class="num">04</span>动效</a>
+
+    <div class="nav-cap">组件</div>
+    <a class="nav-link" href="#c-card"><span class="num">05</span>纸卡 · 三层</a>
+    <a class="nav-link" href="#c-balance"><span class="num">06</span>主余额</a>
+    <a class="nav-link" href="#c-pills"><span class="num">07</span>状态徽章</a>
+    <a class="nav-link" href="#c-status"><span class="num">08</span>实时状态</a>
+    <a class="nav-link" href="#c-cta"><span class="num">09</span>按钮组</a>
+    <a class="nav-link" href="#c-side"><span class="num">10</span>侧边导航</a>
+    <a class="nav-link" href="#c-tabs"><span class="num">11</span>区间 tabs</a>
+    <a class="nav-link" href="#c-spark"><span class="num">12</span>迷你折线</a>
+
+    <div class="nav-cap">示例页面</div>
+    <a class="nav-link" href="#ex-original"><span class="num">13</span>原始 dashboard</a>
+    <a class="nav-link" href="#ex-changelog"><span class="num">14</span>Changelog 衍生</a>
+
+    <div class="nav-cap">AI 接入</div>
+    <a class="nav-link" href="#ai"><span class="num">15</span>Cursor 提示词</a>
+    <a class="nav-link" href="#tw"><span class="num">16</span>Tailwind 预设</a>
+
+    <button class="download-pill" id="dlBtn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      下载完整素材包
+    </button>
+    <button class="wb-pill" id="wbBtn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+      去 WorkBuddy 开发
+    </button>
+  </aside>
+
+  <main>
+    <section id="overview" class="hero">
+      <div style="font-family:var(--mc-font-mono);font-size:11px;color:var(--mc-c-mute);letter-spacing:.10em;text-transform:uppercase;margin-bottom:12px">DESIGN DNA · INSPIRATION KIT</div>
+      <h1>Mercury</h1>
+      <p class="lead">温暖纸面的 treasury dashboard。Inter 承载所有口语化文字，JetBrains Mono 承载所有数字。克制的浅色调色板：唯一紫 #5d4ee0 做 CTA，四组语义 kv 徽章（pos / neg / warn / info）做状态。这是灵感库里唯一占据「light + paper + premium fintech」象限的样本——同一套 token 装进 changelog、设置面板、treasury allocation 都仍然是 Mercury。</p>
+    </section>
+
+    <section id="color" class="panel">
+      <div class="panel-card">
+        <h2><span class="num">01</span>色彩</h2>
+        <p class="desc">单色纸面 + 单点紫 CTA + 四组语义 kv。bg 是 #fbfaf7 暖纸而非纯白——这是和「templated SaaS」的关键差别。</p>
+        <div class="swatch-grid">
+          <div class="swatch"><div class="chip" style="background:#fbfaf7"></div><div class="name">bg</div><div class="hex">#fbfaf7</div></div>
+          <div class="swatch"><div class="chip" style="background:#ffffff"></div><div class="name">surface</div><div class="hex">#ffffff</div></div>
+          <div class="swatch"><div class="chip" style="background:#f6f5f2"></div><div class="name">surface-mute</div><div class="hex">#f6f5f2</div></div>
+          <div class="swatch"><div class="chip" style="background:#f1efea"></div><div class="name">surface-sink</div><div class="hex">#f1efea</div></div>
+          <div class="swatch"><div class="chip" style="background:#0f0f10"></div><div class="name">ink</div><div class="hex">#0f0f10</div></div>
+          <div class="swatch"><div class="chip" style="background:#5b5d63"></div><div class="name">ink-3</div><div class="hex">#5b5d63</div></div>
+          <div class="swatch"><div class="chip" style="background:#5d4ee0"></div><div class="name">purple-500 · CTA</div><div class="hex">#5d4ee0</div></div>
+          <div class="swatch"><div class="chip" style="background:#7a6bf2"></div><div class="name">purple-400</div><div class="hex">#7a6bf2</div></div>
+          <div class="swatch"><div class="chip" style="background:#128a4d"></div><div class="name">pos</div><div class="hex">#128a4d</div></div>
+          <div class="swatch"><div class="chip" style="background:#b3261e"></div><div class="name">neg</div><div class="hex">#b3261e</div></div>
+          <div class="swatch"><div class="chip" style="background:#a35d00"></div><div class="name">warn</div><div class="hex">#a35d00</div></div>
+          <div class="swatch"><div class="chip" style="background:#1857c4"></div><div class="name">info</div><div class="hex">#1857c4</div></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="type" class="panel">
+      <div class="panel-card">
+        <h2><span class="num">02</span>字体</h2>
+        <p class="desc">Inter 承载文字，JetBrains Mono 承载数字。所有数字 tabular-nums + -0.005em；hero 余额额外加 -0.025em 让它「well-tailored」。</p>
+        <div class="type-row"><div class="demo" style="font-family:var(--mc-font-mono);font-size:36px;font-weight:500;letter-spacing:-.025em;font-variant-numeric:tabular-nums">$14,245,737.68</div><div class="meta">36 · jetbrains mono · display</div></div>
+        <div class="type-row"><div class="demo" style="font-family:var(--mc-font-sans);font-size:24px;font-weight:600;letter-spacing:-.005em">AI writing tool</div><div class="meta">24 · inter · h1</div></div>
+        <div class="type-row"><div class="demo" style="font-family:var(--mc-font-mono);font-size:20px;font-variant-numeric:tabular-nums">+612,450.12</div><div class="meta">20 · jetbrains mono · h2</div></div>
+        <div class="type-row"><div class="demo" style="font-family:var(--mc-font-sans);font-size:14px">Built to feel good and work hard.</div><div class="meta">14 · inter · base</div></div>
+        <div class="type-row"><div class="demo" style="font-family:var(--mc-font-mono);font-size:11px;color:var(--mc-c-mute);letter-spacing:.06em;text-transform:uppercase">last sync 00:08 ago</div><div class="meta">11 · mono cap (+0.06em)</div></div>
+      </div>
+    </section>
+
+    <section id="spacing" class="panel">
+      <div class="panel-card">
+        <h2><span class="num">03</span>间距与圆角</h2>
+        <p class="desc">4px 模数网格。圆角阶梯：16 → 14 → 10 → 8 → 999，默认卡片 14。</p>
+        <div class="sp-grid">
+          <div class="sp-cell"><div class="bar" style="width:4px"></div><div class="name">4 · sp1</div></div>
+          <div class="sp-cell"><div class="bar" style="width:8px"></div><div class="name">8 · sp2</div></div>
+          <div class="sp-cell"><div class="bar" style="width:12px"></div><div class="name">12 · sp3</div></div>
+          <div class="sp-cell"><div class="bar" style="width:16px"></div><div class="name">16 · sp4</div></div>
+          <div class="sp-cell"><div class="bar" style="width:20px"></div><div class="name">20 · sp5</div></div>
+          <div class="sp-cell"><div class="bar" style="width:24px"></div><div class="name">24 · sp6</div></div>
+          <div class="sp-cell"><div class="bar" style="width:32px"></div><div class="name">32 · sp7</div></div>
+          <div class="sp-cell"><div class="bar" style="width:40px"></div><div class="name">40 · sp8</div></div>
+        </div>
+        <div style="display:flex;gap:14px;margin-top:18px;align-items:flex-end">
+          <div style="width:80px;height:80px;background:var(--mc-c-surface);border:1px solid var(--mc-c-hair);border-radius:16px;text-align:center;font-family:var(--mc-font-mono);font-size:11px;color:var(--mc-c-mute);display:flex;align-items:flex-end;justify-content:center;padding-bottom:8px">16 · shell</div>
+          <div style="width:72px;height:72px;background:var(--mc-c-surface);border:1px solid var(--mc-c-hair);border-radius:14px;text-align:center;font-family:var(--mc-font-mono);font-size:11px;color:var(--mc-c-mute);display:flex;align-items:flex-end;justify-content:center;padding-bottom:8px;box-shadow:var(--mc-shadow-card)">14 · card</div>
+          <div style="width:60px;height:60px;background:var(--mc-c-surface);border:1px solid var(--mc-c-hair);border-radius:10px;text-align:center;font-family:var(--mc-font-mono);font-size:11px;color:var(--mc-c-mute);display:flex;align-items:flex-end;justify-content:center;padding-bottom:6px">10 · tile</div>
+          <div style="width:50px;height:50px;background:var(--mc-c-surface);border:1px solid var(--mc-c-hair);border-radius:8px;text-align:center;font-family:var(--mc-font-mono);font-size:11px;color:var(--mc-c-mute);display:flex;align-items:flex-end;justify-content:center;padding-bottom:6px">8 · chip</div>
+          <div style="height:34px;padding:0 18px;background:var(--mc-c-surface);border:1px solid var(--mc-c-hair);border-radius:999px;font-family:var(--mc-font-mono);font-size:11px;color:var(--mc-c-mute);display:flex;align-items:center">999 · pill</div>
+        </div>
+      </div>
+    </section>
+
+    <section id="motion" class="panel">
+      <div class="panel-card">
+        <h2><span class="num">04</span>动效</h2>
+        <p class="desc">Mercury 的动效是 calm + fast。120-240ms cubic-bezier ease-out；live LED 用 1800ms opacity 呼吸；数字绝不用 CSS transition。</p>
+        <pre class="code"><span class="c">/* live status dot — calm pulse, opacity only */</span>
+<span class="k">@keyframes</span> mc-pulse { <span class="s">50%</span> { opacity: <span class="s">.55</span>; } }
+<span class="k">--mc-dur-base</span>: <span class="s">180ms</span>;
+<span class="k">--mc-ease-out</span>: <span class="s">cubic-bezier(0.22, 0.61, 0.36, 1)</span>;
+
+<span class="c">/* numerics: setInterval cadence, never CSS transition */</span>
+setInterval(syncTs, <span class="s">1000</span>);   <span class="c">// last-sync ticker</span>
+setInterval(prices, <span class="s">5000</span>);   <span class="c">// markets ticker (calm)</span></pre>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-card">
+        <h2>组件</h2>
+        <p class="desc">8 个独立组件，每个文件可独立运行。打开看源码、复制片段、直接接入。</p>
+        <div class="comp-grid">
+          <div class="comp" id="c-card"><header><b>05 · 纸卡 · 三层</b><a href="./components/01-paper-card.html" target="_blank">open ↗</a></header><iframe src="./components/01-paper-card.html" loading="lazy"></iframe></div>
+          <div class="comp" id="c-balance"><header><b>06 · 主余额</b><a href="./components/02-balance-display.html" target="_blank">open ↗</a></header><iframe src="./components/02-balance-display.html" loading="lazy"></iframe></div>
+          <div class="comp" id="c-pills"><header><b>07 · 状态徽章</b><a href="./components/03-status-pills.html" target="_blank">open ↗</a></header><iframe src="./components/03-status-pills.html" loading="lazy"></iframe></div>
+          <div class="comp" id="c-status"><header><b>08 · 实时状态</b><a href="./components/04-live-status.html" target="_blank">open ↗</a></header><iframe src="./components/04-live-status.html" loading="lazy"></iframe></div>
+          <div class="comp" id="c-cta"><header><b>09 · 按钮组</b><a href="./components/05-cta-buttons.html" target="_blank">open ↗</a></header><iframe src="./components/05-cta-buttons.html" loading="lazy"></iframe></div>
+          <div class="comp" id="c-side"><header><b>10 · 侧边导航</b><a href="./components/06-sidebar-nav.html" target="_blank">open ↗</a></header><iframe src="./components/06-sidebar-nav.html" loading="lazy" style="height:540px"></iframe></div>
+          <div class="comp" id="c-tabs"><header><b>11 · 区间 tabs</b><a href="./components/07-range-tabs.html" target="_blank">open ↗</a></header><iframe src="./components/07-range-tabs.html" loading="lazy"></iframe></div>
+          <div class="comp" id="c-spark"><header><b>12 · 迷你折线</b><a href="./components/08-mini-sparkline.html" target="_blank">open ↗</a></header><iframe src="./components/08-mini-sparkline.html" loading="lazy"></iframe></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-card">
+        <h2>示例页面</h2>
+        <p class="desc">同一套 token 承载完全不同的两个表面。如果 changelog 仍然是 Mercury，token 系统就成立。</p>
+        <div class="example" id="ex-original" style="margin-bottom:14px"><header><b>13 · 原始 dashboard · 1100×720</b><a href="./examples/original.html" target="_blank">open ↗</a></header><iframe src="./examples/original.html" loading="lazy"></iframe></div>
+        <div class="example" id="ex-changelog"><header><b>14 · Changelog 衍生（token 检验）</b><a href="./examples/changelog.html" target="_blank">open ↗</a></header><iframe src="./examples/changelog.html" loading="lazy" style="height:1500px"></iframe></div>
+      </div>
+    </section>
+
+    <section id="ai" class="panel">
+      <div class="panel-card">
+        <h2><span class="num">15</span>AI 接入 · Cursor / Claude 提示词</h2>
+        <p class="desc">把下面这段贴进 <code>.cursorrules</code> 或任何 LLM 系统提示词，AI 生成的 UI 立刻进入 Mercury 风格。</p>
+        <div class="ai-toolbar">
+          <button class="copy-btn" id="copyRule">复制提示词</button>
+          <a class="copy-btn" href="./ai-prompt.md" target="_blank">↗ ai-prompt.md</a>
+        </div>
+        <pre class="code" id="ruleBlock">Use the Mercury Banking design system for all UI in this project.
+
+- Page background #fbfaf7 — warm paper. NEVER pure #fff.
+- Cards #ffffff with 1px #ececea hairline + subtle 2-layer shadow (0 1px 0 #e0dfdc, 0 2px 6px rgba(15,15,16,.025)). Never heavier.
+- Inter for verbal copy + JetBrains Mono for ALL numerics with tabular-nums + letter-spacing -0.005em.
+- Hero balance: 36px JetBrains Mono + -0.025em tracking.
+- Color discipline: ink ramp + hairlines + single brand purple #5d4ee0 (CTA only) + 4 semantic kv chips (pos/neg/warn/info). Nothing else colored.
+- Radius 16/14/10/8/999. 4px modular spacing grid.
+- Calm motion: cubic-bezier(.22,.61,.36,1) at 120-240ms; live status dot uses 1800ms opacity pulse; NEVER CSS-transition numbers.
+- Reuse .mc-card / .mc-display / .mc-num-h1 / .mc-num-h2 / .mc-pill--* / .mc-status / .mc-btn / .mc-nav / .mc-tabs.
+- Regional note: upstream uses green-up/red-down (US); for Chinese market swap pos/neg semantics.
+
+If a request requires a saturated non-purple brand color, display serif, heavy drop-shadow, or pure-white canvas, push back — those break Mercury.</pre>
+      </div>
+    </section>
+
+    <section id="tw" class="panel">
+      <div class="panel-card">
+        <h2><span class="num">16</span>AI 接入 · Tailwind 预设</h2>
+        <p class="desc">把 <code>tailwind-tokens.js</code> 当 preset 引入，所有命名空间立即可用。</p>
+        <pre class="code"><span class="c">// tailwind.config.js</span>
+<span class="k">module.exports</span> = {
+  <span class="k">presets</span>: [<span class="k">require</span>(<span class="s">'./tailwind-tokens.js'</span>)],
+  <span class="k">content</span>: [<span class="s">'./src/**/*.{html,js,ts,jsx,tsx}'</span>],
+};
+
+<span class="c">// markup:</span>
+&lt;article <span class="k">class</span>=<span class="s">"bg-surface border border-hair rounded-card shadow-mc-card p-5"</span>&gt;
+  &lt;span <span class="k">class</span>=<span class="s">"text-sm-mc text-ink-3"</span>&gt;Total balance&lt;/span&gt;
+  &lt;div <span class="k">class</span>=<span class="s">"text-display-mc font-mono"</span>&gt;$14,245,737.68&lt;/div&gt;
+&lt;/article&gt;</pre>
+      </div>
+    </section>
+
+    <footer>
+      <span>Mercury · Design DNA inspiration kit · v1.0.0</span>
+      <span><a href="https://karosu3510.github.io/design-dna/" target="_blank">karosu3510.github.io/design-dna</a></span>
+    </footer>
+  </main>
+</div>
+
+<script>
+  var links = document.querySelectorAll('.nav-link');
+  var sections = Array.from(links).map(function(a){ var id = a.getAttribute('href').slice(1); return document.getElementById(id); });
+  function syncNav(){
+    var y = window.scrollY + 120;
+    var bestIdx = 0;
+    sections.forEach(function(s, i){ if(s && s.offsetTop <= y) bestIdx = i; });
+    links.forEach(function(a, i){ a.classList.toggle('active', i === bestIdx); });
+  }
+  window.addEventListener('scroll', syncNav, { passive: true });
+
+  document.getElementById('copyRule').addEventListener('click', function(){
+    var txt = document.getElementById('ruleBlock').textContent;
+    navigator.clipboard.writeText(txt).then(function(){
+      var b = document.getElementById('copyRule');
+      var old = b.textContent;
+      b.textContent = '✓ 已复制';
+      setTimeout(function(){ b.textContent = old; }, 1400);
+    });
+  });
+
+  document.getElementById('dlBtn').addEventListener('click', async function(){
+    var btn = this;
+    var orig = btn.innerHTML;
+    btn.innerHTML = '打包中…';
+    try{
+      if(typeof JSZip === 'undefined'){
+        await new Promise(function(res, rej){
+          var s = document.createElement('script');
+          s.src = 'https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js';
+          s.onload = res; s.onerror = rej; document.head.appendChild(s);
+        });
+      }
+      var zip = new JSZip();
+      var folder = zip.folder('mercury-kit');
+      var files = [
+        'README.md','design-system.md','design-system.css','design-tokens.json',
+        'ai-prompt.md','tailwind-tokens.js','index.html',
+        'components/01-paper-card.html','components/02-balance-display.html','components/03-status-pills.html',
+        'components/04-live-status.html','components/05-cta-buttons.html','components/06-sidebar-nav.html',
+        'components/07-range-tabs.html','components/08-mini-sparkline.html',
+        'examples/original.html','examples/changelog.html'
+      ];
+      await Promise.all(files.map(async function(f){
+        try{ var r = await fetch('./' + f, {cache:'no-cache'}); if(r.ok) folder.file(f, await r.text()); }catch(_){}
+      }));
+      var blob = await zip.generateAsync({type:'blob'});
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a'); a.href = url; a.download = 'mercury-kit.zip';
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      setTimeout(function(){ URL.revokeObjectURL(url); }, 1500);
+      btn.innerHTML = '✓ 已下载';
+      setTimeout(function(){ btn.innerHTML = orig; }, 1400);
+    }catch(err){
+      console.warn(err);
+      btn.innerHTML = '下载失败';
+      setTimeout(function(){ btn.innerHTML = orig; }, 1500);
+    }
+  });
+
+  document.getElementById('wbBtn').addEventListener('click', async function(){
+    var btn = this;
+    var orig = btn.innerHTML;
+    var KIT_BASE = 'https://karosu3510.github.io/design-dna/kits/mercury/';
+    var prompt = [
+      '我要基于 Design DNA 中的 Mercury Banking 设计系统继续开发。',
+      '',
+      '【素材包入口】',
+      '- 设计系统总览：' + KIT_BASE + 'index.html',
+      '- design tokens（CSS 变量 + 组件类）：' + KIT_BASE + 'design-system.css',
+      '- design tokens（JSON）：' + KIT_BASE + 'design-tokens.json',
+      '- 完整文档：' + KIT_BASE + 'design-system.md',
+      '- AI 提示词与约束：' + KIT_BASE + 'ai-prompt.md',
+      '- Tailwind 预设：' + KIT_BASE + 'tailwind-tokens.js',
+      '- 组件示例（8 个独立 HTML）：' + KIT_BASE + 'components/',
+      '- 衍生用例（changelog）：' + KIT_BASE + 'examples/changelog.html',
+      '',
+      '【视觉铁律】',
+      '- 画布 #fbfaf7 暖纸（绝不纯 #fff）；卡片 #ffffff + 1px #ececea + 极淡 2 层 shadow，禁止重投影。',
+      '- 字体：Inter 承载文字，JetBrains Mono 承载所有数字（tabular-nums + -0.005em）；hero 余额 36px Mono + -0.025em。',
+      '- 颜色纪律：ink ramp + hairline + 唯一紫 #5d4ee0（仅 CTA）+ 四组语义 kv（pos/neg/warn/info）。其它颜色破坏系统。',
+      '- 圆角阶梯 16/14/10/8/999，间距 4px 模数。',
+      '- 动效：cubic-bezier(.22,.61,.36,1) 120-240ms；live LED 1800ms opacity 呼吸；数字绝不用 CSS transition。',
+      '- 中文金融语境：upstream 是绿涨红跌，国内市场需要把 pos/neg 语义反转为红涨绿跌。',
+      '',
+      '【我要开发的目标】',
+      '（描述你要做的页面或组件）',
+      '',
+      '【步骤】',
+      '1. 抓取 KIT_BASE 下文件；2. 给方案概要等我确认；3. 我说「开干」再写代码。'
+    ].join('\n');
+
+    btn.innerHTML = '复制中…';
+    try{
+      await navigator.clipboard.writeText(prompt);
+      var iframe = document.createElement('iframe');
+      iframe.style.display='none';
+      iframe.src = 'codebuddy://codebuddy-ide';
+      document.body.appendChild(iframe);
+      setTimeout(function(){ try{ iframe.remove(); }catch(_){} }, 1500);
+      setTimeout(function(){
+        if(document.visibilityState === 'visible'){
+          window.open('https://www.codebuddy.cn/', '_blank', 'noopener');
+        }
+      }, 1200);
+      btn.innerHTML = '✓ 已复制 · 正在唤起 WorkBuddy';
+      setTimeout(function(){ btn.innerHTML = orig; }, 2400);
+    }catch(err){
+      console.warn(err);
+      btn.innerHTML = '复制失败';
+      setTimeout(function(){ btn.innerHTML = orig; }, 1500);
+    }
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Mercury · Component · Live status</title>
+<link rel="stylesheet" href="../design-system.css">
+<style>
+  body{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:48px;gap:14px}
+  .demo-tag{position:absolute;top:18px;left:24px;font-family:var(--mc-font-mono);font-size:11px;color:var(--mc-c-mute);letter-spacing:.06em;text-transform:uppercase}
+  .row{display:flex;gap:14px;align-items:center}
+  .label{font-family:var(--mc-font-mono);font-size:11px;color:var(--mc-c-mute);letter-spacing:.06em;text-transform:uppercase;width:80px;text-align:right}
+</style>
+</head>
+<body>
+<span class="demo-tag">04 · live status</span>
+<div class="row">
+  <span class="label">LIVE</span>
+  <span class="mc-status"><span class="mc-dot"></span><b>LIVE</b> · syncing</span>
+  <span style="font-size:13px;color:var(--mc-c-mute)" id="ts">last sync 00:00 ago</span>
+</div>
+<div class="row">
+  <span class="label">Idle</span>
+  <span class="mc-status"><span class="mc-dot" style="background:var(--mc-c-mute);box-shadow:0 0 0 3px var(--mc-c-surface-mute);animation:none"></span>Idle · 12h</span>
+</div>
+<script>
+  // Live timestamp ticks every second to match the syncing feel.
+  var t=0;
+  setInterval(function(){
+    t++;
+    var s=t%60, m=Math.floor(t/60);
+    document.getElementById('ts').textContent='last sync ' +
+      (m<10?'0':'')+m+':'+(s<10?'0':'')+s+' ago';
+  }, 1000);
+</script>
+</body>
+</html>

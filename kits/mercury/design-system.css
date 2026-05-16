@@ -1,0 +1,360 @@
+/* =========================================================
+   Mercury Banking · Design System
+   Warm-paper treasury dashboard. Inter primary + JetBrains Mono numerics.
+   Purple CTA, restrained light palette, hairline borders, ink-on-paper.
+   Version: 1.0.0
+   Source: Design DNA inspiration library
+   =========================================================
+   Companion to: kits/mercury/design-system.md
+   <link rel="stylesheet" href="./design-system.css">
+   ========================================================= */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;450;500;550;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+:root{
+  /* ---------- Typography ---------- */
+  --mc-font-sans: 'Inter','SF Pro Text',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;
+  --mc-font-mono: 'JetBrains Mono','SF Mono',ui-monospace,Menlo,monospace;
+
+  /* Type scale (px) — financial dashboards earn their layout from numerics. */
+  --mc-fs-display: 36px;  /* hero balance "$14,245,737.68" */
+  --mc-fs-h1:      24px;  /* sidebar account balance */
+  --mc-fs-h2:      20px;  /* card metric (cash flow, runway) */
+  --mc-fs-md:      15px;  /* row label */
+  --mc-fs-base:    14px;  /* body */
+  --mc-fs-sm:      13px;  /* secondary text */
+  --mc-fs-cap:     12px;  /* uppercase caption */
+  --mc-fs-mini:    11px;  /* footnote / chart axis */
+  --mc-fs-tag:     10.5px;/* status pill */
+
+  /* Tracking */
+  --mc-tr-tight:  -0.025em;  /* hero balance numerals */
+  --mc-tr-num:    -0.005em;  /* JetBrains Mono pairing with Inter */
+  --mc-tr-cap:     0.06em;   /* uppercase caption (small) */
+  --mc-tr-cap-2:   0.10em;   /* uppercase caption (medium) */
+
+  /* ---------- Color (warm paper) ---------- */
+  --mc-c-bg:           #fbfaf7;  /* warm paper canvas — never pure #fff */
+  --mc-c-surface:      #ffffff;  /* card / panel surface */
+  --mc-c-surface-mute: #f6f5f2;  /* hovered or secondary surface */
+  --mc-c-surface-sink: #f1efea;  /* recessed / shaded surface */
+
+  /* Ink ramp */
+  --mc-c-ink:    #0f0f10;
+  --mc-c-ink-2:  #2a2a2d;
+  --mc-c-ink-3:  #5b5d63;
+  --mc-c-mute:   #8a8c93;
+  --mc-c-mute-2: #b6b7bc;
+
+  /* Hairlines */
+  --mc-c-hair:   #ececea;
+  --mc-c-hair-2: #e0dfdc;
+  --mc-c-hair-3: #d2d1cd;
+
+  /* Brand purple (Mercury CTA) — single-purpose accent */
+  --mc-c-p-50:  #f3f1ff;
+  --mc-c-p-100: #e6e2ff;
+  --mc-c-p-200: #c9c1ff;
+  --mc-c-p-400: #7a6bf2;
+  --mc-c-p-500: #5d4ee0;
+  --mc-c-p-600: #4a3cc8;
+  --mc-c-p-700: #3a2fa0;
+  --mc-c-p-glow: rgba(93,78,224,.18);
+
+  /* Semantic — kv pairs (color + tinted bg) for chips / pills */
+  --mc-c-pos:    #128a4d;  /* gain / positive — also red 在中文金融语境，但 Mercury 原版是绿涨红跌 */
+  --mc-c-pos-bg: #e6f4ec;
+  --mc-c-neg:    #b3261e;
+  --mc-c-neg-bg: #fbeae9;
+  --mc-c-warn:   #a35d00;
+  --mc-c-warn-bg:#fdf1da;
+  --mc-c-info:   #1857c4;
+  --mc-c-info-bg:#e7eefb;
+
+  /* Sparkline strokes */
+  --mc-c-spark-pos: #1aa05c;
+  --mc-c-spark-neg: #b3261e;
+  --mc-c-spark-mute:#9094a0;
+  --mc-c-spark-purple:#7a6bf2;
+
+  /* ---------- Spacing (4px grid) ---------- */
+  --mc-sp-1:  4px;
+  --mc-sp-2:  8px;
+  --mc-sp-3: 12px;
+  --mc-sp-4: 16px;
+  --mc-sp-5: 20px;
+  --mc-sp-6: 24px;
+  --mc-sp-7: 32px;
+  --mc-sp-8: 40px;
+
+  /* ---------- Radius ---------- */
+  --mc-r-shell: 16px;
+  --mc-r-card:  14px;
+  --mc-r-tile:  10px;
+  --mc-r-chip:   8px;
+  --mc-r-pill: 999px;
+
+  /* ---------- Elevation ---------- */
+  --mc-shadow-card: 0 1px 0 var(--mc-c-hair-2), 0 2px 6px rgba(15,15,16,.025);
+  --mc-shadow-pop:  0 4px 12px rgba(15,15,16,.08), 0 1px 0 var(--mc-c-hair-2);
+  --mc-shadow-cta:  0 1px 0 rgba(15,15,16,.06), 0 6px 16px var(--mc-c-p-glow);
+
+  /* ---------- Motion ---------- */
+  --mc-ease-out:  cubic-bezier(.22,.61,.36,1);
+  --mc-ease-in-out: cubic-bezier(.4,.0,.2,1);
+  --mc-dur-fast:  120ms;
+  --mc-dur-base:  180ms;
+  --mc-dur-slow:  240ms;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{
+  background: var(--mc-c-bg);
+  color: var(--mc-c-ink);
+  font-family: var(--mc-font-sans);
+  font-size: var(--mc-fs-base);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ---------- Core components ---------- */
+
+/* Card — the workhorse surface. White on warm-paper canvas with hairline +
+   subtle shadow to lift it just enough. */
+.mc-card{
+  background: var(--mc-c-surface);
+  border: 1px solid var(--mc-c-hair);
+  border-radius: var(--mc-r-card);
+  padding: 20px 22px;
+  box-shadow: var(--mc-shadow-card);
+}
+.mc-card--mute{ background: var(--mc-c-surface-mute); }
+.mc-card--sink{ background: var(--mc-c-surface-sink); }
+
+/* Card header — eyebrow + optional info icon */
+.mc-eyebrow{
+  font-size: var(--mc-fs-sm);
+  color: var(--mc-c-ink-3);
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.mc-eyebrow .mc-info{
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  border: 1px solid var(--mc-c-hair-3);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  color: var(--mc-c-mute);
+}
+
+/* Hero balance — JetBrains Mono numerics with tight tracking, large */
+.mc-display{
+  font-family: var(--mc-font-mono);
+  font-size: var(--mc-fs-display);
+  font-weight: 500;
+  letter-spacing: var(--mc-tr-tight);
+  color: var(--mc-c-ink);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+}
+.mc-display .mc-cur{
+  font-family: var(--mc-font-mono);
+  font-size: 18px;
+  color: var(--mc-c-ink-3);
+  font-weight: 400;
+  margin-right: 4px;
+  letter-spacing: 0;
+}
+.mc-display .mc-cents{
+  font-family: var(--mc-font-mono);
+  font-size: 22px;
+  color: var(--mc-c-ink-3);
+  font-weight: 400;
+}
+
+/* H1 numeric — sidebar account balance */
+.mc-num-h1{
+  font-family: var(--mc-font-mono);
+  font-size: var(--mc-fs-h1);
+  font-weight: 500;
+  letter-spacing: var(--mc-tr-num);
+  font-variant-numeric: tabular-nums;
+  color: var(--mc-c-ink);
+}
+
+/* H2 numeric — card metric */
+.mc-num-h2{
+  font-family: var(--mc-font-mono);
+  font-size: var(--mc-fs-h2);
+  font-weight: 500;
+  letter-spacing: var(--mc-tr-num);
+  font-variant-numeric: tabular-nums;
+  color: var(--mc-c-ink);
+}
+
+/* Status pill — semantic kv-styled chips */
+.mc-pill{
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 22px;
+  padding: 0 8px;
+  border-radius: var(--mc-r-pill);
+  font-size: var(--mc-fs-tag);
+  font-weight: 500;
+  font-feature-settings: "tnum";
+  white-space: nowrap;
+}
+.mc-pill--pos { color: var(--mc-c-pos);  background: var(--mc-c-pos-bg); }
+.mc-pill--neg { color: var(--mc-c-neg);  background: var(--mc-c-neg-bg); }
+.mc-pill--warn{ color: var(--mc-c-warn); background: var(--mc-c-warn-bg); }
+.mc-pill--info{ color: var(--mc-c-info); background: var(--mc-c-info-bg); }
+.mc-pill--neutral{ color: var(--mc-c-ink-3); background: var(--mc-c-surface-mute); }
+
+/* Live status dot pill (LIVE · syncing) */
+.mc-status{
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border: 1px solid var(--mc-c-hair-2);
+  border-radius: var(--mc-r-pill);
+  background: var(--mc-c-surface);
+  font-size: var(--mc-fs-cap);
+  color: var(--mc-c-ink-3);
+}
+.mc-status .mc-dot{
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--mc-c-pos);
+  box-shadow: 0 0 0 3px var(--mc-c-pos-bg);
+  animation: mc-pulse 1800ms infinite;
+}
+@keyframes mc-pulse{ 50%{ opacity: .55; } }
+.mc-status b{ color: var(--mc-c-ink-2); font-weight: 600; }
+
+/* Buttons */
+.mc-btn{
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 36px;
+  padding: 0 14px;
+  border-radius: var(--mc-r-tile);
+  font-family: var(--mc-font-sans);
+  font-size: var(--mc-fs-base);
+  font-weight: 500;
+  border: 1px solid var(--mc-c-hair-2);
+  background: var(--mc-c-surface);
+  color: var(--mc-c-ink);
+  cursor: pointer;
+  transition: background var(--mc-dur-fast) var(--mc-ease-out),
+              border-color var(--mc-dur-fast) var(--mc-ease-out);
+}
+.mc-btn:hover{ background: var(--mc-c-surface-mute); }
+.mc-btn--primary{
+  background: var(--mc-c-p-500);
+  color: #fff;
+  border-color: var(--mc-c-p-500);
+  box-shadow: var(--mc-shadow-cta);
+}
+.mc-btn--primary:hover{ background: var(--mc-c-p-600); }
+
+/* Sidebar nav row */
+.mc-nav{
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 32px;
+  padding: 0 10px;
+  border-radius: 8px;
+  color: var(--mc-c-ink-3);
+  font-size: var(--mc-fs-base);
+  cursor: pointer;
+  transition: background var(--mc-dur-fast) var(--mc-ease-out);
+}
+.mc-nav:hover{ background: var(--mc-c-surface-mute); color: var(--mc-c-ink); }
+.mc-nav.is-active{ background: var(--mc-c-surface-mute); color: var(--mc-c-ink); font-weight: 550; }
+.mc-nav .mc-nav-tail{ margin-left: auto; color: var(--mc-c-mute); font-size: var(--mc-fs-cap); font-feature-settings: "tnum"; }
+
+/* Account row (sidebar with avatar/initials + balance) */
+.mc-acct{
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background var(--mc-dur-fast) var(--mc-ease-out);
+}
+.mc-acct:hover{ background: var(--mc-c-surface-mute); }
+.mc-acct .mc-avatar{
+  width: 24px; height: 24px;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--mc-font-mono);
+  font-size: 10px;
+  font-weight: 500;
+  flex-shrink: 0;
+  color: var(--mc-c-ink-2);
+}
+.mc-acct .mc-avatar--ck{ background: #f0e7e0; color: #6b3a1f; }
+.mc-acct .mc-avatar--sv{ background: #e7eefb; color: #1857c4; }
+.mc-acct .mc-avatar--t { background: #fdf1da; color: #a35d00; }
+.mc-acct .mc-avatar--io{ background: var(--mc-c-p-100); color: var(--mc-c-p-700); }
+.mc-acct .mc-acct-meta{ display: flex; flex-direction: column; gap: 1px; min-width: 0; flex: 1; }
+.mc-acct .mc-acct-name{ font-size: var(--mc-fs-base); color: var(--mc-c-ink); font-weight: 500; }
+.mc-acct .mc-acct-sub{ font-size: var(--mc-fs-mini); color: var(--mc-c-mute); font-family: var(--mc-font-mono); }
+.mc-acct .mc-acct-bal{ font-family: var(--mc-font-mono); font-size: var(--mc-fs-sm); color: var(--mc-c-ink-2); font-variant-numeric: tabular-nums; }
+
+/* Section caption (sidebar label) */
+.mc-section{
+  font-size: 11px;
+  color: var(--mc-c-mute);
+  font-weight: 500;
+  letter-spacing: var(--mc-tr-cap);
+  text-transform: uppercase;
+  padding: 0 10px;
+  margin: 16px 0 4px;
+}
+
+/* Range tabs (7D / 30D / 90D / YTD / 1Y) */
+.mc-tabs{
+  display: inline-flex;
+  background: var(--mc-c-surface-mute);
+  border-radius: var(--mc-r-pill);
+  padding: 3px;
+  gap: 1px;
+}
+.mc-tabs button{
+  height: 26px;
+  padding: 0 12px;
+  border: 0;
+  background: transparent;
+  font-family: var(--mc-font-mono);
+  font-size: var(--mc-fs-cap);
+  color: var(--mc-c-ink-3);
+  border-radius: var(--mc-r-pill);
+  cursor: pointer;
+}
+.mc-tabs button.is-active{
+  background: var(--mc-c-surface);
+  color: var(--mc-c-ink);
+  box-shadow: 0 1px 2px rgba(15,15,16,.06);
+  font-weight: 550;
+}
+
+/* Hairline divider */
+.mc-divider{ height: 1px; background: var(--mc-c-hair); }
+
+/* ---------- Layout helpers ---------- */
+.mc-row-flex{ display: flex; align-items: center; gap: var(--mc-sp-3); }
+.mc-row-flex--between{ justify-content: space-between; }
+.mc-grid-2{ display: grid; grid-template-columns: 1fr 1fr; gap: var(--mc-sp-4); }

@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Mercury · Component · Mini sparkline</title>
+<link rel="stylesheet" href="../design-system.css">
+<style>
+  body{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:48px;gap:14px}
+  .demo-tag{position:absolute;top:18px;left:24px;font-family:var(--mc-font-mono);font-size:11px;color:var(--mc-c-mute);letter-spacing:.06em;text-transform:uppercase}
+  .row{display:flex;gap:14px;flex-wrap:wrap;justify-content:center}
+  .demo{width:300px}
+  canvas{display:block;width:100%}
+</style>
+</head>
+<body>
+<span class="demo-tag">08 · mini sparkline</span>
+<div class="row">
+  <article class="mc-card demo">
+    <span class="mc-eyebrow">Net cash flow · 30D</span>
+    <div class="mc-row-flex" style="margin-top:8px;align-items:flex-end;gap:14px">
+      <div class="mc-num-h2"><span class="mc-cur" style="font-size:14px">$</span>+612,450<span class="mc-cents">.12</span></div>
+    </div>
+    <span class="mc-pill mc-pill--pos" style="margin-top:6px">↑ 18.40%</span>
+    <canvas id="spark" width="600" height="120" style="margin-top:8px;height:54px"></canvas>
+  </article>
+
+  <article class="mc-card demo">
+    <span class="mc-eyebrow">Burn rate · monthly</span>
+    <div class="mc-num-h2" style="margin-top:8px"><span class="mc-cur" style="font-size:14px">$</span>284,109<span class="mc-cents">.04</span></div>
+    <span class="mc-pill mc-pill--neg" style="margin-top:6px">↓ 2.10%</span>
+    <canvas id="sparkBurn" width="600" height="120" style="margin-top:8px;height:54px"></canvas>
+  </article>
+</div>
+<script>
+  // Mini sparkline pattern: tabular-nums numeric on top + canvas line below.
+  // The number leads, the line backs it up. Don't reverse it.
+  function spark(id, color, points){
+    var c=document.getElementById(id), x=c.getContext('2d');
+    var W=c.width, H=c.height, P=4;
+    x.clearRect(0,0,W,H);
+    x.lineWidth=2; x.strokeStyle=color; x.beginPath();
+    points.forEach(function(v,i){
+      var X=P + i/(points.length-1)*(W-P*2);
+      var min=Math.min.apply(null,points), max=Math.max.apply(null,points);
+      var Y=H-P - (v-min)/(max-min || 1)*(H-P*2);
+      i===0 ? x.moveTo(X,Y) : x.lineTo(X,Y);
+    });
+    x.stroke();
+  }
+  spark('spark', '#1aa05c', [44,42,46,49,51,48,52,54,56,53,57,60,58,62]);
+  spark('sparkBurn', '#b3261e', [62,60,57,58,55,54,52,50,49,48,46,47,45,44]);
+</script>
+</body>
+</html>
