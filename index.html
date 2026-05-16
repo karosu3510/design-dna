@@ -481,7 +481,6 @@
 <script src="./carrot-tech-doc.js"></script>
 <script src="./superhi-plus-doc.js?v=202605161457"></script>
 <script src="./a-record-doc.js"></script>
-<script src="./glyph-os-doc.js"></script>
 <script src="./book-gallery-3d-doc.js"></script>
 <script src="./delphi-three-doc.js"></script>
 <script src="./webgl-magazine-doc.js?v=202605161457"></script>
@@ -771,7 +770,7 @@ function makeCardEl(d){
   // 新增 kit 后只需要在这个 Set 里加 slug。
   // slug 解析优先用 styleLock（处理 buildPinnedFor 生成的动态 id 如 d4ax 这类情况），
   // 退化时再用 id 去掉 'd-' 前缀（处理静态 pinned 卡片如 'd-a-record'）。
-  const KIT_AVAILABLE = new Set(['a-record','glyph-os','nothing']);
+  const KIT_AVAILABLE = new Set(['a-record','nothing']);
   const _slug = d.styleLock || (d.id||'').replace(/^d-/, '');
   if(KIT_AVAILABLE.has(_slug)){
     const fav = document.createElement('button');
@@ -1575,14 +1574,7 @@ function buildPinnedFor(styleId, headlineFallback){
       doc: (typeof A_RECORD_DOC !== 'undefined') ? A_RECORD_DOC : '', externalUrl:'a-record.html'
     });
   } catch(_){}
-  // Glyph OS — pixel desktop dashboard (Nothing / TE inspired)
-  try {
-    firstBatch.push({
-      id:'d-glyph-os', styleId:'glyph-os', styleLabel:'Pixel desktop OS', sref:'glyph-os-pin', prompt:'Glyph OS pixelated desktop dashboard with VT323 numerals, glyph matrix and ambient meters', pinned:true,
-      title:'Glyph OS · Pixel desktop', height:720, styleLock:'glyph-os',
-      doc: (typeof GLYPH_OS_DOC !== 'undefined') ? GLYPH_OS_DOC : '', externalUrl:'glyph-os.html'
-    });
-  } catch(_){}
+  // Glyph OS removed (2026-05-16) — overlaps with Nothing System dashboard, kept only Nothing as the canonical pixel-desktop sample.
   // Book Gallery — CodePen 3D page flip
   try {
     firstBatch.push({
