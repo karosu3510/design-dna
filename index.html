@@ -625,7 +625,12 @@ const lazyFrames = new Set();
 // ─── iframe 加载并发限流 ───
 // 同时最多让 N 个 iframe 处于"刚注入 srcdoc + 内部资源仍在拉"的阶段，
 // 避免 30+ iframe 一起开吃带宽 / 主线程导致卡顿/loading 不出来。
-const FRAME_LOAD_PARALLEL = 3;
+//
+// 参数演化（karo 实测）：
+//   v1: PARALLEL=3, TIMEOUT=3500ms — 30 张卡最坏 35s 排队，下方卡片永远刷不出
+//   v2: PARALLEL=5, TIMEOUT=2200ms — 减少 60% 队列等待，对带宽友好上限
+const FRAME_LOAD_PARALLEL = 5;
+const FRAME_LOAD_TIMEOUT_MS = 2200;
 let frameLoadingNow = 0;
 const frameLoadQueue = [];
 function _drainFrameQueue(){
@@ -633,24 +638,27 @@ function _drainFrameQueue(){
     const frame = frameLoadQueue.shift();
     if(!frame || frame.__loaded) continue;
     frameLoadingNow++;
+    let __released = false;
     const finish = ()=>{
+      if(__released) return;        // 防双递减（load 事件 + 兜底超时同时到）
+      __released = true;
       frameLoadingNow = Math.max(0, frameLoadingNow - 1);
       frame.removeEventListener('load', finish);
       _drainFrameQueue();
     };
     // iframe 'load' 事件在 srcdoc 注入完成、内部 DOM 加载完毕时触发
     frame.addEventListener('load', finish, { once: true });
-    // 兜底：3.5s 后无论是否触发 load，都释放槽位继续下一张
-    setTimeout(finish, 3500);
+    // 兜底：N 秒后无论是否触发 load，都释放槽位继续下一张（重资源卡走这条）
+    setTimeout(finish, FRAME_LOAD_TIMEOUT_MS);
     try{ frame.srcdoc = frame.__doc || ''; }catch(_){ finish(); continue; }
     frame.__loaded = true;
     // 注意：不要在这里隐藏 preview 占位层！srcdoc 刚赋值时 iframe 内部文档
     // 还没首次 paint，白底 UA stylesheet 会暴露一帧造成「闪白」。
     // 但也不能等 iframe 'load'：重资源卡（fluid sim / 3D grid）的 load 要
     // 等所有子资源拉完，可能 5-30s，期间内容其实已经在画但被 overlay 盖住。
-    // 折中：1500ms 后无条件淡出 overlay。如果 'load' 提前来了由 makeCardEl
+    // 折中：1200ms 后无条件淡出 overlay。如果 'load' 提前来了由 makeCardEl
     // 里的 'load' 监听器先撤；两条路径都通过 _hideCardPreview 幂等。
-    setTimeout(function(){ _hideCardPreview(frame); }, 1500);
+    setTimeout(function(){ _hideCardPreview(frame); }, 1200);
   }
 }
 // 幂等淡出 preview 占位层。多入口调用安全（load 事件 + drain 队列兜底定时器）。
@@ -741,12 +749,10 @@ function makeCardEl(d){
     frame.style.transformOrigin = 'top left';
   }
   frame.setAttribute('sandbox','allow-scripts');
-  // 防闪白：iframe 还没被注入真实 srcdoc 之前，浏览器会用 about:blank
-  // 渲染——其 UA 默认 body 背景在 macOS 浅色系统主题下是白的，会盖过
-  // 元素 CSS background:#0a0a0a，引起首屏 / 滚动唤醒时的「闪白」。
-  // 立即先塞一段深色 stub srcdoc，浏览器渲染的就是这段 stub 而不是
-  // about:blank。stub 极轻量（<200B），后续 _drainFrameQueue 会替换为真 doc。
-  frame.srcdoc = '<!doctype html><html><head><style>html,body{margin:0;background:#0a0a0a}</style></head><body></body></html>';
+  // 防闪白：依赖元素级 .card-frame { background:#0a0a0a; color-scheme:dark }
+  // —— color-scheme: dark 让 iframe 内 about:blank 默认走深色 UA，不需要塞
+  // stub srcdoc。之前 stub 触发的额外 load 事件会和 _drainFrameQueue 的
+  // {once:true} 监听器产生时序竞态，导致部分卡片永远不淡出占位层。
   const pauseScript = '<script>var __paused=false,__rafId=0;var __origRAF=window.requestAnimationFrame;window.requestAnimationFrame=function(cb){if(__paused){__rafId=0;return 0}return __origRAF.call(window,cb)};window.addEventListener("message",function(e){if(e.data&&e.data.type==="pause"){__paused=true;if(__rafId)cancelAnimationFrame(__rafId)}if(e.data&&e.data.type==="resume"){__paused=false;__origRAF.call(window,function(){})}});<\/script>';
   frame.__doc = (d.doc || '').replace(/<\/head>/i, pauseScript + '</head>');
   frame.__loaded = false;
