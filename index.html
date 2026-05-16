@@ -636,16 +636,23 @@ const lazyFrames = new Set();
 //   4. iframe load 后才从 shimmer 过渡到内容（不用 timeout 强揭）。
 // ═══════════════════════════════════════════════════════════════════
 
-const MAX_LIVE = 3;                    // 同时 live iframe 上限
+const MAX_LIVE = 9;                    // 同时 live iframe 上限（首屏 2 行 6 张 + 预加载 buffer 3）
 const UNLOAD_DELAY = 600;             // 离屏后延迟卸载（防抖快滚）
 const livePool = [];                   // 当前 live iframe 列表
 
 function mountFrame(frame){
   if(frame.__mounted) return;
-  // 如果池子满了，先卸载最旧的
+  // 如果池子满了，从最旧的开始，只踢不在视口的（__inView 标记由 IO 维护）
   while(livePool.length >= MAX_LIVE){
-    var victim = livePool.shift();
-    if(victim && victim !== frame) unmountFrame(victim);
+    var victim = null;
+    for(var i = 0; i < livePool.length; i++){
+      if(!livePool[i].__inView && livePool[i] !== frame){ victim = livePool[i]; break; }
+    }
+    if(!victim){
+      // 全都在视口 → 不踢，允许超出上限（安全阀）
+      break;
+    }
+    unmountFrame(victim);
   }
   frame.__mounted = true;
   livePool.push(frame);
@@ -686,9 +693,11 @@ const cardFrameObserver = ('IntersectionObserver' in window) ? new IntersectionO
   entries.forEach(en=>{
     const frame = en.target;
     if(en.isIntersecting){
+      frame.__inView = true;
       clearTimeout(frame.__unmountTimer);
       mountFrame(frame);
     } else {
+      frame.__inView = false;
       scheduleUnmount(frame);
     }
   });
