@@ -4,6 +4,9 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Design DNA — endless designs, just scroll</title>
+<!-- 把 cards/all.json 提前到首屏 critical chain：浏览器一拿到 HTML 就开始下载这份 bundle，
+     和 templates.js / 内联 script 解析并行，下面 __cardLoader 启动时 fetch 直接 hit 缓存。 -->
+<link rel="preload" href="./cards/all.json" as="fetch" type="application/json" crossorigin="anonymous" />
 <!-- JSZip 懒加载：仅在用户点击「下载素材包」时按需注入，避免首屏 100KB CDN 阻塞 -->
 <script>
   window.__loadJSZip = function(){
@@ -503,8 +506,24 @@ window.__cardLoader = (function(){
   // KEY → html string（小卡命中后直接同步返回）
   var cache = Object.create(null);
 
-  // manifest 启动 promise，所有 ensureDoc 调用都先 await 这一个
-  var manifestPromise = fetch('./cards/manifest.json', { cache:'no-cache' })
+  // ─── 启动策略：一次性 fetch cards/all.json bundle 把全部 33 张卡 HTML 装进 cache ───
+  // 30+ 个独立 fetch 在 HTTP/1.1 上会被并发限制（6）卡成串行队列；
+  // 一次 bundle (gzip ~120KB) 一个连接拿完，节省 32 次握手 + 排队。
+  // bundle 走 force-cache，浏览器 / GH Pages CDN 会复用。
+  var bundlePromise = fetch('./cards/all.json', { cache:'force-cache' })
+    .then(function(r){ if(!r.ok) throw new Error('bundle http '+r.status); return r.json(); })
+    .then(function(j){
+      // 一次性塞 cache，所有 ensureDoc 立刻命中
+      Object.keys(j || {}).forEach(function(k){ cache[k] = j[k]; });
+      return cache;
+    })
+    .catch(function(err){
+      console.warn('[cardLoader] bundle failed, will fall back to per-card fetch:', err);
+      return null;
+    });
+
+  // manifest 仍然保留，作为 bundle 失败时的单卡 fallback 路径
+  var manifestPromise = fetch('./cards/manifest.json', { cache:'force-cache' })
     .then(function(r){ if(!r.ok) throw new Error('manifest http '+r.status); return r.json(); })
     .then(function(j){ keyToSlug = (j && j.keys) || {}; return keyToSlug; })
     .catch(function(err){ console.error('[cardLoader] manifest failed:', err); return {}; });
@@ -516,25 +535,25 @@ window.__cardLoader = (function(){
   function isLazy(v){ return typeof v === 'string' && v.indexOf(LAZY_PREFIX) === 0; }
   function keyOf(v){ return isLazy(v) ? v.slice(LAZY_PREFIX.length) : null; }
 
-  // 拉取单张卡片 HTML（带缓存 + in-flight dedupe）。
+  // 拉取单张卡片 HTML：优先等 bundle（一次拿完所有）；bundle 没回来时也不立即
+  // 启动单卡 fetch（避免重复网络），让调用方在 bundle resolve 后再消费。
+  // bundle 失败的兜底路径走 manifest + 单卡 fetch。
   function ensureDoc(key){
     if(cache[key]) return Promise.resolve(cache[key]);
     if(pending[key]) return pending[key];
-    pending[key] = manifestPromise.then(function(){
-      var slug = keyToSlug[key];
-      if(!slug){
-        console.warn('[cardLoader] unknown key:', key);
-        return '';
-      }
-      return fetch('./cards/' + slug + '.html', { cache:'no-cache' })
-        .then(function(r){ if(!r.ok) throw new Error('card http '+r.status+' '+slug); return r.text(); })
-        .then(function(txt){ cache[key] = txt; delete pending[key]; return txt; })
-        .catch(function(err){
-          console.error('[cardLoader] fetch card failed:', key, err);
-          delete pending[key];
-          return '';
-        });
-    });
+    pending[key] = bundlePromise.then(function(bundle){
+      if(cache[key]) return cache[key];        // bundle 成功 → 已经塞进来了
+      if(bundle){ console.warn('[cardLoader] key not in bundle:', key); }
+      // bundle 失败 / key 缺失 → 走单卡 fallback
+      return manifestPromise.then(function(){
+        var slug = keyToSlug[key];
+        if(!slug){ console.warn('[cardLoader] unknown key:', key); return ''; }
+        return fetch('./cards/' + slug + '.html', { cache:'force-cache' })
+          .then(function(r){ if(!r.ok) throw new Error('card http '+r.status+' '+slug); return r.text(); })
+          .then(function(txt){ cache[key] = txt; return txt; })
+          .catch(function(err){ console.error('[cardLoader] fetch card failed:', key, err); return ''; });
+      });
+    }).then(function(html){ delete pending[key]; return html; });
     return pending[key];
   }
 
@@ -659,56 +678,72 @@ const designStore = new Map();
 const lazyFrames = new Set();
 
 // ─── iframe 加载并发限流 ───
-// 同时最多让 N 个 iframe 处于"刚注入 srcdoc + 内部资源仍在拉"的阶段，
-// 避免 30+ iframe 一起开吃带宽 / 主线程导致卡顿/loading 不出来。
+// 设计要点（2026-05-16 第二轮修复）：
+//   * 限流只控制「同时写 srcdoc」的瞬间，不卡 fetch。
+//   * fetch 走 __cardLoader.ensureDoc()，启动时已并行 prefetch 全部卡片，
+//     所以 drainFrameQueue 时 cache 通常已命中，写 srcdoc 立刻就发生。
+//   * 进队列前先把 lazy 标记解开成真实 HTML，未解开的（fetch 在飞）就不占槽位
+//     先放回队尾等下一轮 → 这样 fetch 慢的卡不会卡住后面的卡。
 //
 // 参数演化（karo 实测）：
-//   v1: PARALLEL=3, TIMEOUT=3500ms — 30 张卡最坏 35s 排队，下方卡片永远刷不出
-//   v2: PARALLEL=5, TIMEOUT=2200ms — 减少 60% 队列等待，对带宽友好上限
-const FRAME_LOAD_PARALLEL = 5;
-const FRAME_LOAD_TIMEOUT_MS = 2200;
+//   v1: PARALLEL=3, TIMEOUT=3500ms — 30 张卡最坏 35s 排队
+//   v2: PARALLEL=5, TIMEOUT=2200ms — Tier 1 manifest 化前的上限
+//   v3: PARALLEL=8, TIMEOUT=1500ms — fetch 移出限流后可以更激进，因为槽位
+//       占用时长 = 写 srcdoc 到 iframe 'load'，不再包含网络往返。
+const FRAME_LOAD_PARALLEL = 8;
+const FRAME_LOAD_TIMEOUT_MS = 1500;
 let frameLoadingNow = 0;
 const frameLoadQueue = [];
 function _drainFrameQueue(){
   while(frameLoadingNow < FRAME_LOAD_PARALLEL && frameLoadQueue.length){
     const frame = frameLoadQueue.shift();
     if(!frame || frame.__loaded) continue;
+
+    // ─── 进槽位前先确保 HTML 已就绪 ───
+    var loader = window.__cardLoader;
+    var rawDoc = frame.__doc || '';
+    var pauseScript = frame.__pauseScript || '';
+    var html = rawDoc;
+    if(loader && loader.isLazy(rawDoc)){
+      var key = loader.keyOf(rawDoc);
+      var hit = loader.getCached(key);
+      if(hit){
+        html = hit;
+      } else {
+        // fetch 还没回来 → 异步触发 ensureDoc，回来后重新入队，让出本轮槽位
+        // 给已就绪的卡。这是关键修复：不让 fetch 占槽位。
+        if(!frame.__fetching){
+          frame.__fetching = true;
+          loader.ensureDoc(key).then(function(){
+            frame.__fetching = false;
+            // 拿到 HTML 后回到队首（视觉上更连贯）
+            frameLoadQueue.unshift(frame);
+            _drainFrameQueue();
+          });
+        }
+        continue; // 不递增 frameLoadingNow，本帧让位给下一张
+      }
+    }
+
+    // ─── 进槽位写 srcdoc ───
     frameLoadingNow++;
     let __released = false;
     const finish = ()=>{
-      if(__released) return;        // 防双递减（load 事件 + 兜底超时同时到）
+      if(__released) return;
       __released = true;
       frameLoadingNow = Math.max(0, frameLoadingNow - 1);
       frame.removeEventListener('load', finish);
       _drainFrameQueue();
     };
-    // iframe 'load' 事件在 srcdoc 注入完成、内部 DOM 加载完毕时触发
     frame.addEventListener('load', finish, { once: true });
-    // 兜底：N 秒后无论是否触发 load，都释放槽位继续下一张（重资源卡走这条）
     setTimeout(finish, FRAME_LOAD_TIMEOUT_MS);
 
-    // ─── Tier 1 manifest 化：__doc 现在可能是 lazy 标记 (__LAZY__:KEY) ───
-    // 命中 lazy 时先 fetch HTML 文本再注入；未命中（用户生成卡 / 已是字面 HTML）走旧路径。
-    var loader = window.__cardLoader;
-    var rawDoc = frame.__doc || '';
-    var pauseScript = frame.__pauseScript || '';
-    var inject = function(html){
-      if(!html){ finish(); return; }
-      var withPause = pauseScript ? html.replace(/<\/head>/i, pauseScript + '</head>') : html;
-      try{ frame.srcdoc = withPause; }catch(_){ finish(); return; }
-      frame.__loaded = true;
-      // 注意：不要在这里立刻同步隐藏 preview 占位层！srcdoc 刚赋值时 iframe 内部
-      // 文档还没首次 paint，UA 默认白底会暴露一帧。重资源卡的 'load' 也可能 5-30s
-      // 才 fire（要等所有子资源），所以折中 1200ms 后无条件淡出 overlay。
-      setTimeout(function(){ _hideCardPreview(frame); }, 1200);
-    };
-    if(loader && loader.isLazy(rawDoc)){
-      var key = loader.keyOf(rawDoc);
-      // 异步 fetch；fetch 完成前不会触发 iframe load，所以兜底超时仍然在跑
-      loader.ensureDoc(key).then(inject, function(){ finish(); });
-    } else {
-      inject(rawDoc);
-    }
+    var withPause = pauseScript ? html.replace(/<\/head>/i, pauseScript + '</head>') : html;
+    try{ frame.srcdoc = withPause; }catch(_){ finish(); continue; }
+    frame.__loaded = true;
+    // 重资源卡的 'load' 可能 5-30s 才 fire（要等所有子资源），1200ms 后无条件
+    // 淡出 overlay；fetch 已经预热，写 srcdoc 当帧就开始 paint，不会闪白。
+    setTimeout(function(){ _hideCardPreview(frame); }, 1200);
   }
 }
 // 幂等淡出 preview 占位层。多入口调用安全（load 事件 + drain 队列兜底定时器）。
@@ -809,6 +844,11 @@ function makeCardEl(d){
   frame.__doc = d.doc || '';
   frame.__pauseScript = pauseScript;
   frame.__loaded = false;
+  // 卡片创建即刻触发 prefetch（不等 IntersectionObserver）：
+  // 把网络往返从「滚到才开始」前移到「DOM 创建瞬间」，IO 触发时 cache 已命中。
+  if(window.__cardLoader && window.__cardLoader.isLazy(frame.__doc)){
+    window.__cardLoader.ensureDoc(window.__cardLoader.keyOf(frame.__doc));
+  }
   card.appendChild(frame);
 
   const preview = document.createElement('div');
