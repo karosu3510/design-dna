@@ -644,10 +644,22 @@ function _drainFrameQueue(){
     try{ frame.srcdoc = frame.__doc || ''; }catch(_){ finish(); continue; }
     frame.__loaded = true;
     // 注意：不要在这里隐藏 preview 占位层！srcdoc 刚赋值时 iframe 内部文档
-    // 还没首次 paint，白底 UA stylesheet 会暴露一帧造成「闪白」。占位层
-    // 真正撤掉发生在 makeCardEl 内的 frame.addEventListener('load', ...)
-    // 中——那里等两个 rAF 才淡出。
+    // 还没首次 paint，白底 UA stylesheet 会暴露一帧造成「闪白」。
+    // 但也不能等 iframe 'load'：重资源卡（fluid sim / 3D grid）的 load 要
+    // 等所有子资源拉完，可能 5-30s，期间内容其实已经在画但被 overlay 盖住。
+    // 折中：1500ms 后无条件淡出 overlay。如果 'load' 提前来了由 makeCardEl
+    // 里的 'load' 监听器先撤；两条路径都通过 _hideCardPreview 幂等。
+    setTimeout(function(){ _hideCardPreview(frame); }, 1500);
   }
+}
+// 幂等淡出 preview 占位层。多入口调用安全（load 事件 + drain 队列兜底定时器）。
+function _hideCardPreview(frame){
+  if(!frame || !frame.__preview) return;
+  var p = frame.__preview;
+  if(p.__hiding) return;
+  p.__hiding = true;
+  p.classList.add('is-hiding');
+  setTimeout(function(){ if(p && p.parentNode) p.style.display = 'none'; }, 280);
 }
 function loadLazyFrame(frame){
   if(!frame || frame.__loaded || frame.__queued) return;
@@ -747,12 +759,11 @@ function makeCardEl(d){
   observeCardFrame(frame);
   frame.addEventListener('load', function(){
     if(frame.__loaded && frame.__preview){
-      // 双 rAF 等 iframe 内文档完成首次 paint 后再淡出占位层，避免「闪白」帧
+      // 双 rAF 等 iframe 内文档完成首次 paint 后再淡出占位层（最理想路径）。
+      // 但只是其中一条入口——_drainFrameQueue 还会在 1500ms 后兜底淡出，
+      // 防止重资源卡的 load 拖到很久才 fire。两条路径通过 _hideCardPreview 幂等。
       requestAnimationFrame(function(){ requestAnimationFrame(function(){
-        var p = frame.__preview;
-        if(!p) return;
-        p.classList.add('is-hiding');
-        setTimeout(function(){ if(p && p.parentNode) p.style.display = 'none'; }, 280);
+        _hideCardPreview(frame);
       });});
     }
   });
