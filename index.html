@@ -596,11 +596,37 @@ let featuredMap = new Map(JSON.parse(localStorage.getItem('variant_featured')||'
 let likedMap = new Map(JSON.parse(localStorage.getItem('variant_liked')||'[]'));
 const designStore = new Map();
 const lazyFrames = new Set();
+
+// ─── iframe 加载并发限流 ───
+// 同时最多让 N 个 iframe 处于"刚注入 srcdoc + 内部资源仍在拉"的阶段，
+// 避免 30+ iframe 一起开吃带宽 / 主线程导致卡顿/loading 不出来。
+const FRAME_LOAD_PARALLEL = 3;
+let frameLoadingNow = 0;
+const frameLoadQueue = [];
+function _drainFrameQueue(){
+  while(frameLoadingNow < FRAME_LOAD_PARALLEL && frameLoadQueue.length){
+    const frame = frameLoadQueue.shift();
+    if(!frame || frame.__loaded) continue;
+    frameLoadingNow++;
+    const finish = ()=>{
+      frameLoadingNow = Math.max(0, frameLoadingNow - 1);
+      frame.removeEventListener('load', finish);
+      _drainFrameQueue();
+    };
+    // iframe 'load' 事件在 srcdoc 注入完成、内部 DOM 加载完毕时触发
+    frame.addEventListener('load', finish, { once: true });
+    // 兜底：3.5s 后无论是否触发 load，都释放槽位继续下一张
+    setTimeout(finish, 3500);
+    try{ frame.srcdoc = frame.__doc || ''; }catch(_){ finish(); continue; }
+    frame.__loaded = true;
+    if(frame.__preview) frame.__preview.style.display = 'none';
+  }
+}
 function loadLazyFrame(frame){
-  if(!frame || frame.__loaded) return;
-  frame.srcdoc = frame.__doc || '';
-  frame.__loaded = true;
-  if(frame.__preview) frame.__preview.style.display = 'none';
+  if(!frame || frame.__loaded || frame.__queued) return;
+  frame.__queued = true;
+  frameLoadQueue.push(frame);
+  _drainFrameQueue();
 }
 function pauseFrame(frame){
   if(!frame || !frame.__loaded) return;
@@ -620,7 +646,7 @@ const cardFrameObserver = ('IntersectionObserver' in window) ? new IntersectionO
       pauseFrame(frame);
     }
   });
-},{ rootMargin:'300px 0px' }) : null;
+},{ rootMargin:'80px 0px 80px 0px' }) : null;
 function observeCardFrame(frame){
   lazyFrames.add(frame);
   if(cardFrameObserver) cardFrameObserver.observe(frame);
@@ -1733,7 +1759,34 @@ function buildPinnedFor(styleId, headlineFallback){
     var fb = TEMPLATES[0](p, t);
     firstBatch.push(Object.assign({ id:'fb0', styleId:'notion', styleLabel:'fallback', sref:'fb-0', prompt:p.raw }, fb));
   }
-  appendDesigns(firstBatch);
+  // ─── 分批渲染 firstBatch 以降低首屏 DOM/iframe 创建压力 ───
+  // 首批立即渲染（首屏可见 + 少量缓冲），后续批次在浏览器空闲或滚动接近底部时再追加。
+  var INITIAL_RENDER = 8;     // 首批渲染数量
+  var NEXT_BATCH     = 6;     // 后续每批数量
+  var pendingDesigns = firstBatch.slice();
+  function _flushNextBatch(){
+    if(!pendingDesigns.length) return;
+    var slice = pendingDesigns.splice(0, NEXT_BATCH);
+    appendDesigns(slice);
+  }
+  // 1) 首批立即渲染
+  appendDesigns(pendingDesigns.splice(0, INITIAL_RENDER));
+  // 2) 用 requestIdleCallback / 退化的 setTimeout 在主线程空闲时分批续渲
+  var _idle = window.requestIdleCallback || function(cb){ return setTimeout(function(){ cb({timeRemaining:function(){return 12;}, didTimeout:false}); }, 220); };
+  function _idleAppend(){
+    if(!pendingDesigns.length) return;
+    _flushNextBatch();
+    if(pendingDesigns.length) _idle(_idleAppend);
+  }
+  _idle(_idleAppend);
+  // 3) 滚动接近底部时也强制推一批，保证用户向下滚永远能看到内容
+  var _sentinel = document.getElementById('sentinel');
+  if(_sentinel && 'IntersectionObserver' in window){
+    var sio = new IntersectionObserver(function(ents){
+      ents.forEach(function(e){ if(e.isIntersecting){ _flushNextBatch(); } });
+    }, { rootMargin: '600px 0px' });
+    sio.observe(_sentinel);
+  }
 })();
 
 // ─── 登录系统 ───────────────────────────────────
