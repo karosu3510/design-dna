@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Nothing System · Component · Battery / focus bars</title>
+<link rel="stylesheet" href="../design-system.css">
+<style>
+  body{display:grid;place-items:center;min-height:100vh;padding:48px;gap:14px}
+  .demo-tag{position:absolute;top:18px;left:24px;font-family:var(--nt-font-mono);font-size:11px;color:var(--nt-c-ink-3);letter-spacing:.18em;text-transform:uppercase}
+  .row{display:flex;gap:14px}
+  .demo{width:240px;height:180px}
+  .body{position:relative;z-index:2;display:flex;flex-direction:column;flex:1;margin-top:8px}
+  .pixel{margin-top:8px;display:flex;align-items:flex-start;gap:4px;position:relative;z-index:2}
+  .pct{font-family:var(--nt-font-mono);font-size:10px;color:var(--nt-c-ink-3);letter-spacing:.18em;margin-top:3px}
+  .nt-bars{margin-top:auto;padding:6px 0}
+  .nt-bars i{height:14px}
+  .foot{display:flex;justify-content:space-between;font-family:var(--nt-font-mono);font-size:9px;color:var(--nt-c-ink-4);letter-spacing:.18em;margin-top:6px;position:relative;z-index:2}
+  .focus-time{font-family:var(--nt-font-mono);font-size:18px;color:var(--nt-c-ink);font-variant-numeric:tabular-nums}
+  .focus-desc{font-family:var(--nt-font-mono);font-size:10px;color:var(--nt-c-ink-3);letter-spacing:.1em;margin-top:4px}
+  .focus-bar{display:flex;gap:2px;margin-top:auto;position:relative;z-index:2}
+  .focus-bar i{flex:1;height:10px;background:var(--nt-c-line);border-radius:1px}
+  .focus-bar i.on{background:var(--nt-c-ink)}
+</style>
+</head>
+<body>
+<span class="demo-tag">06 · battery / focus bars</span>
+<div class="row">
+  <article class="nt-card demo">
+    <div class="nt-meta"><span>BATTERY</span><span class="nt-led nt-led--idle"></span></div>
+    <div class="pixel"><canvas id="battNum" width="48" height="26" class="nt-pixel-canvas"></canvas><span class="pct">%</span></div>
+    <div class="nt-bars nt-bars--ok" id="battBar"></div>
+    <div class="foot"><span>CHARGING</span><span>7H 40M</span></div>
+  </article>
+  <article class="nt-card demo">
+    <div class="nt-meta"><span>FOCUS RING</span><span class="nt-led nt-led--idle"></span></div>
+    <div class="body">
+      <div class="focus-time">20:02</div>
+      <div class="focus-desc">deep work block</div>
+    </div>
+    <div class="focus-bar" id="focusBar"></div>
+  </article>
+</div>
+<script>
+  // Battery uses .nt-bars--ok which tints active segments green (#3ddc84).
+  // Focus bar reuses the same primitive in default ink.
+  // The big "92" is rendered with the same canvas dot-renderer as the clock.
+  var DOT_MAP = {
+    "0":["01110","10001","10011","10101","11001","10001","01110"],
+    "1":["00100","01100","00100","00100","00100","00100","01110"],
+    "2":["01110","10001","00001","00010","00100","01000","11111"],
+    "3":["11110","00001","00001","01110","00001","00001","11110"],
+    "4":["00010","00110","01010","10010","11111","00010","00010"],
+    "5":["11111","10000","11110","00001","00001","10001","01110"],
+    "6":["00110","01000","10000","11110","10001","10001","01110"],
+    "7":["11111","00001","00010","00100","01000","01000","01000"],
+    "8":["01110","10001","10001","01110","10001","10001","01110"],
+    "9":["01110","10001","10001","01111","00001","00010","01100"]
+  };
+  function dd(ctx, text, scale){
+    scale = scale || 4;
+    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+    var x = 0;
+    for (var i = 0; i < text.length; i++){
+      var m = DOT_MAP[text[i]] || ["00000","00000","00000","00000","00000","00000","00000"];
+      for (var r = 0; r < 7; r++){
+        for (var c = 0; c < 5; c++){
+          if (m[r][c] === "1"){
+            ctx.fillStyle = "#f4f4f4";
+            ctx.fillRect(x + c*scale, r*scale, scale-1.5, scale-1.5);
+          }
+        }
+      }
+      x += 6 * scale;
+    }
+  }
+  dd(document.getElementById('battNum').getContext('2d'), '92', 4);
+  // battery
+  (function(){
+    var g = document.getElementById('battBar');
+    var N = 14;
+    for (var i = 0; i < N; i++){
+      var b = document.createElement('i');
+      if (i < Math.round(N * 0.92)) b.classList.add('is-on');
+      g.appendChild(b);
+    }
+  })();
+  // focus
+  (function(){
+    var g = document.getElementById('focusBar');
+    for (var i = 0; i < 14; i++){
+      var b = document.createElement('i');
+      if (i < 10) b.classList.add('on');
+      g.appendChild(b);
+    }
+  })();
+</script>
+</body>
+</html>

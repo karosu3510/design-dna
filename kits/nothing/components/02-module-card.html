@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Nothing System · Component · Module card</title>
+<link rel="stylesheet" href="../design-system.css">
+<style>
+  body{display:grid;place-items:center;min-height:100vh;padding:48px;gap:14px}
+  .demo-tag{position:absolute;top:18px;left:24px;font-family:var(--nt-font-mono);font-size:11px;color:var(--nt-c-ink-3);letter-spacing:.18em;text-transform:uppercase}
+  .row{display:flex;gap:14px}
+  .demo-card{width:240px;height:140px}
+  .body{position:relative;z-index:2;display:flex;flex-direction:column;flex:1;justify-content:flex-end}
+  .body .v{font-family:var(--nt-font-mono);font-size:24px;color:var(--nt-c-ink);font-variant-numeric:tabular-nums}
+  .body .u{font-family:var(--nt-font-mono);font-size:10px;color:var(--nt-c-ink-3);letter-spacing:.18em;margin-top:2px;text-transform:uppercase}
+</style>
+</head>
+<body>
+<span class="demo-tag">02 · module card</span>
+<div class="row">
+  <article class="nt-card demo-card">
+    <div class="nt-meta"><span>CPU LOAD</span><span class="nt-led"></span></div>
+    <div class="body"><span class="v">38<span style="font-size:14px;color:var(--nt-c-ink-3);margin-left:3px">%</span></span><span class="u">8C · 40.7°</span></div>
+  </article>
+  <article class="nt-card demo-card">
+    <div class="nt-meta"><span>NETWORK</span><span class="nt-led nt-led--idle"></span></div>
+    <div class="body"><span class="v">188<span style="font-size:14px;color:var(--nt-c-ink-3);margin-left:3px">MB</span></span><span class="u">DOWN · 48 MS RTT</span></div>
+  </article>
+  <article class="nt-card nt-card--inverse demo-card">
+    <div class="nt-meta"><span>NOW PLAYING</span><span class="nt-led nt-led--idle" style="background:#bdbdbd"></span></div>
+    <div class="body" style="justify-content:flex-start;margin-top:10px">
+      <h2 style="font-family:var(--nt-font-sans);font-weight:600;font-size:18px;letter-spacing:-.01em;color:var(--nt-c-inv-ink)">AI writing tool</h2>
+      <p style="font-family:var(--nt-font-sans);font-size:11px;color:var(--nt-c-inv-ink-2);margin-top:4px">Built to feel good and work hard.</p>
+    </div>
+  </article>
+</div>
+<script>
+  // Three module cards demonstrating: default card with red live LED,
+  // default card with idle LED, and the inverse Now-Playing card (used at
+  // most ONCE per layout).
+</script>
+</body>
+</html>

@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Nothing System · Component · Bus row</title>
+<link rel="stylesheet" href="../design-system.css">
+<style>
+  body{display:grid;place-items:center;min-height:100vh;padding:48px}
+  .demo{width:380px}
+  .demo-tag{position:absolute;top:18px;left:24px;font-family:var(--nt-font-mono);font-size:11px;color:var(--nt-c-ink-3);letter-spacing:.18em;text-transform:uppercase}
+  .bus-list{display:flex;flex-direction:column;gap:6px;margin-top:12px;position:relative;z-index:2}
+</style>
+</head>
+<body>
+<span class="demo-tag">07 · bus row</span>
+<article class="nt-card demo">
+  <div class="nt-meta"><span>QUICK BUS</span><span class="nt-led nt-led--idle"></span></div>
+  <div class="bus-list">
+    <div class="nt-row">
+      <span class="name">Wi-Fi 6E</span>
+      <span class="nt-ind" data-on="6"></span>
+    </div>
+    <div class="nt-row">
+      <span class="name">Glyph Sync</span>
+      <span class="nt-ind" data-on="9"></span>
+    </div>
+    <div class="nt-row">
+      <span class="name">Mic Gate</span>
+      <span class="nt-ind" data-on="3"></span>
+    </div>
+    <div class="nt-row">
+      <span class="name">Focus Lock</span>
+      <span class="nt-ind" data-on="5"></span>
+    </div>
+  </div>
+</article>
+<script>
+  // Quick Bus row: a list of pill rows, each with a 3×3 cell indicator
+  // (LED density = signal strength). Use data-on to control how many cells light.
+  document.querySelectorAll('.nt-ind').forEach(function(el){
+    var on = parseInt(el.dataset.on || '0', 10);
+    for (var i = 0; i < 9; i++){
+      var d = document.createElement('i');
+      if (i < on) d.classList.add('is-on');
+      el.appendChild(d);
+    }
+  });
+</script>
+</body>
+</html>

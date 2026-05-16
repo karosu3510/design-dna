@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Nothing System · Component · Stat kv pair</title>
+<link rel="stylesheet" href="../design-system.css">
+<style>
+  body{display:grid;place-items:center;min-height:100vh;padding:48px;gap:14px}
+  .demo-tag{position:absolute;top:18px;left:24px;font-family:var(--nt-font-mono);font-size:11px;color:var(--nt-c-ink-3);letter-spacing:.18em;text-transform:uppercase}
+  .demo{width:560px}
+  .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:14px;padding-top:10px;border-top:1px dashed var(--nt-c-line-2);position:relative;z-index:2}
+  .stat-net{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:10px;position:relative;z-index:2}
+  .ticker{position:relative;z-index:2;margin-top:14px}
+</style>
+</head>
+<body>
+<span class="demo-tag">08 · stat kv pair</span>
+<article class="nt-card demo">
+  <div class="nt-meta"><span>DEVICE CLOCK</span><span class="nt-led"></span></div>
+  <div class="stats">
+    <div class="nt-stat"><div class="k">UPTIME</div><div class="v" id="uptime">18:29:15</div></div>
+    <div class="nt-stat"><div class="k">THREADS</div><div class="v">141</div></div>
+    <div class="nt-stat"><div class="k">LATENCY</div><div class="v">24</div><div class="u">MS</div></div>
+  </div>
+  <div class="ticker nt-tape">GLYPH SEQUENCER ARMED  //  THERMAL NOMINAL  //  RADIO MESH CLEAN</div>
+</article>
+
+<article class="nt-card demo">
+  <div class="nt-meta"><span>NETWORK</span><span class="nt-led nt-led--idle"></span></div>
+  <div class="stat-net">
+    <div class="nt-stat"><div class="k">DOWN</div><div class="v">188 MB</div></div>
+    <div class="nt-stat"><div class="k">RTT</div><div class="v">48 MS</div></div>
+  </div>
+</article>
+<script>
+  // The .nt-stat block is the kv primitive. k = caption, v = number, u = unit.
+  // It scales: any "label / number / unit" stack on Nothing System uses this.
+  // Live uptime ticks via setInterval, no CSS transition.
+  var upS = 18 * 3600 + 29 * 15;
+  function pad(n){ return n < 10 ? '0' + n : n; }
+  setInterval(function(){
+    upS++;
+    document.getElementById('uptime').textContent =
+      pad(Math.floor(upS / 3600)) + ':' + pad(Math.floor(upS / 60) % 60) + ':' + pad(upS % 60);
+  }, 1000);
+</script>
+</body>
+</html>

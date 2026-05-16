@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Nothing System · Component · Glyph matrix</title>
+<link rel="stylesheet" href="../design-system.css">
+<style>
+  body{display:grid;place-items:center;min-height:100vh;padding:48px}
+  .demo{width:380px}
+  .demo-tag{position:absolute;top:18px;left:24px;font-family:var(--nt-font-mono);font-size:11px;color:var(--nt-c-ink-3);letter-spacing:.18em;text-transform:uppercase}
+  .matrix{display:grid;grid-template-columns:repeat(28,8px);grid-auto-rows:8px;gap:2px;margin-top:12px;position:relative;z-index:2}
+  .matrix i{width:8px;height:8px;background:var(--nt-c-cell-off);border-radius:1px}
+  .matrix i.on{background:var(--nt-c-ink)}
+  .matrix i.mid{background:#5a5a5a}
+</style>
+</head>
+<body>
+<span class="demo-tag">03 · glyph matrix</span>
+<article class="nt-card demo">
+  <div class="nt-meta"><span>GLYPH MATRIX</span><span class="nt-led nt-led--idle"></span></div>
+  <div class="matrix" id="matrix"></div>
+</article>
+<script>
+  // Glyph matrix — a dot grid that shimmers via random cell swaps every 400ms.
+  // Motion uses NO CSS transition; cells flip state instantly (steps(1, end) feel).
+  var g = document.getElementById('matrix');
+  var cells = [];
+  function build(){
+    g.innerHTML = '';
+    cells.length = 0;
+    var total = 28 * 11;
+    for (var i = 0; i < total; i++){
+      var e = document.createElement('i');
+      var r = Math.random();
+      if (r < 0.3) e.classList.add('on');
+      else if (r < 0.7) e.classList.add('mid');
+      g.appendChild(e);
+      cells.push(e);
+    }
+  }
+  build();
+  setInterval(function(){
+    if (!cells.length) return;
+    for (var k = 0; k < 8; k++){
+      var c = cells[Math.floor(Math.random() * cells.length)];
+      c.className = '';
+      var r = Math.random();
+      if (r < 0.3) c.classList.add('on');
+      else if (r < 0.7) c.classList.add('mid');
+    }
+  }, 400);
+</script>
+</body>
+</html>

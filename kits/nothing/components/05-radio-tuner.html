@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Nothing System · Component · Radio tuner</title>
+<link rel="stylesheet" href="../design-system.css">
+<style>
+  body{display:grid;place-items:center;min-height:100vh;padding:48px}
+  .demo{width:560px}
+  .demo-tag{position:absolute;top:18px;left:24px;font-family:var(--nt-font-mono);font-size:11px;color:var(--nt-c-ink-3);letter-spacing:.18em;text-transform:uppercase}
+  .tuner{position:relative;flex:1;margin-top:14px;z-index:2;display:flex;align-items:center;gap:18px}
+  .tuner .scale{flex:1;height:60px;position:relative;border-bottom:1px solid var(--nt-c-line-2)}
+  .tuner .scale .tick{position:absolute;bottom:0;width:1px;background:var(--nt-c-ink-4)}
+  .tuner .scale .tick.major{background:var(--nt-c-ink-3);height:14px}
+  .tuner .scale .tick.minor{height:7px}
+  .tuner .scale .needle{position:absolute;top:0;width:12px;height:60px;display:flex;flex-direction:column;align-items:center;transform:translateX(-6px);transition:left .3s}
+  .tuner .scale .needle::before{content:"";width:1px;height:46px;background:var(--nt-c-ink)}
+  .tuner .scale .needle::after{content:"";width:12px;height:12px;border:1px solid var(--nt-c-ink);background:var(--nt-c-bg);border-radius:2px;margin-top:-2px}
+  .tuner .scale .ends{position:absolute;left:0;right:0;bottom:-14px;display:flex;justify-content:space-between;font-family:var(--nt-font-mono);font-size:9px;color:var(--nt-c-ink-4);letter-spacing:.18em}
+  .freq{font-family:var(--nt-font-mono);text-align:right}
+  .freq .big{font-size:32px;color:var(--nt-c-ink);letter-spacing:.02em;line-height:1;font-variant-numeric:tabular-nums}
+  .freq .small{font-size:9px;color:var(--nt-c-ink-3);letter-spacing:.18em;margin-top:6px}
+</style>
+</head>
+<body>
+<span class="demo-tag">05 · radio tuner</span>
+<article class="nt-card demo">
+  <div class="nt-meta"><span>RADIO TUNER</span><span class="nt-led nt-led--idle"></span></div>
+  <div class="tuner">
+    <div class="scale" id="tunerScale">
+      <div class="needle" id="needle" style="left:60%"></div>
+      <div class="ends"><span>88.1</span><span>108.0</span></div>
+    </div>
+    <div class="freq">
+      <div class="big">98.7</div>
+      <div class="small">98.7 MHZ · 58DB CLEAN</div>
+    </div>
+  </div>
+</article>
+<script>
+  // Radio tuner — a linear scale with major/minor ticks and a slowly drifting
+  // needle. Drift cadence is intentionally jittery (1400ms ± random) so the
+  // device feels analog-mechanical without using CSS easing.
+  (function(){
+    var s = document.getElementById('tunerScale');
+    for (var i = 0; i < 60; i++){
+      var t = document.createElement('div');
+      t.className = 'tick ' + (i % 5 === 0 ? 'major' : 'minor');
+      t.style.left = (i / 59 * 100) + '%';
+      s.appendChild(t);
+    }
+    var pos = 60;
+    setInterval(function(){
+      pos += (Math.random() - 0.5) * 2;
+      pos = Math.max(20, Math.min(85, pos));
+      document.getElementById('needle').style.left = pos + '%';
+    }, 1400);
+  })();
+</script>
+</body>
+</html>

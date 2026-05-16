@@ -1,0 +1,419 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Nothing System · Original dashboard</title>
+<link rel="stylesheet" href="../design-system.css">
+<style>
+  /* This file is the original 1100×720 industrial bento dashboard the
+     Nothing System token set was extracted from. The component classes
+     below extend the kit's primitives so the layout stays canonical
+     while still demonstrating the system end-to-end. */
+  html,body{background:var(--nt-c-bg);height:720px;overflow:hidden}
+  body{padding:18px}
+  .wrap{display:grid;grid-template-columns:repeat(12,1fr);grid-auto-rows:64px;gap:8px;height:100%}
+  .nt-card{padding:14px 16px}
+  .clock-sub{font-family:var(--nt-font-mono);font-size:10px;color:var(--nt-c-ink-3);letter-spacing:.16em;margin-top:10px;position:relative;z-index:2}
+  .body{display:flex;flex:1;margin-top:12px;position:relative;z-index:2}
+  .clock-foot{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;position:relative;z-index:2;margin-top:10px;padding-top:10px;border-top:1px dashed var(--nt-c-line-2)}
+  .ticker{position:relative;z-index:2;margin-top:10px;font-family:var(--nt-font-mono);font-size:9px;letter-spacing:.18em;color:var(--nt-c-ink-4);border-top:1px solid var(--nt-c-line);padding-top:8px;text-transform:uppercase}
+
+  .c-clock{grid-column:span 7;grid-row:span 4}
+  .c-play{grid-column:span 5;grid-row:span 3}
+  .c-play h2{font-size:18px;font-weight:600;letter-spacing:-.01em;margin-top:10px;font-family:var(--nt-font-sans);line-height:1.2;position:relative;z-index:2}
+  .c-play .desc{font-size:11px;color:var(--nt-c-inv-ink-2);margin-top:4px;position:relative;z-index:2}
+  .c-play .vu{display:flex;align-items:flex-end;gap:2px;margin-top:auto;height:42px;position:relative;z-index:2}
+  .c-play .vu i{width:5px;background:var(--nt-c-inv-ink);border-radius:1px;display:block}
+  .c-play .vu i.lo{background:#bdbdbd}
+
+  .c-matrix{grid-column:span 3;grid-row:span 3}
+  .matrix{display:grid;grid-template-columns:repeat(auto-fill,8px);grid-auto-rows:8px;gap:2px;margin-top:10px;position:relative;z-index:2;flex:1;align-content:start;justify-content:start;overflow:hidden}
+  .matrix i{width:8px;height:8px;background:var(--nt-c-cell-off);border-radius:1px}
+  .matrix i.on{background:var(--nt-c-ink)}
+  .matrix i.mid{background:#5a5a5a}
+
+  .c-sky{grid-column:span 2;grid-row:span 3}
+  .sky-temp{display:flex;align-items:flex-start;gap:3px;margin-top:10px;position:relative;z-index:2}
+  .sky-temp .deg{font-family:var(--nt-font-mono);font-size:10px;color:var(--nt-c-ink-3);letter-spacing:.18em;margin-top:3px}
+  .sky-desc{font-size:10px;color:var(--nt-c-ink-3);margin-top:auto;font-family:var(--nt-font-mono);letter-spacing:.05em;position:relative;z-index:2;line-height:1.3}
+  .mini-glyph{display:grid;grid-template-columns:repeat(8,4px);gap:2px;margin-top:6px;position:relative;z-index:2}
+  .mini-glyph i{width:4px;height:4px;background:var(--nt-c-cell-off);border-radius:1px}
+  .mini-glyph i.on{background:var(--nt-c-ink-3)}
+
+  .c-radio{grid-column:span 7;grid-row:span 3}
+  .tuner{position:relative;flex:1;margin-top:12px;z-index:2;display:flex;align-items:center;gap:18px}
+  .tuner .scale{flex:1;height:60px;position:relative;border-bottom:1px solid var(--nt-c-line-2)}
+  .tuner .scale .tick{position:absolute;bottom:0;width:1px;background:var(--nt-c-ink-4)}
+  .tuner .scale .tick.major{background:var(--nt-c-ink-3);height:14px}
+  .tuner .scale .tick.minor{height:7px}
+  .tuner .scale .needle{position:absolute;top:0;width:12px;height:60px;display:flex;flex-direction:column;align-items:center;transform:translateX(-6px);transition:left .3s}
+  .tuner .scale .needle::before{content:"";width:1px;height:46px;background:var(--nt-c-ink)}
+  .tuner .scale .needle::after{content:"";width:12px;height:12px;border:1px solid var(--nt-c-ink);background:var(--nt-c-bg);border-radius:2px;margin-top:-2px}
+  .tuner .scale .ends{position:absolute;left:0;right:0;bottom:-14px;display:flex;justify-content:space-between;font-family:var(--nt-font-mono);font-size:9px;color:var(--nt-c-ink-4);letter-spacing:.18em}
+  .freq{font-family:var(--nt-font-mono);text-align:right}
+  .freq .big{font-size:32px;color:var(--nt-c-ink);letter-spacing:.02em;line-height:1;font-variant-numeric:tabular-nums}
+  .freq .small{font-size:9px;color:var(--nt-c-ink-3);letter-spacing:.18em;margin-top:6px}
+
+  .c-cpu{grid-column:span 3;grid-row:span 3}
+  .cpu-val{display:flex;align-items:baseline;gap:3px;margin-top:8px;position:relative;z-index:2}
+  .cpu-val .n{font-family:var(--nt-font-mono);font-size:26px;font-variant-numeric:tabular-nums}
+  .cpu-val .p{font-family:var(--nt-font-mono);font-size:11px;color:var(--nt-c-ink-3)}
+  .cpu-spark{flex:1;margin-top:4px;position:relative;z-index:2}
+  .cpu-foot{display:flex;justify-content:space-between;font-family:var(--nt-font-mono);font-size:9px;color:var(--nt-c-ink-4);letter-spacing:.18em;position:relative;z-index:2}
+
+  .c-batt{grid-column:span 2;grid-row:span 3}
+  .batt-num{display:flex;gap:4px;align-items:flex-start;margin-top:8px;position:relative;z-index:2}
+  .batt-bar{display:flex;gap:2px;margin-top:auto;position:relative;z-index:2;padding:4px 0}
+  .batt-bar i{flex:1;height:14px;background:var(--nt-c-line);border-radius:1px}
+  .batt-bar i.on{background:var(--nt-c-ok)}
+  .batt-foot{display:flex;justify-content:space-between;font-family:var(--nt-font-mono);font-size:9px;color:var(--nt-c-ink-4);letter-spacing:.18em;margin-top:4px;position:relative;z-index:2}
+
+  .c-bus{grid-column:span 4;grid-row:span 3}
+  .bus-list{display:flex;flex-direction:column;gap:6px;margin-top:10px;position:relative;z-index:2}
+
+  .c-focus{grid-column:span 3;grid-row:span 3}
+  .focus-body{display:flex;align-items:center;gap:10px;margin-top:10px;position:relative;z-index:2;flex:1}
+  .focus-time{font-family:var(--nt-font-mono);font-size:18px;font-variant-numeric:tabular-nums}
+  .focus-desc{font-size:10px;color:var(--nt-c-ink-3);margin-top:4px;font-family:var(--nt-font-mono);letter-spacing:.1em}
+  .focus-bar{display:flex;gap:2px;margin-top:auto;position:relative;z-index:2}
+  .focus-bar i{flex:1;height:10px;background:var(--nt-c-line);border-radius:1px}
+  .focus-bar i.on{background:var(--nt-c-ink)}
+
+  .c-net{grid-column:span 3;grid-row:span 3}
+  .net-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:8px;position:relative;z-index:2}
+
+  .c-amb{grid-column:span 2;grid-row:span 3}
+  .amb-vu{display:flex;align-items:flex-end;gap:2px;flex:1;margin-top:10px;position:relative;z-index:2;height:46px}
+  .amb-vu i{flex:1;background:#3a3a3a;border-radius:1px}
+  .amb-vu i.hot{background:var(--nt-c-rec)}
+  .amb-foot{display:grid;grid-template-columns:1fr 1fr;gap:10px;position:relative;z-index:2;margin-top:6px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="nt-card c-clock">
+    <div class="nt-meta"><span>DEVICE CLOCK</span><span class="nt-led"></span></div>
+    <div class="body">
+      <div>
+        <canvas id="dotClock" width="320" height="64" class="nt-pixel-canvas"></canvas>
+        <div class="clock-sub" id="dateLine">SAT, MAY 16 :34</div>
+      </div>
+    </div>
+    <div class="clock-foot">
+      <div class="nt-stat"><div class="k">UPTIME</div><div class="v" id="uptime">18:29:15</div></div>
+      <div class="nt-stat"><div class="k">THREADS</div><div class="v">141</div></div>
+      <div class="nt-stat"><div class="k">LATENCY</div><div class="v">24</div><div class="u">MS</div></div>
+    </div>
+    <div class="ticker">GLYPH SEQUENCER ARMED  //  THERMAL NOMINAL  //  RADIO MESH CLEAN</div>
+  </div>
+
+  <div class="nt-card nt-card--inverse c-play">
+    <div class="nt-meta"><span>NOW PLAYING</span><span class="nt-led nt-led--idle" style="background:#bdbdbd"></span></div>
+    <h2>AI writing tool for thoughtful creators</h2>
+    <div class="desc">Built to feel good and work hard.</div>
+    <div class="vu" id="vuBars"></div>
+  </div>
+
+  <div class="nt-card c-matrix">
+    <div class="nt-meta"><span>GLYPH MATRIX</span><span class="nt-led nt-led--idle"></span></div>
+    <div class="matrix" id="matrix"></div>
+  </div>
+
+  <div class="nt-card c-sky">
+    <div class="nt-meta"><span>LOCAL SKY</span><span class="nt-led nt-led--idle"></span></div>
+    <div class="sky-temp"><canvas id="skyTemp" width="60" height="30" class="nt-pixel-canvas"></canvas><span class="deg">°C</span></div>
+    <div class="mini-glyph" id="miniGlyph"></div>
+    <div class="sky-desc">thin cloud /<br/>steady pressure</div>
+  </div>
+
+  <div class="nt-card c-radio">
+    <div class="nt-meta"><span>RADIO TUNER</span><span class="nt-led nt-led--idle"></span></div>
+    <div class="tuner">
+      <div class="scale" id="tunerScale">
+        <div class="needle" id="needle" style="left:60%"></div>
+        <div class="ends"><span>88.1</span><span>108.0</span></div>
+      </div>
+      <div class="freq"><div class="big">98.7</div><div class="small">98.7 MHZ · 58DB CLEAN</div></div>
+    </div>
+  </div>
+
+  <div class="nt-card c-cpu">
+    <div class="nt-meta"><span>CPU LOAD</span><span class="nt-led nt-led--idle"></span></div>
+    <div class="cpu-val"><span class="n" id="cpuN">38</span><span class="p">%</span></div>
+    <canvas class="cpu-spark" id="cpuSpark" width="220" height="60"></canvas>
+    <div class="cpu-foot"><span>8C</span><span>40.7°</span></div>
+  </div>
+
+  <div class="nt-card c-batt">
+    <div class="nt-meta"><span>BATTERY</span><span class="nt-led nt-led--idle"></span></div>
+    <div class="batt-num">
+      <canvas id="battNum" width="48" height="26" class="nt-pixel-canvas"></canvas>
+      <span style="font-family:var(--nt-font-mono);font-size:10px;color:var(--nt-c-ink-3);letter-spacing:.18em;margin-top:3px">%</span>
+    </div>
+    <div class="batt-bar" id="battBar"></div>
+    <div class="batt-foot"><span>CHARGING</span><span>7H 40M</span></div>
+  </div>
+
+  <div class="nt-card c-bus">
+    <div class="nt-meta"><span>QUICK BUS</span><span class="nt-led nt-led--idle"></span></div>
+    <div class="bus-list">
+      <div class="nt-row"><span class="name">Wi-Fi 6E</span><span class="nt-ind" data-on="6"></span></div>
+      <div class="nt-row"><span class="name">Glyph Sync</span><span class="nt-ind" data-on="9"></span></div>
+      <div class="nt-row"><span class="name">Mic Gate</span><span class="nt-ind" data-on="3"></span></div>
+      <div class="nt-row"><span class="name">Focus Lock</span><span class="nt-ind" data-on="5"></span></div>
+    </div>
+  </div>
+
+  <div class="nt-card c-focus">
+    <div class="nt-meta"><span>FOCUS RING</span><span class="nt-led nt-led--idle"></span></div>
+    <div class="focus-body">
+      <canvas id="focusRing" width="68" height="68"></canvas>
+      <div><div class="focus-time">20:02</div><div class="focus-desc">deep work block</div></div>
+    </div>
+    <div class="focus-bar" id="focusBar"></div>
+  </div>
+
+  <div class="nt-card c-net">
+    <div class="nt-meta"><span>NETWORK</span><span class="nt-led nt-led--idle"></span></div>
+    <div class="net-row">
+      <div class="nt-stat"><div class="k">DOWN</div><div class="v">188 MB</div></div>
+      <div class="nt-stat"><div class="k">RTT</div><div class="v">48 MS</div></div>
+    </div>
+    <canvas id="netSpark" width="220" height="44" style="margin-top:6px;position:relative;z-index:2"></canvas>
+  </div>
+
+  <div class="nt-card c-amb">
+    <div class="nt-meta"><span>AMBIENT VU</span><span class="nt-led nt-led--idle"></span></div>
+    <div class="amb-vu" id="ambVu"></div>
+    <div class="amb-foot">
+      <div class="nt-stat"><div class="k">NOISE</div><div class="v" style="font-size:11px">53DB</div></div>
+      <div class="nt-stat"><div class="k">AQI</div><div class="v" style="font-size:11px">037</div></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const DOT_MAP = {
+  "0":["01110","10001","10011","10101","11001","10001","01110"],
+  "1":["00100","01100","00100","00100","00100","00100","01110"],
+  "2":["01110","10001","00001","00010","00100","01000","11111"],
+  "3":["11110","00001","00001","01110","00001","00001","11110"],
+  "4":["00010","00110","01010","10010","11111","00010","00010"],
+  "5":["11111","10000","11110","00001","00001","10001","01110"],
+  "6":["00110","01000","10000","11110","10001","10001","01110"],
+  "7":["11111","00001","00010","00100","01000","01000","01000"],
+  "8":["01110","10001","10001","01110","10001","10001","01110"],
+  "9":["01110","10001","10001","01111","00001","00010","01100"],
+  ":":["00000","00100","00100","00000","00100","00100","00000"],
+  " ":["00000","00000","00000","00000","00000","00000","00000"]
+};
+function dd(ctx, text, scale){
+  scale = scale || 7;
+  ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+  let x = 0;
+  for (const ch of text){
+    const m = DOT_MAP[ch] || DOT_MAP[" "];
+    for (let r = 0; r < 7; r++)
+      for (let c = 0; c < 5; c++){
+        if (m[r][c] === "1"){
+          ctx.fillStyle = "#f4f4f4";
+          ctx.fillRect(x + c*scale, r*scale, scale-1.5, scale-1.5);
+        } else {
+          ctx.fillStyle = "#1f1f1f";
+          ctx.fillRect(x + c*scale, r*scale, scale-1.5, scale-1.5);
+        }
+      }
+    x += 6 * scale;
+  }
+}
+function pad(n){ return n < 10 ? '0' + n : n; }
+const cc = document.getElementById("dotClock").getContext("2d");
+function tick(){
+  const d = new Date();
+  dd(cc, pad(d.getHours()) + ":" + pad(d.getMinutes()), 9);
+  const days = ["SUN","MON","TUE","WED","THU","FRI","SAT"];
+  const months = ["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"];
+  document.getElementById("dateLine").textContent =
+    days[d.getDay()] + ", " + months[d.getMonth()] + " " + pad(d.getDate()) + "  :" + pad(d.getSeconds());
+}
+tick(); setInterval(tick, 1000);
+dd(document.getElementById("skyTemp").getContext("2d"), "28", 4);
+dd(document.getElementById("battNum").getContext("2d"), "92", 4);
+
+let upS = 18*3600 + 28*60 + 21;
+setInterval(function(){
+  upS++;
+  document.getElementById("uptime").textContent =
+    pad(Math.floor(upS/3600)) + ":" + pad(Math.floor(upS/60)%60) + ":" + pad(upS%60);
+}, 1000);
+
+(function(){
+  const g = document.getElementById("matrix");
+  if (!g) return;
+  const cells = [];
+  function build(){
+    g.innerHTML = "";
+    cells.length = 0;
+    const w = g.clientWidth, h = g.clientHeight, cell = 8, gap = 2;
+    const cols = Math.max(1, Math.floor((w + gap) / (cell + gap)));
+    const rows = Math.max(1, Math.floor((h + gap) / (cell + gap)));
+    const total = cols * rows;
+    for (let i = 0; i < total; i++){
+      const e = document.createElement("i");
+      const r = Math.random();
+      if (r < 0.3) e.classList.add("on");
+      else if (r < 0.7) e.classList.add("mid");
+      g.appendChild(e);
+      cells.push(e);
+    }
+  }
+  build();
+  window.addEventListener("resize", build);
+  setInterval(function(){
+    if (!cells.length) return;
+    for (let k = 0; k < 8; k++){
+      const c = cells[Math.floor(Math.random() * cells.length)];
+      c.className = "";
+      const r = Math.random();
+      if (r < 0.3) c.classList.add("on");
+      else if (r < 0.7) c.classList.add("mid");
+    }
+  }, 400);
+})();
+
+(function(){
+  const g = document.getElementById("miniGlyph");
+  for (let i = 0; i < 32; i++){
+    const e = document.createElement("i");
+    if (Math.random() < 0.4) e.classList.add("on");
+    g.appendChild(e);
+  }
+})();
+
+(function(){
+  const g = document.getElementById("vuBars"), N = 32, bars = [];
+  for (let i = 0; i < N; i++){
+    const b = document.createElement("i");
+    bars.push(b); g.appendChild(b);
+  }
+  function t(){
+    bars.forEach(function(b, i){
+      const base = Math.sin(i / 3 + Date.now() / 300) * 0.4 + 0.55;
+      const h = Math.max(6, base * 42 + (Math.random() * 14 - 7));
+      b.style.height = h + "px";
+      b.classList.toggle("lo", h < 18);
+    });
+  }
+  t(); setInterval(t, 140);
+})();
+
+(function(){
+  const s = document.getElementById("tunerScale");
+  for (let i = 0; i < 60; i++){
+    const t = document.createElement("div");
+    t.className = "tick " + (i % 5 === 0 ? "major" : "minor");
+    t.style.left = (i / 59 * 100) + "%";
+    s.appendChild(t);
+  }
+  let pos = 60;
+  setInterval(function(){
+    pos += (Math.random() - 0.5) * 2;
+    pos = Math.max(20, Math.min(85, pos));
+    document.getElementById("needle").style.left = pos + "%";
+  }, 1400);
+})();
+
+(function(){
+  const c = document.getElementById("cpuSpark"), x = c.getContext("2d"), W = c.width, H = c.height;
+  const d = Array.from({length:50}, function(){ return 30 + Math.random() * 20; });
+  function draw(){
+    x.clearRect(0, 0, W, H);
+    x.strokeStyle = "#f4f4f4";
+    x.lineWidth = 1.5;
+    x.beginPath();
+    d.forEach(function(v, i){
+      const X = i / (d.length - 1) * W, Y = H - (v / 80) * H;
+      i === 0 ? x.moveTo(X, Y) : x.lineTo(X, Y);
+    });
+    x.stroke();
+  }
+  draw();
+  setInterval(function(){
+    d.push(28 + Math.random() * 22);
+    d.shift();
+    document.getElementById("cpuN").textContent = Math.round(d[d.length - 1]);
+    draw();
+  }, 800);
+})();
+
+(function(){
+  const g = document.getElementById("battBar"), N = 14;
+  for (let i = 0; i < N; i++){
+    const b = document.createElement("i");
+    if (i < Math.round(N * 0.92)) b.classList.add("on");
+    g.appendChild(b);
+  }
+})();
+
+(function(){
+  const c = document.getElementById("focusRing"), x = c.getContext("2d");
+  x.strokeStyle = "#262626"; x.lineWidth = 7;
+  x.beginPath(); x.arc(34, 34, 26, 0, Math.PI * 2); x.stroke();
+  x.strokeStyle = "#f4f4f4"; x.lineWidth = 7;
+  x.beginPath(); x.arc(34, 34, 26, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * 0.62); x.stroke();
+})();
+
+(function(){
+  const g = document.getElementById("focusBar");
+  for (let i = 0; i < 14; i++){
+    const b = document.createElement("i");
+    if (i < 10) b.classList.add("on");
+    g.appendChild(b);
+  }
+})();
+
+(function(){
+  const c = document.getElementById("netSpark"), x = c.getContext("2d"), W = c.width, H = c.height;
+  const d = Array.from({length:40}, function(){ return 20 + Math.random() * 30; });
+  function draw(){
+    x.clearRect(0, 0, W, H);
+    x.strokeStyle = "#f4f4f4"; x.lineWidth = 1.5;
+    x.beginPath();
+    d.forEach(function(v, i){
+      const X = i / (d.length - 1) * W, Y = H - (v / 60) * H;
+      i === 0 ? x.moveTo(X, Y) : x.lineTo(X, Y);
+    });
+    x.stroke();
+  }
+  draw();
+  setInterval(function(){ d.push(15 + Math.random() * 40); d.shift(); draw(); }, 900);
+})();
+
+(function(){
+  const g = document.getElementById("ambVu"), N = 18, bars = [];
+  for (let i = 0; i < N; i++){
+    const b = document.createElement("i");
+    bars.push(b); g.appendChild(b);
+  }
+  function t(){
+    bars.forEach(function(b, i){
+      const v = Math.random() * 0.7 + 0.2;
+      b.style.height = (v * 46) + "px";
+      b.classList.toggle("hot", i >= N - 3 && Math.random() < 0.4);
+    });
+  }
+  t(); setInterval(t, 380);
+})();
+
+document.querySelectorAll(".nt-ind").forEach(function(el){
+  const on = parseInt(el.dataset.on || "0", 10);
+  for (let i = 0; i < 9; i++){
+    const d = document.createElement("i");
+    if (i < on) d.classList.add("is-on");
+    el.appendChild(d);
+  }
+});
+</script>
+</body>
+</html>

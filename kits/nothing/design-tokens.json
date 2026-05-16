@@ -1,0 +1,75 @@
+{
+  "$schema": "https://design-tokens.github.io/community-group/format/",
+  "name": "Nothing System Design System",
+  "version": "1.0.0",
+  "description": "Industrial dot-matrix bento — slightly-lifted black canvas, Space Mono captions, canvas-drawn pixel numerals, two single-purpose accents (red live, green charging). Inspired by Nothing OS and Teenage Engineering hardware.",
+  "color": {
+    "bg":        { "$value": "#0a0a0a", "$type": "color", "$description": "Page canvas — slightly-lifted black, never #000" },
+    "shell":     { "$value": "#0e0e0e", "$type": "color", "$description": "Deepest panel" },
+    "card":      { "$value": "#111111", "$type": "color", "$description": "Default module card" },
+    "card-2":    { "$value": "#1a1a1a", "$type": "color", "$description": "Hover / secondary fill" },
+    "line":      { "$value": "#1f1f1f", "$type": "color", "$description": "Hairline border" },
+    "line-2":    { "$value": "#2a2a2a", "$type": "color", "$description": "Second hairline (focus, ticks)" },
+    "ink":       { "$value": "#f4f4f4", "$type": "color", "$description": "Primary text + numerals" },
+    "ink-2":     { "$value": "#bdbdbd", "$type": "color" },
+    "ink-3":     { "$value": "#9a9a9a", "$type": "color" },
+    "ink-4":     { "$value": "#5a5a5a", "$type": "color" },
+    "ink-5":     { "$value": "#3a3a3a", "$type": "color" },
+    "cell-off":  { "$value": "#262626", "$type": "color", "$description": "Dot-matrix off cell" },
+    "rec":       { "$value": "#ff3b3b", "$type": "color", "$description": "Only red — recording / live LED / error" },
+    "ok":        { "$value": "#3ddc84", "$type": "color", "$description": "Only green — charging / battery OK" },
+    "inv-bg":    { "$value": "#fafafa", "$type": "color", "$description": "Inverse card background (used at most once per layout)" },
+    "inv-ink":   { "$value": "#0a0a0a", "$type": "color" },
+    "inv-ink-2": { "$value": "#666666", "$type": "color" },
+    "inv-ink-3": { "$value": "#bdbdbd", "$type": "color" }
+  },
+  "font": {
+    "family": {
+      "mono": { "$value": "'Space Mono', ui-monospace, Menlo, monospace", "$type": "fontFamily" },
+      "sans": { "$value": "'Inter Tight', Inter, system-ui, sans-serif", "$type": "fontFamily" }
+    },
+    "size": {
+      "h1":    { "$value": "32px",   "$type": "dimension", "$description": "Tuner numeric (98.7)" },
+      "h2":    { "$value": "26px",   "$type": "dimension", "$description": "CPU numeric" },
+      "h3":    { "$value": "18px",   "$type": "dimension", "$description": "Now playing headline" },
+      "md":    { "$value": "14px",   "$type": "dimension" },
+      "base":  { "$value": "12px",   "$type": "dimension" },
+      "sm":    { "$value": "11px",   "$type": "dimension" },
+      "cap":   { "$value": "9.5px",  "$type": "dimension", "$description": "Uppercase Space Mono caption" },
+      "mini":  { "$value": "9px",    "$type": "dimension" }
+    },
+    "tracking": {
+      "tight": { "$value": "-0.01em" },
+      "cap":   { "$value": "0.16em" },
+      "cap-2": { "$value": "0.18em" },
+      "cap-3": { "$value": "0.20em" }
+    }
+  },
+  "spacing": {
+    "1": { "$value": "4px",  "$type": "dimension" },
+    "2": { "$value": "8px",  "$type": "dimension" },
+    "3": { "$value": "10px", "$type": "dimension" },
+    "4": { "$value": "14px", "$type": "dimension" },
+    "5": { "$value": "18px", "$type": "dimension" },
+    "6": { "$value": "24px", "$type": "dimension" }
+  },
+  "radius": {
+    "shell": { "$value": "14px",  "$type": "dimension" },
+    "card":  { "$value": "12px",  "$type": "dimension" },
+    "tile":  { "$value": "6px",   "$type": "dimension" },
+    "chip":  { "$value": "2px",   "$type": "dimension", "$description": "Dot-LED corners" },
+    "pill":  { "$value": "999px", "$type": "dimension" }
+  },
+  "motion": {
+    "ease": {
+      "step": { "$value": "steps(1, end)", "$description": "Pixel-perfect frame swap, no tween" },
+      "out":  { "$value": "cubic-bezier(0.22, 0.61, 0.36, 1)" }
+    },
+    "duration": {
+      "blink": { "$value": "2400ms", "$description": "Live LED breathing" },
+      "tick":  { "$value": "140ms",  "$description": "VU bar refresh" },
+      "fast":  { "$value": "180ms" },
+      "base":  { "$value": "240ms" }
+    }
+  }
+}
