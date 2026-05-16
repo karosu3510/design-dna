@@ -489,6 +489,7 @@
 <script src="./cinematic-3d-scroll-doc.js?v=202605161250"></script>
 <script src="./scroll-3d-grid-doc.js"></script>
 <script src="./gpu-io-fluid-doc.js"></script>
+<script src="./glitch-perspective-doc.js"></script>
 <!-- mono-x7 removed -->
 <!-- lumi removed -->
 <script>
@@ -1580,6 +1581,14 @@ function buildPinnedFor(styleId, headlineFallback){
       id:'d-gpu-io-fluid', styleId:'gpu-io-fluid', styleLabel:'GPU fluid sim', sref:'gpu-io-fluid', prompt:'Amanda Ghassaei GPU IO fluid simulation particles velocity pressure WebGL', pinned:true,
       title:'GPU IO · Fluid simulation', height:720, styleLock:'gpu-io-fluid',
       doc: (typeof GPU_IO_FLUID_DOC !== 'undefined') ? GPU_IO_FLUID_DOC : '', externalUrl:'gpu-io-fluid.html'
+    });
+  } catch(_){}
+  // Glitch Perspective — Codrops 3D pixel glitch hover
+  try {
+    firstBatch.push({
+      id:'d-glitch-perspective', styleId:'glitch-perspective', styleLabel:'3D glitch hover', sref:'codrops-glitch-perspective', prompt:'Codrops 3D Perspective Glitch Hover Effect pixel art perspective cards', pinned:true,
+      title:'Glitch Perspective · Pixel hover', height:720, styleLock:'glitch-perspective',
+      doc: (typeof GLITCH_PERSPECTIVE_DOC !== 'undefined') ? GLITCH_PERSPECTIVE_DOC : '', externalUrl:'glitch-perspective.html'
     });
   } catch(_){}
   // Marginalia — warm editorial microsite (live 1100x720 thumbnail)
