@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Glyph OS — Pixel Desktop Dashboard</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=VT323&family=Inter:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&family=VT323&family=Inter:wght@400;500;600&display=swap');
 :root{
   --gl-bg:        #000000;
   --gl-shell:     #0e0e0e;
@@ -19,7 +19,8 @@
   --gl-ink-4:     #4a4a4a;
   --gl-rec:       #ff3b30;
   --gl-ok:        #c8ff5e;     /* 仅用于电量 OK / charging */
-  --gl-pixel:     'VT323','Press Start 2P',ui-monospace,Menlo,monospace;
+  --gl-pixel:     'Silkscreen','VT323','Press Start 2P',ui-monospace,Menlo,monospace;
+  --gl-display:   'Silkscreen','VT323',ui-monospace,Menlo,monospace;
   --gl-sans:      'Inter','Helvetica Neue',Arial,sans-serif;
 }
 *{box-sizing:border-box;margin:0;padding:0}
@@ -37,20 +38,20 @@ html,body{width:1100px;height:720px;overflow:hidden;background:var(--gl-bg);colo
 
 /* ─── Device clock ─── */
 .clock-wrap{display:flex;flex-direction:column;height:100%}
-.clock{margin-top:8px;display:flex;align-items:center;gap:8px;font-family:var(--gl-pixel);font-size:118px;line-height:1;letter-spacing:0.02em;color:var(--gl-ink);text-shadow:0 0 0 var(--gl-ink)}
-.clock .colon{transform:translateY(-12px)}
-.clock-meta{margin-top:14px;font-family:var(--gl-pixel);font-size:14px;color:var(--gl-ink-3);letter-spacing:.16em;text-transform:uppercase}
+.clock{margin-top:6px;display:flex;align-items:center;gap:14px;font-family:var(--gl-display);font-weight:700;font-size:88px;line-height:1;letter-spacing:0.02em;color:var(--gl-ink);font-variant-numeric:tabular-nums;-webkit-font-smoothing:none;-moz-osx-font-smoothing:grayscale}
+.clock .colon{transform:translateY(-6px);font-weight:700}
+.clock-meta{margin-top:16px;font-family:var(--gl-pixel);font-weight:400;font-size:13px;color:var(--gl-ink-3);letter-spacing:.18em;text-transform:uppercase}
 .clock-divider{margin:14px 0 10px;height:1px;background:linear-gradient(90deg,transparent,var(--gl-line-2) 25%,var(--gl-line-2) 75%,transparent)}
 .clock-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
-.clock-stats .lbl{font-family:var(--gl-pixel);font-size:13px;color:var(--gl-ink-3);letter-spacing:.16em;text-transform:uppercase}
-.clock-stats .val{margin-top:4px;font-family:var(--gl-pixel);font-size:30px;color:var(--gl-ink);letter-spacing:.04em}
-.clock-stats .val .unit{font-size:13px;color:var(--gl-ink-3);margin-left:4px;letter-spacing:.18em;text-transform:uppercase}
-.clock-tape{position:absolute;left:16px;right:16px;bottom:14px;font-family:var(--gl-pixel);font-size:12px;color:var(--gl-ink-3);letter-spacing:.18em;text-transform:uppercase}
+.clock-stats .lbl{font-family:var(--gl-pixel);font-weight:400;font-size:12px;color:var(--gl-ink-3);letter-spacing:.18em;text-transform:uppercase}
+.clock-stats .val{margin-top:6px;font-family:var(--gl-display);font-weight:700;font-size:24px;color:var(--gl-ink);letter-spacing:.04em;font-variant-numeric:tabular-nums}
+.clock-stats .val .unit{font-size:11px;color:var(--gl-ink-3);margin-left:5px;letter-spacing:.18em;text-transform:uppercase;font-weight:400}
+.clock-tape{position:absolute;left:16px;right:16px;bottom:14px;font-family:var(--gl-pixel);font-size:11px;color:var(--gl-ink-3);letter-spacing:.18em;text-transform:uppercase}
 
 /* ─── Radio tuner ─── */
 .tuner{position:relative;height:100%;display:flex;flex-direction:column}
 .tuner .freq{position:absolute;right:14px;top:50%;transform:translateY(-50%);text-align:right}
-.tuner .freq .big{font-family:var(--gl-pixel);font-size:64px;line-height:1;color:var(--gl-ink)}
+.tuner .freq .big{font-family:var(--gl-display);font-weight:700;font-size:48px;line-height:1;color:var(--gl-ink);font-variant-numeric:tabular-nums;letter-spacing:.02em}
 .tuner .freq .sub{margin-top:6px;font-family:var(--gl-pixel);font-size:13px;color:var(--gl-ink-3);letter-spacing:.18em}
 .tuner .scale-wrap{position:absolute;left:16px;right:230px;top:50%;transform:translateY(-50%)}
 .tuner .scale{position:relative;height:62px;border-bottom:1px solid var(--gl-line-2)}
@@ -76,8 +77,8 @@ html,body{width:1100px;height:720px;overflow:hidden;background:var(--gl-bg);colo
 .fr-ring svg circle{fill:none}
 .fr-ring .center{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--gl-pixel);font-size:13px;color:var(--gl-ink-3);letter-spacing:.16em;text-transform:uppercase}
 .fr-text{font-family:var(--gl-pixel);color:var(--gl-ink)}
-.fr-text .big{font-size:38px;line-height:1}
-.fr-text .small{margin-top:8px;font-size:14px;color:var(--gl-ink-3);letter-spacing:.16em;text-transform:uppercase}
+.fr-text .big{font-family:var(--gl-display);font-weight:700;font-size:30px;line-height:1;font-variant-numeric:tabular-nums;letter-spacing:.02em}
+.fr-text .small{margin-top:8px;font-family:var(--gl-pixel);font-weight:400;font-size:13px;color:var(--gl-ink-3);letter-spacing:.18em;text-transform:uppercase}
 .fr-blocks{margin-top:10px;display:flex;gap:5px}
 .fr-blocks i{width:18px;height:6px;background:var(--gl-line-2);border-radius:1px}
 .fr-blocks i.on{background:var(--gl-ink)}
@@ -103,7 +104,7 @@ html,body{width:1100px;height:720px;overflow:hidden;background:var(--gl-bg);colo
 .gm-grid i.l3{background:#ffffff}
 
 .sky{padding:12px 14px;display:flex;flex-direction:column;height:100%;position:relative}
-.sky .num{margin-top:8px;font-family:var(--gl-pixel);font-size:62px;line-height:1;color:var(--gl-ink);display:flex;align-items:flex-start}
+.sky .num{margin-top:8px;font-family:var(--gl-display);font-weight:700;font-size:46px;line-height:1;color:var(--gl-ink);display:flex;align-items:flex-start;font-variant-numeric:tabular-nums;letter-spacing:.02em}
 .sky .num .deg{font-size:18px;color:var(--gl-ink-3);margin-left:6px;margin-top:6px}
 .sky .ascii{margin-top:10px;font-family:var(--gl-pixel);font-size:11px;line-height:1.05;color:var(--gl-ink-3);white-space:pre}
 .sky .meta{position:absolute;left:14px;bottom:12px;font-family:var(--gl-pixel);font-size:11px;color:var(--gl-ink-3);letter-spacing:.05em;line-height:1.5}
@@ -111,14 +112,14 @@ html,body{width:1100px;height:720px;overflow:hidden;background:var(--gl-bg);colo
 /* ─── CPU + Battery ─── */
 .cpu-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 .cpu{padding:12px 14px;display:flex;flex-direction:column;height:100%}
-.cpu .num{margin-top:6px;font-family:var(--gl-pixel);font-size:46px;line-height:1;color:var(--gl-ink)}
+.cpu .num{margin-top:6px;font-family:var(--gl-display);font-weight:700;font-size:36px;line-height:1;color:var(--gl-ink);font-variant-numeric:tabular-nums;letter-spacing:.02em}
 .cpu .num .unit{font-size:14px;color:var(--gl-ink-3);margin-left:4px}
 .cpu .chart{flex:1;margin-top:6px;position:relative}
 .cpu .chart svg{width:100%;height:100%;display:block}
 .cpu .chart-meta{display:flex;justify-content:space-between;font-family:var(--gl-pixel);font-size:11px;color:var(--gl-ink-3);letter-spacing:.04em}
 
 .bat{padding:12px 14px;display:flex;flex-direction:column;height:100%}
-.bat .num{margin-top:6px;font-family:var(--gl-pixel);font-size:46px;line-height:1;color:var(--gl-ink)}
+.bat .num{margin-top:6px;font-family:var(--gl-display);font-weight:700;font-size:36px;line-height:1;color:var(--gl-ink);font-variant-numeric:tabular-nums;letter-spacing:.02em}
 .bat .num .unit{font-size:14px;color:var(--gl-ink-3);margin-left:4px}
 .bat-bars{margin-top:auto;display:flex;gap:2px;height:14px}
 .bat-bars i{flex:1;background:var(--gl-line);border-radius:1.5px}
