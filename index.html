@@ -70,7 +70,13 @@
   @keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
   .card:hover{border-color:var(--border-strong)}
   .card-frame{width:100%;display:block;border:0;background:#0a0a0a;color-scheme:dark;pointer-events:none}
-  .card-preview{position:absolute;inset:0;z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:24px;text-align:center;background:linear-gradient(180deg,#1a1a1a,#111);color:#fff;pointer-events:none;transition:opacity .25s ease}
+  .card-frame--video{opacity:1;object-fit:cover}
+  .card-frame--live{position:absolute;inset:0;width:100%;opacity:0;transition:opacity .35s ease}
+  .card.has-scale > .card-frame--live{position:absolute;top:0;left:0;width:auto}
+  .card.is-live .card-frame--live{opacity:1}
+  .card-preview{position:absolute;inset:0;z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:24px;text-align:center;background:linear-gradient(180deg,#1a1a1a,#111);color:#fff;pointer-events:none;transition:opacity .35s ease;overflow:hidden}
+  .card-preview-shimmer{position:absolute;inset:0;background:linear-gradient(110deg,transparent 30%,rgba(255,255,255,.06) 50%,transparent 70%);background-size:250% 100%;animation:shimmer 2s ease-in-out infinite}
+  @keyframes shimmer{0%{background-position:100% 0}100%{background-position:-100% 0}}
   .card-preview.is-hiding{opacity:0}
   .card-preview::before{content:'';position:absolute;inset:12px;border:1px solid rgba(255,255,255,.08);border-radius:8px;pointer-events:none}
   .card-preview-title{font-size:15px;font-weight:600;max-width:80%;line-height:1.35;color:#f5f5f5}
@@ -622,83 +628,115 @@ let likedMap = new Map(JSON.parse(localStorage.getItem('variant_liked')||'[]'));
 const designStore = new Map();
 const lazyFrames = new Set();
 
-// ─── iframe 加载并发限流 ───
-// 同时最多让 N 个 iframe 处于"刚注入 srcdoc + 内部资源仍在拉"的阶段，
-// 避免 30+ iframe 一起开吃带宽 / 主线程导致卡顿/loading 不出来。
-//
-// 参数演化（karo 实测）：
-//   v1: PARALLEL=3, TIMEOUT=3500ms — 30 张卡最坏 35s 排队，下方卡片永远刷不出
-//   v2: PARALLEL=5, TIMEOUT=2200ms — 减少 60% 队列等待，对带宽友好上限
-const FRAME_LOAD_PARALLEL = 5;
-const FRAME_LOAD_TIMEOUT_MS = 2200;
-let frameLoadingNow = 0;
-const frameLoadQueue = [];
-function _drainFrameQueue(){
-  while(frameLoadingNow < FRAME_LOAD_PARALLEL && frameLoadQueue.length){
-    const frame = frameLoadQueue.shift();
-    if(!frame || frame.__loaded) continue;
-    frameLoadingNow++;
-    let __released = false;
-    const finish = ()=>{
-      if(__released) return;        // 防双递减（load 事件 + 兜底超时同时到）
-      __released = true;
-      frameLoadingNow = Math.max(0, frameLoadingNow - 1);
-      frame.removeEventListener('load', finish);
-      _drainFrameQueue();
-    };
-    // iframe 'load' 事件在 srcdoc 注入完成、内部 DOM 加载完毕时触发
-    frame.addEventListener('load', finish, { once: true });
-    // 兜底：N 秒后无论是否触发 load，都释放槽位继续下一张（重资源卡走这条）
-    setTimeout(finish, FRAME_LOAD_TIMEOUT_MS);
-    try{ frame.srcdoc = frame.__doc || ''; }catch(_){ finish(); continue; }
-    frame.__loaded = true;
-    // 注意：不要在这里隐藏 preview 占位层！srcdoc 刚赋值时 iframe 内部文档
-    // 还没首次 paint，白底 UA stylesheet 会暴露一帧造成「闪白」。
-    // 但也不能等 iframe 'load'：重资源卡（fluid sim / 3D grid）的 load 要
-    // 等所有子资源拉完，可能 5-30s，期间内容其实已经在画但被 overlay 盖住。
-    // 折中：1200ms 后无条件淡出 overlay。如果 'load' 提前来了由 makeCardEl
-    // 里的 'load' 监听器先撤；两条路径都通过 _hideCardPreview 幂等。
-    setTimeout(function(){ _hideCardPreview(frame); }, 1200);
+// ═══════════════════════════════════════════════════════════════════
+// Variant 式分层架构：feed = video poster loop（轻量），detail = live iframe
+// ═══════════════════════════════════════════════════════════════════
+//   1. 默认每张卡片是 <video src="posters/<slug>.webm" poster="posters/<slug>.jpg">，
+//      浏览器原生 loop，CPU 几乎为 0，可同时常驻 30+ 张。
+//   2. 视口内最多 LIVE_BUDGET 张升级为真 iframe（有 externalUrl 的卡），叠在 video 上方。
+//      离开视口卸载 iframe，video 仍在动 → 不会出现灰块/空白。
+//   3. dashboard 卡（buildPinnedFor 5 张，无 webm）保持 srcdoc 渲染 + 常驻动画。
+//   4. 详情视图保持原 iframe 流程，全功能。
+// 这是「34 张全部 live iframe」彻底重构的根本方案，对应 karo 的 4 个痛点。
+const LIVE_BUDGET = 4;          // 视口内同时升级为 live iframe 的最大数量
+const liveSet = new Set();      // 当前 live 的 card 元素
+const liveQueue = [];           // 候选升级队列（按视口可见顺序）
+function _wantsLive(card){
+  // dashboard 卡片（无 video poster）默认就是 live srcdoc，不需要再升级
+  if(card.__isDashboard) return false;
+  // 必须有 externalUrl 才能升级为本地 iframe
+  return !!card.__extUrl;
+}
+function _mountLive(card){
+  if(!card || card.__live || liveSet.has(card)) return;
+  if(!_wantsLive(card)) return;
+  card.__live = true;
+  liveSet.add(card);
+  var f = document.createElement('iframe');
+  f.className = 'card-frame card-frame--live';
+  f.setAttribute('sandbox','allow-scripts allow-same-origin');
+  f.style.height = card.__frameHeight + 'px';
+  if(card.__isDashboard){
+    f.style.width = '1100px';
+    f.style.transformOrigin = 'top left';
+    f.style.transform = card.__frameTransform || '';
+  }
+  f.src = card.__extUrl;
+  f.__cardEl = card;
+  f.addEventListener('load', function(){
+    requestAnimationFrame(function(){ requestAnimationFrame(function(){
+      card.classList.add('is-live');
+    });});
+  });
+  card.appendChild(f);
+  card.__liveFrame = f;
+}
+function _unmountLive(card){
+  if(!card || !card.__live) return;
+  card.__live = false;
+  liveSet.delete(card);
+  card.classList.remove('is-live');
+  if(card.__liveFrame){
+    try{ card.__liveFrame.src = 'about:blank'; }catch(_){}
+    if(card.__liveFrame.parentNode) card.__liveFrame.parentNode.removeChild(card.__liveFrame);
+    card.__liveFrame = null;
   }
 }
-// 幂等淡出 preview 占位层。多入口调用安全（load 事件 + drain 队列兜底定时器）。
-function _hideCardPreview(frame){
-  if(!frame || !frame.__preview) return;
-  var p = frame.__preview;
-  if(p.__hiding) return;
-  p.__hiding = true;
-  p.classList.add('is-hiding');
-  setTimeout(function(){ if(p && p.parentNode) p.style.display = 'none'; }, 280);
+function _balanceLive(){
+  // liveQueue 按视口距离排序：离 viewport 中心最近的优先升级
+  var vh = window.innerHeight;
+  var cy = vh * 0.5;
+  var ranked = liveQueue.slice().filter(function(c){ return c.isConnected && c.__visible; }).map(function(c){
+    var r = c.getBoundingClientRect();
+    var d = Math.abs((r.top + r.bottom)/2 - cy);
+    return { c: c, d: d };
+  }).sort(function(a,b){ return a.d - b.d; });
+  var keep = new Set();
+  ranked.slice(0, LIVE_BUDGET).forEach(function(x){ keep.add(x.c); _mountLive(x.c); });
+  // 只卸载「video poster 卡」（即在 liveQueue 范围内的），dashboard srcdoc 卡不动
+  liveSet.forEach(function(c){
+    if(c.__isDashboard) return;
+    if(!keep.has(c)) _unmountLive(c);
+  });
 }
-function loadLazyFrame(frame){
-  if(!frame || frame.__loaded || frame.__queued) return;
-  frame.__queued = true;
-  frameLoadQueue.push(frame);
-  _drainFrameQueue();
-}
-function pauseFrame(frame){
-  if(!frame || !frame.__loaded) return;
-  try{ frame.contentWindow.postMessage({type:'pause'},'*'); }catch(_){}
-}
-function resumeFrame(frame){
-  if(!frame || !frame.__loaded) return;
-  try{ frame.contentWindow.postMessage({type:'resume'},'*'); }catch(_){}
-}
-const cardFrameObserver = ('IntersectionObserver' in window) ? new IntersectionObserver((entries)=>{
-  entries.forEach(en=>{
-    const frame = en.target;
-    if(en.isIntersecting){
-      if(!frame.__loaded) loadLazyFrame(frame);
-      resumeFrame(frame);
+var _liveObserver = ('IntersectionObserver' in window) ? new IntersectionObserver(function(entries){
+  entries.forEach(function(e){
+    var card = e.target;
+    card.__visible = e.isIntersecting;
+    if(e.isIntersecting){
+      if(liveQueue.indexOf(card) < 0) liveQueue.push(card);
     } else {
-      pauseFrame(frame);
+      var i = liveQueue.indexOf(card); if(i>=0) liveQueue.splice(i,1);
+      _unmountLive(card);
     }
   });
-},{ rootMargin:'80px 0px 80px 0px' }) : null;
-function observeCardFrame(frame){
-  lazyFrames.add(frame);
-  if(cardFrameObserver) cardFrameObserver.observe(frame);
-  else loadLazyFrame(frame);
+  _balanceLive();
+},{ rootMargin:'120px 0px 120px 0px' }) : null;
+window.addEventListener('scroll', function(){
+  // 滚动会改变与视口中心的距离，需要重排
+  if(_liveObserver) _balanceLive();
+}, { passive:true });
+
+// ─── dashboard 卡（buildPinnedFor 5 张）需要常驻 srcdoc：直接挂 iframe ───
+function _mountDashboardSrcdoc(card){
+  if(card.__live) return;
+  card.__live = true;
+  liveSet.add(card);
+  var f = document.createElement('iframe');
+  f.className = 'card-frame card-frame--live';
+  f.setAttribute('sandbox','allow-scripts allow-same-origin');
+  f.style.height = card.__frameHeight + 'px';
+  f.style.width = '1100px';
+  f.style.transformOrigin = 'top left';
+  f.style.transform = card.__frameTransform || '';
+  f.srcdoc = card.__doc || '';
+  f.addEventListener('load', function(){
+    requestAnimationFrame(function(){ requestAnimationFrame(function(){
+      card.classList.add('is-live');
+    });});
+  });
+  card.appendChild(f);
+  card.__liveFrame = f;
 }
 
 function buildStyleChips(){
@@ -735,45 +773,71 @@ function makeCardEl(d){
     card.classList.add('is-narrow');
   }
 
-  // ─── dashboard 卡（styleLock）按逻辑宽 1100 渲染，外层 transform 等比缩放 ───
-  // 这样 Linear/Nothing/Retro/Mercury/Nothing-Mobile 在 1/3 列宽下仍保持完整布局，仅整体变小。
-  const isDashboard = !!d.styleLock;
+  // ─── dashboard 卡：仅指无 externalUrl 的内联 srcdoc 卡（buildPinnedFor 5 张）。
+  // 其余 29 张虽有 styleLock，但都对应独立 HTML，按本地 iframe / video poster 走。
+  const hasExt = !!d.externalUrl && d.externalUrl.indexOf('http') !== 0;
+  const isDashboard = !!d.styleLock && !hasExt;
   const LOGICAL_W = isDashboard ? 1100 : 0;
   if(isDashboard) card.classList.add('has-scale');
 
-  const frame = document.createElement('iframe');
-  frame.className='card-frame';
-  frame.style.height = d.height + 'px';
-  if(isDashboard){
-    frame.style.width = LOGICAL_W + 'px';
-    frame.style.transformOrigin = 'top left';
+  // 解析 slug：dashboard 用 styleLock，其它从 externalUrl 推导
+  const slug = d.styleLock || (d.externalUrl||'').replace(/\.html$/,'').split('/').pop() || d.id;
+  const HAS_VIDEO_POSTER = hasExt;
+
+  card.__isDashboard = isDashboard;
+  card.__extUrl = d.externalUrl || '';
+  card.__doc = d.doc || '';
+  card.__frameHeight = d.height || 360;
+  card.__slug = slug;
+
+  if(HAS_VIDEO_POSTER){
+    // Variant 式 feed：默认 video poster loop，浏览器原生动画，CPU 极轻
+    const v = document.createElement('video');
+    v.className = 'card-frame card-frame--video';
+    v.style.height = card.__frameHeight + 'px';
+    v.muted = true; v.loop = true; v.autoplay = true; v.playsInline = true;
+    v.setAttribute('preload','auto');
+    v.poster = 'posters/' + slug + '.jpg';
+    v.src = 'posters/' + slug + '.webm';
+    card.appendChild(v);
+    card.__videoEl = v;
+    if(_liveObserver) _liveObserver.observe(card);
+  } else if(isDashboard){
+    // dashboard 卡：5 张内联 srcdoc，常驻动画。它们渲染较轻，且数量固定 ≤5，安全。
+    card.__frameTransform = '';
+    _mountDashboardSrcdoc(card);
+  } else {
+    // 外链 / 无 externalUrl：fallback 到原 iframe.src
+    const f = document.createElement('iframe');
+    f.className = 'card-frame card-frame--live';
+    f.setAttribute('sandbox','allow-scripts allow-same-origin');
+    f.style.height = card.__frameHeight + 'px';
+    if(d.externalUrl) f.src = d.externalUrl;
+    else try{ f.srcdoc = d.doc || ''; }catch(_){ }
+    f.addEventListener('load', function(){ card.classList.add('is-live'); });
+    card.appendChild(f);
+    card.__liveFrame = f;
   }
-  frame.setAttribute('sandbox','allow-scripts');
-  // 防闪白：依赖元素级 .card-frame { background:#0a0a0a; color-scheme:dark }
-  // —— color-scheme: dark 让 iframe 内 about:blank 默认走深色 UA，不需要塞
-  // stub srcdoc。之前 stub 触发的额外 load 事件会和 _drainFrameQueue 的
-  // {once:true} 监听器产生时序竞态，导致部分卡片永远不淡出占位层。
-  const pauseScript = '<script>var __paused=false,__rafId=0;var __origRAF=window.requestAnimationFrame;window.requestAnimationFrame=function(cb){if(__paused){__rafId=0;return 0}return __origRAF.call(window,cb)};window.addEventListener("message",function(e){if(e.data&&e.data.type==="pause"){__paused=true;if(__rafId)cancelAnimationFrame(__rafId)}if(e.data&&e.data.type==="resume"){__paused=false;__origRAF.call(window,function(){})}});<\/script>';
-  frame.__doc = (d.doc || '').replace(/<\/head>/i, pauseScript + '</head>');
-  frame.__loaded = false;
-  card.appendChild(frame);
 
   const preview = document.createElement('div');
   preview.className = 'card-preview';
-  preview.innerHTML = '<div class="card-preview-title">'+(d.title||'Design preview')+'</div><div class="card-preview-sub">加载中...</div>';
-  frame.__preview = preview;
+  preview.innerHTML = '<div class="card-preview-shimmer"></div><div class="card-preview-title">'+(d.title||'Design preview')+'</div><div class="card-preview-sub">'+(d.styleLabel||'Design DNA')+'</div>';
   card.appendChild(preview);
-  observeCardFrame(frame);
-  frame.addEventListener('load', function(){
-    if(frame.__loaded && frame.__preview){
-      // 双 rAF 等 iframe 内文档完成首次 paint 后再淡出占位层（最理想路径）。
-      // 但只是其中一条入口——_drainFrameQueue 还会在 1500ms 后兜底淡出，
-      // 防止重资源卡的 load 拖到很久才 fire。两条路径通过 _hideCardPreview 幂等。
-      requestAnimationFrame(function(){ requestAnimationFrame(function(){
-        _hideCardPreview(frame);
-      });});
+  card.__preview = preview;
+  // video poster 加载后立刻把 shimmer/标题层淡出（不等 6s 全帧）
+  if(card.__videoEl){
+    var hidePoster = function(){
+      preview.classList.add('is-hiding');
+      setTimeout(function(){ preview.style.display='none'; }, 320);
+      card.classList.add('is-live');
+    };
+    if(card.__videoEl.readyState >= 2) hidePoster();
+    else {
+      card.__videoEl.addEventListener('loadeddata', hidePoster, { once:true });
+      // 兜底：800ms 后无论如何隐藏占位（poster jpg 永远会在）
+      setTimeout(hidePoster, 800);
     }
-  });
+  }
 
   // ─── 高度对齐策略 ───
   // 1) 普通卡：按模板声明 d.height 直接 span。
@@ -786,7 +850,10 @@ function makeCardEl(d){
     var cardH;
     if(isDashboard && cardW > 0){
       var scale = Math.min(1, cardW / LOGICAL_W);
-      frame.style.transform = 'scale(' + scale + ')';
+      var tf = 'scale(' + scale + ')';
+      card.__frameTransform = tf;
+      // 同步给当前已挂的 dashboard iframe（若已 mount）
+      if(card.__liveFrame) card.__liveFrame.style.transform = tf;
       cardH = Math.round((d.height || 360) * scale) + 2;
     } else {
       cardH = fallbackH;
@@ -797,8 +864,6 @@ function makeCardEl(d){
     card.style.alignSelf = 'start'; // 不被 grid track 拉伸
   }
   applyRowSpan();
-  // iframe 加载后再校正一次（仅 span，可能内容真实变高）
-  frame.addEventListener('load', function(){ requestAnimationFrame(applyRowSpan); });
   // 兜底：图片/字体后续抵达可能改变高度
   if(window.ResizeObserver){
     var ro = new ResizeObserver(function(){ applyRowSpan(); });
@@ -919,25 +984,13 @@ function collectUsedStyleLocks(){
 }
 
 let loading=false;
-const io = new IntersectionObserver((entries)=>{
-  // [TEMP DISABLED] feed 临时只展示 nothing + retro-ascii，关闭无限滚动加载
-  return;
-  /*
-  entries.forEach(en=>{
-    if(en.isIntersecting && !loading){
-      loading=true;
-      const n = (aiCheckbox && aiCheckbox.checked && aiAvailable) ? 3 : 6;
-      Promise.resolve(smartGenerate(promptEl.value, n, false))
-        .finally(()=> setTimeout(()=>loading=false, 200));
-    }
-  });
-  */
-},{ rootMargin:'600px 0px' });
+// Curated catalog only: do not append legacy random/local template cards on scroll.
+// bootFeed() below has its own pendingDesigns sentinel that only reveals curated pinned cards.
+const io = { observe:function(){} };
 io.observe(sentinel);
 
 function regenerate(){
-  const n = (aiCheckbox && aiCheckbox.checked && aiAvailable) ? 3 : 12;
-  smartGenerate(promptEl.value, n, true);
+  flash('当前仅展示定制化灵感卡片');
   window.scrollTo({top:0,behavior:'smooth'});
 }
 btnGen.addEventListener('click',regenerate);
@@ -1861,14 +1914,7 @@ function buildPinnedFor(styleId, headlineFallback){
       doc: (typeof CARROT_TECH_DOC !== 'undefined') ? CARROT_TECH_DOC : '', externalUrl:'carrot-tech.html'
     });
   } catch(_){}
-  // SuperHi Plus — direct Next/WebGL ball pool mirror
-  try {
-    firstBatch.push({
-      id:'d-superhi-plus', styleId:'superhi-plus', styleLabel:'WebGL ball pool', sref:'superhi-plus-pin', prompt:'SuperHi Plus direct mirror with WebGL ball pool and blue split layout', pinned:true,
-      title:'SuperHi Plus · Cooperative content', height:720, styleLock:'superhi-plus',
-      doc: (typeof SUPERHI_PLUS_DOC !== 'undefined') ? SUPERHI_PLUS_DOC : '', externalUrl:'https://superhi.plus/?ref=godly'
-    });
-  } catch(_){}
+  // SuperHi Plus removed: direct external mirror is not a customized Design DNA card.
   // a.Record — registered earlier (after Mercury) for higher feed position
   // Mono X7 — removed (effect not satisfactory)
   // LUMI — removed (effect not satisfactory)
@@ -1878,7 +1924,7 @@ function buildPinnedFor(styleId, headlineFallback){
       if(c && c.styleLock && pinnedLocks.indexOf(c.styleLock) < 0) pinnedLocks.push(c.styleLock);
     });
   } catch(_){}
-  // 3) [TEMP DISABLED] 随机批次先屏蔽，feed 只展示 nothing + retro-ascii
+  // 3) Curated catalog only: never append generic random template cards.
   // try {
   //   var more = generateBatch(promptEl.value, currentStyle, 10, { excludeStyleLocks: pinnedLocks });
   //   firstBatch = firstBatch.concat(more);
