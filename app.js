@@ -182,25 +182,16 @@ function _mountIframe(card){
 // 单张就能吃掉一个 GPU 通道；超过 4 张就会把 tab 主线程吃死，hover/click 全部失灵。Variant 实测同时
 // 活 ≤ 4-5 张。这里取 4 留余量给 5 张常驻 dashboard。
 var LIVE_BUDGET = 4;
-var liveOrder = []; // 按进入视口的时间排队（最早进的最先 evict）
+var liveOrder = []; // 仅排队非 dashboard 卡（dashboard 不进队，不占预算）
 
 function _evictIfOverBudget(){
-  // 仅 evict 非 dashboard、且当前不在视口的卡。如果都在视口就不动（用户正在看的不能炸）
+  // liveOrder 里只有非 dashboard 卡。超过预算就踢「不在视口」的，没有就踢最早进入的。
   while(liveOrder.length > LIVE_BUDGET){
     var victim = null, victimIdx = -1;
     for(var i = 0; i < liveOrder.length; i++){
-      var c = liveOrder[i];
-      if(!c.__isDashboard && !c.__visible){ victim = c; victimIdx = i; break; }
+      if(!liveOrder[i].__visible){ victim = liveOrder[i]; victimIdx = i; break; }
     }
-    if(!victim){
-      // 没找到合适的牺牲品（说明视口里挤进了 >LIVE_BUDGET 张 video poster 卡），
-      // 退而求其次踢最早进入的非 dashboard 卡
-      for(var j = 0; j < liveOrder.length; j++){
-        var cc = liveOrder[j];
-        if(!cc.__isDashboard){ victim = cc; victimIdx = j; break; }
-      }
-    }
-    if(!victim) break;
+    if(!victim){ victim = liveOrder[0]; victimIdx = 0; }
     liveOrder.splice(victimIdx,1);
     _unmountLive(victim);
   }
@@ -213,8 +204,11 @@ var _liveObserver = ('IntersectionObserver' in window) ? new IntersectionObserve
     if(e.isIntersecting){
       if(!card.__live){
         _mountIframe(card);
-        liveOrder.push(card);
-        _evictIfOverBudget();
+        // dashboard 不进 liveOrder（不占预算，常驻）；其它卡进队列做 LRU
+        if(!card.__isDashboard){
+          liveOrder.push(card);
+          _evictIfOverBudget();
+        }
       }
     } else {
       // dashboard 卡（5 张）一旦 mount 就常驻：
