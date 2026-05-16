@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Nothing System · Component · Pixel clock</title>
+<link rel="stylesheet" href="../design-system.css">
+<style>
+  body{display:grid;place-items:center;min-height:100vh;padding:48px}
+  .demo{width:520px}
+  .demo-tag{position:absolute;top:18px;left:24px;font-family:var(--nt-font-mono);font-size:11px;color:var(--nt-c-ink-3);letter-spacing:.18em;text-transform:uppercase}
+  .clock-sub{font-family:var(--nt-font-mono);font-size:10px;color:var(--nt-c-ink-3);letter-spacing:.16em;margin-top:10px}
+</style>
+</head>
+<body>
+<span class="demo-tag">01 · pixel clock</span>
+<article class="nt-card demo">
+  <div class="nt-meta">
+    <span>DEVICE CLOCK</span>
+    <span class="nt-led"></span>
+  </div>
+  <canvas id="dotClock" width="320" height="64" class="nt-pixel-canvas" style="margin-top:12px;position:relative;z-index:2"></canvas>
+  <div class="clock-sub" id="dateLine" style="position:relative;z-index:2">SAT, MAY 16 :34</div>
+</article>
+<script>
+  // 5x7 dot-matrix font. The hero numerals on Nothing System are NOT a webfont —
+  // they are drawn pixel-by-pixel onto a canvas. This is what gives the system
+  // its hardware feel.
+  var DOT_MAP = {
+    "0":["01110","10001","10011","10101","11001","10001","01110"],
+    "1":["00100","01100","00100","00100","00100","00100","01110"],
+    "2":["01110","10001","00001","00010","00100","01000","11111"],
+    "3":["11110","00001","00001","01110","00001","00001","11110"],
+    "4":["00010","00110","01010","10010","11111","00010","00010"],
+    "5":["11111","10000","11110","00001","00001","10001","01110"],
+    "6":["00110","01000","10000","11110","10001","10001","01110"],
+    "7":["11111","00001","00010","00100","01000","01000","01000"],
+    "8":["01110","10001","10001","01110","10001","10001","01110"],
+    "9":["01110","10001","10001","01111","00001","00010","01100"],
+    ":":["00000","00100","00100","00000","00100","00100","00000"],
+    " ":["00000","00000","00000","00000","00000","00000","00000"]
+  };
+  function dd(ctx, text, scale){
+    scale = scale || 7;
+    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+    var x = 0;
+    for (var i = 0; i < text.length; i++) {
+      var ch = text[i];
+      var m = DOT_MAP[ch] || DOT_MAP[" "];
+      for (var r = 0; r < 7; r++) {
+        for (var c = 0; c < 5; c++) {
+          if (m[r][c] === "1") {
+            ctx.fillStyle = "#f4f4f4";
+            ctx.fillRect(x + c*scale, r*scale, scale-1.5, scale-1.5);
+          } else {
+            ctx.fillStyle = "#1f1f1f";
+            ctx.fillRect(x + c*scale, r*scale, scale-1.5, scale-1.5);
+          }
+        }
+      }
+      x += 6 * scale;
+    }
+  }
+  function pad(n){ return n < 10 ? '0' + n : n; }
+  var ctx = document.getElementById('dotClock').getContext('2d');
+  function tick(){
+    var d = new Date();
+    dd(ctx, pad(d.getHours()) + ':' + pad(d.getMinutes()), 9);
+    var days = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
+    var months = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+    document.getElementById('dateLine').textContent = days[d.getDay()] + ', ' + months[d.getMonth()] + ' ' + pad(d.getDate()) + '  :' + pad(d.getSeconds());
+  }
+  tick(); setInterval(tick, 1000);
+</script>
+</body>
+</html>

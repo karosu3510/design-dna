@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Nothing System · Component · VU spectrum</title>
+<link rel="stylesheet" href="../design-system.css">
+<style>
+  body{display:grid;place-items:center;min-height:100vh;padding:48px;gap:14px}
+  .demo-tag{position:absolute;top:18px;left:24px;font-family:var(--nt-font-mono);font-size:11px;color:var(--nt-c-ink-3);letter-spacing:.18em;text-transform:uppercase}
+  .row{display:flex;gap:14px}
+  .demo{width:320px;height:170px}
+  .head{font-family:var(--nt-font-sans);font-size:14px;font-weight:600;color:var(--nt-c-inv-ink);margin-top:10px;letter-spacing:-.01em;position:relative;z-index:2}
+  .desc{font-family:var(--nt-font-sans);font-size:11px;color:var(--nt-c-inv-ink-2);margin-top:4px;position:relative;z-index:2}
+  .bars{position:relative;z-index:2;margin-top:auto;display:flex;align-items:flex-end;gap:2px;height:42px}
+  .bars i{width:5px;background:var(--nt-c-inv-ink);border-radius:1px;display:block}
+  .bars i.lo{background:#bdbdbd}
+  .ambient{display:flex;flex-direction:column}
+  .amb-vu{display:flex;align-items:flex-end;gap:2px;flex:1;margin-top:10px;position:relative;z-index:2;height:64px}
+  .amb-vu i{flex:1;background:#3a3a3a;border-radius:1px}
+  .amb-vu i.hot{background:var(--nt-c-rec)}
+</style>
+</head>
+<body>
+<span class="demo-tag">04 · vu spectrum</span>
+<div class="row">
+  <article class="nt-card nt-card--inverse demo">
+    <div class="nt-meta"><span>NOW PLAYING</span><span class="nt-led nt-led--idle" style="background:#bdbdbd"></span></div>
+    <h2 class="head">Phase Drift, Pt. II</h2>
+    <div class="desc">Karo Su · Resonance EP</div>
+    <div class="bars" id="vuLight"></div>
+  </article>
+  <article class="nt-card demo ambient">
+    <div class="nt-meta"><span>AMBIENT VU</span><span class="nt-led nt-led--idle"></span></div>
+    <div class="amb-vu" id="vuDark"></div>
+  </article>
+</div>
+<script>
+  // Two VU spectrums:
+  //   - inverse card: 32 bars on cream, taller bars stay ink, short ones shift to ink-3
+  //   - ambient (dark): 18 wider bars; the rightmost few may flash red ("hot")
+  // Both tick on setInterval, no CSS transition.
+  (function(){
+    var g = document.getElementById('vuLight');
+    var N = 32, bars = [];
+    for (var i = 0; i < N; i++){
+      var b = document.createElement('i');
+      bars.push(b);
+      g.appendChild(b);
+    }
+    function t(){
+      bars.forEach(function(b, i){
+        var base = Math.sin(i / 3 + Date.now() / 300) * 0.4 + 0.55;
+        var h = Math.max(6, base * 42 + (Math.random() * 14 - 7));
+        b.style.height = h + 'px';
+        b.classList.toggle('lo', h < 18);
+      });
+    }
+    t(); setInterval(t, 140);
+  })();
+  (function(){
+    var g = document.getElementById('vuDark');
+    var N = 18, bars = [];
+    for (var i = 0; i < N; i++){
+      var b = document.createElement('i');
+      bars.push(b);
+      g.appendChild(b);
+    }
+    function t(){
+      bars.forEach(function(b, i){
+        var v = Math.random() * 0.7 + 0.2;
+        b.style.height = (v * 60) + 'px';
+        b.classList.toggle('hot', i >= N - 3 && Math.random() < 0.4);
+      });
+    }
+    t(); setInterval(t, 380);
+  })();
+</script>
+</body>
+</html>

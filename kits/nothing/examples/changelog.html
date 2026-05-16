@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Nothing System · Changelog</title>
+<link rel="stylesheet" href="../design-system.css">
+<style>
+  /* Token-only — no new colors, no new font families.
+     If this still feels like Nothing System, the system carries. */
+  body{min-height:100vh;background:var(--nt-c-bg);padding:64px 0}
+  .page{width:880px;margin:0 auto;display:grid;grid-template-columns:200px 1fr;gap:36px}
+
+  /* Sidebar */
+  .side{padding-top:6px;position:sticky;top:32px;align-self:flex-start}
+  .side-brand{display:flex;align-items:center;gap:10px;font-size:14px;font-weight:600;color:var(--nt-c-ink);margin-bottom:4px;letter-spacing:-.01em;font-family:var(--nt-font-sans)}
+  .side-brand .mark{width:16px;height:16px;background:var(--nt-c-ink);border-radius:2px;flex-shrink:0;position:relative;overflow:hidden}
+  .side-brand .mark::after{content:'';position:absolute;left:6px;top:0;bottom:0;width:4px;background:var(--nt-c-bg)}
+  .side-sub{font-family:var(--nt-font-mono);font-size:10px;color:var(--nt-c-ink-3);letter-spacing:.18em;text-transform:uppercase;margin-bottom:24px}
+
+  .side-link{display:flex;align-items:center;gap:8px;padding:6px 0;font-family:var(--nt-font-mono);font-size:12px;color:var(--nt-c-ink-3);text-decoration:none;letter-spacing:.06em;text-transform:uppercase;cursor:pointer}
+  .side-link:hover{color:var(--nt-c-ink)}
+  .side-link.active{color:var(--nt-c-ink)}
+  .side-link.active::before{content:'›';margin-right:4px;color:var(--nt-c-ok)}
+
+  /* Main */
+  main{padding-top:6px}
+  .head{margin-bottom:36px}
+  .head .nt-tape{margin-bottom:12px;border-top:0;padding-top:0}
+  .head h1{font-family:var(--nt-font-sans);font-size:62px;line-height:1;color:var(--nt-c-ink);letter-spacing:-.025em;font-weight:600}
+  .head .lead{margin-top:14px;font-size:13.5px;color:var(--nt-c-ink-2);line-height:1.7;max-width:560px;font-family:var(--nt-font-sans)}
+
+  /* Release block (a single changelog entry is a nt-card) */
+  .release{margin-bottom:18px;padding:24px 28px}
+  .release-head{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:8px;position:relative;z-index:2}
+  .release-head .ver{font-family:var(--nt-font-sans);font-size:46px;line-height:1;color:var(--nt-c-ink);letter-spacing:-.02em;font-weight:600}
+  .release-head .meta-r{text-align:right;font-family:var(--nt-font-mono);font-size:10px;color:var(--nt-c-ink-3);letter-spacing:.18em;text-transform:uppercase;line-height:1.7}
+  .release-head .meta-r .live{display:inline-flex;align-items:center;gap:6px;color:var(--nt-c-ink)}
+  .release-head .meta-r .live .dot{width:8px;height:8px;background:var(--nt-c-rec);border-radius:50%;display:inline-block;box-shadow:0 0 6px var(--nt-c-rec)}
+
+  .release-head .badge{display:inline-block;font-family:var(--nt-font-mono);font-size:9.5px;color:var(--nt-c-bg);background:var(--nt-c-ok);padding:3px 8px;letter-spacing:.18em;text-transform:uppercase;border-radius:2px}
+
+  .section{margin-top:14px;position:relative;z-index:2}
+  .section h3{font-family:var(--nt-font-mono);font-size:10px;color:var(--nt-c-ink-3);letter-spacing:.18em;text-transform:uppercase;margin-bottom:6px;font-weight:400}
+
+  .entries{padding:0;list-style:none;margin:0}
+  .entries li{display:grid;grid-template-columns:18px 1fr;gap:10px;padding:6px 0;font-size:13px;color:var(--nt-c-ink-2);line-height:1.55;font-family:var(--nt-font-sans)}
+  .entries li::before{content:'+';font-family:var(--nt-font-mono);font-size:14px;color:var(--nt-c-ok);line-height:1.5}
+  .entries.fix li::before{content:'~';color:var(--nt-c-ink-3)}
+  .entries.break li::before{content:'!';color:var(--nt-c-rec)}
+  .entries li code{font-family:var(--nt-font-mono);font-size:12px;color:var(--nt-c-ink);background:var(--nt-c-card-2);padding:0 6px;letter-spacing:0;border-radius:2px}
+  .entries li b{color:var(--nt-c-ink);font-weight:500}
+
+  .release-foot{margin-top:18px;padding-top:14px;border-top:1px solid var(--nt-c-line);position:relative;z-index:2}
+  .release-foot .strip{font-family:var(--nt-font-mono);font-size:9.5px;color:var(--nt-c-ink-4);letter-spacing:.18em;text-transform:uppercase;display:flex;justify-content:space-between}
+
+  /* ASCII section break */
+  .ascii-break{margin:36px 0;font-family:var(--nt-font-mono);font-size:12px;color:var(--nt-c-ink-4);letter-spacing:.18em;text-transform:uppercase;text-align:center;line-height:1.4;white-space:pre}
+
+  footer{margin-top:48px;padding-top:24px;border-top:1px solid var(--nt-c-line);font-family:var(--nt-font-mono);font-size:10px;color:var(--nt-c-ink-3);letter-spacing:.18em;text-transform:uppercase;display:flex;justify-content:space-between}
+  footer a{color:inherit;text-decoration:none}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <aside class="side">
+    <div class="side-brand"><div class="mark"></div><span>Nothing System</span></div>
+    <div class="side-sub">Changelog · v1</div>
+
+    <a class="side-link active" href="#v1-4">v1.4 · live</a>
+    <a class="side-link" href="#v1-3">v1.3</a>
+    <a class="side-link" href="#v1-2">v1.2</a>
+    <a class="side-link" href="#v1-1">v1.1</a>
+    <a class="side-link" href="#v1-0">v1.0</a>
+  </aside>
+
+  <main>
+    <section class="head">
+      <div class="nt-tape">RELEASE LOG / DEVICE FIRMWARE</div>
+      <h1>Changelog</h1>
+      <p class="lead">Every shipped version of Nothing System. Newest on top. Plus
+        means new feature, tilde means fix, exclamation means breaking change.
+        Unstable channels are excluded — only general-availability lives here.</p>
+    </section>
+
+    <article id="v1-4" class="nt-card release">
+      <div class="release-head">
+        <div>
+          <div class="ver">v1.4</div>
+          <span class="badge" style="margin-top:8px">stable</span>
+        </div>
+        <div class="meta-r">
+          <div>2026-05-16</div>
+          <div class="live"><span class="dot"></span>now live</div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3>Added</h3>
+        <ul class="entries">
+          <li><b>Glyph matrix</b> — 28×11 dot grid module with token-driven shimmer at 400ms tick.</li>
+          <li><b>Radio tuner</b> — analog-style needle scaled across 88.1–108.0 MHz, drift cadence 1400ms.</li>
+          <li>Module cards now render the internal 18px <code>::before</code> grid texture by default.</li>
+          <li>Quick Bus row indicator (<code>.nt-ind</code>) ships with 3×3 cell density preset.</li>
+        </ul>
+      </div>
+
+      <div class="section">
+        <h3>Fixed</h3>
+        <ul class="entries fix">
+          <li>Battery <code>.nt-bars--ok</code> bar no longer bleeds into the surrounding card on retina.</li>
+          <li>Now Playing inverse card no longer ships with two box-shadows when stacked under a sticky nav.</li>
+          <li>Clock seconds drift after sleep — recompute on <code>visibilitychange</code>.</li>
+          <li>Tuner needle hard-clipped at scale ends instead of bouncing off invisible padding.</li>
+        </ul>
+      </div>
+
+      <div class="release-foot">
+        <div class="strip"><span>shipped 16:48 UTC</span><span>build 14920</span></div>
+      </div>
+    </article>
+
+    <pre class="ascii-break">.--..--..--..--..--..--..--..--..--..--..--..--.
+:..::..::..::..::..::..::..::..::..::..::..::..:
+'--''--''--''--''--''--''--''--''--''--''--''--'</pre>
+
+    <article id="v1-3" class="nt-card release">
+      <div class="release-head">
+        <div><div class="ver">v1.3</div></div>
+        <div class="meta-r"><div>2026-04-22</div><div>retired</div></div>
+      </div>
+
+      <div class="section">
+        <h3>Added</h3>
+        <ul class="entries">
+          <li>Quick bus row pill — <code>.nt-row</code> baseline with paired <code>.nt-ind</code>.</li>
+          <li>Inverse card token <code>--nt-c-inv-bg</code> with one-per-layout discipline.</li>
+          <li><b>Battery / focus bars</b> — segmented horizontal meter primitive.</li>
+        </ul>
+      </div>
+
+      <div class="section">
+        <h3>Fixed</h3>
+        <ul class="entries fix">
+          <li>Module captions wrapping to two lines on narrow viewports.</li>
+          <li>Live LED breath duration normalized to 2400ms across all modules.</li>
+        </ul>
+      </div>
+
+      <div class="release-foot">
+        <div class="strip"><span>shipped 09:12 UTC</span><span>build 13770</span></div>
+      </div>
+    </article>
+
+    <article id="v1-2" class="nt-card release">
+      <div class="release-head">
+        <div><div class="ver">v1.2</div></div>
+        <div class="meta-r"><div>2026-03-08</div><div>retired</div></div>
+      </div>
+
+      <div class="section">
+        <h3>Breaking</h3>
+        <ul class="entries break">
+          <li>Removed soft-shadow tokens. Surfaces now separate via background step + 1px line only. Update any custom modules that referenced <code>--nt-shadow-*</code>.</li>
+          <li>Page background lifted from <code>#000</code> to <code>#0a0a0a</code>. Audit any hard-coded canvas colors.</li>
+        </ul>
+      </div>
+
+      <div class="section">
+        <h3>Added</h3>
+        <ul class="entries">
+          <li><b>Step easing</b> token <code>--nt-ease-step</code> — frame-perfect transitions.</li>
+          <li>Tape strip class <code>.nt-tape</code> for inline status copy.</li>
+          <li>Canvas dot-renderer ships in every component example (<code>5×7 DOT_MAP</code>).</li>
+        </ul>
+      </div>
+
+      <div class="release-foot">
+        <div class="strip"><span>shipped 11:32 UTC</span><span>build 12064</span></div>
+      </div>
+    </article>
+
+    <article id="v1-1" class="nt-card release">
+      <div class="release-head">
+        <div><div class="ver">v1.1</div></div>
+        <div class="meta-r"><div>2026-02-14</div><div>retired</div></div>
+      </div>
+
+      <div class="section">
+        <h3>Added</h3>
+        <ul class="entries">
+          <li>Recording LED <code>.nt-led</code> with single-purpose <code>--nt-c-rec</code> + 2400ms breath.</li>
+          <li>Charging LED variant <code>.nt-led--ok</code> tied to <code>--nt-c-ok</code>.</li>
+          <li>Space Mono web-loaded as default mono face; Inter Tight as inverse-card sans.</li>
+        </ul>
+      </div>
+
+      <div class="release-foot">
+        <div class="strip"><span>shipped 14:08 UTC</span><span>build 10412</span></div>
+      </div>
+    </article>
+
+    <article id="v1-0" class="nt-card release">
+      <div class="release-head">
+        <div><div class="ver">v1.0</div></div>
+        <div class="meta-r"><div>2026-01-04</div><div>archive</div></div>
+      </div>
+
+      <div class="section">
+        <h3>Added</h3>
+        <ul class="entries">
+          <li>Initial bento grid: 12 cols × 64px rows, gap 8px.</li>
+          <li>Card / shell / line / ink-ramp tokens locked in.</li>
+          <li>Two-LED color discipline established (rec + ok).</li>
+          <li>Radius scale finalized at 14 / 12 / 6 / 2 / 999.</li>
+        </ul>
+      </div>
+
+      <div class="release-foot">
+        <div class="strip"><span>shipped 00:00 UTC</span><span>build 09001</span></div>
+      </div>
+    </article>
+
+    <footer>
+      <span>Nothing System · changelog · v1.4</span>
+      <span><a href="https://karosu3510.github.io/design-dna/" target="_blank">karosu3510.github.io/design-dna</a></span>
+    </footer>
+  </main>
+</div>
+</body>
+</html>

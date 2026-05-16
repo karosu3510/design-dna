@@ -1,0 +1,294 @@
+/* =========================================================
+   Nothing System · Design System
+   Industrial dot-matrix bento — Space Mono captions, canvas-drawn pixel
+   numerals, two single-purpose accents (red live, green charging).
+   Version: 1.0.0
+   Source: Design DNA inspiration library
+   =========================================================
+   Companion to: kits/nothing/design-system.md
+   <link rel="stylesheet" href="./design-system.css">
+   ========================================================= */
+
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Inter+Tight:wght@300;400;500;600;700&display=swap');
+
+:root{
+  /* ---------- Typography ---------- */
+  --nt-font-mono:    'Space Mono', ui-monospace, Menlo, monospace;
+  --nt-font-sans:    'Inter Tight', 'Inter', system-ui, -apple-system, sans-serif;
+
+  /* Type scale (px). Nothing relies on canvas dot-rendering for the very
+     large numerics — DOM type stays compact and uniform. */
+  --nt-fs-h1:      32px;  /* tuner big numeric (98.7) */
+  --nt-fs-h2:      26px;  /* cpu numeric */
+  --nt-fs-h3:      18px;  /* now playing headline */
+  --nt-fs-md:      14px;  /* network value */
+  --nt-fs-base:    12px;  /* row label */
+  --nt-fs-sm:      11px;  /* sky description */
+  --nt-fs-cap:     9.5px; /* uppercase Space Mono caption */
+  --nt-fs-mini:    9px;   /* cap on dark surface */
+
+  /* Tracking */
+  --nt-tr-tight:  -0.01em;  /* now playing headline */
+  --nt-tr-cap:     0.16em;  /* meta + caption */
+  --nt-tr-cap-2:   0.18em;  /* tape + key labels */
+  --nt-tr-cap-3:   0.20em;  /* widest, balance number labels */
+
+  /* ---------- Color (industrial mono with two LEDs) ---------- */
+  --nt-c-bg:        #0a0a0a;  /* page canvas — slightly lifted black */
+  --nt-c-shell:     #0e0e0e;  /* deepest shell */
+  --nt-c-card:      #111111;  /* default module card */
+  --nt-c-card-2:    #1a1a1a;  /* hovered / secondary fill */
+  --nt-c-line:      #1f1f1f;  /* hairline */
+  --nt-c-line-2:    #2a2a2a;  /* second hairline (focus, ticks) */
+
+  --nt-c-ink:       #f4f4f4;  /* primary text + numerals */
+  --nt-c-ink-2:     #bdbdbd;  /* secondary text */
+  --nt-c-ink-3:     #9a9a9a;  /* caption / mono labels */
+  --nt-c-ink-4:     #5a5a5a;  /* meta units */
+  --nt-c-ink-5:     #3a3a3a;  /* off / disabled */
+  --nt-c-cell-off:  #262626;  /* dot-matrix off cell */
+
+  --nt-c-rec:       #ff3b3b;  /* the only red — recording / live LED */
+  --nt-c-rec-glow:  rgba(255,59,59,.50);
+  --nt-c-ok:        #3ddc84;  /* the only green — charging / battery OK */
+
+  /* Inverse panel (Now Playing — used exactly once per layout) */
+  --nt-c-inv-bg:    #fafafa;
+  --nt-c-inv-ink:   #0a0a0a;
+  --nt-c-inv-ink-2: #666666;
+  --nt-c-inv-ink-3: #bdbdbd;
+
+  /* ---------- Spacing (4px grid) ---------- */
+  --nt-sp-1:  4px;
+  --nt-sp-2:  8px;
+  --nt-sp-3: 10px;
+  --nt-sp-4: 14px;
+  --nt-sp-5: 18px;
+  --nt-sp-6: 24px;
+
+  /* ---------- Radius ---------- */
+  --nt-r-shell: 14px;
+  --nt-r-card:  12px;
+  --nt-r-tile:   6px;
+  --nt-r-chip:   2px;   /* the small dot-LED corners */
+  --nt-r-pill: 999px;
+
+  /* ---------- Borders ---------- */
+  --nt-bw:        1px;
+  --nt-grid:      18px;  /* the inner 18px grid texture */
+  --nt-grid-line: rgba(255,255,255,.012); /* internal grid texture (per card) */
+
+  /* ---------- Motion ---------- */
+  --nt-ease-step: steps(1, end);
+  --nt-ease-out:  cubic-bezier(.22,.61,.36,1);
+  --nt-dur-blink: 2400ms;   /* the live LED breathing */
+  --nt-dur-tick:   140ms;   /* one VU bar refresh */
+  --nt-dur-fast:   180ms;
+  --nt-dur-base:   240ms;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{
+  background: var(--nt-c-bg);
+  color: var(--nt-c-ink);
+  font-family: var(--nt-font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ---------- Core components ---------- */
+
+/* Module card — every Nothing bento panel.
+   Has internal 18px grid texture via ::before, exactly like the source. */
+.nt-card{
+  background: var(--nt-c-card);
+  border: var(--nt-bw) solid var(--nt-c-line);
+  border-radius: var(--nt-r-card);
+  padding: var(--nt-sp-4) var(--nt-sp-4);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.nt-card::before{
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(var(--nt-grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--nt-grid-line) 1px, transparent 1px);
+  background-size: var(--nt-grid) var(--nt-grid);
+  pointer-events: none;
+}
+
+/* Inverse card — used at most ONCE per layout (Now Playing) */
+.nt-card--inverse{
+  background: var(--nt-c-inv-bg);
+  color: var(--nt-c-inv-ink);
+  border-color: var(--nt-c-inv-bg);
+}
+.nt-card--inverse::before{ display: none; }
+
+/* Top meta bar (LABEL + LED) */
+.nt-meta{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-family: var(--nt-font-mono);
+  font-size: var(--nt-fs-cap);
+  letter-spacing: var(--nt-tr-cap-2);
+  color: var(--nt-c-ink-3);
+  text-transform: uppercase;
+  position: relative;
+  z-index: 2;
+}
+.nt-card--inverse .nt-meta{ color: #666; }
+
+/* Live LED — the pulsing red dot. The only red allowed. */
+.nt-led{
+  width: 5px; height: 5px;
+  border-radius: var(--nt-r-chip);
+  background: var(--nt-c-rec);
+  box-shadow: 0 0 6px var(--nt-c-rec);
+  animation: nt-blink var(--nt-dur-blink) infinite;
+}
+.nt-led--idle{
+  background: var(--nt-c-line-2);
+  box-shadow: none;
+  animation: none;
+}
+.nt-led--ok{
+  background: var(--nt-c-ok);
+  box-shadow: 0 0 6px var(--nt-c-ok);
+  animation: none;
+}
+@keyframes nt-blink{
+  0%, 40% { opacity: 1; }
+  50%     { opacity: .2; }
+  100%    { opacity: 1; }
+}
+
+/* Mono caption (Space Mono, uppercase, wide tracking) */
+.nt-cap{
+  font-family: var(--nt-font-mono);
+  font-size: var(--nt-fs-cap);
+  color: var(--nt-c-ink-3);
+  letter-spacing: var(--nt-tr-cap-2);
+  text-transform: uppercase;
+}
+
+/* Numeric value pair — kv block (k label, v number) */
+.nt-stat{ display: flex; flex-direction: column; gap: 2px; }
+.nt-stat .k{
+  font-family: var(--nt-font-mono);
+  font-size: var(--nt-fs-cap);
+  color: var(--nt-c-ink-3);
+  letter-spacing: var(--nt-tr-cap-2);
+  text-transform: uppercase;
+}
+.nt-stat .v{
+  font-family: var(--nt-font-mono);
+  font-size: var(--nt-fs-md);
+  color: var(--nt-c-ink);
+  font-variant-numeric: tabular-nums;
+}
+.nt-stat .u{
+  font-family: var(--nt-font-mono);
+  font-size: var(--nt-fs-cap);
+  color: var(--nt-c-ink-4);
+  letter-spacing: var(--nt-tr-cap-2);
+}
+
+/* Pixel canvas — for big dot-matrix numerals.
+   Wrap your <canvas> in this for consistent baseline. */
+.nt-pixel-canvas{
+  display: block;
+  image-rendering: pixelated;
+}
+
+/* Row pill (Quick Bus list item) */
+.nt-row{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 10px;
+  background: var(--nt-c-shell);
+  border: var(--nt-bw) solid var(--nt-c-line);
+  border-radius: var(--nt-r-tile);
+  font-size: var(--nt-fs-base);
+  color: var(--nt-c-ink);
+}
+.nt-row + .nt-row{ margin-top: 6px; }
+
+/* Indicator (3-cell row LEDs at end of nt-row) */
+.nt-ind{
+  display: grid;
+  grid-template-columns: repeat(3, 4px);
+  grid-auto-rows: 4px;
+  gap: 1.5px;
+}
+.nt-ind i{
+  width: 4px; height: 4px;
+  background: var(--nt-c-cell-off);
+  border-radius: 1px;
+  display: block;
+}
+.nt-ind i.is-on{ background: var(--nt-c-ink); }
+
+/* VU / battery / focus — segmented horizontal bar */
+.nt-bars{ display: flex; gap: 2px; }
+.nt-bars i{
+  flex: 1;
+  background: var(--nt-c-line);
+  border-radius: 1px;
+  display: block;
+}
+.nt-bars i.is-on{ background: var(--nt-c-ink); }
+.nt-bars--ok i.is-on{ background: var(--nt-c-ok); }
+
+/* Vertical VU spectrum */
+.nt-vu{
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 42px;
+}
+.nt-vu i{
+  width: 5px;
+  background: var(--nt-c-ink);
+  border-radius: 1px;
+  display: block;
+}
+.nt-vu i.is-lo{ background: var(--nt-c-ink-3); }
+.nt-vu i.is-hot{ background: var(--nt-c-rec); }
+
+/* Tape — the lower status strip */
+.nt-tape{
+  font-family: var(--nt-font-mono);
+  font-size: var(--nt-fs-cap);
+  color: var(--nt-c-ink-4);
+  letter-spacing: var(--nt-tr-cap-2);
+  text-transform: uppercase;
+  border-top: var(--nt-bw) solid var(--nt-c-line);
+  padding-top: 8px;
+}
+
+/* Hairline divider (dashed inside cards) */
+.nt-divider{
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--nt-c-line-2) 20%, var(--nt-c-line-2) 80%, transparent);
+}
+.nt-divider--dash{
+  background: none;
+  border-top: 1px dashed var(--nt-c-line-2);
+}
+
+/* ---------- Layout helpers ---------- */
+.nt-grid-12{
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  grid-auto-rows: 64px;
+  gap: 8px;
+}
+.nt-row-flex{ display: flex; align-items: center; gap: var(--nt-sp-3); }
+.nt-row-flex--between{ justify-content: space-between; }

@@ -768,9 +768,11 @@ function makeCardEl(d){
 
   // ─── Hover 浮出：提取 DNA（仅对有 kit 的卡片显示） ───
   // 白名单：每张卡片需要在 KIT_AVAILABLE 注册才会出现按钮，避免点击随机卡片跳到 404。
-  // 新增 kit 后只需要在这个 Set 里加 slug（card id 去掉 'd-' 前缀）。
-  const KIT_AVAILABLE = new Set(['a-record','glyph-os']);
-  const _slug = (d.id||'').replace(/^d-/, '');
+  // 新增 kit 后只需要在这个 Set 里加 slug。
+  // slug 解析优先用 styleLock（处理 buildPinnedFor 生成的动态 id 如 d4ax 这类情况），
+  // 退化时再用 id 去掉 'd-' 前缀（处理静态 pinned 卡片如 'd-a-record'）。
+  const KIT_AVAILABLE = new Set(['a-record','glyph-os','nothing']);
+  const _slug = d.styleLock || (d.id||'').replace(/^d-/, '');
   if(KIT_AVAILABLE.has(_slug)){
     const fav = document.createElement('button');
     fav.type='button';
@@ -1149,7 +1151,8 @@ async function copyCardCode(d, btn){
 // 直接 window.open(absUrl)，不做 HEAD 预检：HEAD 在 GitHub Pages CDN 偶有不稳定，
 // 也避免 about:blank 占位窗口的相对 URL 解析坑。目标页面自身的 200/404 由浏览器决定。
 function openCardDNA(d, btn){
-  const slug = (d.id||'').replace(/^d-/, '') || (d.styleLock || 'card');
+  // 与 makeCardEl 的 slug 解析保持一致：优先 styleLock，再退化到 id。
+  const slug = d.styleLock || (d.id||'').replace(/^d-/, '') || 'card';
   const absUrl = new URL('./kits/' + slug + '/index.html', location.href).href;
   const setLabel = (txt)=>{
     if(!btn) return;
@@ -1184,8 +1187,8 @@ function openCardDNA(d, btn){
 // 保留：当用户在 kit 文档页内一键下载时使用同一份打包逻辑（也保留以备未来恢复 hover 入口）。
 // 约定：如果项目存在 kits/<cardId>/，则一并打包；否则回退到只打 HTML
 async function downloadCardKit(d, btn){
-  // 卡片 id：去掉前缀 'd-' 作为 kit slug，例如 d-a-record → a-record
-  const slug = (d.id||'').replace(/^d-/, '') || (d.styleLock || 'card');
+  // 卡片 slug：优先 styleLock，退化到 id 去掉 'd-' 前缀。
+  const slug = d.styleLock || (d.id||'').replace(/^d-/, '') || 'card';
   const setLoading = (on)=>{
     if(!btn) return;
     const span = btn.querySelector('span');
