@@ -484,39 +484,75 @@
 </div>
 
 <script src="./templates.js?v=20260512-mercury5"></script>
-<script src="./marginalia-doc.js?v=202605161457"></script>
-<script src="./lucid-drift-doc.js"></script>
-<script src="./chronicles-doc.js"></script>
-<script src="./hardware-console-doc.js"></script>
-<script src="./weaverine-doc.js"></script>
-<script src="./pocket-terminal-doc.js"></script>
-<script src="./anomaly-signal-doc.js"></script>
-<script src="./dmx-controller-doc.js"></script>
-<script src="./symmetry-ticket-doc.js"></script>
-<script src="./notion-knowledge-doc.js"></script>
-<script src="./chainx-dashboard-doc.js"></script>
-<script src="./nathan-smith-doc.js"></script>
-<script src="./lorenzo-daldosso-doc.js"></script>
-<script src="./carrot-tech-doc.js"></script>
-<script src="./superhi-plus-doc.js?v=202605161457"></script>
-<script src="./a-record-doc.js"></script>
-<script src="./vercel-deploy-doc.js"></script>
-<script src="./book-gallery-3d-doc.js"></script>
-<script src="./delphi-three-doc.js"></script>
-<script src="./webgl-magazine-doc.js?v=202605161457"></script>
-<script src="./pixel-gooey-tooltip-doc.js"></script>
-<script src="./skeleton-fluid-reveal-doc.js?v=202605151348"></script>
-<script src="./card-beam-animation-doc.js"></script>
-<!-- flip-horizontal-lenis removed -->
-<script src="./pixel-transition-doc.js"></script>
-<script src="./makeway-grid-effect-doc.js"></script>
-<script src="./text-repetition-effect-doc.js"></script>
-<script src="./cinematic-3d-scroll-doc.js?v=202605161250"></script>
-<script src="./scroll-3d-grid-doc.js"></script>
-<script src="./gpu-io-fluid-doc.js"></script>
-<script src="./glitch-perspective-doc.js"></script>
-<!-- mono-x7 removed -->
-<!-- lumi removed -->
+<!--
+  Tier 1 manifest 化（2026-05-16）：原本这里有 33 个同步 <script src="*-doc.js">
+  共 ~534KB JS 在首屏 parse 阶段阻塞，把 TTFB→Interactive 拖到 1.5-3s。
+  现在改为：
+    1) build 时把所有 _DOC 字符串提取到 cards/<slug>.html（参见 tools/build-cards.cjs）
+    2) 启动时只 fetch ~3KB 的 cards/manifest.json
+    3) iframe 真正进入视口才 fetch 单个卡片 HTML 注入 srcdoc
+  产品定义不变：所有动态预览仍然同时存在并在视口内动起来；离屏卡片继续走
+  pause/resume 节流。下方 __cardLoader 是这个机制的全部前端代码。
+-->
+<script>
+window.__cardLoader = (function(){
+  // KEY → slug（启动时 fetch manifest.json 填充）
+  var keyToSlug = Object.create(null);
+  // KEY → Promise<html>（in-flight + 已完成的 fetch 结果缓存，避免重复请求）
+  var pending = Object.create(null);
+  // KEY → html string（小卡命中后直接同步返回）
+  var cache = Object.create(null);
+
+  // manifest 启动 promise，所有 ensureDoc 调用都先 await 这一个
+  var manifestPromise = fetch('./cards/manifest.json', { cache:'no-cache' })
+    .then(function(r){ if(!r.ok) throw new Error('manifest http '+r.status); return r.json(); })
+    .then(function(j){ keyToSlug = (j && j.keys) || {}; return keyToSlug; })
+    .catch(function(err){ console.error('[cardLoader] manifest failed:', err); return {}; });
+
+  // LAZY 标记：在 design.doc 字段里以字符串形式占位，drainFrameQueue 在
+  // 注入 iframe 之前会识别并 await ensureDoc(key) 拿到真实 HTML。
+  var LAZY_PREFIX = '__LAZY__:';
+  function lazy(key){ return LAZY_PREFIX + key; }
+  function isLazy(v){ return typeof v === 'string' && v.indexOf(LAZY_PREFIX) === 0; }
+  function keyOf(v){ return isLazy(v) ? v.slice(LAZY_PREFIX.length) : null; }
+
+  // 拉取单张卡片 HTML（带缓存 + in-flight dedupe）。
+  function ensureDoc(key){
+    if(cache[key]) return Promise.resolve(cache[key]);
+    if(pending[key]) return pending[key];
+    pending[key] = manifestPromise.then(function(){
+      var slug = keyToSlug[key];
+      if(!slug){
+        console.warn('[cardLoader] unknown key:', key);
+        return '';
+      }
+      return fetch('./cards/' + slug + '.html', { cache:'no-cache' })
+        .then(function(r){ if(!r.ok) throw new Error('card http '+r.status+' '+slug); return r.text(); })
+        .then(function(txt){ cache[key] = txt; delete pending[key]; return txt; })
+        .catch(function(err){
+          console.error('[cardLoader] fetch card failed:', key, err);
+          delete pending[key];
+          return '';
+        });
+    });
+    return pending[key];
+  }
+
+  // 同步取已加载的（用于 export / saved 场景，能拿就拿）
+  function getCached(key){ return cache[key] || ''; }
+
+  return { lazy:lazy, isLazy:isLazy, keyOf:keyOf, ensureDoc:ensureDoc, getCached:getCached };
+})();
+
+// 兼容旧调用：把 lazy 标记 → 真实 HTML（异步）。如果传入的本身就是 HTML 字面量，
+// 同步返回；如果是 lazy 标记，返回 Promise<string>。调用方用 Promise.resolve 包裹即可统一处理。
+window.resolveDoc = function(doc){
+  var L = window.__cardLoader;
+  if(!L) return doc || '';
+  if(L.isLazy(doc)) return L.ensureDoc(L.keyOf(doc));
+  return doc || '';
+};
+</script>
 <script>
 const STYLES = window.VARIANT_STYLES;
 const TEMPLATES = window.VARIANT_TEMPLATES;
@@ -650,15 +686,29 @@ function _drainFrameQueue(){
     frame.addEventListener('load', finish, { once: true });
     // 兜底：N 秒后无论是否触发 load，都释放槽位继续下一张（重资源卡走这条）
     setTimeout(finish, FRAME_LOAD_TIMEOUT_MS);
-    try{ frame.srcdoc = frame.__doc || ''; }catch(_){ finish(); continue; }
-    frame.__loaded = true;
-    // 注意：不要在这里隐藏 preview 占位层！srcdoc 刚赋值时 iframe 内部文档
-    // 还没首次 paint，白底 UA stylesheet 会暴露一帧造成「闪白」。
-    // 但也不能等 iframe 'load'：重资源卡（fluid sim / 3D grid）的 load 要
-    // 等所有子资源拉完，可能 5-30s，期间内容其实已经在画但被 overlay 盖住。
-    // 折中：1200ms 后无条件淡出 overlay。如果 'load' 提前来了由 makeCardEl
-    // 里的 'load' 监听器先撤；两条路径都通过 _hideCardPreview 幂等。
-    setTimeout(function(){ _hideCardPreview(frame); }, 1200);
+
+    // ─── Tier 1 manifest 化：__doc 现在可能是 lazy 标记 (__LAZY__:KEY) ───
+    // 命中 lazy 时先 fetch HTML 文本再注入；未命中（用户生成卡 / 已是字面 HTML）走旧路径。
+    var loader = window.__cardLoader;
+    var rawDoc = frame.__doc || '';
+    var pauseScript = frame.__pauseScript || '';
+    var inject = function(html){
+      if(!html){ finish(); return; }
+      var withPause = pauseScript ? html.replace(/<\/head>/i, pauseScript + '</head>') : html;
+      try{ frame.srcdoc = withPause; }catch(_){ finish(); return; }
+      frame.__loaded = true;
+      // 注意：不要在这里立刻同步隐藏 preview 占位层！srcdoc 刚赋值时 iframe 内部
+      // 文档还没首次 paint，UA 默认白底会暴露一帧。重资源卡的 'load' 也可能 5-30s
+      // 才 fire（要等所有子资源），所以折中 1200ms 后无条件淡出 overlay。
+      setTimeout(function(){ _hideCardPreview(frame); }, 1200);
+    };
+    if(loader && loader.isLazy(rawDoc)){
+      var key = loader.keyOf(rawDoc);
+      // 异步 fetch；fetch 完成前不会触发 iframe load，所以兜底超时仍然在跑
+      loader.ensureDoc(key).then(inject, function(){ finish(); });
+    } else {
+      inject(rawDoc);
+    }
   }
 }
 // 幂等淡出 preview 占位层。多入口调用安全（load 事件 + drain 队列兜底定时器）。
@@ -754,7 +804,10 @@ function makeCardEl(d){
   // stub srcdoc。之前 stub 触发的额外 load 事件会和 _drainFrameQueue 的
   // {once:true} 监听器产生时序竞态，导致部分卡片永远不淡出占位层。
   const pauseScript = '<script>var __paused=false,__rafId=0;var __origRAF=window.requestAnimationFrame;window.requestAnimationFrame=function(cb){if(__paused){__rafId=0;return 0}return __origRAF.call(window,cb)};window.addEventListener("message",function(e){if(e.data&&e.data.type==="pause"){__paused=true;if(__rafId)cancelAnimationFrame(__rafId)}if(e.data&&e.data.type==="resume"){__paused=false;__origRAF.call(window,function(){})}});<\/script>';
-  frame.__doc = (d.doc || '').replace(/<\/head>/i, pauseScript + '</head>');
+  // Tier 1 manifest 化：d.doc 可能是 lazy 标记（'__LAZY__:KEY'），交给 _drainFrameQueue 异步解析
+  // + 注入 pauseScript。frame.__pauseScript 由 _drainFrameQueue 在拿到 HTML 后做 head 注入。
+  frame.__doc = d.doc || '';
+  frame.__pauseScript = pauseScript;
   frame.__loaded = false;
   card.appendChild(frame);
 
@@ -1029,7 +1082,10 @@ function openDetail(d, opts){
     frame.removeAttribute('src');
     // iframe 内部 html/body 默认白底 → 透出纯黑宿主，去掉 dashboard 外圈白细线
     const reset = '<style>html,body{background:transparent !important;margin:0;padding:0}</style>';
-    frame.srcdoc = reset + d.doc;
+    // Tier 1：d.doc 可能是 lazy 标记，统一走 resolveDoc 拿到 HTML
+    Promise.resolve(resolveDoc(d.doc)).then(function(html){
+      frame.srcdoc = reset + (html || '');
+    });
   detailView.classList.add('open');
   detailView.setAttribute('aria-hidden','false');
   document.body.classList.add('is-detail');
@@ -1075,7 +1131,11 @@ window.addEventListener('popstate', ()=>{
 
 document.getElementById('dCopy').addEventListener('click', async ()=>{
   if(!currentDesign) return;
-  try{ await navigator.clipboard.writeText(currentDesign.doc); flash(tr('copied')); }catch(e){ flash(tr('copyFailed')); }
+  try{
+    const html = await Promise.resolve(resolveDoc(currentDesign.doc));
+    await navigator.clipboard.writeText(html || '');
+    flash(tr('copied'));
+  }catch(e){ flash(tr('copyFailed')); }
 });
 document.getElementById('dSave').addEventListener('click', ()=>{
   if(!currentDesign) return;
@@ -1101,14 +1161,22 @@ document.getElementById('dMore').addEventListener('click', ()=>{
 });
 
 function toggleSave(d, btn){
-  if(savedMap.has(d.id)) savedMap.delete(d.id);
-  else savedMap.set(d.id, { id:d.id, title:d.title, styleLabel:d.styleLabel, doc:d.doc, height:d.height });
-  localStorage.setItem('variant_saved', JSON.stringify([...savedMap.entries()]));
-  document.querySelectorAll('.card[data-id="'+d.id+'"] [data-act=save]').forEach(b=>{
-    if(savedMap.has(d.id)) b.classList.add('saved'); else b.classList.remove('saved');
+  if(savedMap.has(d.id)){
+    savedMap.delete(d.id);
+    localStorage.setItem('variant_saved', JSON.stringify([...savedMap.entries()]));
+    document.querySelectorAll('.card[data-id="'+d.id+'"] [data-act=save]').forEach(b=>{ b.classList.remove('saved'); });
+    syncSaveIcons(d.id);
+    renderSavedPanel();
+    return;
+  }
+  // 新增收藏：lazy 卡片要先 fetch 真实 HTML，否则 saved panel 缩略图会拿不到内容
+  Promise.resolve(resolveDoc(d.doc)).then(function(html){
+    savedMap.set(d.id, { id:d.id, title:d.title, styleLabel:d.styleLabel, doc:html||'', height:d.height });
+    localStorage.setItem('variant_saved', JSON.stringify([...savedMap.entries()]));
+    document.querySelectorAll('.card[data-id="'+d.id+'"] [data-act=save]').forEach(b=>{ b.classList.add('saved'); });
+    syncSaveIcons(d.id);
+    renderSavedPanel();
   });
-  syncSaveIcons(d.id);
-  renderSavedPanel();
 }
 
 // 右上角 hover 操作组：收藏切换（含图标填充、pop 动画、同步底部按钮 & 收藏面板）
@@ -1165,8 +1233,9 @@ async function copyCardCode(d, btn){
       }
     }
     if(!code && d.doc){
-      // 回退到 srcdoc 字符串
-      code = String(d.doc);
+      // 回退到 srcdoc 字符串（Tier 1：lazy 标记会被 resolveDoc 解析为真实 HTML）
+      const resolved = await Promise.resolve(resolveDoc(d.doc));
+      code = String(resolved || '');
       label = d.id + ' (srcdoc)';
     }
     if(!code){ throw new Error('no source'); }
@@ -1269,7 +1338,11 @@ async function downloadCardKit(d, btn){
         if(r.ok) html = await r.text();
       }catch(_){}
     }
-    if(!html && d.doc) html = String(d.doc);
+    if(!html && d.doc){
+      // Tier 1：lazy 标记走 resolveDoc 拉取
+      const resolved = await Promise.resolve(resolveDoc(d.doc));
+      html = String(resolved || '');
+    }
 
     // ② 探测 kits/<slug>/ 目录是否存在 design-system 文件
     const kitBase = './kits/' + slug + '/';
@@ -1359,17 +1432,21 @@ async function downloadCardKit(d, btn){
 }
 
 function toggleFeatured(d, btn, cardEl){
+  const wasOn = featuredMap.has(d.id);
   if(wasOn){
     featuredMap.delete(d.id);
   } else {
-    // 持久化完整 doc 以便刷新后复原
-    featuredMap.set(d.id, {
-      id:d.id, title:d.title, styleLabel:d.styleLabel, styleId:d.styleId,
-      sref:d.sref, prompt:d.prompt, doc:d.doc, height:d.height,
-      ts: Date.now()
+    // 持久化完整 doc 以便刷新后复原（lazy 标记走 resolveDoc 拿真实 HTML）
+    Promise.resolve(resolveDoc(d.doc)).then(function(html){
+      featuredMap.set(d.id, {
+        id:d.id, title:d.title, styleLabel:d.styleLabel, styleId:d.styleId,
+        sref:d.sref, prompt:d.prompt, doc:html||'', height:d.height,
+        ts: Date.now()
+      });
+      localStorage.setItem('variant_featured', JSON.stringify([...featuredMap.entries()]));
     });
   }
-  localStorage.setItem('variant_featured', JSON.stringify([...featuredMap.entries()]));
+  if(wasOn) localStorage.setItem('variant_featured', JSON.stringify([...featuredMap.entries()]));
 
   // 更新所有同 id 卡片的按钮态
   document.querySelectorAll('.card[data-id="'+d.id+'"]').forEach(c=>{
@@ -1630,7 +1707,7 @@ function buildPinnedFor(styleId, headlineFallback){
     firstBatch.push({
       id:'d-a-record', styleId:'a-record', styleLabel:'Warm audio dashboard', sref:'a-record-pin', prompt:'a.Record warm minimal vocal tracking dashboard', pinned:true,
       title:'a.Record · Vocal tracking', height:720, styleLock:'a-record',
-      doc: (typeof A_RECORD_DOC !== 'undefined') ? A_RECORD_DOC : '', externalUrl:'a-record.html'
+      doc: window.__cardLoader.lazy('A_RECORD_DOC'), externalUrl:'a-record.html'
     });
   } catch(_){}
   // Vercel Deploy — frontend cloud overview (Geist + shadow-as-border)
@@ -1638,7 +1715,7 @@ function buildPinnedFor(styleId, headlineFallback){
     firstBatch.push({
       id:'d-vercel-deploy', styleId:'vercel-deploy', styleLabel:'Vercel · Frontend cloud', sref:'vercel-deploy-pin', prompt:'Vercel deploy dashboard with Geist typography, shadow-as-border, three-step pipeline', pinned:true,
       title:'Vercel · Ship at the speed of thought', height:720, styleLock:'vercel-deploy',
-      doc: (typeof VERCEL_DEPLOY_DOC !== 'undefined') ? VERCEL_DEPLOY_DOC : '', externalUrl:'vercel-deploy.html'
+      doc: window.__cardLoader.lazy('VERCEL_DEPLOY_DOC'), externalUrl:'vercel-deploy.html'
     });
   } catch(_){}
   // Glyph OS removed (2026-05-16) — overlaps with Nothing System dashboard, kept only Nothing as the canonical pixel-desktop sample.
@@ -1647,7 +1724,7 @@ function buildPinnedFor(styleId, headlineFallback){
     firstBatch.push({
       id:'d-book-gallery-3d', styleId:'book-gallery-3d', styleLabel:'3D page flip', sref:'codepen-rnraxwz', prompt:'CodePen RNRaXwZ 3D book gallery page flip', pinned:true,
       title:'Book Gallery · 3D page flip', height:720, styleLock:'book-gallery-3d',
-      doc: (typeof BOOK_GALLERY_3D_DOC !== 'undefined') ? BOOK_GALLERY_3D_DOC : '', externalUrl:'book-gallery-3d.html'
+      doc: window.__cardLoader.lazy('BOOK_GALLERY_3D_DOC'), externalUrl:'book-gallery-3d.html'
     });
   } catch(_){}
   // Delphi — Three.js infinite perspective tunnel
@@ -1655,7 +1732,7 @@ function buildPinnedFor(styleId, headlineFallback){
     firstBatch.push({
       id:'d-delphi-three', styleId:'delphi-three', styleLabel:'Three.js tunnel', sref:'delphi-three-pin', prompt:'Delphi Three clone yourself infinite 3D perspective grid tunnel', pinned:true,
       title:'Delphi · Clone yourself', height:720, styleLock:'delphi-three',
-      doc: (typeof DELPHI_THREE_DOC !== 'undefined') ? DELPHI_THREE_DOC : '', externalUrl:'delphi-three.html'
+      doc: window.__cardLoader.lazy('DELPHI_THREE_DOC'), externalUrl:'delphi-three.html'
     });
   } catch(_){}
   // WebGL Magazine — source-based WebGL magazine carousel
@@ -1663,7 +1740,7 @@ function buildPinnedFor(styleId, headlineFallback){
     firstBatch.push({
       id:'d-webgl-magazine', styleId:'webgl-magazine', styleLabel:'WebGL magazine', sref:'webgl-magazine-pin', prompt:'J0SUKE WebGL Magazine infinite shader magazine carousel', pinned:true,
       title:'WebGL Magazine · Infinite spread', height:720, styleLock:'webgl-magazine',
-      doc: (typeof WEBGL_MAGAZINE_DOC !== 'undefined') ? WEBGL_MAGAZINE_DOC : '', externalUrl:'webgl-magazine.html'
+      doc: window.__cardLoader.lazy('WEBGL_MAGAZINE_DOC'), externalUrl:'webgl-magazine.html'
     });
   } catch(_){}
   // Pixel Gooey Tooltip — Codrops segmented tooltip animation
@@ -1671,7 +1748,7 @@ function buildPinnedFor(styleId, headlineFallback){
     firstBatch.push({
       id:'d-pixel-gooey-tooltip', styleId:'pixel-gooey-tooltip', styleLabel:'Pixel tooltip', sref:'codrops-pixel-gooey', prompt:'Codrops segmented pixel gooey tooltip animation', pinned:true,
       title:'Pixel Gooey Tooltip · Segmented animation', height:720, styleLock:'pixel-gooey-tooltip',
-      doc: (typeof PIXEL_GOOEY_TOOLTIP_DOC !== 'undefined') ? PIXEL_GOOEY_TOOLTIP_DOC : '', externalUrl:'pixel-gooey-tooltip.html'
+      doc: window.__cardLoader.lazy('PIXEL_GOOEY_TOOLTIP_DOC'), externalUrl:'pixel-gooey-tooltip.html'
     });
   } catch(_){}
   // Skeleton Fluid Reveal — Codrops WebGPU x-ray fluid reveal
@@ -1679,7 +1756,7 @@ function buildPinnedFor(styleId, headlineFallback){
     firstBatch.push({
       id:'d-skeleton-fluid-reveal', styleId:'skeleton-fluid-reveal', styleLabel:'WebGPU x-ray', sref:'codrops-skeleton-fluid', prompt:'Codrops Skeleton Fluid Reveal WebGPU x-ray fluid CRT effect', pinned:true,
       title:'Skeleton Fluid Reveal · X-ray', height:720, styleLock:'skeleton-fluid-reveal',
-      doc: (typeof SKELETON_FLUID_REVEAL_DOC !== 'undefined') ? SKELETON_FLUID_REVEAL_DOC : '', externalUrl:'skeleton-fluid-reveal.html'
+      doc: window.__cardLoader.lazy('SKELETON_FLUID_REVEAL_DOC'), externalUrl:'skeleton-fluid-reveal.html'
     });
   } catch(_){}
   // Card Beam Animation — Evervault-style scanner card stream
@@ -1687,7 +1764,7 @@ function buildPinnedFor(styleId, headlineFallback){
     firstBatch.push({
       id:'d-card-beam-animation', styleId:'card-beam-animation', styleLabel:'Scanner cards', sref:'codepen-xbwaqxE', prompt:'CodePen blacklead studio Card Beam Animation Evervault scanner cards', pinned:true,
       title:'Card Beam Animation · Scanner stream', height:720, styleLock:'card-beam-animation',
-      doc: (typeof CARD_BEAM_ANIMATION_DOC !== 'undefined') ? CARD_BEAM_ANIMATION_DOC : '', externalUrl:'card-beam-animation.html'
+      doc: window.__cardLoader.lazy('CARD_BEAM_ANIMATION_DOC'), externalUrl:'card-beam-animation.html'
     });
   } catch(_){}
   // Flip Horizontal Lenis — removed (superseded by Pixel Transition request)
@@ -1696,7 +1773,7 @@ function buildPinnedFor(styleId, headlineFallback){
     firstBatch.push({
       id:'d-pixel-transition', styleId:'pixel-transition', styleLabel:'Pixel transition', sref:'codrops-pixel-transition', prompt:'Codrops Pixel Transition grid overlay page transition', pinned:true,
       title:'Pixel Transition · Grid reveal', height:720, styleLock:'pixel-transition',
-      doc: (typeof PIXEL_TRANSITION_DOC !== 'undefined') ? PIXEL_TRANSITION_DOC : '', externalUrl:'pixel-transition.html'
+      doc: window.__cardLoader.lazy('PIXEL_TRANSITION_DOC'), externalUrl:'pixel-transition.html'
     });
   } catch(_){}
   // Make Way Grid — Codrops adjoining grid expansion effect
@@ -1704,7 +1781,7 @@ function buildPinnedFor(styleId, headlineFallback){
     firstBatch.push({
       id:'d-makeway-grid-effect', styleId:'makeway-grid-effect', styleLabel:'Make-way grid', sref:'codrops-makeway-grid', prompt:'Codrops Make Way Grid Effect adjoining items expand selected grid image', pinned:true,
       title:'Make Way Grid · Expanding cells', height:720, styleLock:'makeway-grid-effect',
-      doc: (typeof MAKEWAY_GRID_EFFECT_DOC !== 'undefined') ? MAKEWAY_GRID_EFFECT_DOC : '', externalUrl:'makeway-grid-effect.html'
+      doc: window.__cardLoader.lazy('MAKEWAY_GRID_EFFECT_DOC'), externalUrl:'makeway-grid-effect.html'
     });
   } catch(_){}
   // Text Repetition — Codrops scroll-driven repeated typography
@@ -1712,7 +1789,7 @@ function buildPinnedFor(styleId, headlineFallback){
     firstBatch.push({
       id:'d-text-repetition-effect', styleId:'text-repetition-effect', styleLabel:'Text repetition', sref:'codrops-text-repetition', prompt:'Codrops Text Repetition scroll effect repeated large typography', pinned:true,
       title:'Text Repetition · Scroll typography', height:720, styleLock:'text-repetition-effect',
-      doc: (typeof TEXT_REPETITION_EFFECT_DOC !== 'undefined') ? TEXT_REPETITION_EFFECT_DOC : '', externalUrl:'text-repetition-effect.html'
+      doc: window.__cardLoader.lazy('TEXT_REPETITION_EFFECT_DOC'), externalUrl:'text-repetition-effect.html'
     });
   } catch(_){}
   // Cinematic 3D Scroll — Codrops GSAP/OGL cylinder carousel
@@ -1720,7 +1797,7 @@ function buildPinnedFor(styleId, headlineFallback){
     firstBatch.push({
       id:'d-cinematic-3d-scroll', styleId:'cinematic-3d-scroll', styleLabel:'Cinematic 3D', sref:'codrops-cinematic-3d-scroll', prompt:'Codrops Cinematic 3D Scroll GSAP OGL cylinder carousel particles', pinned:true,
       title:'Cinematic 3D Scroll · Cylinder', height:720, styleLock:'cinematic-3d-scroll',
-      doc: (typeof CINEMATIC_3D_SCROLL_DOC !== 'undefined') ? CINEMATIC_3D_SCROLL_DOC : '', externalUrl:'cinematic-3d-scroll.html'
+      doc: window.__cardLoader.lazy('CINEMATIC_3D_SCROLL_DOC'), externalUrl:'cinematic-3d-scroll.html'
     });
   } catch(_){}
   // Scroll 3D Grid — Codrops perspective image grids
@@ -1728,7 +1805,7 @@ function buildPinnedFor(styleId, headlineFallback){
     firstBatch.push({
       id:'d-scroll-3d-grid', styleId:'scroll-3d-grid', styleLabel:'3D scroll grid', sref:'codrops-scroll-3d-grid', prompt:'Codrops On-Scroll 3D Grid Animations perspective image grids', pinned:true,
       title:'Scroll 3D Grid · Perspective', height:720, styleLock:'scroll-3d-grid',
-      doc: (typeof SCROLL_3D_GRID_DOC !== 'undefined') ? SCROLL_3D_GRID_DOC : '', externalUrl:'scroll-3d-grid.html'
+      doc: window.__cardLoader.lazy('SCROLL_3D_GRID_DOC'), externalUrl:'scroll-3d-grid.html'
     });
   } catch(_){}
   // GPU IO Fluid — Amanda Ghassaei WebGL fluid simulation
@@ -1736,7 +1813,7 @@ function buildPinnedFor(styleId, headlineFallback){
     firstBatch.push({
       id:'d-gpu-io-fluid', styleId:'gpu-io-fluid', styleLabel:'GPU fluid sim', sref:'gpu-io-fluid', prompt:'Amanda Ghassaei GPU IO fluid simulation particles velocity pressure WebGL', pinned:true,
       title:'GPU IO · Fluid simulation', height:720, styleLock:'gpu-io-fluid',
-      doc: (typeof GPU_IO_FLUID_DOC !== 'undefined') ? GPU_IO_FLUID_DOC : '', externalUrl:'gpu-io-fluid.html'
+      doc: window.__cardLoader.lazy('GPU_IO_FLUID_DOC'), externalUrl:'gpu-io-fluid.html'
     });
   } catch(_){}
   // Glitch Perspective — Codrops 3D pixel glitch hover
@@ -1744,7 +1821,7 @@ function buildPinnedFor(styleId, headlineFallback){
     firstBatch.push({
       id:'d-glitch-perspective', styleId:'glitch-perspective', styleLabel:'3D glitch hover', sref:'codrops-glitch-perspective', prompt:'Codrops 3D Perspective Glitch Hover Effect pixel art perspective cards', pinned:true,
       title:'Glitch Perspective · Pixel hover', height:720, styleLock:'glitch-perspective',
-      doc: (typeof GLITCH_PERSPECTIVE_DOC !== 'undefined') ? GLITCH_PERSPECTIVE_DOC : '', externalUrl:'glitch-perspective.html'
+      doc: window.__cardLoader.lazy('GLITCH_PERSPECTIVE_DOC'), externalUrl:'glitch-perspective.html'
     });
   } catch(_){}
   // Marginalia — warm editorial microsite (live 1100x720 thumbnail)
@@ -1752,7 +1829,7 @@ function buildPinnedFor(styleId, headlineFallback){
     firstBatch.push({
       id:'d-marginalia', styleId:'editorial', styleLabel:'Marginalia warm', sref:'marginalia-pin', prompt:'For cosy days', pinned:true,
       title:'Marginalia · For cosy days', height:720, styleLock:'marginalia',
-      doc: (typeof MARGINALIA_DOC !== 'undefined') ? MARGINALIA_DOC : '', externalUrl:'marginalia.html'
+      doc: window.__cardLoader.lazy('MARGINALIA_DOC'), externalUrl:'marginalia.html'
     });
   } catch(_){}
   // Lucid Drift — WebGL shader weather card (live shader in thumbnail)
@@ -1760,7 +1837,7 @@ function buildPinnedFor(styleId, headlineFallback){
     firstBatch.push({
       id:'d-lucid-drift', styleId:'pastel', styleLabel:'Lucid Drift', sref:'lucid-drift-pin', prompt:'Lucid Drift', pinned:true,
       title:'Lucid Drift · Atmospheric Swell', height:720, styleLock:'lucid-drift',
-      doc: (typeof LUCID_DRIFT_DOC !== 'undefined') ? LUCID_DRIFT_DOC : '', externalUrl:'lucid-drift.html'
+      doc: window.__cardLoader.lazy('LUCID_DRIFT_DOC'), externalUrl:'lucid-drift.html'
     });
   } catch(_){}
   // Chronicles of Solitude — 水墨画卷卡片
@@ -1768,7 +1845,7 @@ function buildPinnedFor(styleId, headlineFallback){
     firstBatch.push({
       id:'d-chronicles', styleId:'ink-scroll', styleLabel:'Ink scroll', sref:'chronicles-pin', prompt:'天地蜉蝣，沧海一粟', pinned:true,
       title:'Chronicles of Solitude · 沧海一粟', height:720, styleLock:'chronicles',
-      doc: (typeof CHRONICLES_DOC !== 'undefined' && CHRONICLES_DOC) ? CHRONICLES_DOC : '', externalUrl:'chronicles-solitude.html'
+      doc: window.__cardLoader.lazy('CHRONICLES_DOC'), externalUrl:'chronicles-solitude.html'
     });
   } catch(_){}
   // Hardware Console — Meteorological digital sys
@@ -1776,7 +1853,7 @@ function buildPinnedFor(styleId, headlineFallback){
     firstBatch.push({
       id:'d-hardware-console', styleId:'hardware-console', styleLabel:'Hardware console', sref:'hardware-console-pin', prompt:'Meteorological digital sys', pinned:true,
       title:'Meteorological Digital SYS · Tokyo', height:720, styleLock:'hardware-console',
-      doc: (typeof HARDWARE_CONSOLE_DOC !== 'undefined') ? HARDWARE_CONSOLE_DOC : '', externalUrl:'hardware-console.html'
+      doc: window.__cardLoader.lazy('HARDWARE_CONSOLE_DOC'), externalUrl:'hardware-console.html'
     });
   } catch(_){}
   // Weaverine — industrial editorial landing page
@@ -1784,7 +1861,7 @@ function buildPinnedFor(styleId, headlineFallback){
     firstBatch.push({
       id:'d-weaverine', styleId:'industrial-editorial', styleLabel:'Industrial editorial', sref:'weaverine-pin', prompt:'Precision crafted polyester textiles', pinned:true,
       title:'Weaverine · Precision crafted textiles', height:720, styleLock:'weaverine',
-      doc: (typeof WEAVERINE_DOC !== 'undefined') ? WEAVERINE_DOC : '', externalUrl:'weaverine-textiles.html'
+      doc: window.__cardLoader.lazy('WEAVERINE_DOC'), externalUrl:'weaverine-textiles.html'
     });
   } catch(_){}
   // NeuroLink — pocket terminal hardware
@@ -1792,7 +1869,7 @@ function buildPinnedFor(styleId, headlineFallback){
     firstBatch.push({
       id:'d-pocket-terminal', styleId:'pocket-terminal', styleLabel:'Pocket terminal', sref:'pocket-terminal-pin', prompt:'NeuroLink pocket terminal', pinned:true,
       title:'NeuroLink Pocket Terminal', height:720, styleLock:'pocket-terminal',
-      doc: (typeof POCKET_TERMINAL_DOC !== 'undefined') ? POCKET_TERMINAL_DOC : '', externalUrl:'pocket-terminal.html'
+      doc: window.__cardLoader.lazy('POCKET_TERMINAL_DOC'), externalUrl:'pocket-terminal.html'
     });
   } catch(_){}
   // ANOMALY — generative oscilloscope signal field
@@ -1800,7 +1877,7 @@ function buildPinnedFor(styleId, headlineFallback){
     firstBatch.push({
       id:'d-anomaly-signal', styleId:'anomaly-signal', styleLabel:'Signal field', sref:'anomaly-signal-pin', prompt:'ANOMALY signal interference field', pinned:true,
       title:'ANOMALY · Signal interference field', height:720, styleLock:'anomaly-signal',
-      doc: (typeof ANOMALY_SIGNAL_DOC !== 'undefined') ? ANOMALY_SIGNAL_DOC : '', externalUrl:'anomaly-signal.html'
+      doc: window.__cardLoader.lazy('ANOMALY_SIGNAL_DOC'), externalUrl:'anomaly-signal.html'
     });
   } catch(_){}
   // DMX Field Controller — lighting console surface
@@ -1808,7 +1885,7 @@ function buildPinnedFor(styleId, headlineFallback){
     firstBatch.push({
       id:'d-dmx-controller', styleId:'dmx-controller', styleLabel:'DMX controller', sref:'dmx-controller-pin', prompt:'DMX Field lighting controller', pinned:true,
       title:'DMX Field Controller', height:720, styleLock:'dmx-controller',
-      doc: (typeof DMX_CONTROLLER_DOC !== 'undefined') ? DMX_CONTROLLER_DOC : '', externalUrl:'dmx-controller.html'
+      doc: window.__cardLoader.lazy('DMX_CONTROLLER_DOC'), externalUrl:'dmx-controller.html'
     });
   } catch(_){}
   // Symmetry Breaking — halftone event ticket
@@ -1816,7 +1893,7 @@ function buildPinnedFor(styleId, headlineFallback){
     firstBatch.push({
       id:'d-symmetry-ticket', styleId:'symmetry-ticket', styleLabel:'Halftone ticket', sref:'symmetry-ticket-pin', prompt:'Symmetry Breaking halftone event ticket', pinned:true,
       title:'Symmetry Breaking · Halftone ticket', height:720, styleLock:'symmetry-ticket',
-      doc: (typeof SYMMETRY_TICKET_DOC !== 'undefined') ? SYMMETRY_TICKET_DOC : '', externalUrl:'symmetry-ticket.html'
+      doc: window.__cardLoader.lazy('SYMMETRY_TICKET_DOC'), externalUrl:'symmetry-ticket.html'
     });
   } catch(_){}
   // Notion Knowledge OS — project management and wiki dashboard
@@ -1824,7 +1901,7 @@ function buildPinnedFor(styleId, headlineFallback){
     firstBatch.push({
       id:'d-notion-knowledge', styleId:'notion-knowledge', styleLabel:'Notion knowledge', sref:'notion-knowledge-pin', prompt:'Notion knowledge OS project management dashboard', pinned:true,
       title:'Notion · Knowledge OS', height:720, styleLock:'notion-knowledge',
-      doc: (typeof NOTION_KNOWLEDGE_DOC !== 'undefined') ? NOTION_KNOWLEDGE_DOC : '', externalUrl:'notion-knowledge.html'
+      doc: window.__cardLoader.lazy('NOTION_KNOWLEDGE_DOC'), externalUrl:'notion-knowledge.html'
     });
   } catch(_){}
   // Chainx — stock investment dashboard animation
@@ -1832,7 +1909,7 @@ function buildPinnedFor(styleId, headlineFallback){
     firstBatch.push({
       id:'d-chainx-dashboard', styleId:'chainx-dashboard', styleLabel:'Investment dashboard', sref:'chainx-dashboard-pin', prompt:'Chainx stock investment dashboard', pinned:true,
       title:'Chainx · Stock investment dashboard', height:720, styleLock:'chainx-dashboard',
-      doc: (typeof CHAINX_DASHBOARD_DOC !== 'undefined') ? CHAINX_DASHBOARD_DOC : '', externalUrl:'chainx-dashboard.html'
+      doc: window.__cardLoader.lazy('CHAINX_DASHBOARD_DOC'), externalUrl:'chainx-dashboard.html'
     });
   } catch(_){}
   // Unicorn Image Reveal — removed from inspiration library
@@ -1842,7 +1919,7 @@ function buildPinnedFor(styleId, headlineFallback){
     firstBatch.push({
       id:'d-nathan-smith', styleId:'nathan-smith', styleLabel:'Webflow portfolio', sref:'nathan-smith-pin', prompt:'Nathan Smith interactive Webflow portfolio clone', pinned:true,
       title:'Nathan Smith · Design & Art Direction', height:720, styleLock:'nathan-smith',
-      doc: (typeof NATHAN_SMITH_DOC !== 'undefined') ? NATHAN_SMITH_DOC : '', externalUrl:'nathan-smith.html'
+      doc: window.__cardLoader.lazy('NATHAN_SMITH_DOC'), externalUrl:'nathan-smith.html'
     });
   } catch(_){}
   // Lorenzo Dal Dosso — direct Nuxt typography portfolio mirror
@@ -1850,7 +1927,7 @@ function buildPinnedFor(styleId, headlineFallback){
     firstBatch.push({
       id:'d-lorenzo-daldosso', styleId:'lorenzo-daldosso', styleLabel:'Nuxt typography', sref:'lorenzo-daldosso-pin', prompt:'Lorenzo Dal Dosso IT specialist typography site mirror', pinned:true,
       title:'Lorenzo Dal Dosso · IT Specialist', height:720, styleLock:'lorenzo-daldosso',
-      doc: (typeof LORENZO_DALDOSSO_DOC !== 'undefined') ? LORENZO_DALDOSSO_DOC : '', externalUrl:'lorenzo-daldosso.html'
+      doc: window.__cardLoader.lazy('LORENZO_DALDOSSO_DOC'), externalUrl:'lorenzo-daldosso.html'
     });
   } catch(_){}
   // Carrot — animated SVG morph hero
@@ -1858,7 +1935,7 @@ function buildPinnedFor(styleId, headlineFallback){
     firstBatch.push({
       id:'d-carrot-tech', styleId:'carrot-tech', styleLabel:'Animated SVG', sref:'carrot-tech-pin', prompt:'Carrot circularity gap animated morphing SVG hero', pinned:true,
       title:'Carrot · Circularity gap', height:720, styleLock:'carrot-tech',
-      doc: (typeof CARROT_TECH_DOC !== 'undefined') ? CARROT_TECH_DOC : '', externalUrl:'carrot-tech.html'
+      doc: window.__cardLoader.lazy('CARROT_TECH_DOC'), externalUrl:'carrot-tech.html'
     });
   } catch(_){}
   // SuperHi Plus — direct Next/WebGL ball pool mirror
@@ -1866,7 +1943,7 @@ function buildPinnedFor(styleId, headlineFallback){
     firstBatch.push({
       id:'d-superhi-plus', styleId:'superhi-plus', styleLabel:'WebGL ball pool', sref:'superhi-plus-pin', prompt:'SuperHi Plus direct mirror with WebGL ball pool and blue split layout', pinned:true,
       title:'SuperHi Plus · Cooperative content', height:720, styleLock:'superhi-plus',
-      doc: (typeof SUPERHI_PLUS_DOC !== 'undefined') ? SUPERHI_PLUS_DOC : '', externalUrl:'https://superhi.plus/?ref=godly'
+      doc: window.__cardLoader.lazy('SUPERHI_PLUS_DOC'), externalUrl:'https://superhi.plus/?ref=godly'
     });
   } catch(_){}
   // a.Record — registered earlier (after Mercury) for higher feed position

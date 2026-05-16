@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>DMX Field Controller</title>
+<style>
+  :root{
+    --bg:#eef0f2;
+    --panel:#dedfe1;
+    --panel2:#d3d4d7;
+    --ink:#44464a;
+    --muted:#9a9da2;
+    --screen:#050505;
+    --orange:#ef4b24;
+    --blue:#15314c;
+    --gold:#b99447;
+    --green:#56ff58;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{width:1100px;height:720px;overflow:hidden;background:var(--bg);color:var(--ink);font-family:"SF Mono","JetBrains Mono",ui-monospace,Menlo,monospace;-webkit-font-smoothing:antialiased}
+  body{display:grid;place-items:center}
+  .panel{position:relative;width:960px;height:500px;border-radius:12px;background:linear-gradient(145deg,#e9eaec,#d7d8db 68%,#d0d1d4);border:1px solid rgba(0,0,0,.13);box-shadow:0 38px 84px rgba(0,0,0,.18),0 16px 32px rgba(0,0,0,.12),inset 0 1px 0 rgba(255,255,255,.75),inset 0 -1px 2px rgba(0,0,0,.08);padding:24px;overflow:hidden}
+  .panel::before{content:"";position:absolute;inset:0;background:radial-gradient(70% 70% at 50% 0%,rgba(255,255,255,.45),transparent 58%);pointer-events:none}.left{position:absolute;left:24px;top:24px;width:260px;height:450px}  .speaker{position:absolute;left:0;top:0;width:118px;height:52px;display:grid;grid-template-columns:repeat(12,3px);grid-auto-rows:3px;gap:5px}.speaker i{width:3px;height:3px;border-radius:50%;background:#5d6065;opacity:.72}.mini{position:absolute;top:60px;width:29px;height:29px;border-radius:50%;background:#f4f5f6;box-shadow:0 4px 8px rgba(0,0,0,.18),inset 0 1px 0 rgba(255,255,255,.95),inset 0 -1px 2px rgba(0,0,0,.08)}.mini::after{content:"";position:absolute;left:50%;top:50%;width:8px;height:8px;border-radius:50%;background:#34373b;transform:translate(-50%,-50%)}.mini.one{left:0}.mini.two{left:44px}.mini.two::after{width:10px;height:2px;border-radius:2px;background:#999da3}
+  .display{position:absolute;left:0;top:118px;width:260px;height:132px;border-radius:3px;background:#050505;border:3px solid #080808;box-shadow:inset 0 0 0 1px rgba(255,255,255,.06),inset 0 0 20px rgba(255,90,35,.08),0 2px 6px rgba(0,0,0,.22);overflow:hidden;animation:screenPulse 3.8s ease-in-out infinite}@keyframes screenPulse{0%,100%{filter:brightness(1)}50%{filter:brightness(1.12)}}.display::before{content:"";position:absolute;inset:0;background-image:linear-gradient(rgba(255,90,35,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(255,90,35,.028) 1px,transparent 1px);background-size:16px 16px;opacity:.6}.dmeta{position:absolute;top:12px;left:14px;right:14px;display:flex;justify-content:space-between;font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:#d5d5d5;z-index:2}.waves{position:absolute;left:8px;right:8px;top:36px;height:64px;z-index:2;filter:drop-shadow(0 0 4px rgba(229,83,44,.55))}.scan{stroke-dasharray:230;stroke-dashoffset:230;animation:ecgSweep 2.2s linear infinite}@keyframes ecgSweep{0%{stroke-dashoffset:230;opacity:.2}18%{opacity:1}78%{stroke-dashoffset:0;opacity:1}100%{stroke-dashoffset:0;opacity:.25}}.dfoot{position:absolute;left:14px;right:14px;bottom:12px;display:flex;justify-content:space-between;font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:#d6d6d6;z-index:2}.pages{display:none}.pagebtn{display:none}.rounds{position:absolute;left:0;bottom:0;width:260px;display:grid;grid-template-columns:repeat(4,1fr);gap:24px 18px;justify-items:center}.round{width:50px;height:50px;border-radius:50%;border:0;background:#f3f4f6;color:#4e5258;font-size:13px;box-shadow:0 5px 10px rgba(0,0,0,.18),inset 0 1px 0 rgba(255,255,255,.9),inset 0 -1px 2px rgba(0,0,0,.08)}.round.play{color:var(--orange)}
+  .top-controls{position:absolute;left:324px;top:28px;right:24px;height:112px}.knobs{position:absolute;left:0;top:0;display:grid;grid-template-columns:repeat(4,70px);gap:14px}.knobunit{text-align:center}.knob{position:relative;margin:0 auto;width:46px;height:46px;border-radius:50%;background:#ddd;box-shadow:0 6px 12px rgba(0,0,0,.2),inset 0 2px 4px rgba(255,255,255,.35),inset 0 -4px 8px rgba(0,0,0,.2)}.knob::before{content:"";position:absolute;inset:-9px;border-radius:50%;background:#dedfe2;box-shadow:inset 0 2px 5px rgba(255,255,255,.75),inset 0 -2px 4px rgba(0,0,0,.12);z-index:-1}.knob::after{content:"";position:absolute;inset:6px;border-radius:50%;background:rgba(0,0,0,.1);box-shadow:inset 0 2px 6px rgba(0,0,0,.24),inset 0 -2px 5px rgba(255,255,255,.28)}.knob.blue::after{background:var(--blue)}.knob.gold::after{background:var(--gold)}.knob.gray::after{background:#8b8c8e}.knob.red::after{background:var(--orange)}.klabel{margin-top:15px;font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:#979a9f}.master{position:absolute;right:8px;top:0;text-align:center}.master .ring{width:40px;height:40px;border-radius:50%;background:#f2f3f5;box-shadow:0 4px 8px rgba(0,0,0,.16),inset 0 1px 0 rgba(255,255,255,.95),inset 0 -2px 4px rgba(0,0,0,.1);position:relative}.master .ring::after{content:"";position:absolute;inset:8px;border-radius:50%;border:4px solid #d4d5d8}.master .mlabel{margin-top:12px;font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:#8e9298}.rule{position:absolute;left:0;right:0;bottom:0;height:1px;background:#c4c6ca}
+  .faders{position:absolute;left:324px;right:24px;bottom:26px;height:252px;display:grid;grid-template-columns:repeat(8,1fr);align-items:end}.fader{position:relative;height:242px}.fader .num{position:absolute;top:0;left:50%;transform:translateX(-50%);font-size:10px;color:#9b9ea4}.track{position:absolute;left:50%;top:32px;width:12px;height:170px;border-radius:999px;background:#d0d1d4;transform:translateX(-50%);box-shadow:inset 0 2px 4px rgba(0,0,0,.18),inset 0 -1px 2px rgba(255,255,255,.78)}.track::after{content:"";position:absolute;left:4px;top:8px;bottom:8px;width:4px;border-radius:999px;background:#c0c2c6}.thumb{position:absolute;left:50%;width:36px;height:54px;border-radius:8px;background:#f1f2f4;transform:translateX(-50%);box-shadow:0 7px 13px rgba(0,0,0,.22),inset 0 1px 0 rgba(255,255,255,.95),inset 0 -2px 4px rgba(0,0,0,.1);animation:faderSlide 4.8s ease-in-out infinite}@keyframes faderSlide{0%,100%{top:var(--a)}50%{top:var(--b)}}.thumb::after{content:"";position:absolute;left:10px;right:10px;top:26px;height:2px;border-radius:2px;background:#c8cacf}.led{position:absolute;left:50%;bottom:0;width:34px;height:34px;border-radius:50%;background:#111;transform:translateX(-50%);box-shadow:inset 0 2px 4px rgba(255,255,255,.06),0 4px 8px rgba(0,0,0,.22)}.led::after{content:"";position:absolute;left:50%;top:50%;width:5px;height:5px;border-radius:50%;background:#2d3033;transform:translate(-50%,-50%)}.led.on::after{background:var(--green);box-shadow:0 0 10px var(--green)}.t1{--a:76px;--b:48px;animation-delay:0s}.t2{--a:102px;--b:76px;animation-delay:-.7s}.t3{--a:50px;--b:24px;animation-delay:-1.4s}.t4{--a:162px;--b:128px;animation-delay:-2.1s}.t5{--a:145px;--b:112px;animation-delay:-2.8s}.t6{--a:178px;--b:142px;animation-delay:-3.5s}.t7{--a:86px;--b:58px;animation-delay:-4.2s}.t8{--a:25px;--b:54px;animation-delay:-1.1s}
+</style>
+</head>
+<body>
+<main class="panel" aria-label="DMX Field lighting controller">
+  <section class="left">
+    <div class="speaker"></div><div class="mini one"></div><div class="mini two"></div>
+    <div class="display"><div class="dmeta"><span>DMX-FIELD</span><span>UNI:1 ACTIVE</span></div><svg class="waves" viewBox="0 0 210 64" preserveAspectRatio="none">
+        <path d="M0 36 L28 36 L36 35 L42 37 L49 36 L56 36 L62 20 L68 52 L74 36 L96 36 L104 34 L114 38 L126 36 L142 36 L151 23 L158 50 L165 36 L210 36" fill="none" stroke="#5f6266" stroke-width="1.05" opacity=".42"/>
+        <path class="scan" d="M0 36 L28 36 L36 35 L42 37 L49 36 L56 36 L62 20 L68 52 L74 36 L96 36 L104 34 L114 38 L126 36 L142 36 L151 23 L158 50 L165 36 L210 36" fill="none" stroke="#e5532c" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M0 44 L34 44 L42 43 L51 45 L60 44 L90 44 L98 43 L110 45 L124 44 L170 44 L178 43 L188 45 L210 44" fill="none" stroke="#8f8f8f" stroke-width="1" opacity=".35"/>
+      </svg><div class="dfoot"><span>Wave: ECG</span><span>Sync: live</span></div></div>
+    <div class="rounds"><button class="round">M1</button><button class="round">M2</button><button class="round">rec</button><button class="round play">play</button><button class="round">▶</button><button class="round">■</button><button class="round">loop</button><button class="round">shift</button></div>
+  </section>
+  <section class="top-controls"><div class="knobs"><div class="knobunit"><div class="knob blue"></div><div class="klabel">Pan</div></div><div class="knobunit"><div class="knob gold"></div><div class="klabel">Tilt</div></div><div class="knobunit"><div class="knob gray"></div><div class="klabel">Dimmer</div></div><div class="knobunit"><div class="knob red"></div><div class="klabel">FX rate</div></div></div><div class="master"><div class="ring"></div><div class="mlabel">Master</div></div><div class="rule"></div></section>
+  <section class="faders">
+    <div class="fader"><span class="num">01</span><div class="track"></div><div class="thumb t1"></div><div class="led"></div></div>
+    <div class="fader"><span class="num">02</span><div class="track"></div><div class="thumb t2"></div><div class="led"></div></div>
+    <div class="fader"><span class="num">03</span><div class="track"></div><div class="thumb t3"></div><div class="led"></div></div>
+    <div class="fader"><span class="num">04</span><div class="track"></div><div class="thumb t4"></div><div class="led"></div></div>
+    <div class="fader"><span class="num">05</span><div class="track"></div><div class="thumb t5"></div><div class="led"></div></div>
+    <div class="fader"><span class="num">06</span><div class="track"></div><div class="thumb t6"></div><div class="led"></div></div>
+    <div class="fader"><span class="num">07</span><div class="track"></div><div class="thumb t7"></div><div class="led"></div></div>
+    <div class="fader"><span class="num">08</span><div class="track"></div><div class="thumb t8"></div><div class="led on"></div></div>
+  </section>
+</main>
+<script>document.querySelectorAll('.speaker').forEach(s=>{for(let i=0;i<84;i++){const d=document.createElement('i');s.appendChild(d)}})</script>
+</body>
+</html>
