@@ -409,8 +409,11 @@
   <div class="sentinel" id="sentinel"><span class="dot-loader"><span></span><span></span><span></span></span></div>
 </main>
 
-<!-- 底部浮动 Prompt 条 -->
-<div class="prompt-dock">
+<!-- 底部浮动 Prompt 条
+     2026-05-16 暂时隐藏（karo：用不到，先藏，后面要时再调出）。
+     恢复方式：删除下面 <div class="prompt-dock"> 上的 style="display:none"。
+     注意：DOM 必须保留——多个脚本引用 promptEl / btnGen / srefChip / aiCheckbox。 -->
+<div class="prompt-dock" style="display:none">
   <div class="prompt-wrap">
     <textarea id="prompt" class="prompt-input" data-i18n-ph="promptPh" placeholder="描述你想要的设计…  例如：AI 写作工具的落地页" rows="1"></textarea>
     <div class="prompt-bar">
