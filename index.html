@@ -732,11 +732,20 @@ function _mountDashboardSrcdoc(card){
   f.style.transformOrigin = 'top left';
   f.style.transform = card.__frameTransform || '';
   f.srcdoc = card.__doc || '';
+  var hideDashboardPreview = function(){
+    card.classList.add('is-live');
+    var p = card.__preview;
+    if(p && !p.__hiding){
+      p.__hiding = true;
+      p.classList.add('is-hiding');
+      setTimeout(function(){ if(p.parentNode) p.style.display='none'; }, 320);
+    }
+  };
   f.addEventListener('load', function(){
-    requestAnimationFrame(function(){ requestAnimationFrame(function(){
-      card.classList.add('is-live');
-    });});
+    requestAnimationFrame(function(){ requestAnimationFrame(hideDashboardPreview); });
   });
+  // 兜底：1500ms 后无论 load 是否触发都淡出占位（dashboard 卡内部资源可能拖慢 load）
+  setTimeout(hideDashboardPreview, 1500);
   card.appendChild(f);
   card.__liveFrame = f;
 }
@@ -795,6 +804,12 @@ function makeCardEl(d){
   card.__frameHeight = d.height || 360;
   card.__slug = slug;
 
+  // ─── 占位层先挂上（确保 mount 路径里 card.__preview 已存在） ───
+  const preview = document.createElement('div');
+  preview.className = 'card-preview';
+  preview.innerHTML = '<div class="card-preview-shimmer"></div><div class="card-preview-title">'+(d.title||'Design preview')+'</div><div class="card-preview-sub">'+(d.styleLabel||'Design DNA')+'</div>';
+  card.__preview = preview;
+
   if(HAS_VIDEO_POSTER){
     // Variant 式 feed：默认 video poster loop，浏览器原生动画，CPU 极轻。
     // 跟原 iframe 一样按 1100×<height> 逻辑尺寸渲染，外层 transform scale 缩到列宽，
@@ -825,16 +840,21 @@ function makeCardEl(d){
     f.style.height = card.__frameHeight + 'px';
     if(d.externalUrl) f.src = d.externalUrl;
     else try{ f.srcdoc = d.doc || ''; }catch(_){ }
-    f.addEventListener('load', function(){ card.classList.add('is-live'); });
+    f.addEventListener('load', function(){
+      card.classList.add('is-live');
+      var p = card.__preview;
+      if(p && !p.__hiding){
+        p.__hiding = true;
+        p.classList.add('is-hiding');
+        setTimeout(function(){ if(p.parentNode) p.style.display='none'; }, 320);
+      }
+    });
     card.appendChild(f);
     card.__liveFrame = f;
   }
 
-  const preview = document.createElement('div');
-  preview.className = 'card-preview';
-  preview.innerHTML = '<div class="card-preview-shimmer"></div><div class="card-preview-title">'+(d.title||'Design preview')+'</div><div class="card-preview-sub">'+(d.styleLabel||'Design DNA')+'</div>';
+  // 把占位层挂到 iframe/video 之上
   card.appendChild(preview);
-  card.__preview = preview;
   // video poster 加载后立刻把 shimmer/标题层淡出（不等 6s 全帧）
   if(card.__videoEl){
     var hidePoster = function(){
