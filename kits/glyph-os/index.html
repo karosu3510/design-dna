@@ -1,0 +1,413 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Glyph OS · Design System</title>
+<link rel="stylesheet" href="./design-system.css">
+<style>
+  body{min-height:100vh;background:var(--gl-c-bg);color:var(--gl-c-ink);font-family:var(--gl-font-sans)}
+  .layout{display:grid;grid-template-columns:268px 1fr;min-height:100vh}
+
+  /* Sidebar */
+  .nav{padding:32px 22px;border-right:1px solid var(--gl-c-line);position:sticky;top:0;height:100vh;overflow-y:auto}
+  .nav-brand{display:flex;align-items:center;gap:10px;font-size:15px;font-weight:500;color:var(--gl-c-ink);margin-bottom:6px}
+  .nav-brand .mark{width:18px;height:18px;background:var(--gl-c-ink);position:relative;flex-shrink:0}
+  .nav-brand .mark::after{content:'';position:absolute;left:6px;top:0;width:8px;height:18px;background:var(--gl-c-bg)}
+  .nav-sub{font-family:var(--gl-font-pixel);font-size:13px;color:var(--gl-c-ink-3);letter-spacing:.18em;text-transform:uppercase;margin-bottom:24px}
+
+  .nav-cap{font-family:var(--gl-font-pixel);font-size:12px;font-weight:400;color:var(--gl-c-ink-3);letter-spacing:.18em;text-transform:uppercase;padding:0 10px;margin:18px 0 6px}
+  .nav-link{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:0;font-family:var(--gl-font-pixel);font-size:14px;color:var(--gl-c-ink-3);cursor:pointer;letter-spacing:.04em;transition:background var(--gl-dur-fast) var(--gl-ease-step);text-decoration:none;text-transform:uppercase}
+  .nav-link:hover{background:var(--gl-c-card)}
+  .nav-link.active{background:var(--gl-c-card);color:var(--gl-c-ink)}
+  .nav-link.active::before{content:'›';margin-right:4px;color:var(--gl-c-ok)}
+  .nav-link .num{font-family:var(--gl-font-pixel);font-size:12px;color:var(--gl-c-ink-4);width:22px}
+
+  .download-pill{margin-top:18px;height:36px;width:100%;background:var(--gl-c-ink);color:var(--gl-c-bg);display:inline-flex;align-items:center;justify-content:center;gap:8px;font-family:var(--gl-font-pixel);font-size:14px;border:0;cursor:pointer;letter-spacing:.04em;text-transform:uppercase}
+  .download-pill svg{width:13px;height:13px}
+  .wb-pill{margin-top:8px;height:36px;width:100%;background:var(--gl-c-card);color:var(--gl-c-ink);display:inline-flex;align-items:center;justify-content:center;gap:8px;font-family:var(--gl-font-pixel);font-size:14px;border:1px solid var(--gl-c-line-2);cursor:pointer;letter-spacing:.04em;text-transform:uppercase}
+  .wb-pill:hover{border-color:var(--gl-c-ink-3)}
+  .wb-pill svg{width:13px;height:13px}
+
+  /* Main */
+  main{padding:48px 56px;max-width:1000px}
+  .hero{margin-bottom:36px}
+  .hero h1{font-family:var(--gl-font-pixel);font-size:96px;line-height:1;color:var(--gl-c-ink);letter-spacing:.02em}
+  .hero .lead{margin-top:18px;font-size:14px;color:var(--gl-c-ink-2);max-width:600px;line-height:1.7}
+
+  .panel{margin-bottom:18px}
+  .panel-card{background:var(--gl-c-card);border:1px solid var(--gl-c-line);border-radius:18px;padding:24px 28px}
+  .panel-card h2{font-family:var(--gl-font-pixel);font-size:30px;color:var(--gl-c-ink);letter-spacing:.04em;text-transform:uppercase;margin-bottom:6px}
+  .panel-card h2 .num{color:var(--gl-c-ink-3);margin-right:10px}
+  .panel-card .desc{font-size:13.5px;color:var(--gl-c-ink-3);margin-bottom:18px;line-height:1.6;max-width:680px}
+
+  /* Color swatches */
+  .swatch-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:10px}
+  .swatch{display:flex;flex-direction:column;gap:6px}
+  .swatch .chip{height:64px;border:1px solid var(--gl-c-line-2);position:relative;overflow:hidden}
+  .swatch .name{font-family:var(--gl-font-pixel);font-size:12px;color:var(--gl-c-ink-2);letter-spacing:.06em;text-transform:uppercase}
+  .swatch .hex{font-family:var(--gl-font-pixel);font-size:11.5px;color:var(--gl-c-ink-3)}
+
+  /* Type scale */
+  .type-row{display:flex;align-items:baseline;justify-content:space-between;padding:14px 0;border-top:1px solid var(--gl-c-line)}
+  .type-row:first-child{border-top:0}
+  .type-row .demo{color:var(--gl-c-ink)}
+  .type-row .meta{font-family:var(--gl-font-pixel);font-size:12px;color:var(--gl-c-ink-3);letter-spacing:.04em}
+
+  /* Spacing scale */
+  .sp-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:12px}
+  .sp-cell{background:var(--gl-c-card-2);display:flex;flex-direction:column;align-items:center;padding:14px 6px;gap:8px}
+  .sp-cell .bar{background:var(--gl-c-ink);width:auto;height:6px}
+  .sp-cell .name{font-family:var(--gl-font-pixel);font-size:11px;color:var(--gl-c-ink-3);letter-spacing:.04em}
+
+  /* Component preview */
+  .comp-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .comp{background:var(--gl-c-card);border:1px solid var(--gl-c-line);overflow:hidden}
+  .comp header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--gl-c-line);background:var(--gl-c-card-2)}
+  .comp header b{font-family:var(--gl-font-pixel);font-size:12px;color:var(--gl-c-ink-2);letter-spacing:.16em;text-transform:uppercase;font-weight:400}
+  .comp header a{font-family:var(--gl-font-pixel);font-size:11px;color:var(--gl-c-ink-3);text-decoration:none;letter-spacing:.04em}
+  .comp iframe{width:100%;height:300px;border:0;display:block;background:var(--gl-c-bg)}
+
+  /* Examples */
+  .example{border:1px solid var(--gl-c-line);overflow:hidden}
+  .example header{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--gl-c-line);background:var(--gl-c-card-2)}
+  .example header b{font-family:var(--gl-font-pixel);font-size:13px;font-weight:400;color:var(--gl-c-ink-2);letter-spacing:.16em;text-transform:uppercase}
+  .example header a{font-family:var(--gl-font-pixel);font-size:11.5px;color:var(--gl-c-ink-3);text-decoration:none;letter-spacing:.04em}
+  .example iframe{width:100%;height:720px;border:0;display:block}
+
+  /* Code block */
+  pre.code{background:#000;color:var(--gl-c-ink);border:1px solid var(--gl-c-line-2);border-radius:0;padding:18px;font-family:var(--gl-font-pixel);font-size:14px;overflow-x:auto;line-height:1.6;letter-spacing:.04em}
+  pre.code .c{color:var(--gl-c-ink-3)}
+  pre.code .k{color:var(--gl-c-ink-2)}
+  pre.code .s{color:var(--gl-c-ok)}
+
+  .ai-toolbar{display:flex;gap:8px;margin-bottom:14px;align-items:center}
+  .copy-btn{height:30px;padding:0 14px;background:var(--gl-c-card-2);border:1px solid var(--gl-c-line-2);font-family:var(--gl-font-pixel);font-size:12px;color:var(--gl-c-ink-2);cursor:pointer;letter-spacing:.06em;text-transform:uppercase;text-decoration:none;display:inline-flex;align-items:center}
+  .copy-btn:hover{border-color:var(--gl-c-ink-3);color:var(--gl-c-ink)}
+
+  footer{margin-top:32px;padding:24px 0;border-top:1px solid var(--gl-c-line);font-family:var(--gl-font-pixel);font-size:11.5px;color:var(--gl-c-ink-3);display:flex;justify-content:space-between;letter-spacing:.06em;text-transform:uppercase}
+  footer a{color:inherit;text-decoration:none}
+</style>
+</head>
+<body>
+<div class="layout">
+  <aside class="nav">
+    <div class="nav-brand"><div class="mark"></div><span>Glyph OS</span></div>
+    <div class="nav-sub">设计系统 · v1.0</div>
+
+    <div class="nav-cap">基础</div>
+    <a class="nav-link active" href="#overview"><span class="num">00</span>概览</a>
+    <a class="nav-link" href="#color"><span class="num">01</span>色彩</a>
+    <a class="nav-link" href="#type"><span class="num">02</span>字体</a>
+    <a class="nav-link" href="#spacing"><span class="num">03</span>间距与圆角</a>
+    <a class="nav-link" href="#motion"><span class="num">04</span>动效</a>
+
+    <div class="nav-cap">组件</div>
+    <a class="nav-link" href="#c-clock"><span class="num">05</span>像素时钟</a>
+    <a class="nav-link" href="#c-card"><span class="num">06</span>模块卡</a>
+    <a class="nav-link" href="#c-matrix"><span class="num">07</span>点阵</a>
+    <a class="nav-link" href="#c-meter"><span class="num">08</span>像素仪表</a>
+    <a class="nav-link" href="#c-spec"><span class="num">09</span>反色频谱</a>
+    <a class="nav-link" href="#c-ascii"><span class="num">10</span>ASCII 分隔</a>
+    <a class="nav-link" href="#c-row"><span class="num">11</span>胶囊行</a>
+    <a class="nav-link" href="#c-toggle"><span class="num">12</span>像素 toggle</a>
+
+    <div class="nav-cap">示例页面</div>
+    <a class="nav-link" href="#ex-original"><span class="num">13</span>原始卡片</a>
+    <a class="nav-link" href="#ex-changelog"><span class="num">14</span>Changelog 衍生</a>
+
+    <div class="nav-cap">AI 接入</div>
+    <a class="nav-link" href="#ai"><span class="num">15</span>Cursor 提示词</a>
+    <a class="nav-link" href="#tw"><span class="num">16</span>Tailwind 预设</a>
+
+    <button class="download-pill" id="dlBtn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      下载完整素材包
+    </button>
+    <button class="wb-pill" id="wbBtn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+      去 WorkBuddy 开发
+    </button>
+  </aside>
+
+  <main>
+    <section id="overview" class="hero">
+      <div class="gl-tape">DESIGN DNA · INSPIRATION KIT</div>
+      <h1>Glyph OS</h1>
+      <p class="lead">像素桌面 OS。纯黑画布，VT323 数字，唯一红点表示 live，唯一柠檬绿表示充电。每一个模块都像桌面上的一台独立设备。Token 一旦放进任何场景里——长文阅读、设置面板、changelog——仍然是同一个 OS。</p>
+    </section>
+
+    <section id="color" class="panel">
+      <div class="panel-card">
+        <h2><span class="num">01</span>色彩</h2>
+        <p class="desc">单色基底 + 双单点强色。任何额外色都会破坏系统。</p>
+        <div class="swatch-grid">
+          <div class="swatch"><div class="chip" style="background:#000"></div><div class="name">bg</div><div class="hex">#000000</div></div>
+          <div class="swatch"><div class="chip" style="background:#0e0e0e"></div><div class="name">shell</div><div class="hex">#0e0e0e</div></div>
+          <div class="swatch"><div class="chip" style="background:#141414"></div><div class="name">card</div><div class="hex">#141414</div></div>
+          <div class="swatch"><div class="chip" style="background:#1b1b1b"></div><div class="name">card-2</div><div class="hex">#1b1b1b</div></div>
+          <div class="swatch"><div class="chip" style="background:#2a2a2a"></div><div class="name">line</div><div class="hex">#2a2a2a</div></div>
+          <div class="swatch"><div class="chip" style="background:#3a3a3a"></div><div class="name">line-2</div><div class="hex">#3a3a3a</div></div>
+          <div class="swatch"><div class="chip" style="background:#fff"></div><div class="name">ink</div><div class="hex">#ffffff</div></div>
+          <div class="swatch"><div class="chip" style="background:#c5c5c5"></div><div class="name">ink-2</div><div class="hex">#c5c5c5</div></div>
+          <div class="swatch"><div class="chip" style="background:#7c7c7c"></div><div class="name">ink-3</div><div class="hex">#7c7c7c</div></div>
+          <div class="swatch"><div class="chip" style="background:#4a4a4a"></div><div class="name">ink-4</div><div class="hex">#4a4a4a</div></div>
+          <div class="swatch"><div class="chip" style="background:#ff3b30"></div><div class="name">rec · live</div><div class="hex">#ff3b30</div></div>
+          <div class="swatch"><div class="chip" style="background:#c8ff5e"></div><div class="name">ok · charge</div><div class="hex">#c8ff5e</div></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="type" class="panel">
+      <div class="panel-card">
+        <h2><span class="num">02</span>字体</h2>
+        <p class="desc">VT323 是 OS 的声音，所有数字、大写标签、tape 都用它。Inter 仅用于反色卡上的短句正文。</p>
+        <div class="type-row"><div class="demo gl-display" style="font-size:118px">16:48</div><div class="meta">118 · vt323 · clock</div></div>
+        <div class="type-row"><div class="demo gl-pixel" style="font-size:62px">28°C</div><div class="meta">62 · vt323 · h1</div></div>
+        <div class="type-row"><div class="demo gl-pixel" style="font-size:46px">92%</div><div class="meta">46 · vt323 · h2</div></div>
+        <div class="type-row"><div class="demo gl-pixel" style="font-size:30px;letter-spacing:.04em">18:28:23</div><div class="meta">30 · vt323 · num</div></div>
+        <div class="type-row"><div class="demo gl-tape">UPTIME · THERMAL NOMINAL</div><div class="meta">12 · vt323 · cap (+0.18em)</div></div>
+        <div class="type-row"><div class="demo" style="font-family:var(--gl-font-sans);font-size:13.5px;color:var(--gl-c-ink-2)">Built to feel good and work hard.</div><div class="meta">13.5 · inter · body (inverse only)</div></div>
+      </div>
+    </section>
+
+    <section id="spacing" class="panel">
+      <div class="panel-card">
+        <h2><span class="num">03</span>间距与圆角</h2>
+        <p class="desc">4px 网格。圆角阶梯：22 → 18 → 10 → 8 → 999，禁止其它值。</p>
+        <div class="sp-grid">
+          <div class="sp-cell"><div class="bar" style="width:4px"></div><div class="name">4 · sp1</div></div>
+          <div class="sp-cell"><div class="bar" style="width:8px"></div><div class="name">8 · sp2</div></div>
+          <div class="sp-cell"><div class="bar" style="width:12px"></div><div class="name">12 · sp3</div></div>
+          <div class="sp-cell"><div class="bar" style="width:16px"></div><div class="name">16 · sp4</div></div>
+          <div class="sp-cell"><div class="bar" style="width:20px"></div><div class="name">20 · sp5</div></div>
+          <div class="sp-cell"><div class="bar" style="width:24px"></div><div class="name">24 · sp6</div></div>
+        </div>
+        <div style="display:flex;gap:14px;margin-top:18px;align-items:flex-end">
+          <div style="width:80px;height:80px;background:var(--gl-c-card-2);border:1px solid var(--gl-c-line);border-radius:22px;text-align:center;font-family:var(--gl-font-pixel);font-size:11px;color:var(--gl-c-ink-3);display:flex;align-items:flex-end;justify-content:center;padding-bottom:8px;letter-spacing:.04em">22 · shell</div>
+          <div style="width:72px;height:72px;background:var(--gl-c-card-2);border:1px solid var(--gl-c-line);border-radius:18px;text-align:center;font-family:var(--gl-font-pixel);font-size:11px;color:var(--gl-c-ink-3);display:flex;align-items:flex-end;justify-content:center;padding-bottom:8px;letter-spacing:.04em">18 · card</div>
+          <div style="width:60px;height:60px;background:var(--gl-c-card-2);border:1px solid var(--gl-c-line);border-radius:10px;text-align:center;font-family:var(--gl-font-pixel);font-size:11px;color:var(--gl-c-ink-3);display:flex;align-items:flex-end;justify-content:center;padding-bottom:6px;letter-spacing:.04em">10 · tile</div>
+          <div style="width:50px;height:50px;background:var(--gl-c-card-2);border:1px solid var(--gl-c-line);border-radius:8px;text-align:center;font-family:var(--gl-font-pixel);font-size:11px;color:var(--gl-c-ink-3);display:flex;align-items:flex-end;justify-content:center;padding-bottom:6px;letter-spacing:.04em">8 · chip</div>
+          <div style="height:34px;padding:0 18px;background:var(--gl-c-card-2);border:1px solid var(--gl-c-line);border-radius:999px;font-family:var(--gl-font-pixel);font-size:11px;color:var(--gl-c-ink-3);display:flex;align-items:center;letter-spacing:.04em">999 · pill</div>
+        </div>
+      </div>
+    </section>
+
+    <section id="motion" class="panel">
+      <div class="panel-card">
+        <h2><span class="num">04</span>动效</h2>
+        <p class="desc">Glyph OS 的动效是数字而非模拟。像素帧切换用 step easing，实时数字用 setInterval 心跳，绝不用 CSS transition。</p>
+        <pre class="code"><span class="c">/* 帧切换：像素帧不能 tween */</span>
+<span class="k">--gl-ease-step</span>: <span class="s">steps(1, end)</span>;
+
+<span class="c">/* 罕见的平滑过渡 */</span>
+<span class="k">--gl-ease-out</span>:  <span class="s">cubic-bezier(0.22, 0.61, 0.36, 1)</span>;
+<span class="k">--gl-dur-tick</span>: <span class="s">60ms</span>;
+<span class="k">--gl-dur-base</span>: <span class="s">240ms</span>;
+
+<span class="c">/* 数字必须用 setInterval 心跳，不要写 CSS transition */</span>
+setInterval(() =&gt; {
+  cpuNum.textContent = Math.round(load * 100);
+}, <span class="s">700</span>);</pre>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-card">
+        <h2>组件</h2>
+        <p class="desc">8 个独立组件，每个文件可独立运行。打开看源码、复制片段、直接接入。</p>
+        <div class="comp-grid">
+          <div class="comp" id="c-clock"><header><b>05 · 像素时钟</b><a href="./components/01-pixel-clock.html" target="_blank">open ↗</a></header><iframe src="./components/01-pixel-clock.html" loading="lazy"></iframe></div>
+          <div class="comp" id="c-card"><header><b>06 · 模块卡</b><a href="./components/02-module-card.html" target="_blank">open ↗</a></header><iframe src="./components/02-module-card.html" loading="lazy"></iframe></div>
+          <div class="comp" id="c-matrix"><header><b>07 · 点阵</b><a href="./components/03-dot-matrix.html" target="_blank">open ↗</a></header><iframe src="./components/03-dot-matrix.html" loading="lazy"></iframe></div>
+          <div class="comp" id="c-meter"><header><b>08 · 像素仪表</b><a href="./components/04-pixel-meter.html" target="_blank">open ↗</a></header><iframe src="./components/04-pixel-meter.html" loading="lazy"></iframe></div>
+          <div class="comp" id="c-spec"><header><b>09 · 反色频谱</b><a href="./components/05-spectrum.html" target="_blank">open ↗</a></header><iframe src="./components/05-spectrum.html" loading="lazy"></iframe></div>
+          <div class="comp" id="c-ascii"><header><b>10 · ASCII 分隔</b><a href="./components/06-ascii-divider.html" target="_blank">open ↗</a></header><iframe src="./components/06-ascii-divider.html" loading="lazy"></iframe></div>
+          <div class="comp" id="c-row"><header><b>11 · 胶囊行</b><a href="./components/07-pill-row.html" target="_blank">open ↗</a></header><iframe src="./components/07-pill-row.html" loading="lazy"></iframe></div>
+          <div class="comp" id="c-toggle"><header><b>12 · 像素 toggle</b><a href="./components/08-pixel-toggle.html" target="_blank">open ↗</a></header><iframe src="./components/08-pixel-toggle.html" loading="lazy"></iframe></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-card">
+        <h2>示例页面</h2>
+        <p class="desc">同样的 token，承载完全不同的两个表面。如果 changelog 仍然是 Glyph OS，token 系统就成立。</p>
+        <div class="example" id="ex-original" style="margin-bottom:14px"><header><b>13 · 原始卡片 · 像素 dashboard</b><a href="./examples/original.html" target="_blank">open ↗</a></header><iframe src="./examples/original.html" loading="lazy"></iframe></div>
+        <div class="example" id="ex-changelog"><header><b>14 · Changelog 衍生（token 检验）</b><a href="./examples/changelog.html" target="_blank">open ↗</a></header><iframe src="./examples/changelog.html" loading="lazy" style="height:1400px"></iframe></div>
+      </div>
+    </section>
+
+    <section id="ai" class="panel">
+      <div class="panel-card">
+        <h2><span class="num">15</span>AI 接入 · Cursor / Claude 提示词</h2>
+        <p class="desc">把下面这段贴进 <code>.cursorrules</code> 或任何 LLM 系统提示词，AI 生成的 UI 立刻进入 Glyph OS 风格。</p>
+        <div class="ai-toolbar">
+          <button class="copy-btn" id="copyRule">复制提示词</button>
+          <a class="copy-btn" href="./ai-prompt.md" target="_blank">↗ ai-prompt.md</a>
+        </div>
+        <pre class="code" id="ruleBlock">Use the Glyph OS design system for all UI in this project.
+
+- Page background pure #000000. Cards #141414. Secondary fills #1b1b1b.
+- Surfaces separate via background step + 1px line, NEVER shadow.
+- VT323 for all numbers/labels (tabular-nums). Inter only for short body copy on the inverse card.
+- Two single-purpose accents: #ff3b30 (live/error), #c8ff5e (charging). Nothing else colored.
+- Radius scale 22/18/10/8/999 only. 4px spacing grid.
+- Digital motion: steps(1, end) for cell swaps; tick numbers via setInterval, never CSS transition.
+- Reuse .gl-card / .gl-cap / .gl-pixel / .gl-display / .gl-rec / .gl-tape / .gl-row / .gl-bars before authoring new CSS.
+- Inverse card .gl-card--inverse at most ONCE per layout.
+
+If a request requires a third accent color, soft shadow, display serif, or warm/cream tones, push back — those break Glyph OS.</pre>
+      </div>
+    </section>
+
+    <section id="tw" class="panel">
+      <div class="panel-card">
+        <h2><span class="num">16</span>AI 接入 · Tailwind 预设</h2>
+        <p class="desc">把 <code>tailwind-tokens.js</code> 当 preset 引入，所有命名空间立即可用。</p>
+        <pre class="code"><span class="c">// tailwind.config.js</span>
+<span class="k">module.exports</span> = {
+  <span class="k">presets</span>: [<span class="k">require</span>(<span class="s">'./tailwind-tokens.js'</span>)],
+  <span class="k">content</span>: [<span class="s">'./src/**/*.{html,js,ts,jsx,tsx}'</span>],
+};
+
+<span class="c">// markup:</span>
+&lt;div <span class="k">class</span>=<span class="s">"bg-canvas text-ink min-h-screen font-pixel"</span>&gt;
+  &lt;article <span class="k">class</span>=<span class="s">"bg-card border border-line rounded-card p-4"</span>&gt;
+    &lt;div <span class="k">class</span>=<span class="s">"text-display-gl"</span>&gt;16:48&lt;/div&gt;
+  &lt;/article&gt;
+&lt;/div&gt;</pre>
+      </div>
+    </section>
+
+    <footer>
+      <span>Glyph OS · Design DNA inspiration kit · v1.0.0</span>
+      <span><a href="https://karosu3510.github.io/design-dna/" target="_blank">karosu3510.github.io/design-dna</a></span>
+    </footer>
+  </main>
+</div>
+
+<script>
+  // active nav
+  var links = document.querySelectorAll('.nav-link');
+  var sections = Array.from(links).map(function(a){ var id = a.getAttribute('href').slice(1); return document.getElementById(id); });
+  function syncNav(){
+    var y = window.scrollY + 120;
+    var bestIdx = 0;
+    sections.forEach(function(s, i){ if(s && s.offsetTop <= y) bestIdx = i; });
+    links.forEach(function(a, i){ a.classList.toggle('active', i === bestIdx); });
+  }
+  window.addEventListener('scroll', syncNav, { passive: true });
+
+  // copy rule
+  document.getElementById('copyRule').addEventListener('click', function(){
+    var txt = document.getElementById('ruleBlock').textContent;
+    navigator.clipboard.writeText(txt).then(function(){
+      var b = document.getElementById('copyRule');
+      var old = b.textContent;
+      b.textContent = '✓ 已复制';
+      setTimeout(function(){ b.textContent = old; }, 1400);
+    });
+  });
+
+  // download kit
+  document.getElementById('dlBtn').addEventListener('click', async function(){
+    var btn = this;
+    var orig = btn.innerHTML;
+    btn.innerHTML = '打包中…';
+    try{
+      if(typeof JSZip === 'undefined'){
+        await new Promise(function(res, rej){
+          var s = document.createElement('script');
+          s.src = 'https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js';
+          s.onload = res; s.onerror = rej; document.head.appendChild(s);
+        });
+      }
+      var zip = new JSZip();
+      var folder = zip.folder('glyph-os-kit');
+      var files = [
+        'README.md','design-system.md','design-system.css','design-tokens.json',
+        'ai-prompt.md','tailwind-tokens.js','index.html',
+        'components/01-pixel-clock.html','components/02-module-card.html','components/03-dot-matrix.html',
+        'components/04-pixel-meter.html','components/05-spectrum.html','components/06-ascii-divider.html',
+        'components/07-pill-row.html','components/08-pixel-toggle.html',
+        'examples/original.html','examples/changelog.html'
+      ];
+      await Promise.all(files.map(async function(f){
+        try{ var r = await fetch('./' + f, {cache:'no-cache'}); if(r.ok) folder.file(f, await r.text()); }catch(_){}
+      }));
+      var blob = await zip.generateAsync({type:'blob'});
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a'); a.href = url; a.download = 'glyph-os-kit.zip';
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      setTimeout(function(){ URL.revokeObjectURL(url); }, 1500);
+      btn.innerHTML = '✓ 已下载';
+      setTimeout(function(){ btn.innerHTML = orig; }, 1400);
+    }catch(err){
+      console.warn(err);
+      btn.innerHTML = '下载失败';
+      setTimeout(function(){ btn.innerHTML = orig; }, 1500);
+    }
+  });
+
+  // 去 WorkBuddy 开发
+  document.getElementById('wbBtn').addEventListener('click', async function(){
+    var btn = this;
+    var orig = btn.innerHTML;
+    var KIT_BASE = 'https://karosu3510.github.io/design-dna/kits/glyph-os/';
+    var prompt = [
+      '我要基于 Design DNA 中的 Glyph OS 设计系统继续开发。',
+      '',
+      '【素材包入口（请帮我读取这些文件作为视觉规范）】',
+      '- 设计系统总览：' + KIT_BASE + 'index.html',
+      '- design tokens（CSS 变量 + 组件类）：' + KIT_BASE + 'design-system.css',
+      '- design tokens（JSON）：' + KIT_BASE + 'design-tokens.json',
+      '- 完整文档：' + KIT_BASE + 'design-system.md',
+      '- AI 提示词与约束：' + KIT_BASE + 'ai-prompt.md',
+      '- Tailwind 预设：' + KIT_BASE + 'tailwind-tokens.js',
+      '- 组件示例（8 个独立 HTML）：' + KIT_BASE + 'components/',
+      '- 衍生用例（changelog）：' + KIT_BASE + 'examples/changelog.html',
+      '',
+      '【视觉铁律（必须遵守）】',
+      '- 画布纯黑 #000000，绝不 #111 / 偏灰；卡片 #141414，二级填充 #1b1b1b。',
+      '- 字体：所有数字/标签/tape 用 VT323 + tabular-nums；Inter 只用于反色卡的短句正文。',
+      '- 颜色纪律：唯一红 #ff3b30 仅 live/错误/危险；唯一柠檬绿 #c8ff5e 仅充电/电量 OK。其它 UI 元素一律单色 ink ramp。',
+      '- 圆角阶梯只允许 22 / 18 / 10 / 8 / 999；间距 4px grid。',
+      '- 表面分层用「背景层级 + 1px 线」，禁止 box-shadow。',
+      '- 动效：像素帧用 steps(1, end)，数字用 setInterval 心跳，绝不用 CSS transition 动数字。',
+      '- 反色卡 .gl-card--inverse 整页最多一处。',
+      '- 优先复用 .gl-card / .gl-cap / .gl-pixel / .gl-display / .gl-rec / .gl-tape / .gl-row / .gl-bars，再写新 CSS。',
+      '',
+      '【我要开发的目标】',
+      '（在这里描述你想做的页面或组件，例如："Glyph OS 风格的设置面板，4 行 toggle + danger zone"）',
+      '',
+      '【请按以下步骤执行】',
+      '1. 抓取 KIT_BASE 下关键文件加载视觉规范。',
+      '2. 给方案概要等我确认。',
+      '3. 我说「开干」之后，再生成代码。',
+    ].join('\n');
+
+    btn.innerHTML = '复制中…';
+    try{
+      await navigator.clipboard.writeText(prompt);
+      var iframe = document.createElement('iframe');
+      iframe.style.display='none';
+      iframe.src = 'codebuddy://codebuddy-ide';
+      document.body.appendChild(iframe);
+      setTimeout(function(){ try{ iframe.remove(); }catch(_){} }, 1500);
+      setTimeout(function(){
+        if(document.visibilityState === 'visible'){
+          window.open('https://www.codebuddy.cn/', '_blank', 'noopener');
+        }
+      }, 1200);
+      btn.innerHTML = '✓ 已复制 · 正在唤起 WorkBuddy';
+      setTimeout(function(){ btn.innerHTML = orig; }, 2400);
+    }catch(err){
+      console.warn(err);
+      btn.innerHTML = '复制失败';
+      setTimeout(function(){ btn.innerHTML = orig; }, 1500);
+    }
+  });
+</script>
+</body>
+</html>

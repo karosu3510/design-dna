@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Glyph OS · Component · ASCII divider</title>
+<link rel="stylesheet" href="../design-system.css">
+<style>
+  body{display:grid;place-items:center;min-height:100vh;padding:48px}
+  .demo{width:560px}
+  .ascii{font-family:var(--gl-font-pixel);font-size:14px;color:var(--gl-c-ink-3);white-space:pre;line-height:1.05}
+  .ruled{margin-top:18px;border-top:1px solid var(--gl-c-line-2);border-bottom:1px solid var(--gl-c-line-2);padding:10px 0;font-family:var(--gl-font-pixel);font-size:13px;letter-spacing:.18em;color:var(--gl-c-ink-3);text-transform:uppercase}
+  .demo-tag{position:absolute;top:18px;left:24px;font-family:var(--gl-font-pixel);font-size:13px;color:var(--gl-c-ink-3);letter-spacing:.18em;text-transform:uppercase}
+</style>
+</head>
+<body>
+<span class="demo-tag">06 · ascii divider</span>
+<article class="gl-card demo">
+  <div class="gl-cap">Local sky <span class="gl-actions"><span></span></span></div>
+  <div class="gl-display" style="font-size:62px;margin-top:6px">28<span style="font-size:18px;color:var(--gl-c-ink-3);margin-left:6px">°C</span></div>
+  <pre class="ascii" style="margin-top:10px">.--..--..--..--.
+:..::..::..::..:
+'--''--''--''--'</pre>
+  <div class="ruled">thin cloud  //  steady pressure</div>
+  <div class="gl-divider" style="margin-top:14px"></div>
+  <div class="gl-tape" style="margin-top:8px">divider taper · token .gl-divider</div>
+</article>
+</body>
+</html>

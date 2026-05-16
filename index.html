@@ -481,6 +481,7 @@
 <script src="./carrot-tech-doc.js"></script>
 <script src="./superhi-plus-doc.js?v=202605161457"></script>
 <script src="./a-record-doc.js"></script>
+<script src="./glyph-os-doc.js"></script>
 <script src="./book-gallery-3d-doc.js"></script>
 <script src="./delphi-three-doc.js"></script>
 <script src="./webgl-magazine-doc.js?v=202605161457"></script>
@@ -1565,6 +1566,14 @@ function buildPinnedFor(styleId, headlineFallback){
       id:'d-a-record', styleId:'a-record', styleLabel:'Warm audio dashboard', sref:'a-record-pin', prompt:'a.Record warm minimal vocal tracking dashboard', pinned:true,
       title:'a.Record · Vocal tracking', height:720, styleLock:'a-record',
       doc: (typeof A_RECORD_DOC !== 'undefined') ? A_RECORD_DOC : '', externalUrl:'a-record.html'
+    });
+  } catch(_){}
+  // Glyph OS — pixel desktop dashboard (Nothing / TE inspired)
+  try {
+    firstBatch.push({
+      id:'d-glyph-os', styleId:'glyph-os', styleLabel:'Pixel desktop OS', sref:'glyph-os-pin', prompt:'Glyph OS pixelated desktop dashboard with VT323 numerals, glyph matrix and ambient meters', pinned:true,
+      title:'Glyph OS · Pixel desktop', height:720, styleLock:'glyph-os',
+      doc: (typeof GLYPH_OS_DOC !== 'undefined') ? GLYPH_OS_DOC : '', externalUrl:'glyph-os.html'
     });
   } catch(_){}
   // Book Gallery — CodePen 3D page flip

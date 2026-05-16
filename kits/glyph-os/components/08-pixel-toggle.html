@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Glyph OS · Component · Pixel toggle</title>
+<link rel="stylesheet" href="../design-system.css">
+<style>
+  body{display:grid;place-items:center;min-height:100vh;padding:48px}
+  .stage{display:grid;grid-template-columns:1fr 1fr;gap:14px;width:760px}
+
+  /* pixel toggle */
+  .toggle{position:relative;width:56px;height:24px;background:var(--gl-c-card-2);border-radius:0;cursor:pointer;border:1px solid var(--gl-c-line-2);overflow:hidden}
+  .toggle::after{content:'';position:absolute;top:2px;left:2px;width:20px;height:18px;background:var(--gl-c-ink);transition:left var(--gl-dur-tick) var(--gl-ease-step)}
+  .toggle.on::after{left:32px;background:var(--gl-c-ok)}
+
+  /* sequencer cells */
+  .seq{display:grid;grid-template-columns:repeat(8,1fr);gap:4px;margin-top:10px}
+  .seq i{aspect-ratio:1;background:var(--gl-c-card-2);border:1px solid var(--gl-c-line-2);cursor:pointer;transition:background var(--gl-dur-tick) var(--gl-ease-step)}
+  .seq i.on{background:var(--gl-c-ink);border-color:var(--gl-c-ink)}
+  .seq i.beat{outline:1px solid var(--gl-c-rec);outline-offset:-2px}
+
+  .row{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-top:1px solid var(--gl-c-line)}
+  .row:first-child{border-top:0}
+  .row .label{font-family:var(--gl-font-pixel);font-size:14px;letter-spacing:.04em;color:var(--gl-c-ink)}
+
+  .demo-tag{position:absolute;top:18px;left:24px;font-family:var(--gl-font-pixel);font-size:13px;color:var(--gl-c-ink-3);letter-spacing:.18em;text-transform:uppercase}
+</style>
+</head>
+<body>
+<span class="demo-tag">08 · pixel toggle</span>
+<div class="stage">
+  <article class="gl-card">
+    <div class="gl-cap">Toggles <span class="gl-actions"><span></span></span></div>
+    <div class="row"><span class="label">Glyph sync</span><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+    <div class="row"><span class="label">Focus lock</span><div class="toggle" onclick="this.classList.toggle('on')"></div></div>
+    <div class="row"><span class="label">Radio mesh</span><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+    <div class="row"><span class="label">Mic gate</span><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+  </article>
+  <article class="gl-card">
+    <div class="gl-cap">Sequencer cells <span class="gl-actions"><span></span></span></div>
+    <div class="seq" id="seq"></div>
+    <div class="gl-tape" style="margin-top:14px">step easing · click to fire a step</div>
+  </article>
+</div>
+<script>
+  var seq = document.getElementById('seq');
+  for(var r=0; r<3; r++){
+    for(var c=0; c<8; c++){
+      var s = document.createElement('i');
+      if(Math.random() > 0.65) s.classList.add('on');
+      if((c % 4) === 0) s.classList.add('beat');
+      s.onclick = function(){ this.classList.toggle('on'); };
+      seq.appendChild(s);
+    }
+  }
+</script>
+</body>
+</html>
