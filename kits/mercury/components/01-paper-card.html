@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Mercury · Component · Paper card</title>
+<link rel="stylesheet" href="../design-system.css">
+<style>
+  body{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:48px;gap:14px}
+  .demo-tag{position:absolute;top:18px;left:24px;font-family:var(--mc-font-mono);font-size:11px;color:var(--mc-c-mute);letter-spacing:.06em;text-transform:uppercase}
+  .row{display:flex;gap:14px;flex-wrap:wrap;justify-content:center}
+  .demo{width:240px}
+</style>
+</head>
+<body>
+<span class="demo-tag">01 · paper card · 3 surfaces</span>
+<div class="row">
+  <article class="mc-card demo">
+    <span class="mc-eyebrow">Total balance <span class="mc-info">i</span></span>
+    <div class="mc-num-h2" style="margin-top:8px">$8,500,000</div>
+    <span style="font-size:11px;color:var(--mc-c-mute);font-family:var(--mc-font-mono)">surface</span>
+  </article>
+  <article class="mc-card mc-card--mute demo">
+    <span class="mc-eyebrow">Hovered</span>
+    <div class="mc-num-h2" style="margin-top:8px">$1,250,000</div>
+    <span style="font-size:11px;color:var(--mc-c-mute);font-family:var(--mc-font-mono)">surface-mute</span>
+  </article>
+  <article class="mc-card mc-card--sink demo">
+    <span class="mc-eyebrow">Recessed</span>
+    <div class="mc-num-h2" style="margin-top:8px">$312,800</div>
+    <span style="font-size:11px;color:var(--mc-c-mute);font-family:var(--mc-font-mono)">surface-sink</span>
+  </article>
+</div>
+</body>
+</html>

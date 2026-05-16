@@ -1,0 +1,291 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Mercury · Treasury Overview</title>
+<link rel="stylesheet" href="../design-system.css">
+<style>
+  /* The original 1100×720 Mercury treasury dashboard the kit's tokens were
+     extracted from. Token-driven where possible; layout-specific sizing
+     kept inline. */
+  html,body{height:720px;overflow:hidden}
+  .frame{display:grid;grid-template-columns:240px 1fr;height:100%}
+
+  .sidebar{padding:14px 10px;background:var(--mc-c-surface);border-right:1px solid var(--mc-c-hair);overflow-y:auto}
+  .brand{display:flex;align-items:center;gap:8px;padding:6px 10px;margin-bottom:10px}
+  .brand .mark{width:22px;height:22px;border-radius:6px;background:var(--mc-c-ink);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-weight:700;font-size:13px}
+  .brand .name{font-weight:600;color:var(--mc-c-ink);font-size:13px}
+  .brand .sub{font-size:10px;color:var(--mc-c-mute)}
+
+  .yield{margin-top:14px;padding:12px;background:var(--mc-c-p-50);border:1px solid var(--mc-c-p-100);border-radius:var(--mc-r-tile)}
+  .yield .t{font-weight:600;font-size:12.5px;color:var(--mc-c-ink)}
+  .yield .d{font-size:11.5px;color:var(--mc-c-ink-3);line-height:1.5;margin-top:2px}
+  .yield .l{display:inline-block;margin-top:6px;font-size:11.5px;color:var(--mc-c-p-600);font-weight:500}
+
+  .main{padding:18px 24px;overflow-y:auto}
+  .topbar{display:flex;align-items:center;gap:10px;margin-bottom:14px;font-size:12.5px;color:var(--mc-c-mute);font-family:var(--mc-font-mono)}
+  .topbar .crumb{color:var(--mc-c-ink-3)}
+  .topbar .here{color:var(--mc-c-ink);font-weight:550}
+  .topbar .badge{padding:2px 7px;border:1px solid var(--mc-c-hair-2);border-radius:var(--mc-r-pill);background:var(--mc-c-surface-mute);color:var(--mc-c-ink-3);font-size:10px;letter-spacing:.06em}
+  .topbar .sp{flex:1}
+  .topbar .search{height:30px;padding:0 10px;border:1px solid var(--mc-c-hair-2);border-radius:var(--mc-r-tile);background:var(--mc-c-surface);font-size:12px;color:var(--mc-c-mute);min-width:240px;display:inline-flex;align-items:center;gap:8px}
+  .topbar .icon{width:30px;height:30px;border:1px solid var(--mc-c-hair-2);border-radius:var(--mc-r-tile);background:var(--mc-c-surface);display:inline-flex;align-items:center;justify-content:center;color:var(--mc-c-ink-3)}
+
+  h1.heading{font-size:24px;font-weight:600;letter-spacing:-.01em;margin-bottom:2px}
+  .subhead{font-size:13px;color:var(--mc-c-mute);margin-bottom:14px}
+
+  .actions-row{display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+
+  /* Markets ticker */
+  .markets{display:flex;align-items:center;gap:18px;padding:8px 14px;background:var(--mc-c-surface);border:1px solid var(--mc-c-hair);border-radius:var(--mc-r-tile);font-family:var(--mc-font-mono);font-size:12px;margin-bottom:14px;overflow:hidden}
+  .markets .m-tag{font-size:10px;color:var(--mc-c-pos);background:var(--mc-c-pos-bg);padding:2px 7px;border-radius:var(--mc-r-pill);letter-spacing:.08em;font-weight:500}
+  .markets .pair{display:flex;gap:6px;align-items:baseline;color:var(--mc-c-ink)}
+  .markets .sym{color:var(--mc-c-ink-3);font-size:11.5px}
+  .markets .delta{font-size:11.5px}
+  .markets .delta.up{color:var(--mc-c-pos)}
+  .markets .delta.dn{color:var(--mc-c-neg)}
+
+  /* Metric cards */
+  .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+  .metric{position:relative;overflow:hidden}
+  .metric .spark{position:absolute;right:14px;top:14px;width:160px;height:42px}
+  .metric .label{font-size:13px;color:var(--mc-c-ink-3);font-weight:500;display:flex;align-items:center;gap:6px}
+  .metric .v{margin-top:4px;font-family:var(--mc-font-mono);font-size:32px;font-weight:500;letter-spacing:-.02em;color:var(--mc-c-ink);line-height:1.1;font-variant-numeric:tabular-nums}
+  .metric .v .cur{font-size:16px;color:var(--mc-c-ink-3);font-weight:400;margin-right:3px}
+  .metric .v .cents{font-size:18px;color:var(--mc-c-ink-3);font-weight:400}
+  .metric .meta{display:flex;align-items:center;gap:8px;margin-top:8px;font-size:12.5px;color:var(--mc-c-mute)}
+
+  /* Cash position chart */
+  .chart-card{padding:18px 22px}
+  .chart-card .head{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px}
+  .chart-card .head .title{font-size:16px;font-weight:600;color:var(--mc-c-ink)}
+  .chart-card .head .sub{font-size:12px;color:var(--mc-c-mute);margin-top:2px}
+  .chart-card canvas{display:block;width:100%;height:160px}
+</style>
+</head>
+<body>
+<div class="frame">
+
+  <aside class="sidebar">
+    <div class="brand">
+      <span class="mark">M</span>
+      <div><div class="name">Mercury</div><div class="sub">Hello Labs, Inc.</div></div>
+    </div>
+
+    <a class="mc-nav is-active">⊞ Overview</a>
+    <a class="mc-nav">⊟ Accounts<span class="mc-nav-tail">8</span></a>
+    <a class="mc-nav">↔ Send & Receive</a>
+    <a class="mc-nav">▭ Cards</a>
+    <a class="mc-nav">⌘ Treasury<span class="mc-nav-tail">2</span></a>
+    <a class="mc-nav">⏵ Approvals<span class="mc-nav-tail">3</span></a>
+
+    <div class="mc-section">Accounts</div>
+    <div class="mc-acct"><span class="mc-avatar mc-avatar--ck">CK</span>
+      <div class="mc-acct-meta"><span class="mc-acct-name">Checking</span><span class="mc-acct-sub">··2104</span></div>
+      <span class="mc-acct-bal">$4,182,937.50</span>
+    </div>
+    <div class="mc-acct"><span class="mc-avatar mc-avatar--sv">SV</span>
+      <div class="mc-acct-meta"><span class="mc-acct-name">Savings</span><span class="mc-acct-sub">··2218</span></div>
+      <span class="mc-acct-bal">$1,250,000.00</span>
+    </div>
+    <div class="mc-acct"><span class="mc-avatar mc-avatar--t">T</span>
+      <div class="mc-acct-meta"><span class="mc-acct-name">Treasury · Vanguard</span><span class="mc-acct-sub">5.21% APY</span></div>
+      <span class="mc-acct-bal">$8,500,000.00</span>
+    </div>
+    <div class="mc-acct"><span class="mc-avatar mc-avatar--io">IO</span>
+      <div class="mc-acct-meta"><span class="mc-acct-name">IO · Operations</span><span class="mc-acct-sub">··0044</span></div>
+      <span class="mc-acct-bal">$312,800.18</span>
+    </div>
+
+    <div class="mc-section">Insights</div>
+    <a class="mc-nav">↗ Cash Flow</a>
+    <a class="mc-nav">⏳ Runway</a>
+    <a class="mc-nav">▥ Reports</a>
+
+    <div class="yield">
+      <div class="t">Mercury IO yield</div>
+      <div class="d">Earn 5.21% APY on idle cash, FDIC-insured up to $5M.</div>
+      <a class="l">Learn more →</a>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="topbar">
+      <span class="crumb">Treasury</span>
+      <span class="crumb">/</span>
+      <span class="here">Overview</span>
+      <span class="badge">USD · LIVE</span>
+      <span class="sp"></span>
+      <span class="search">⌕ Search transactions, payees…  <span style="margin-left:auto;color:var(--mc-c-mute-2)">⌘K</span></span>
+      <span class="icon">▢</span>
+      <span class="icon">?</span>
+      <span class="mc-avatar mc-avatar--io" style="width:30px;height:30px;border-radius:6px">LS</span>
+    </div>
+
+    <h1 class="heading">AI writing tool for thoughtful creators</h1>
+    <div class="subhead">Built to feel good and work hard.</div>
+
+    <div class="actions-row">
+      <span class="mc-status"><span class="mc-dot"></span><b>LIVE</b> · syncing</span>
+      <span style="font-size:12px;color:var(--mc-c-mute);font-family:var(--mc-font-mono)">last sync <span id="sync">00:08</span> ago</span>
+      <span class="sp" style="flex:1"></span>
+      <button class="mc-btn">+ New account</button>
+      <button class="mc-btn">↑ Export</button>
+      <button class="mc-btn mc-btn--primary">→ Send money</button>
+    </div>
+
+    <div class="markets">
+      <span class="m-tag">● MARKETS</span>
+      <span class="pair"><span class="sym">EUR/USD</span> 1.0915 <span class="delta up">+0.06%</span></span>
+      <span class="pair"><span class="sym">BTC</span> 71,420 <span class="delta up">+1.74%</span></span>
+      <span class="pair"><span class="sym">ETH</span> 3,612 <span class="delta up">+1.21%</span></span>
+      <span class="pair"><span class="sym">XAU</span> 2,386 <span class="delta up">+0.54%</span></span>
+      <span class="pair"><span class="sym">FF</span> 5.33%</span>
+    </div>
+
+    <div class="grid-2">
+      <article class="mc-card metric">
+        <canvas class="spark" id="sp1" width="320" height="84"></canvas>
+        <span class="label">Total balance <span class="mc-info">i</span></span>
+        <div class="v"><span class="cur">$</span>14,245,737<span class="cents">.68</span></div>
+        <div class="meta">
+          <span class="mc-pill mc-pill--pos">↑ 4.32%</span>
+          <span>vs last 30 days</span>
+        </div>
+      </article>
+      <article class="mc-card metric">
+        <canvas class="spark" id="sp2" width="320" height="84"></canvas>
+        <span class="label">Net cash flow · 30D</span>
+        <div class="v"><span class="cur">$</span>+612,450<span class="cents">.12</span></div>
+        <div class="meta">
+          <span class="mc-pill mc-pill--pos">↑ 18.40%</span>
+          <span>vs prior period</span>
+        </div>
+      </article>
+    </div>
+
+    <div class="grid-2">
+      <article class="mc-card metric">
+        <canvas class="spark" id="sp3" width="320" height="84"></canvas>
+        <span class="label">Burn rate · monthly</span>
+        <div class="v"><span class="cur">$</span>284,109<span class="cents">.04</span></div>
+        <div class="meta">
+          <span class="mc-pill mc-pill--neg">↓ 2.10%</span>
+          <span>efficient than May</span>
+        </div>
+      </article>
+      <article class="mc-card metric">
+        <canvas class="spark" id="sp4" width="320" height="84"></canvas>
+        <span class="label">Runway estimate</span>
+        <div class="v">22 <span class="cents">months</span></div>
+        <div class="meta">
+          <span class="mc-pill mc-pill--info">Stable</span>
+          <span>est. through Mar 2028</span>
+        </div>
+      </article>
+    </div>
+
+    <article class="mc-card chart-card">
+      <div class="head">
+        <div>
+          <div class="title">Cash position</div>
+          <div class="sub">Daily balance across all USD accounts</div>
+        </div>
+        <div class="mc-tabs" id="ranges">
+          <button>7D</button>
+          <button class="is-active">30D</button>
+          <button>90D</button>
+          <button>YTD</button>
+          <button>1Y</button>
+        </div>
+      </div>
+      <canvas id="chart" width="2200" height="320"></canvas>
+    </article>
+  </main>
+</div>
+
+<script>
+// sparkline helper
+function spark(id, color, points){
+  var c=document.getElementById(id), x=c.getContext('2d');
+  if (window.devicePixelRatio){
+    var dpr=window.devicePixelRatio;
+    c.width = c.clientWidth * dpr; c.height = c.clientHeight * dpr; x.scale(dpr, dpr);
+  }
+  var W=c.clientWidth, H=c.clientHeight, P=4;
+  x.clearRect(0,0,W,H);
+  x.lineWidth=2; x.strokeStyle=color; x.beginPath();
+  var min=Math.min.apply(null,points), max=Math.max.apply(null,points);
+  points.forEach(function(v,i){
+    var X=P + i/(points.length-1)*(W-P*2);
+    var Y=H-P - (v-min)/(max-min || 1)*(H-P*2);
+    i===0 ? x.moveTo(X,Y) : x.lineTo(X,Y);
+  });
+  x.stroke();
+}
+spark('sp1', '#7a6bf2', [44,42,46,49,48,52,54,56,53,57,60,58,62,65]);
+spark('sp2', '#1aa05c', [40,42,46,49,52,55,58,60,57,62,65,68,70,72]);
+spark('sp3', '#b3261e', [62,60,57,58,55,54,52,50,49,48,46,47,45,44]);
+spark('sp4', '#9094a0', [50,52,54,53,52,54,52,53,52,51,52,51,52,53]);
+
+// big chart — purple gradient area + smooth line
+(function(){
+  var c=document.getElementById('chart'), x=c.getContext('2d');
+  if (window.devicePixelRatio){
+    var dpr=window.devicePixelRatio;
+    c.width = c.clientWidth * dpr; c.height = c.clientHeight * dpr; x.scale(dpr, dpr);
+  }
+  var W=c.clientWidth, H=c.clientHeight, P=20;
+  x.clearRect(0,0,W,H);
+  // grid
+  x.strokeStyle = '#ececea'; x.lineWidth = 1;
+  for (var g=0; g<5; g++){
+    var y = P + g*(H-P*2)/4;
+    x.beginPath(); x.moveTo(P, y); x.lineTo(W-P, y); x.stroke();
+  }
+  // line
+  var pts = [];
+  var n = 60, base = 9;
+  for (var i=0; i<n; i++){
+    base += (Math.random()-0.4)*0.6;
+    pts.push(Math.max(7, Math.min(15, base)));
+  }
+  function px(i){ return P + i/(n-1)*(W-P*2); }
+  function py(v){ var min=7, max=15; return H-P - (v-min)/(max-min)*(H-P*2); }
+  // area
+  var grad = x.createLinearGradient(0, P, 0, H-P);
+  grad.addColorStop(0, 'rgba(122,107,242,.32)');
+  grad.addColorStop(1, 'rgba(122,107,242,.02)');
+  x.fillStyle = grad; x.beginPath(); x.moveTo(px(0), py(pts[0]));
+  pts.forEach(function(v,i){ x.lineTo(px(i), py(v)); });
+  x.lineTo(px(n-1), H-P); x.lineTo(px(0), H-P); x.closePath(); x.fill();
+  // line
+  x.strokeStyle = '#5d4ee0'; x.lineWidth = 2; x.beginPath();
+  pts.forEach(function(v,i){ i===0 ? x.moveTo(px(i), py(v)) : x.lineTo(px(i), py(v)); });
+  x.stroke();
+  // shadow line below (mute)
+  x.strokeStyle = '#c9c1ff'; x.lineWidth = 1.5; x.beginPath();
+  pts.forEach(function(v,i){ i===0 ? x.moveTo(px(i), py(v-1.5)) : x.lineTo(px(i), py(v-1.5)); });
+  x.stroke();
+})();
+
+// range tabs
+document.getElementById('ranges').addEventListener('click', function(e){
+  if (e.target.tagName !== 'BUTTON') return;
+  document.querySelectorAll('#ranges button').forEach(function(b){ b.classList.remove('is-active'); });
+  e.target.classList.add('is-active');
+});
+
+// last-sync ticker
+(function(){
+  var t=8;
+  setInterval(function(){
+    t++; var s=t%60, m=Math.floor(t/60);
+    document.getElementById('sync').textContent =
+      (m<10?'0':'')+m+':'+(s<10?'0':'')+s;
+  }, 1000);
+})();
+</script>
+</body>
+</html>

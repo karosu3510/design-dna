@@ -1,0 +1,92 @@
+{
+  "$schema": "https://design-tokens.github.io/community-group/format/",
+  "name": "Mercury Banking Design System",
+  "version": "1.0.0",
+  "description": "Warm-paper treasury dashboard. Inter primary + JetBrains Mono numerics. Restrained light-mode palette, purple CTA, hairline borders, ink-on-paper. Inspired by Mercury banking and modern fintech treasury UIs.",
+  "color": {
+    "bg":           { "$value": "#fbfaf7", "$type": "color", "$description": "Warm paper canvas — never pure #fff" },
+    "surface":      { "$value": "#ffffff", "$type": "color", "$description": "Card / panel surface" },
+    "surface-mute": { "$value": "#f6f5f2", "$type": "color" },
+    "surface-sink": { "$value": "#f1efea", "$type": "color" },
+    "ink":    { "$value": "#0f0f10", "$type": "color" },
+    "ink-2":  { "$value": "#2a2a2d", "$type": "color" },
+    "ink-3":  { "$value": "#5b5d63", "$type": "color" },
+    "mute":   { "$value": "#8a8c93", "$type": "color" },
+    "mute-2": { "$value": "#b6b7bc", "$type": "color" },
+    "hair":   { "$value": "#ececea", "$type": "color" },
+    "hair-2": { "$value": "#e0dfdc", "$type": "color" },
+    "hair-3": { "$value": "#d2d1cd", "$type": "color" },
+    "p-50":   { "$value": "#f3f1ff", "$type": "color" },
+    "p-100":  { "$value": "#e6e2ff", "$type": "color" },
+    "p-200":  { "$value": "#c9c1ff", "$type": "color" },
+    "p-400":  { "$value": "#7a6bf2", "$type": "color" },
+    "p-500":  { "$value": "#5d4ee0", "$type": "color", "$description": "Mercury brand purple — primary CTA" },
+    "p-600":  { "$value": "#4a3cc8", "$type": "color" },
+    "p-700":  { "$value": "#3a2fa0", "$type": "color" },
+    "p-glow": { "$value": "rgba(93,78,224,.18)", "$type": "color", "$description": "Soft halo around primary CTA shadow" },
+    "pos":    { "$value": "#128a4d", "$type": "color", "$description": "Gain / positive — paired with pos-bg" },
+    "pos-bg": { "$value": "#e6f4ec", "$type": "color" },
+    "neg":    { "$value": "#b3261e", "$type": "color" },
+    "neg-bg": { "$value": "#fbeae9", "$type": "color" },
+    "warn":   { "$value": "#a35d00", "$type": "color" },
+    "warn-bg":{ "$value": "#fdf1da", "$type": "color" },
+    "info":   { "$value": "#1857c4", "$type": "color" },
+    "info-bg":{ "$value": "#e7eefb", "$type": "color" }
+  },
+  "font": {
+    "family": {
+      "sans": { "$value": "Inter, 'SF Pro Text', -apple-system, BlinkMacSystemFont, system-ui, sans-serif", "$type": "fontFamily" },
+      "mono": { "$value": "'JetBrains Mono', 'SF Mono', ui-monospace, Menlo, monospace", "$type": "fontFamily", "$description": "Numerics — money + tabular data" }
+    },
+    "size": {
+      "display": { "$value": "36px",   "$type": "dimension", "$description": "Hero balance" },
+      "h1":      { "$value": "24px",   "$type": "dimension" },
+      "h2":      { "$value": "20px",   "$type": "dimension" },
+      "md":      { "$value": "15px",   "$type": "dimension" },
+      "base":    { "$value": "14px",   "$type": "dimension" },
+      "sm":      { "$value": "13px",   "$type": "dimension" },
+      "cap":     { "$value": "12px",   "$type": "dimension" },
+      "mini":    { "$value": "11px",   "$type": "dimension" },
+      "tag":     { "$value": "10.5px", "$type": "dimension" }
+    },
+    "tracking": {
+      "tight": { "$value": "-0.025em" },
+      "num":   { "$value": "-0.005em" },
+      "cap":   { "$value": "0.06em" },
+      "cap-2": { "$value": "0.10em" }
+    }
+  },
+  "spacing": {
+    "1": { "$value": "4px",  "$type": "dimension" },
+    "2": { "$value": "8px",  "$type": "dimension" },
+    "3": { "$value": "12px", "$type": "dimension" },
+    "4": { "$value": "16px", "$type": "dimension" },
+    "5": { "$value": "20px", "$type": "dimension" },
+    "6": { "$value": "24px", "$type": "dimension" },
+    "7": { "$value": "32px", "$type": "dimension" },
+    "8": { "$value": "40px", "$type": "dimension" }
+  },
+  "radius": {
+    "shell": { "$value": "16px",  "$type": "dimension" },
+    "card":  { "$value": "14px",  "$type": "dimension" },
+    "tile":  { "$value": "10px",  "$type": "dimension" },
+    "chip":  { "$value": "8px",   "$type": "dimension" },
+    "pill":  { "$value": "999px", "$type": "dimension" }
+  },
+  "shadow": {
+    "card": { "$value": "0 1px 0 #e0dfdc, 0 2px 6px rgba(15,15,16,.025)" },
+    "pop":  { "$value": "0 4px 12px rgba(15,15,16,.08), 0 1px 0 #e0dfdc" },
+    "cta":  { "$value": "0 1px 0 rgba(15,15,16,.06), 0 6px 16px rgba(93,78,224,.18)" }
+  },
+  "motion": {
+    "ease": {
+      "out":    { "$value": "cubic-bezier(0.22, 0.61, 0.36, 1)" },
+      "in-out": { "$value": "cubic-bezier(0.4, 0.0, 0.2, 1)" }
+    },
+    "duration": {
+      "fast": { "$value": "120ms" },
+      "base": { "$value": "180ms" },
+      "slow": { "$value": "240ms" }
+    }
+  }
+}

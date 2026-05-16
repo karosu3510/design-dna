@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Mercury · Changelog</title>
+<link rel="stylesheet" href="../design-system.css">
+<style>
+  /* Token-only — no new colors, no new font families.
+     If this still feels like Mercury, the system carries. */
+  body{min-height:100vh;padding:64px 0}
+  .page{width:920px;margin:0 auto;display:grid;grid-template-columns:200px 1fr;gap:36px}
+
+  .side{padding-top:6px;position:sticky;top:32px;align-self:flex-start}
+  .side-brand{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+  .side-brand .mark{width:22px;height:22px;border-radius:6px;background:var(--mc-c-ink);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-weight:700;font-size:13px}
+  .side-brand .name{font-size:14px;font-weight:600;color:var(--mc-c-ink)}
+  .side-sub{font-family:var(--mc-font-mono);font-size:11px;color:var(--mc-c-mute);letter-spacing:.06em;text-transform:uppercase;margin-bottom:18px;padding-left:32px}
+
+  .side-link{display:flex;align-items:center;gap:8px;padding:6px 10px;font-size:13px;color:var(--mc-c-ink-3);text-decoration:none;border-radius:8px}
+  .side-link:hover{background:var(--mc-c-surface-mute);color:var(--mc-c-ink)}
+  .side-link.active{background:var(--mc-c-surface-mute);color:var(--mc-c-ink);font-weight:550}
+  .side-link.active::before{content:'›';margin-right:4px;color:var(--mc-c-p-500)}
+  .side-link .v{font-family:var(--mc-font-mono);font-size:12px}
+
+  main{padding-top:6px}
+  .head{margin-bottom:36px}
+  .head .eyebrow{font-family:var(--mc-font-mono);font-size:11px;color:var(--mc-c-mute);letter-spacing:.10em;text-transform:uppercase;margin-bottom:10px}
+  .head h1{font-family:var(--mc-font-sans);font-size:42px;line-height:1;color:var(--mc-c-ink);letter-spacing:-.025em;font-weight:600}
+  .head .lead{margin-top:14px;font-size:15px;color:var(--mc-c-ink-3);line-height:1.7;max-width:600px}
+
+  .release{margin-bottom:18px;padding:24px 28px}
+  .release-head{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:10px}
+  .release-head .ver{font-family:var(--mc-font-mono);font-size:34px;line-height:1;color:var(--mc-c-ink);letter-spacing:-.02em;font-weight:500}
+  .release-head .meta-r{text-align:right;font-family:var(--mc-font-mono);font-size:12px;color:var(--mc-c-mute);line-height:1.7}
+  .release-head .meta-r .live{display:inline-flex;align-items:center;gap:6px;color:var(--mc-c-pos);font-weight:500;font-family:var(--mc-font-sans)}
+  .release-head .meta-r .live .dot{width:7px;height:7px;background:var(--mc-c-pos);border-radius:50%;display:inline-block;box-shadow:0 0 0 3px var(--mc-c-pos-bg)}
+
+  .section{margin-top:14px}
+  .section h3{font-size:11px;color:var(--mc-c-mute);letter-spacing:.10em;text-transform:uppercase;margin-bottom:8px;font-weight:500}
+
+  .entries{padding:0;list-style:none;margin:0}
+  .entries li{display:grid;grid-template-columns:18px 1fr;gap:10px;padding:7px 0;font-size:14px;color:var(--mc-c-ink-2);line-height:1.55}
+  .entries li::before{content:'+';font-family:var(--mc-font-mono);font-size:14px;color:var(--mc-c-pos);line-height:1.5;font-weight:500}
+  .entries.fix li::before{content:'~';color:var(--mc-c-mute)}
+  .entries.break li::before{content:'!';color:var(--mc-c-neg)}
+  .entries li code{font-family:var(--mc-font-mono);font-size:12.5px;color:var(--mc-c-ink);background:var(--mc-c-surface-mute);padding:0 6px;border-radius:4px;letter-spacing:0}
+  .entries li b{color:var(--mc-c-ink);font-weight:550}
+
+  .release-foot{margin-top:18px;padding-top:14px;border-top:1px solid var(--mc-c-hair)}
+  .release-foot .strip{font-family:var(--mc-font-mono);font-size:11px;color:var(--mc-c-mute);display:flex;justify-content:space-between}
+
+  footer{margin-top:48px;padding-top:24px;border-top:1px solid var(--mc-c-hair);font-family:var(--mc-font-mono);font-size:11px;color:var(--mc-c-mute);letter-spacing:.06em;display:flex;justify-content:space-between}
+  footer a{color:inherit;text-decoration:none}
+</style>
+</head>
+<body>
+<div class="page">
+  <aside class="side">
+    <div class="side-brand">
+      <span class="mark">M</span>
+      <span class="name">Mercury</span>
+    </div>
+    <div class="side-sub">Changelog · v1</div>
+
+    <a class="side-link active" href="#v1-4"><span class="v">v1.4</span> · live</a>
+    <a class="side-link" href="#v1-3"><span class="v">v1.3</span></a>
+    <a class="side-link" href="#v1-2"><span class="v">v1.2</span></a>
+    <a class="side-link" href="#v1-1"><span class="v">v1.1</span></a>
+    <a class="side-link" href="#v1-0"><span class="v">v1.0</span></a>
+  </aside>
+
+  <main>
+    <section class="head">
+      <div class="eyebrow">RELEASE LOG · TREASURY</div>
+      <h1>Changelog</h1>
+      <p class="lead">Every shipped version of Mercury. Newest on top. Plus
+        means new feature, tilde means fix, exclamation means breaking change.
+        Unstable channels are excluded — only general-availability lives here.</p>
+    </section>
+
+    <article id="v1-4" class="mc-card release">
+      <div class="release-head">
+        <div>
+          <div class="ver">v1.4</div>
+          <span class="mc-pill mc-pill--info" style="margin-top:8px">stable</span>
+        </div>
+        <div class="meta-r">
+          <div>2026-05-16</div>
+          <div class="live"><span class="dot"></span>now live</div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3>Added</h3>
+        <ul class="entries">
+          <li><b>Cash position chart</b> — daily balance across all USD accounts with smooth purple area gradient + secondary mute baseline.</li>
+          <li><b>Mercury IO yield card</b> — ambient sidebar surface using purple-50 + purple-100 hairline.</li>
+          <li>Live status dot pill <code>.mc-status</code> ships with 1800ms opacity pulse.</li>
+          <li>Range tabs <code>.mc-tabs</code> — segmented control with shadow-lifted active state.</li>
+        </ul>
+      </div>
+
+      <div class="section">
+        <h3>Fixed</h3>
+        <ul class="entries fix">
+          <li>Hero balance numerals tracking was off by 0.005em — re-locked to <code>-0.025em</code>.</li>
+          <li>Card shadow stacking under sticky topbar — second layer now respects elevation order.</li>
+          <li>Live sync timestamp drift after sleep — recompute on <code>visibilitychange</code>.</li>
+        </ul>
+      </div>
+
+      <div class="release-foot">
+        <div class="strip"><span>shipped 21:30 UTC</span><span>build 14920</span></div>
+      </div>
+    </article>
+
+    <article id="v1-3" class="mc-card release">
+      <div class="release-head">
+        <div><div class="ver">v1.3</div></div>
+        <div class="meta-r"><div>2026-04-22</div><div>retired</div></div>
+      </div>
+      <div class="section">
+        <h3>Added</h3>
+        <ul class="entries">
+          <li>Sidebar account row <code>.mc-acct</code> — avatar + name + masked number + tabular-nums balance.</li>
+          <li>Section caption <code>.mc-section</code> with 0.06em uppercase tracking.</li>
+          <li>Sparkline pattern: tabular-nums numeric on top + canvas line below; never reverse it.</li>
+        </ul>
+      </div>
+      <div class="section">
+        <h3>Fixed</h3>
+        <ul class="entries fix">
+          <li>Status pill height drifting 1px between rows when mixed with non-mono labels.</li>
+        </ul>
+      </div>
+      <div class="release-foot"><div class="strip"><span>shipped 09:12 UTC</span><span>build 13770</span></div></div>
+    </article>
+
+    <article id="v1-2" class="mc-card release">
+      <div class="release-head">
+        <div><div class="ver">v1.2</div></div>
+        <div class="meta-r"><div>2026-03-08</div><div>retired</div></div>
+      </div>
+      <div class="section">
+        <h3>Breaking</h3>
+        <ul class="entries break">
+          <li>Removed all heavy <code>box-shadow</code> tokens. New default is the 2-layer subtle shadow only. Audit custom cards that referenced <code>--mc-shadow-lg</code>.</li>
+          <li>Page background lifted from pure <code>#fff</code> to warm <code>#fbfaf7</code>. Audit any hard-coded canvas backgrounds.</li>
+        </ul>
+      </div>
+      <div class="section">
+        <h3>Added</h3>
+        <ul class="entries">
+          <li>JetBrains Mono web-loaded as default numeric face — Inter handles all verbal copy.</li>
+          <li>Semantic kv pills <code>.mc-pill--pos / --neg / --warn / --info / --neutral</code>.</li>
+        </ul>
+      </div>
+      <div class="release-foot"><div class="strip"><span>shipped 11:32 UTC</span><span>build 12064</span></div></div>
+    </article>
+
+    <article id="v1-1" class="mc-card release">
+      <div class="release-head">
+        <div><div class="ver">v1.1</div></div>
+        <div class="meta-r"><div>2026-02-14</div><div>retired</div></div>
+      </div>
+      <div class="section">
+        <h3>Added</h3>
+        <ul class="entries">
+          <li>Brand purple scale (50/100/200/400/500/600/700) + <code>--mc-c-p-glow</code> halo.</li>
+          <li>Primary CTA <code>.mc-btn--primary</code> with <code>--mc-shadow-cta</code> halo shadow.</li>
+        </ul>
+      </div>
+      <div class="release-foot"><div class="strip"><span>shipped 14:08 UTC</span><span>build 10412</span></div></div>
+    </article>
+
+    <article id="v1-0" class="mc-card release">
+      <div class="release-head">
+        <div><div class="ver">v1.0</div></div>
+        <div class="meta-r"><div>2026-01-04</div><div>archive</div></div>
+      </div>
+      <div class="section">
+        <h3>Added</h3>
+        <ul class="entries">
+          <li>Initial 4px modular grid + 5-step radius scale 16/14/10/8/999.</li>
+          <li>Ink ramp + hairline tokens locked in (5 + 3 levels).</li>
+          <li>Inter primary + JetBrains Mono numerics pairing established.</li>
+        </ul>
+      </div>
+      <div class="release-foot"><div class="strip"><span>shipped 00:00 UTC</span><span>build 09001</span></div></div>
+    </article>
+
+    <footer>
+      <span>Mercury · changelog · v1.4</span>
+      <span><a href="https://karosu3510.github.io/design-dna/" target="_blank">karosu3510.github.io/design-dna</a></span>
+    </footer>
+  </main>
+</div>
+</body>
+</html>

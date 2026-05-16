@@ -500,6 +500,7 @@
 <script src="./carrot-tech-doc.js"></script>
 <script src="./superhi-plus-doc.js?v=202605161457"></script>
 <script src="./a-record-doc.js"></script>
+<script src="./vercel-deploy-doc.js"></script>
 <script src="./book-gallery-3d-doc.js"></script>
 <script src="./delphi-three-doc.js"></script>
 <script src="./webgl-magazine-doc.js?v=202605161457"></script>
@@ -819,7 +820,7 @@ function makeCardEl(d){
   // 新增 kit 后只需要在这个 Set 里加 slug。
   // slug 解析优先用 styleLock（处理 buildPinnedFor 生成的动态 id 如 d4ax 这类情况），
   // 退化时再用 id 去掉 'd-' 前缀（处理静态 pinned 卡片如 'd-a-record'）。
-  const KIT_AVAILABLE = new Set(['a-record','nothing','retro-ascii']);
+  const KIT_AVAILABLE = new Set(['a-record','nothing','retro-ascii','mercury']);
   const _slug = d.styleLock || (d.id||'').replace(/^d-/, '');
   if(KIT_AVAILABLE.has(_slug)){
     const fav = document.createElement('button');
@@ -1624,6 +1625,14 @@ function buildPinnedFor(styleId, headlineFallback){
       id:'d-a-record', styleId:'a-record', styleLabel:'Warm audio dashboard', sref:'a-record-pin', prompt:'a.Record warm minimal vocal tracking dashboard', pinned:true,
       title:'a.Record · Vocal tracking', height:720, styleLock:'a-record',
       doc: (typeof A_RECORD_DOC !== 'undefined') ? A_RECORD_DOC : '', externalUrl:'a-record.html'
+    });
+  } catch(_){}
+  // Vercel Deploy — frontend cloud overview (Geist + shadow-as-border)
+  try {
+    firstBatch.push({
+      id:'d-vercel-deploy', styleId:'vercel-deploy', styleLabel:'Vercel · Frontend cloud', sref:'vercel-deploy-pin', prompt:'Vercel deploy dashboard with Geist typography, shadow-as-border, three-step pipeline', pinned:true,
+      title:'Vercel · Ship at the speed of thought', height:720, styleLock:'vercel-deploy',
+      doc: (typeof VERCEL_DEPLOY_DOC !== 'undefined') ? VERCEL_DEPLOY_DOC : '', externalUrl:'vercel-deploy.html'
     });
   } catch(_){}
   // Glyph OS removed (2026-05-16) — overlaps with Nothing System dashboard, kept only Nothing as the canonical pixel-desktop sample.
