@@ -177,24 +177,50 @@ function _mountIframe(card){
   card.__liveFrame = f;
 }
 
-// 视口里能看到的卡都活，离屏全部 unmount。
-// rootMargin=120px 已经把"intersecting"限制到真实可见区域附近，靠 IntersectionObserver
-// 自然行为决定 mount/unmount 集合即可，无需再叠 LIVE_BUDGET——那只会踢掉用户正在看的卡。
-// dashboard 5 张照旧常驻，浏览器对完全离屏的 iframe 自动 throttle。
+// LRU 视口预算 + 永不 remount 已卸载的卡之外的「最近 N 张」。
+//
+// 实测得到的两条铁律：
+//  1. 浏览器对反复 unmount→remount 的 iframe 会冷启动 RAF（实测延迟 5-10s 才出现第一帧），
+//     看起来就是 karo 报告的「几秒后变静态」。
+//  2. 30+ 张 live iframe 同时跑会让父页面主线程冻死，hover/click 失灵。
+//
+// 折中：维持一个 LRU 队列（含视口内 + 最近滚走的几张），队尾踢出去的卡才真正 unmount。
+// LIVE_BUDGET=10 给 5 视口卡 + 5 缓冲；用户在视口附近来回滚不会触发 unmount/remount 风暴。
+var LIVE_BUDGET = 10;
+var liveOrder = [];
+
+function _evictIfOverBudget(){
+  while(liveOrder.length > LIVE_BUDGET){
+    var victim = null, victimIdx = -1;
+    // 优先踢离屏的（visible=false）
+    for(var i=0;i<liveOrder.length;i++){
+      if(!liveOrder[i].__visible){ victim = liveOrder[i]; victimIdx = i; break; }
+    }
+    if(!victim){ victim = liveOrder[0]; victimIdx = 0; }
+    liveOrder.splice(victimIdx,1);
+    _unmountLive(victim);
+  }
+}
 
 var _liveObserver = ('IntersectionObserver' in window) ? new IntersectionObserver(function(entries){
   entries.forEach(function(e){
     var card = e.target;
     card.__visible = e.isIntersecting;
     if(e.isIntersecting){
-      if(!card.__live) _mountIframe(card);
-    } else {
-      // dashboard 卡常驻，离屏不卸载（浏览器自动 throttle）
-      if(card.__isDashboard) return;
-      if(card.__live) _unmountLive(card);
+      if(!card.__live){
+        _mountIframe(card);
+        if(!card.__isDashboard){
+          liveOrder.push(card);
+          _evictIfOverBudget();
+        }
+      } else if(!card.__isDashboard){
+        // 已 live 的卡进视口 → 标记最近使用
+        var i = liveOrder.indexOf(card);
+        if(i >= 0){ liveOrder.splice(i,1); liveOrder.push(card); }
+      }
     }
   });
-},{ rootMargin:'120px 0px 120px 0px' }) : null;
+},{ rootMargin:'200px 0px 200px 0px' }) : null;
 // rootMargin 从 400px 收紧到 120px：rootMargin 太大 = 视口外几屏的卡也被算 intersecting 提前 mount，
 // 几十张 WebGL iframe 同时跑会让主线程卡死。120px 让 mount 紧贴可视区，离开半屏立刻 unmount。
 // 没有 scroll handler，IntersectionObserver 已够异步触发。
