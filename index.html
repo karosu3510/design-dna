@@ -486,6 +486,7 @@
 <script src="./pixel-transition-doc.js"></script>
 <script src="./makeway-grid-effect-doc.js"></script>
 <script src="./text-repetition-effect-doc.js"></script>
+<script src="./cinematic-3d-scroll-doc.js"></script>
 <!-- mono-x7 removed -->
 <!-- lumi removed -->
 <script>
@@ -1553,6 +1554,14 @@ function buildPinnedFor(styleId, headlineFallback){
       id:'d-text-repetition-effect', styleId:'text-repetition-effect', styleLabel:'Text repetition', sref:'codrops-text-repetition', prompt:'Codrops Text Repetition scroll effect repeated large typography', pinned:true,
       title:'Text Repetition · Scroll typography', height:720, styleLock:'text-repetition-effect',
       doc: (typeof TEXT_REPETITION_EFFECT_DOC !== 'undefined') ? TEXT_REPETITION_EFFECT_DOC : '', externalUrl:'text-repetition-effect.html'
+    });
+  } catch(_){}
+  // Cinematic 3D Scroll — Codrops GSAP/OGL cylinder carousel
+  try {
+    firstBatch.push({
+      id:'d-cinematic-3d-scroll', styleId:'cinematic-3d-scroll', styleLabel:'Cinematic 3D', sref:'codrops-cinematic-3d-scroll', prompt:'Codrops Cinematic 3D Scroll GSAP OGL cylinder carousel particles', pinned:true,
+      title:'Cinematic 3D Scroll · Cylinder', height:720, styleLock:'cinematic-3d-scroll',
+      doc: (typeof CINEMATIC_3D_SCROLL_DOC !== 'undefined') ? CINEMATIC_3D_SCROLL_DOC : '', externalUrl:'cinematic-3d-scroll.html'
     });
   } catch(_){}
   // Marginalia — warm editorial microsite (live 1100x720 thumbnail)
