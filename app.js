@@ -177,25 +177,62 @@ function _mountIframe(card){
   card.__liveFrame = f;
 }
 
+// LIVE_BUDGET：同时 mount 的非 dashboard iframe 上限。WebGL/Three.js 重资源卡（gpu-io-fluid /
+// delphi-three / cinematic-3d-scroll / pixel-transition / webgl-magazine / card-beam-animation 等）
+// 单张就能吃掉一个 GPU 通道；超过 4 张就会把 tab 主线程吃死，hover/click 全部失灵。Variant 实测同时
+// 活 ≤ 4-5 张。这里取 4 留余量给 5 张常驻 dashboard。
+var LIVE_BUDGET = 4;
+var liveOrder = []; // 按进入视口的时间排队（最早进的最先 evict）
+
+function _evictIfOverBudget(){
+  // 仅 evict 非 dashboard、且当前不在视口的卡。如果都在视口就不动（用户正在看的不能炸）
+  while(liveOrder.length > LIVE_BUDGET){
+    var victim = null, victimIdx = -1;
+    for(var i = 0; i < liveOrder.length; i++){
+      var c = liveOrder[i];
+      if(!c.__isDashboard && !c.__visible){ victim = c; victimIdx = i; break; }
+    }
+    if(!victim){
+      // 没找到合适的牺牲品（说明视口里挤进了 >LIVE_BUDGET 张 video poster 卡），
+      // 退而求其次踢最早进入的非 dashboard 卡
+      for(var j = 0; j < liveOrder.length; j++){
+        var cc = liveOrder[j];
+        if(!cc.__isDashboard){ victim = cc; victimIdx = j; break; }
+      }
+    }
+    if(!victim) break;
+    liveOrder.splice(victimIdx,1);
+    _unmountLive(victim);
+  }
+}
+
 var _liveObserver = ('IntersectionObserver' in window) ? new IntersectionObserver(function(entries){
   entries.forEach(function(e){
     var card = e.target;
     card.__visible = e.isIntersecting;
     if(e.isIntersecting){
-      if(!card.__live) _mountIframe(card);
+      if(!card.__live){
+        _mountIframe(card);
+        liveOrder.push(card);
+        _evictIfOverBudget();
+      }
     } else {
       // dashboard 卡（5 张）一旦 mount 就常驻：
       // 1) 反复 unmount/remount 会重新 parse 几十 KB srcdoc + 重启内部 RAF，
-      //    滚回顶部时 5 张同时排队会让主线程卡死，preview 还没消失就被 setTimeout 强制隐藏 → 黑屏。
-      // 2) 5 张常驻 RAF 实测 gap 仍稳定 8-17ms，远低于 30 张 iframe 全活的崩溃阈值。
-      // 3) 浏览器对完全离屏的 iframe 会自动 throttle 内部动画，CPU 负担可忽略。
+      //    滚回顶部时 5 张同时排队会让主线程卡死。
+      // 2) 浏览器对完全离屏的 iframe 会自动 throttle 内部动画，CPU 负担可忽略。
       if(card.__isDashboard) return;
-      if(card.__live) _unmountLive(card);
+      if(card.__live){
+        var idx = liveOrder.indexOf(card);
+        if(idx >= 0) liveOrder.splice(idx, 1);
+        _unmountLive(card);
+      }
     }
   });
-},{ rootMargin:'400px 0px 400px 0px' }) : null;
-// 不再绑 scroll 上的全量 layout 函数：每帧重算 34 张 getBoundingClientRect 会锁死主线程，
-// 导致 hover/click 永远排不进事件队列。IntersectionObserver 异步触发已经够用。
+},{ rootMargin:'120px 0px 120px 0px' }) : null;
+// rootMargin 从 400px 收紧到 120px：rootMargin 太大 = 视口外几屏的卡也被算 intersecting 提前 mount，
+// 几十张 WebGL iframe 同时跑会让主线程卡死。120px 让 mount 紧贴可视区，离开半屏立刻 unmount。
+// 没有 scroll handler，IntersectionObserver 已够异步触发。
 
 function buildStyleChips(){
   const row = document.getElementById('styleRow');
