@@ -103,13 +103,15 @@ const designStore = new Map();
 const lazyFrames = new Set();
 
 // ═══════════════════════════════════════════════════════════════════
-// Variant 式分层架构：feed = video poster loop，按视口预算 mount/unmount
+// Variant 式 feed：iframe.src + jpg 占位 + IntersectionObserver 视口预算
 // ═══════════════════════════════════════════════════════════════════
-//   1. 每张非 dashboard 卡是 <video poster=jpg src=webm>，离屏 pause + jpg 占位。
-//   2. 5 张 dashboard srcdoc 改成进视口才挂、离屏卸载，避免常驻 RAF 把主线程吃干。
-//   3. 没有「视口内额外升级 iframe」的逻辑——video loop 已经够看；点开卡片走详情页。
-//   4. 详情视图保持原 iframe 流程，全功能。
-const liveSet = new Set();      // 当前已 mount 的 card（仅 dashboard srcdoc）
+//   1. 默认每张卡是 <img class="card-poster"> 占位（来自 posters/<slug>.jpg），不挂 iframe。
+//   2. 进视口（含 rootMargin buffer）才挂 sandboxed <iframe src="<slug>.html">，
+//      离开视口立刻 iframe.src='about:blank' + 移除节点 → 释放 RAF / 内存。
+//   3. dashboard 5 张（无 externalUrl）走 srcdoc，同样按 observer 视口预算。
+//   4. 同时活的 iframe 数量由浏览器自动控制（视口能容纳的 + rootMargin 内的，约 6-9 张）。
+//      没有手写每帧 layout 的 scroll handler，主线程不会被锁。
+const liveSet = new Set();
 function _unmountLive(card){
   if(!card || !card.__live) return;
   card.__live = false;
@@ -120,7 +122,7 @@ function _unmountLive(card){
     if(card.__liveFrame.parentNode) card.__liveFrame.parentNode.removeChild(card.__liveFrame);
     card.__liveFrame = null;
   }
-  // 让 preview 占位重新出现，避免下次进入视口前出现纯黑卡
+  // 让 preview/poster 占位重新出现
   var p = card.__preview;
   if(p){
     p.__hiding = false;
@@ -128,50 +130,26 @@ function _unmountLive(card){
     p.style.display = '';
   }
 }
-var _liveObserver = ('IntersectionObserver' in window) ? new IntersectionObserver(function(entries){
-  entries.forEach(function(e){
-    var card = e.target;
-    card.__visible = e.isIntersecting;
-    var v = card.__videoEl;
-    if(e.isIntersecting){
-      // dashboard 卡：进入视口才挂 srcdoc，离开就卸载
-      if(card.__isDashboard && !card.__live){
-        _mountDashboardSrcdoc(card);
-      }
-      if(v){
-        try{
-          if(!v.src) v.src = 'posters/' + card.__slug + '.webm';
-          v.play().catch(function(){});
-        }catch(_){}
-      }
-    } else {
-      // dashboard 离屏也卸载，避免 5 个 RAF 永远在跑
-      if(card.__isDashboard && card.__live){
-        _unmountLive(card);
-      }
-      if(v){
-        try{ v.pause(); }catch(_){}
-      }
-    }
-  });
-},{ rootMargin:'400px 0px 400px 0px' }) : null;
-// 不再绑 scroll 上的全量 _balanceLive：每帧重算 34 张 getBoundingClientRect 会锁死主线程，
-// 导致 hover/click 永远排不进事件队列。IntersectionObserver 异步触发已经够用。
 
-// ─── dashboard 卡（buildPinnedFor 5 张）需要常驻 srcdoc：直接挂 iframe ───
-function _mountDashboardSrcdoc(card){
+// 通用 iframe 挂载：根据 card 是 dashboard 还是外链卡，分别走 srcdoc / src
+function _mountIframe(card){
   if(card.__live) return;
   card.__live = true;
   liveSet.add(card);
   var f = document.createElement('iframe');
   f.className = 'card-frame card-frame--live';
   f.setAttribute('sandbox','allow-scripts allow-same-origin');
+  f.setAttribute('loading','lazy');
   f.style.height = card.__frameHeight + 'px';
-  f.style.width = '1100px';
-  f.style.transformOrigin = 'top left';
-  f.style.transform = card.__frameTransform || '';
-  f.srcdoc = card.__doc || '';
-  var hideDashboardPreview = function(){
+  // 跟原布局一致：所有 styleLock 卡按 1100 逻辑宽渲染再 scale
+  if(card.classList.contains('has-scale')){
+    f.style.width = '1100px';
+    f.style.transformOrigin = 'top left';
+    f.style.transform = card.__frameTransform || '';
+  }
+  var revealed = false;
+  var reveal = function(){
+    if(revealed) return; revealed = true;
     card.classList.add('is-live');
     var p = card.__preview;
     if(p && !p.__hiding){
@@ -181,13 +159,34 @@ function _mountDashboardSrcdoc(card){
     }
   };
   f.addEventListener('load', function(){
-    requestAnimationFrame(function(){ requestAnimationFrame(hideDashboardPreview); });
+    requestAnimationFrame(function(){ requestAnimationFrame(reveal); });
   });
-  // 兜底：1500ms 后无论 load 是否触发都淡出占位（dashboard 卡内部资源可能拖慢 load）
-  setTimeout(hideDashboardPreview, 1500);
+  // 兜底：1500ms 后即使 load 没 fire 也淡出 poster（重资源 iframe 的 load 可能很慢）
+  setTimeout(reveal, 1500);
+  if(card.__isDashboard){
+    f.srcdoc = card.__doc || '';
+  } else if(card.__extUrl){
+    f.src = card.__extUrl;
+  } else {
+    try{ f.srcdoc = card.__doc || ''; }catch(_){ }
+  }
   card.appendChild(f);
   card.__liveFrame = f;
 }
+
+var _liveObserver = ('IntersectionObserver' in window) ? new IntersectionObserver(function(entries){
+  entries.forEach(function(e){
+    var card = e.target;
+    card.__visible = e.isIntersecting;
+    if(e.isIntersecting){
+      if(!card.__live) _mountIframe(card);
+    } else {
+      if(card.__live) _unmountLive(card);
+    }
+  });
+},{ rootMargin:'400px 0px 400px 0px' }) : null;
+// 不再绑 scroll 上的全量 layout 函数：每帧重算 34 张 getBoundingClientRect 会锁死主线程，
+// 导致 hover/click 永远排不进事件队列。IntersectionObserver 异步触发已经够用。
 
 function buildStyleChips(){
   const row = document.getElementById('styleRow');
@@ -225,17 +224,15 @@ function makeCardEl(d){
 
   // ─── 缩放路径（保持重构前一致）：所有 styleLock 卡都按 1100 逻辑宽渲染，
   // 外层 transform 缩到 1/3 列宽。让 dashboard / video poster 的视觉高度跟旧版一致。
-  // ─── 挂载路径：只有「有 styleLock 且没有 externalUrl」的卡（buildPinnedFor 5 张）
-  // 走常驻内联 srcdoc。其它 styleLock 卡有独立 HTML，feed 里走 video poster。
+  // ─── 挂载路径：dashboard（无 externalUrl）走 srcdoc；其余走 iframe.src（变体卡） ───
   const hasExt = !!d.externalUrl && d.externalUrl.indexOf('http') !== 0;
   const isScaled = !!d.styleLock;            // 控制布局：是否按 1100 缩放
-  const isDashboard = !!d.styleLock && !hasExt;  // 控制挂载：是否常驻 srcdoc
+  const isDashboard = !!d.styleLock && !hasExt;
   const LOGICAL_W = isScaled ? 1100 : 0;
   if(isScaled) card.classList.add('has-scale');
 
   // 解析 slug：dashboard 用 styleLock，其它从 externalUrl 推导
   const slug = d.styleLock || (d.externalUrl||'').replace(/\.html$/,'').split('/').pop() || d.id;
-  const HAS_VIDEO_POSTER = hasExt;
 
   card.__isDashboard = isDashboard;
   card.__extUrl = d.externalUrl || '';
@@ -244,74 +241,23 @@ function makeCardEl(d){
   card.__slug = slug;
 
   // ─── 占位层先挂上（确保 mount 路径里 card.__preview 已存在） ───
+  // jpg poster 作为视口外的「静态预览」，确保滚到没动画的卡也不空白。
+  // 卡片首次离屏后，iframe 被卸载，poster 立刻重现。
   const preview = document.createElement('div');
   preview.className = 'card-preview';
-  preview.innerHTML = '<div class="card-preview-shimmer"></div><div class="card-preview-title">'+(d.title||'Design preview')+'</div><div class="card-preview-sub">'+(d.styleLabel||'Design DNA')+'</div>';
+  // dashboard 没录 jpg poster，退回纯渐变 + 标题
+  var posterUrl = hasExt ? ('posters/' + slug + '.jpg') : '';
+  preview.innerHTML =
+    (posterUrl ? '<img class="card-poster" alt="" loading="lazy" src="'+posterUrl+'"/>' : '') +
+    '<div class="card-preview-shimmer"></div>'+
+    '<div class="card-preview-title">'+(d.title||'Design preview')+'</div>'+
+    '<div class="card-preview-sub">'+(d.styleLabel||'Design DNA')+'</div>';
   card.__preview = preview;
-
-  if(HAS_VIDEO_POSTER){
-    // Variant 式 feed：默认 video poster loop，浏览器原生动画，CPU 极轻。
-    // 跟原 iframe 一样按 1100×<height> 逻辑尺寸渲染，外层 transform scale 缩到列宽，
-    // 这样和重构前的 dashboard 缩放路径完全一致。
-    const v = document.createElement('video');
-    v.className = 'card-frame card-frame--video';
-    v.style.height = card.__frameHeight + 'px';
-    if(isScaled){
-      v.style.width = LOGICAL_W + 'px';
-      v.style.transformOrigin = 'top left';
-    }
-    v.muted = true; v.loop = true; v.playsInline = true;
-    // 不设 autoplay：由 _liveObserver 在视口内手动 play()，离屏 pause()。
-    // 全量 autoplay 会让 29 个 video 同时解码，挤占 GPU/主线程，导致首屏卡片 RAF 被节流变静态。
-    v.setAttribute('preload','metadata');
-    v.poster = 'posters/' + slug + '.jpg';
-    v.src = 'posters/' + slug + '.webm';
-    card.appendChild(v);
-    card.__videoEl = v;
-    if(_liveObserver) _liveObserver.observe(card);
-  } else if(isDashboard){
-    // dashboard 卡：以前是常驻 srcdoc，但 5 张同时跑 RAF/canvas 会让主线程在
-    // 滚动时无法响应 hover/click。改成跟 video 一样走 observer：进视口才挂，
-    // 离屏就卸载。observer 见下面的 _liveObserver。
-    card.__frameTransform = '';
-    if(_liveObserver) _liveObserver.observe(card);
-  } else {
-    // 外链 / 无 externalUrl：fallback 到原 iframe.src
-    const f = document.createElement('iframe');
-    f.className = 'card-frame card-frame--live';
-    f.setAttribute('sandbox','allow-scripts allow-same-origin');
-    f.style.height = card.__frameHeight + 'px';
-    if(d.externalUrl) f.src = d.externalUrl;
-    else try{ f.srcdoc = d.doc || ''; }catch(_){ }
-    f.addEventListener('load', function(){
-      card.classList.add('is-live');
-      var p = card.__preview;
-      if(p && !p.__hiding){
-        p.__hiding = true;
-        p.classList.add('is-hiding');
-        setTimeout(function(){ if(p.parentNode) p.style.display='none'; }, 320);
-      }
-    });
-    card.appendChild(f);
-    card.__liveFrame = f;
-  }
-
-  // 把占位层挂到 iframe/video 之上
   card.appendChild(preview);
-  // video poster 加载后立刻把 shimmer/标题层淡出（不等 6s 全帧）
-  if(card.__videoEl){
-    var hidePoster = function(){
-      preview.classList.add('is-hiding');
-      setTimeout(function(){ preview.style.display='none'; }, 320);
-      card.classList.add('is-live');
-    };
-    if(card.__videoEl.readyState >= 2) hidePoster();
-    else {
-      card.__videoEl.addEventListener('loadeddata', hidePoster, { once:true });
-      // 兜底：800ms 后无论如何隐藏占位（poster jpg 永远会在）
-      setTimeout(hidePoster, 800);
-    }
-  }
+
+  // 所有卡都走 IntersectionObserver：进视口挂 iframe，离屏卸载
+  if(_liveObserver) _liveObserver.observe(card);
+  else _mountIframe(card);
 
   // ─── 高度对齐策略 ───
   // 1) 普通卡：按模板声明 d.height 直接 span。
@@ -326,9 +272,8 @@ function makeCardEl(d){
       var scale = Math.min(1, cardW / LOGICAL_W);
       var tf = 'scale(' + scale + ')';
       card.__frameTransform = tf;
-      // 同步给已挂的 dashboard iframe / video poster 元素
+      // 同步给已挂的 iframe（dashboard srcdoc 或外链 src）
       if(card.__liveFrame) card.__liveFrame.style.transform = tf;
-      if(card.__videoEl) card.__videoEl.style.transform = tf;
       cardH = Math.round((d.height || 360) * scale) + 2;
     } else {
       cardH = fallbackH;

@@ -70,12 +70,12 @@
   @keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
   .card:hover{border-color:var(--border-strong)}
   .card-frame{width:100%;display:block;border:0;background:#0a0a0a;color-scheme:dark;pointer-events:none}
-  .card-frame--video{opacity:1;display:block}
-  .card.has-scale > .card-frame--video{position:absolute;top:0;left:0;width:auto}
   .card-frame--live{position:absolute;inset:0;width:100%;opacity:0;transition:opacity .35s ease}
   .card.has-scale > .card-frame--live{position:absolute;top:0;left:0;width:auto}
   .card.is-live .card-frame--live{opacity:1}
   .card-preview{position:absolute;inset:0;z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:24px;text-align:center;background:linear-gradient(180deg,#1a1a1a,#111);color:#fff;pointer-events:none;transition:opacity .35s ease;overflow:hidden}
+  .card-preview .card-poster{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0}
+  .card-preview .card-preview-title,.card-preview .card-preview-sub{position:relative;z-index:1}
   .card-preview-shimmer{position:absolute;inset:0;background:linear-gradient(110deg,transparent 30%,rgba(255,255,255,.06) 50%,transparent 70%);background-size:250% 100%;animation:shimmer 2s ease-in-out infinite}
   @keyframes shimmer{0%{background-position:100% 0}100%{background-position:-100% 0}}
   .card-preview.is-hiding{opacity:0}
