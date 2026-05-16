@@ -397,10 +397,25 @@ If a request requires a saturated color, sharp shadow, or display serif, push ba
     btn.innerHTML = '复制中…';
     try{
       await navigator.clipboard.writeText(prompt);
-      // 打开 WorkBuddy 主站
-      window.open('https://www.codebuddy.cn/', '_blank', 'noopener');
-      btn.innerHTML = '✓ 提示词已复制，请粘贴';
-      setTimeout(function(){ btn.innerHTML = orig; }, 2200);
+      // 1) 优先用 deep link 唤起本地 WorkBuddy 桌面应用
+      //    codebuddy:// 是 WorkBuddy app 注册的协议（参见 /Applications/WorkBuddy.app Info.plist）
+      var triggered = false;
+      try{
+        var iframe = document.createElement('iframe');
+        iframe.style.display='none';
+        iframe.src = 'codebuddy://codebuddy-ide';
+        document.body.appendChild(iframe);
+        setTimeout(function(){ try{ iframe.remove(); }catch(_){} }, 1500);
+        triggered = true;
+      }catch(_){}
+      // 2) 兜底：1.2s 后如果页面还可见且未隐藏（app 没唤起 / 没装），打开官网下载页
+      setTimeout(function(){
+        if(document.visibilityState === 'visible'){
+          window.open('https://www.codebuddy.cn/', '_blank', 'noopener');
+        }
+      }, 1200);
+      btn.innerHTML = '✓ 已复制 · 正在唤起 WorkBuddy';
+      setTimeout(function(){ btn.innerHTML = orig; }, 2400);
     }catch(err){
       // 兜底：用 textarea + execCommand
       try{
@@ -409,9 +424,18 @@ If a request requires a saturated color, sharp shadow, or display serif, push ba
         document.body.appendChild(ta); ta.select();
         document.execCommand('copy');
         document.body.removeChild(ta);
-        window.open('https://www.codebuddy.cn/', '_blank', 'noopener');
-        btn.innerHTML = '✓ 提示词已复制，请粘贴';
-        setTimeout(function(){ btn.innerHTML = orig; }, 2200);
+        var iframe2 = document.createElement('iframe');
+        iframe2.style.display='none';
+        iframe2.src = 'codebuddy://codebuddy-ide';
+        document.body.appendChild(iframe2);
+        setTimeout(function(){ try{ iframe2.remove(); }catch(_){} }, 1500);
+        setTimeout(function(){
+          if(document.visibilityState === 'visible'){
+            window.open('https://www.codebuddy.cn/', '_blank', 'noopener');
+          }
+        }, 1200);
+        btn.innerHTML = '✓ 已复制 · 正在唤起 WorkBuddy';
+        setTimeout(function(){ btn.innerHTML = orig; }, 2400);
       }catch(_){
         console.warn(err);
         btn.innerHTML = '复制失败';
