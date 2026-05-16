@@ -1,0 +1,620 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Design DNA · 贡献者指南</title>
+<link rel="stylesheet" href="./kits/a-record/design-system.css">
+<style>
+  body{min-height:100vh;background:var(--ar-c-bg);color:var(--ar-c-ink);font-family:var(--ar-font-sans)}
+  .layout{display:grid;grid-template-columns:268px 1fr;min-height:100vh}
+
+  /* sidebar */
+  .nav{padding:32px 22px;border-right:1px solid var(--ar-c-line);position:sticky;top:0;height:100vh;overflow-y:auto}
+  .nav-brand{display:flex;align-items:center;gap:10px;font-size:15px;font-weight:500;color:var(--ar-c-ink);margin-bottom:6px}
+  .nav-brand .mark{width:18px;height:18px;border-radius:50%;background:var(--ar-c-ink);position:relative;overflow:hidden;flex-shrink:0}
+  .nav-brand .mark::after{content:'';position:absolute;left:6px;top:0;width:8px;height:18px;background:var(--ar-c-bg);border-radius:8px}
+  .nav-sub{font-size:11.5px;color:var(--ar-c-ink-3);margin-bottom:24px}
+  .nav-cap{font-size:10.5px;font-weight:500;color:var(--ar-c-ink-3);letter-spacing:.18em;text-transform:uppercase;padding:0 10px;margin:18px 0 6px}
+  .nav-link{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:8px;font-size:13px;color:var(--ar-c-ink-2);cursor:pointer;letter-spacing:-0.005em;transition:background .15s;text-decoration:none}
+  .nav-link:hover{background:rgba(255,255,255,.5)}
+  .nav-link.active{background:var(--ar-c-shell);color:var(--ar-c-ink);box-shadow:var(--ar-shadow-pill)}
+  .nav-link .num{font-family:var(--ar-font-mono);font-size:11px;color:var(--ar-c-ink-3);font-weight:300;width:20px}
+  .nav-link.active .num{color:var(--ar-c-ink-2)}
+
+  .home-pill{margin-top:22px;height:36px;width:100%;border-radius:999px;background:var(--ar-c-shell);color:var(--ar-c-ink);display:inline-flex;align-items:center;justify-content:center;gap:8px;font-size:12.5px;border:1px solid var(--ar-c-line);cursor:pointer;font-weight:500;text-decoration:none;box-shadow:var(--ar-shadow-pill)}
+  .home-pill:hover{border-color:var(--ar-c-ink-3)}
+  .home-pill svg{width:13px;height:13px}
+
+  /* main */
+  main{padding:48px 56px;max-width:920px}
+  .hero{margin-bottom:36px}
+  .hero .ar-cap{margin-bottom:8px}
+  .hero h1{font-size:54px;font-weight:500;letter-spacing:-0.03em;line-height:1}
+  .hero .lead{font-size:14.5px;color:var(--ar-c-ink-3);max-width:600px;line-height:1.6;margin-top:14px}
+
+  .panel{background:var(--ar-c-shell);border-radius:20px;padding:28px 32px;box-shadow:var(--ar-shadow-shell);margin-bottom:18px}
+  .panel h2{font-size:22px;font-weight:500;color:var(--ar-c-ink);margin-bottom:6px;letter-spacing:-0.015em}
+  .panel h2 .num{font-family:var(--ar-font-mono);font-weight:300;font-size:18px;color:var(--ar-c-ink-3);margin-right:10px}
+  .panel .desc{font-size:13.5px;color:var(--ar-c-ink-3);margin-bottom:20px;line-height:1.6;max-width:680px}
+
+  h3{font-size:14.5px;font-weight:500;color:var(--ar-c-ink);margin:22px 0 8px;letter-spacing:-0.005em}
+  h3:first-child{margin-top:0}
+
+  p{font-size:13.5px;color:var(--ar-c-ink-2);line-height:1.65;margin-bottom:10px}
+  p strong{color:var(--ar-c-ink);font-weight:500}
+  ul,ol{padding-left:20px;margin-bottom:10px}
+  li{font-size:13.5px;color:var(--ar-c-ink-2);line-height:1.65;margin-bottom:4px}
+  li strong{color:var(--ar-c-ink);font-weight:500}
+  code{font-family:var(--ar-font-mono);font-size:12px;background:var(--ar-c-soft);padding:1px 6px;border-radius:6px;color:var(--ar-c-ink);letter-spacing:0}
+
+  .checklist{list-style:none;padding:0}
+  .checklist li{position:relative;padding:8px 0 8px 30px;border-top:1px solid var(--ar-c-line);font-size:13.5px;color:var(--ar-c-ink)}
+  .checklist li:first-child{border-top:0}
+  .checklist li::before{content:'';position:absolute;left:4px;top:14px;width:14px;height:14px;border-radius:4px;border:1.5px solid var(--ar-c-ink-3);background:var(--ar-c-shell)}
+  .checklist li small{display:block;font-size:11.5px;color:var(--ar-c-ink-3);margin-top:2px}
+
+  pre.code{background:#1c1c1a;color:#e8e6df;border-radius:14px;padding:18px 20px;font-family:var(--ar-font-mono);font-size:12px;overflow-x:auto;line-height:1.7;margin:14px 0;position:relative}
+  pre.code .c{color:#92908a}
+  pre.code .k{color:#bfbdb5}
+  pre.code .s{color:#f1efe9}
+  .code-toolbar{display:flex;gap:8px;margin-bottom:8px;align-items:center}
+  .code-toolbar b{font-size:11.5px;color:var(--ar-c-ink-2);font-weight:500;letter-spacing:.04em;font-family:var(--ar-font-mono)}
+  .copy-btn{margin-left:auto;height:28px;padding:0 12px;border-radius:999px;background:var(--ar-c-shell);border:1px solid var(--ar-c-line);font-size:11px;color:var(--ar-c-ink-2);cursor:pointer;font-weight:500}
+  .copy-btn:hover{border-color:var(--ar-c-ink-3);color:var(--ar-c-ink)}
+
+  .tier{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px}
+  .tier .card{background:var(--ar-c-bg);border:1px solid var(--ar-c-line);border-radius:14px;padding:18px}
+  .tier .card.flagship{background:var(--ar-c-ink);color:var(--ar-c-shell)}
+  .tier .card .ar-cap{display:block;margin-bottom:10px;color:var(--ar-c-ink-3)}
+  .tier .card.flagship .ar-cap{color:rgba(255,255,255,.65)}
+  .tier .card h4{font-size:18px;font-weight:500;letter-spacing:-0.015em;margin-bottom:6px}
+  .tier .card .when{font-size:12px;color:var(--ar-c-ink-3);margin-bottom:14px;line-height:1.55}
+  .tier .card.flagship .when{color:rgba(255,255,255,.7)}
+  .tier .card .files{font-family:var(--ar-font-mono);font-size:11.5px;list-style:none;padding:0}
+  .tier .card .files li{padding:3px 0;color:var(--ar-c-ink-2);font-family:var(--ar-font-mono);font-size:11.5px;line-height:1.5}
+  .tier .card.flagship .files li{color:rgba(255,255,255,.78)}
+
+  .step{display:grid;grid-template-columns:36px 1fr;gap:16px;padding:18px 0;border-top:1px solid var(--ar-c-line)}
+  .step:first-of-type{border-top:0}
+  .step .idx{font-family:var(--ar-font-mono);font-weight:200;font-size:34px;letter-spacing:-0.04em;color:var(--ar-c-ink-3);line-height:1}
+  .step h3{margin:0 0 4px;font-size:15.5px;font-weight:500}
+  .step p{font-size:13px}
+  .step ul{margin-top:6px}
+  .step li{font-size:12.5px}
+
+  .do-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .do-grid .col{background:var(--ar-c-bg);border:1px solid var(--ar-c-line);border-radius:14px;padding:18px}
+  .do-grid .col.do{background:rgba(28,28,26,.04)}
+  .do-grid .col.dont{background:rgba(242,74,58,.05);border-color:rgba(242,74,58,.18)}
+  .do-grid .col h4{font-size:13px;font-weight:500;margin-bottom:10px;letter-spacing:.08em;text-transform:uppercase}
+  .do-grid .col.do h4{color:var(--ar-c-ink)}
+  .do-grid .col.dont h4{color:var(--ar-c-rec)}
+  .do-grid .col ul{padding-left:18px;margin:0}
+  .do-grid .col li{font-size:12.5px;color:var(--ar-c-ink-2);line-height:1.6;margin-bottom:6px}
+
+  .pitfall{background:rgba(242,74,58,.05);border:1px solid rgba(242,74,58,.18);border-radius:14px;padding:16px 20px;margin:12px 0}
+  .pitfall b{display:block;font-size:13px;font-weight:500;color:var(--ar-c-rec);margin-bottom:4px}
+  .pitfall p{font-size:12.5px;color:var(--ar-c-ink-2);margin:0;line-height:1.6}
+
+  .note{display:flex;gap:12px;padding:14px 18px;background:var(--ar-c-soft);border-radius:14px;margin:12px 0}
+  .note .icon{flex-shrink:0;width:22px;height:22px;border-radius:50%;background:var(--ar-c-ink);color:#fff;display:grid;place-items:center;font-size:13px;font-weight:600;font-family:var(--ar-font-mono)}
+  .note p{font-size:12.5px;color:var(--ar-c-ink-2);margin:0;line-height:1.6}
+
+  footer{margin-top:44px;padding:24px 0;border-top:1px solid var(--ar-c-line);font-size:11.5px;color:var(--ar-c-ink-3);display:flex;justify-content:space-between}
+  footer a{color:inherit;text-decoration:none}
+</style>
+</head>
+<body>
+<div class="layout">
+
+  <!-- Sidebar -->
+  <aside class="nav">
+    <div class="nav-brand"><div class="mark"></div><span>Design DNA</span></div>
+    <div class="nav-sub">贡献者指南 · v1.0</div>
+
+    <div class="nav-cap">入门</div>
+    <a class="nav-link active" href="#why"><span class="num">00</span>为什么有这份指南</a>
+    <a class="nav-link" href="#pick"><span class="num">01</span>哪些卡片值得做 kit</a>
+    <a class="nav-link" href="#tiers"><span class="num">02</span>两种规格</a>
+
+    <div class="nav-cap">流程</div>
+    <a class="nav-link" href="#step-1"><span class="num">03</span>抽 token</a>
+    <a class="nav-link" href="#step-2"><span class="num">04</span>写 4 份核心文档</a>
+    <a class="nav-link" href="#step-3"><span class="num">05</span>拆 8 个组件</a>
+    <a class="nav-link" href="#step-4"><span class="num">06</span>写衍生用例</a>
+    <a class="nav-link" href="#step-5"><span class="num">07</span>AI 接入产物</a>
+    <a class="nav-link" href="#step-6"><span class="num">08</span>可视化文档页</a>
+    <a class="nav-link" href="#step-7"><span class="num">09</span>本地验证</a>
+    <a class="nav-link" href="#step-8"><span class="num">10</span>发布到 GitHub Pages</a>
+
+    <div class="nav-cap">规范</div>
+    <a class="nav-link" href="#do-dont"><span class="num">11</span>Do / Don't</a>
+    <a class="nav-link" href="#pitfalls"><span class="num">12</span>常见坑</a>
+    <a class="nav-link" href="#checklist"><span class="num">13</span>完成判定</a>
+
+    <a class="home-pill" href="./index.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5"/><polyline points="12 19 5 12 12 5"/></svg>
+      返回灵感库
+    </a>
+    <a class="home-pill" href="./kits/a-record/index.html" style="margin-top:8px">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+      参考样本 · a.Record
+    </a>
+  </aside>
+
+  <!-- Main -->
+  <main>
+    <section id="why" class="hero">
+      <span class="ar-cap">Design DNA · Contributor guide</span>
+      <h1>把一张卡片，做成可复用的设计 DNA。</h1>
+      <p class="lead">这份指南是一套实战 SOP，告诉你如何把一张静态/原创卡片升级成<b>可下载、可复用、可被 AI 理解</b>的设计系统素材包。它由 a.Record 这张样本卡走通后提炼，跟着做，结果会和它一样兑现。</p>
+    </section>
+
+    <!-- 01. 哪些卡片值得做 -->
+    <section id="pick" class="panel">
+      <h2><span class="num">01</span>哪些卡片值得做 kit</h2>
+      <p class="desc">不是每张卡片都该做。判断标准只有一条：<b>这张卡片的视觉语言是不是属于「我们」。</b></p>
+
+      <h3>✅ 做 kit</h3>
+      <ul>
+        <li><b>原创卡片</b>：在 <code>variant-clone/</code> 内部从零写的，token 全在我们手里</li>
+        <li><b>静态截图卡片</b>：把外部页面的精神浓缩成 1100×720 静态构图（如 Marginalia 静态预览），视觉决策由我们做</li>
+        <li><b>已经具备完整视觉系统</b>：有清晰的色彩 / 字体 / 圆角 / 间距规则，能被抽象出来</li>
+      </ul>
+
+      <h3>❌ 不做 kit</h3>
+      <ul>
+        <li><b>外站镜像类</b>：Nathan Smith / Lorenzo / SuperHi / WebGL Magazine / Skeleton Fluid 等通过 <code>&lt;base href&gt;</code> 镜像原站的卡片，token 不属于我们</li>
+        <li><b>构建产物类</b>：Three.js / WebGL bundle 卡片（Delphi / GPU IO / Cinematic Scroll），核心在压缩 chunk 里，无法干净抽 token</li>
+        <li><b>实验/未确认</b>：还在迭代视觉、可能下架的卡片</li>
+      </ul>
+
+      <div class="note">
+        <span class="icon">!</span>
+        <p>不做 kit 的卡片仍可正常出现在灵感库，只是 hover「提取 DNA」时会 flash 提示「该卡片暂未提供 DNA」，不影响其它体验。</p>
+      </div>
+    </section>
+
+    <!-- 02. 两种规格 -->
+    <section id="tiers" class="panel">
+      <h2><span class="num">02</span>两种规格</h2>
+      <p class="desc">根据产能选一种。Minimum 是基础合规，Perfect Sample 才是我们追求的样本品质。</p>
+
+      <div class="tier">
+        <div class="card">
+          <span class="ar-cap">Tier 1 · minimum</span>
+          <h4>最小合规 kit</h4>
+          <p class="when">能让 hover「提取 DNA」按钮可点击、能下载到一份能用的 zip。当卡片视觉成型但还没有铺成 flagship 的精力时使用。4 个文件。</p>
+          <ul class="files">
+            <li>design-system.css</li>
+            <li>design-system.md</li>
+            <li>design-tokens.json</li>
+            <li>README.md</li>
+          </ul>
+        </div>
+        <div class="card flagship">
+          <span class="ar-cap">Tier 2 · flagship · 推荐</span>
+          <h4>完美样本 kit</h4>
+          <p class="when">真正实现「下载即开发，AI 立刻懂」的兑现。把 token 做穿、组件拆出、衍生用例验证、AI 提示词配齐。17 个文件。a.Record 是它的参考实现。</p>
+          <ul class="files">
+            <li>README.md · design-system.md</li>
+            <li>design-system.css · design-tokens.json</li>
+            <li>ai-prompt.md · tailwind-tokens.js</li>
+            <li>index.html（可视化文档页）</li>
+            <li>components/01-08（8 个组件）</li>
+            <li>examples/original.html</li>
+            <li>examples/&lt;second-use-case&gt;.html</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 03. 抽 token -->
+    <section id="step-1" class="panel">
+      <h2><span class="num">03</span>抽 token（流程第一步）</h2>
+      <p class="desc">从卡片源 HTML 把视觉语言抽象成可复用 token。这一步决定了整个 kit 的天花板。</p>
+
+      <h3>读源文件</h3>
+      <p>打开 <code>variant-clone/&lt;card&gt;.html</code>。重点看 <code>:root</code>、<code>html, body</code>、关键 panel 类。把 hex 颜色、字体栈、字号、圆角、阴影、动效 cubic-bezier 全部抓出来。</p>
+
+      <h3>命名空间前缀</h3>
+      <p>每张卡片用一个 2–3 字母前缀，避免多 kit 同时引入时 <code>:root</code> 变量打架。</p>
+      <ul>
+        <li><code>--ar-*</code> = a.Record</li>
+        <li><code>--cr-*</code> = Carrot</li>
+        <li><code>--mg-*</code> = Marginalia</li>
+        <li>新卡按缩写自取 → 不冲突即可</li>
+      </ul>
+
+      <h3>token 应该至少分这 6 类</h3>
+      <ol>
+        <li><b>Color</b>：surface scale（4–6 阶）+ ink ramp（3–4 阶）+ 至多一个 accent</li>
+        <li><b>Typography</b>：sans + mono 双家族 / 字号阶梯（10 步以内）/ letter-spacing 预设</li>
+        <li><b>Spacing</b>：4px grid（sp1=4 → sp8=32）</li>
+        <li><b>Radius</b>：5 步阶梯（shell &gt; panel &gt; card &gt; tile &gt; pill=999）</li>
+        <li><b>Shadow</b>：3 类（card / glass / pill），不要更多</li>
+        <li><b>Motion</b>：2 个 ease + 3 个 duration（fast/base/slow）</li>
+      </ol>
+
+      <div class="pitfall">
+        <b>陷阱 · Token 通货膨胀</b>
+        <p>不要把源 HTML 里所有 hex 都搬过来。如果你抽出超过 12 个色 token、6 个圆角、5 个阴影，说明源卡本身没有"系统"——先回去清理源卡，再做 kit。</p>
+      </div>
+    </section>
+
+    <!-- 04. 4 份核心文档 -->
+    <section id="step-2" class="panel">
+      <h2><span class="num">04</span>写 4 份核心文档（Tier 1 必含）</h2>
+      <p class="desc">这 4 个文件是 kit 的最小集，缺一不可。</p>
+
+      <div class="code-toolbar"><b>kits/&lt;slug&gt;/design-system.css</b></div>
+      <pre class="code"><span class="c">/* 顶部用 @import 加载字体 */</span>
+@import url(<span class="s">'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap'</span>);
+
+<span class="k">:root</span>{
+  <span class="c">/* 1. Typography */</span>
+  --ar-font-sans: <span class="s">'Inter', sans-serif</span>;
+  --ar-font-mono: <span class="s">'Geist Mono', monospace</span>;
+  --ar-fs-h1:    <span class="s">34px</span>;
+  --ar-fs-base:  <span class="s">13.5px</span>;
+  <span class="c">/* 2. Color */</span>
+  --ar-c-bg:    <span class="s">#eceae3</span>;
+  --ar-c-shell: <span class="s">#ffffff</span>;
+  --ar-c-ink:   <span class="s">#1c1c1a</span>;
+  --ar-c-rec:   <span class="s">#f24a3a</span>;  <span class="c">/* 唯一 accent */</span>
+  <span class="c">/* 3-6. Spacing / Radius / Shadow / Motion 略 */</span>
+}
+
+<span class="c">/* 紧接着写 utility classes，最少 5 个 */</span>
+<span class="k">.ar-shell</span>{ background: var(--ar-c-shell); border-radius: 30px; padding: 28px; }
+<span class="k">.ar-pill</span> { height: 34px; padding: 0 14px; border-radius: 999px; ... }</pre>
+
+      <div class="code-toolbar"><b>kits/&lt;slug&gt;/design-tokens.json</b></div>
+      <pre class="code"><span class="c">// W3C Design Tokens 草案格式：每个值用 $value/$type 包裹</span>
+{
+  <span class="k">"name"</span>: <span class="s">"a.Record Design System"</span>,
+  <span class="k">"version"</span>: <span class="s">"1.0.0"</span>,
+  <span class="k">"color"</span>: {
+    <span class="k">"bg"</span>:   { <span class="k">"$value"</span>: <span class="s">"#eceae3"</span>, <span class="k">"$type"</span>: <span class="s">"color"</span> },
+    <span class="k">"rec"</span>:  { <span class="k">"$value"</span>: <span class="s">"#f24a3a"</span>, <span class="k">"$type"</span>: <span class="s">"color"</span>,
+              <span class="k">"$description"</span>: <span class="s">"Only for live/error/destructive"</span> }
+  }
+}</pre>
+      <p>验证：<code>python3 -c "import json; json.load(open('design-tokens.json'))"</code></p>
+
+      <h3>design-system.md 必含 9 节</h3>
+      <ol>
+        <li>Personality（个性 + 参考品牌）</li>
+        <li>Color（色彩 + 用法说明）</li>
+        <li>Typography（字体阶梯 + 数字必须 mono）</li>
+        <li>Spacing & Layout</li>
+        <li>Elevation（3 类阴影）</li>
+        <li>Motion</li>
+        <li>Components 表（class → 描述）</li>
+        <li>Do / Don't</li>
+        <li>Extending（如何安全扩展）</li>
+      </ol>
+
+      <h3>README.md 必含</h3>
+      <ul>
+        <li>What's inside（文件树）</li>
+        <li>Quick start（4 种用法：直接看 / link CSS / Tailwind preset / AI prompt）</li>
+        <li>Design intent（一句话定调）</li>
+        <li>Credits & license</li>
+      </ul>
+    </section>
+
+    <!-- 05. 拆组件 -->
+    <section id="step-3" class="panel">
+      <h2><span class="num">05</span>拆 8 个独立组件（Tier 2）</h2>
+      <p class="desc">每个组件是一个独立可运行的 1100×600 HTML，带 <code>&lt;link rel="stylesheet" href="../design-system.css"&gt;</code>。打开能跑，看源能拷。</p>
+
+      <h3>挑组件的标准</h3>
+      <ul>
+        <li>这一类元素在卡片里出现至少 2 次（不是孤本）</li>
+        <li>能用 token 拼出，不依赖魔法值</li>
+        <li>有清晰的"独立感"——单看也是个组件，不是某个布局碎片</li>
+      </ul>
+
+      <h3>a.Record 的 8 个示例</h3>
+      <ol>
+        <li><code>01-shell</code> — 外壳容器</li>
+        <li><code>02-pill</code> — 胶囊按钮（含 default / icon / dark / red 4 变体）</li>
+        <li><code>03-glass-panel</code> — 毛玻璃浮层</li>
+        <li><code>04-status-dot</code> — 状态指示（含 idle / live 两态）</li>
+        <li><code>05-mono-display</code> — 等宽数字（计时 / 电平 / 容量）</li>
+        <li><code>06-meter-ring</code> — 仪表圆环（带真实低通平滑动画）</li>
+        <li><code>07-spectrum-bars</code> — 频谱柱</li>
+        <li><code>08-cap-label</code> — 大写小标签 + section heading</li>
+      </ol>
+
+      <p>不一定非得是 8 个，关键是<b>覆盖原卡的所有原子级元素</b>。少于 5 个说明卡片的"零件"不够；多于 12 个说明颗粒度太细。</p>
+    </section>
+
+    <!-- 06. 衍生用例 -->
+    <section id="step-4" class="panel">
+      <h2><span class="num">06</span>写衍生用例（系统跨用例的检验）</h2>
+      <p class="desc">这一步是整个 kit 最重要的检验。如果 token 只能撑起原卡片，那它就不是 design system，只是 CSS 备份。</p>
+
+      <h3>规则</h3>
+      <ol>
+        <li><code>examples/original.html</code> — 复制原卡 HTML 作为参考</li>
+        <li><code>examples/&lt;second&gt;.html</code> — <b>必须是完全不同的用户场景</b>，不能换汤不换药</li>
+      </ol>
+
+      <h3>第二个用例怎么选</h3>
+      <ul>
+        <li>原卡是 dashboard → 第二个做 settings page / pricing</li>
+        <li>原卡是 hero/landing → 第二个做 inbox / list view</li>
+        <li>原卡是 editor → 第二个做 onboarding / 对话框</li>
+      </ul>
+
+      <p>a.Record 是录音 dashboard，第二个用例选了「账户设置」页（profile + studio defaults + pricing tiers + danger zone）。如果它仍然像 a.Record，token 系统就成立。这是不可妥协的检验。</p>
+
+      <div class="pitfall">
+        <b>陷阱 · 假衍生</b>
+        <p>不要把第二个用例做成「原卡换文案」。如果两个 example 视觉上 80% 重合，说明 token 还没有被"逼出来"——回去拆 token。</p>
+      </div>
+    </section>
+
+    <!-- 07. AI 接入产物 -->
+    <section id="step-5" class="panel">
+      <h2><span class="num">07</span>AI 接入产物（让 AI 能用这套系统）</h2>
+      <p class="desc">设计系统真正的杠杆是被 AI 工具消费。配齐两个产物，让用户能在 Cursor / Claude / WorkBuddy 里直接调用风格。</p>
+
+      <h3>ai-prompt.md（必含 4 段）</h3>
+      <ol>
+        <li><b>Cursor / Claude rule</b>：60–120 字的 system prompt，列禁止项 + 必含项</li>
+        <li><b>Generation prompt template</b>：包装用户请求的 wrapper（"用 a.Record 风格做…"）</li>
+        <li><b>Do / Don't</b>：硬禁止条款</li>
+        <li><b>AI-readable JSON</b>：MCP / function-calling 工具消费</li>
+      </ol>
+
+      <h3>tailwind-tokens.js</h3>
+      <p>CommonJS 导出 Tailwind preset，让用户 <code>presets: [require('./tailwind-tokens.js')]</code> 即可拿到所有命名空间。映射规则：</p>
+      <ul>
+        <li>color → <code>bg-canvas / text-ink / text-rec</code></li>
+        <li>radius → <code>rounded-shell / rounded-panel / rounded-card</code></li>
+        <li>shadow → <code>shadow-card / shadow-glass / shadow-pill</code></li>
+        <li>font → <code>font-mono</code> 自动指向 Geist Mono</li>
+      </ul>
+      <p>验证：<code>unset NODE_OPTIONS &amp;&amp; node -e "require('./tailwind-tokens.js')"</code></p>
+    </section>
+
+    <!-- 08. 可视化文档页 -->
+    <section id="step-6" class="panel">
+      <h2><span class="num">08</span>可视化文档页 index.html</h2>
+      <p class="desc">这是用户进 kit 后看到的第一个页面，也是「下载完整素材包」「去 WorkBuddy 开发」两个按钮的入口。</p>
+
+      <h3>结构</h3>
+      <ul>
+        <li><b>左侧 sidebar（268px）</b>：4 段导航 — 基础 / 组件 / 示例页面 / AI 接入；底部两个胶囊：下载完整素材包（黑） + 去 WorkBuddy 开发（白描边）</li>
+        <li><b>右侧主区</b>：Foundations 4 节（色彩 swatches / typography rows / spacing & radius scales / motion 代码块）+ Components 8 个 iframe 预览 + Examples 2 个 iframe + AI 提示词复制块 + Tailwind 用法块</li>
+      </ul>
+
+      <h3>核心交互</h3>
+      <ul>
+        <li>滚动 → sidebar active link 自动跟随</li>
+        <li>「下载完整素材包」按钮 → JSZip 懒加载 → 浏览器内打包 17 个文件 → 触发下载</li>
+        <li>「去 WorkBuddy 开发」按钮 → 复制 prompt 到剪贴板 → iframe 触发 <code>codebuddy://codebuddy-ide</code> deep link 唤起桌面应用 → 1.2s 兜底跳官网</li>
+      </ul>
+
+      <p>视觉风格直接用本卡片的 design-system.css，相当于"用我们自己的 token 做出我们自己的文档"——这也是检验。</p>
+    </section>
+
+    <!-- 09. 本地验证 -->
+    <section id="step-7" class="panel">
+      <h2><span class="num">09</span>本地验证</h2>
+      <p class="desc">起一个 HTTP 服务跑一遍，所有文件都要 200，所有交互都要点过一次。</p>
+
+      <div class="code-toolbar"><b>本地服务 + 验证</b><button class="copy-btn" data-copy="cd /Users/karo/WorkBuddy/2026-05-10-task-3/variant-clone
+python3 -m http.server 5180 &
+sleep 1
+
+# 验证 17 文件全部 200
+for f in README.md design-system.{css,md} design-tokens.json ai-prompt.md tailwind-tokens.js index.html \
+         components/0{1..8}-*.html examples/original.html examples/*-page.html; do
+  printf '%-50s %s\n' &quot;$f&quot; &quot;$(curl -sI http://localhost:5180/kits/&lt;slug&gt;/$f | head -1)&quot;
+done
+
+# JSON 校验
+python3 -c &quot;import json;json.load(open('kits/&lt;slug&gt;/design-tokens.json'))&quot;
+
+# Tailwind preset 校验
+unset NODE_OPTIONS &amp;&amp; node -e &quot;require('./kits/&lt;slug&gt;/tailwind-tokens.js'); console.log('ok')&quot;
+
+pkill -f 'python3 -m http.server 5180'">复制</button></div>
+      <pre class="code"><span class="k">cd</span> /Users/karo/WorkBuddy/2026-05-10-task-3/variant-clone
+python3 -m http.server <span class="s">5180</span> &amp;
+sleep 1
+
+<span class="c"># 验证 17 文件全部 200</span>
+<span class="k">for</span> f <span class="k">in</span> README.md design-system.{css,md} design-tokens.json ai-prompt.md tailwind-tokens.js index.html \
+         components/0{1..8}-*.html examples/original.html examples/*-page.html; <span class="k">do</span>
+  printf <span class="s">'%-50s %s\n'</span> <span class="s">"$f"</span> <span class="s">"$(curl -sI http://localhost:5180/kits/&lt;slug&gt;/$f | head -1)"</span>
+<span class="k">done</span>
+
+<span class="c"># JSON 校验</span>
+python3 -c <span class="s">"import json;json.load(open('kits/&lt;slug&gt;/design-tokens.json'))"</span>
+
+<span class="c"># Tailwind preset 校验</span>
+unset NODE_OPTIONS &amp;&amp; node -e <span class="s">"require('./kits/&lt;slug&gt;/tailwind-tokens.js'); console.log('ok')"</span>
+
+pkill -f <span class="s">'python3 -m http.server 5180'</span></pre>
+
+      <h3>手动验证 checklist</h3>
+      <ul>
+        <li>kit/index.html 滚动 → sidebar active 跟随</li>
+        <li>「下载完整素材包」点击 → 拿到 zip → 解压 → 双击 index.html 仍能渲染</li>
+        <li>「去 WorkBuddy 开发」点击 → WorkBuddy 桌面应用被唤起 → 剪贴板里是 prompt</li>
+        <li>所有 component iframe 加载无报错</li>
+        <li><code>examples/&lt;second&gt;.html</code> 视觉上看起来仍属于这套 system</li>
+      </ul>
+    </section>
+
+    <!-- 10. 发布 -->
+    <section id="step-8" class="panel">
+      <h2><span class="num">10</span>发布到 GitHub Pages</h2>
+      <p class="desc">遵守现有发布约定：合入即发布。</p>
+
+      <div class="step">
+        <div class="idx">1</div>
+        <div>
+          <h3>提交 main</h3>
+          <p>显式 stage 文件，不要用 <code>git add .</code>（会带上 artist-month 实验文件）。</p>
+          <pre class="code"><span class="k">cd</span> /Users/karo/WorkBuddy/2026-05-10-task-3/variant-clone
+git add kits/&lt;slug&gt;/ index.html
+git commit -m <span class="s">"Add &lt;slug&gt; design system kit"</span>
+git push origin main</pre>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="idx">2</div>
+        <div>
+          <h3>同步 gh-pages</h3>
+          <p>worktree + git archive 把 main HEAD 已跟踪文件刷到发布分支。</p>
+          <pre class="code"><span class="k">cd</span> /Users/karo/WorkBuddy/2026-05-10-task-3/gh-pages-deploy
+git fetch origin gh-pages &amp;&amp; git reset --hard origin/gh-pages
+find . -mindepth 1 -maxdepth 1 ! -name <span class="s">'.git'</span> -exec rm -rf {} +
+git -C ../variant-clone archive HEAD | tar -x
+touch .nojekyll
+git add -A &amp;&amp; git commit -m <span class="s">"Deploy &lt;slug&gt; kit"</span>
+git push origin gh-pages</pre>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="idx">3</div>
+        <div>
+          <h3>线上验证</h3>
+          <p>等 25–60 秒让 GitHub Pages 部署完成，再用 <code>curl</code> 校验。注意：CDN 隧道经常先返回 <code>HTTP/1.1 200 Connection established</code>，要看下一行 <code>HTTP/2</code>。</p>
+          <pre class="code">sleep 30
+<span class="k">for</span> f <span class="k">in</span> kits/&lt;slug&gt;/{index.html,design-system.css,ai-prompt.md}; <span class="k">do</span>
+  curl -sI <span class="s">"https://karosu3510.github.io/design-dna/$f"</span> | grep <span class="s">'^HTTP/'</span> | tail -1
+<span class="k">done</span></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- 11. Do / Don't -->
+    <section id="do-dont" class="panel">
+      <h2><span class="num">11</span>Do / Don't</h2>
+      <div class="do-grid">
+        <div class="col do">
+          <h4>✅ Do</h4>
+          <ul>
+            <li>Token 用唯一 2–3 字母前缀</li>
+            <li>必须保留唯一 accent 颜色（哪怕换色，也只能一个）</li>
+            <li>数字一律 mono + tabular-nums</li>
+            <li>第二个 example 用完全不同的用户场景</li>
+            <li>本地起 HTTP 服务跑全流程验证</li>
+            <li>显式 <code>git add</code>，不要 <code>git add .</code></li>
+            <li>下载 zip 后双击 index.html 必须仍可运行</li>
+          </ul>
+        </div>
+        <div class="col dont">
+          <h4>❌ Don't</h4>
+          <ul>
+            <li>不要给镜像类卡片做 kit</li>
+            <li>不要超过 12 个色 token、6 个 radius</li>
+            <li>不要引入第二个高饱和 accent</li>
+            <li>不要让两个 example 视觉重叠</li>
+            <li>不要在 srcdoc iframe 里用相对图片路径</li>
+            <li>不要直接复制英文模板，所有用户面向文案中文化</li>
+            <li>不要在 about:blank 上下文使用相对 URL（必须 <code>new URL(rel, location.href).href</code>）</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 12. 常见坑 -->
+    <section id="pitfalls" class="panel">
+      <h2><span class="num">12</span>常见坑</h2>
+
+      <div class="pitfall">
+        <b>1. <code>git add .</code> 把 artist-month 实验文件带上</b>
+        <p>这些文件是历史遗留实验，已经判定不收录。永远显式 <code>git add kits/&lt;slug&gt;/ index.html</code>，或在 commit 前 <code>git restore --staged</code>。</p>
+      </div>
+
+      <div class="pitfall">
+        <b>2. file:// 下 fetch 被 CORS block</b>
+        <p>kit 的「下载素材包」按钮在 <code>file://</code> 协议下 fetch 失败。本地一定用 <code>python3 -m http.server</code> 起服务测，或直接用线上 GitHub Pages URL。</p>
+      </div>
+
+      <div class="pitfall">
+        <b>3. iframe srcdoc 中相对路径解析失败</b>
+        <p>缩略图卡片如果用 <code>src="./foo.png"</code>，在 srcdoc 沙箱里会失败。必须用绝对线上 URL：<code>https://karosu3510.github.io/design-dna/foo.png</code>。</p>
+      </div>
+
+      <div class="pitfall">
+        <b>4. about:blank 占位窗口的相对 URL 解析</b>
+        <p>「提取 DNA」按钮 <code>window.open('about:blank')</code> 后，<code>win.location.href = './kits/...'</code> 会基于 about:blank 解析 → 空白页。必须 <code>new URL('./kits/' + slug + '/index.html', location.href).href</code>。</p>
+      </div>
+
+      <div class="pitfall">
+        <b>5. GitHub Pages 部署延迟</b>
+        <p>push 完 25–60 秒才生效。<code>curl -sI</code> 第一行经常是 tunnel 的 <code>200 Connection established</code>，真正的 <code>HTTP/2 200</code> 在下一行。用 <code>grep '^HTTP/' | tail -1</code> 取最后一行。</p>
+      </div>
+
+      <div class="pitfall">
+        <b>6. NODE_OPTIONS 阻止 node 校验</b>
+        <p>项目内置 node 带 <code>--use-system-ca</code>，导致 <code>node -e ...</code> 报 <code>not allowed in NODE_OPTIONS</code>。校验 tailwind preset 前 <code>unset NODE_OPTIONS</code>。</p>
+      </div>
+    </section>
+
+    <!-- 13. checklist -->
+    <section id="checklist" class="panel">
+      <h2><span class="num">13</span>完成判定 · 12 项</h2>
+      <p class="desc">全部勾上才算"做穿"。Tier 1 只需 1–4，Tier 2（flagship）必须 12 项全勾。</p>
+      <ul class="checklist">
+        <li>1. <code>kits/&lt;slug&gt;/design-system.css</code> 用唯一前缀，至少 5 个 utility class<small>例如 <code>.ar-shell / .ar-pill / .ar-glass / .ar-mono / .ar-cap</code></small></li>
+        <li>2. <code>design-tokens.json</code> 通过 <code>json.load</code> 校验</li>
+        <li>3. <code>design-system.md</code> 含 9 节（personality + 6 类 token + components 表 + do/don't + extending）</li>
+        <li>4. <code>README.md</code> 含 4 种 quick start 方式 + credits</li>
+        <li>5. <code>components/</code> 至少 5 个独立 HTML，每个能独立打开</li>
+        <li>6. <code>examples/original.html</code> 复制源卡作为参考</li>
+        <li>7. <code>examples/&lt;second&gt;.html</code> 是<b>完全不同的用户场景</b>，仅用 token 构建</li>
+        <li>8. <code>ai-prompt.md</code> 含 Cursor rule + 生成模板 + Do/Don't + AI-readable JSON</li>
+        <li>9. <code>tailwind-tokens.js</code> 通过 <code>node -e "require()"</code> 校验</li>
+        <li>10. <code>index.html</code> 可视化文档页：sidebar 4 段 + 下载/WorkBuddy 双按钮 + 滚动 active 跟随</li>
+        <li>11. 本地起 HTTP 服务，所有 17 文件 200，下载 zip 解压可跑</li>
+        <li>12. main 提交 + gh-pages 同步，线上 6 文件抽样校验 200</li>
+      </ul>
+    </section>
+
+    <footer>
+      <span>Design DNA · Contributor guide · v1.0 · 用 a.Record kit 自身的 design system 写成</span>
+      <span><a href="https://karosu3510.github.io/design-dna/" target="_blank">karosu3510.github.io/design-dna</a></span>
+    </footer>
+  </main>
+</div>
+
+<script>
+  // sidebar active sync
+  var links = document.querySelectorAll('.nav-link');
+  var sections = Array.from(links).map(function(a){ var id = a.getAttribute('href').slice(1); return document.getElementById(id); });
+  function syncNav(){
+    var y = window.scrollY + 120;
+    var bestIdx = 0;
+    sections.forEach(function(s, i){ if(s && s.offsetTop <= y) bestIdx = i; });
+    links.forEach(function(a, i){ a.classList.toggle('active', i === bestIdx); });
+  }
+  window.addEventListener('scroll', syncNav, { passive: true });
+
+  // copy buttons in code blocks
+  document.querySelectorAll('.copy-btn').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var txt = btn.dataset.copy || btn.previousElementSibling?.textContent || '';
+      if(!txt) return;
+      navigator.clipboard.writeText(txt).then(function(){
+        var old = btn.textContent;
+        btn.textContent = '✓ 已复制';
+        setTimeout(function(){ btn.textContent = old; }, 1400);
+      });
+    });
+  });
+</script>
+</body>
+</html>
