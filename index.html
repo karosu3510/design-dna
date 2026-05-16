@@ -728,6 +728,12 @@ function makeCardEl(d){
     frame.style.transformOrigin = 'top left';
   }
   frame.setAttribute('sandbox','allow-scripts');
+  // 防闪白：iframe 还没被注入真实 srcdoc 之前，浏览器会用 about:blank
+  // 渲染——其 UA 默认 body 背景在 macOS 浅色系统主题下是白的，会盖过
+  // 元素 CSS background:#0a0a0a，引起首屏 / 滚动唤醒时的「闪白」。
+  // 立即先塞一段深色 stub srcdoc，浏览器渲染的就是这段 stub 而不是
+  // about:blank。stub 极轻量（<200B），后续 _drainFrameQueue 会替换为真 doc。
+  frame.srcdoc = '<!doctype html><html><head><style>html,body{margin:0;background:#0a0a0a}</style></head><body></body></html>';
   const pauseScript = '<script>var __paused=false,__rafId=0;var __origRAF=window.requestAnimationFrame;window.requestAnimationFrame=function(cb){if(__paused){__rafId=0;return 0}return __origRAF.call(window,cb)};window.addEventListener("message",function(e){if(e.data&&e.data.type==="pause"){__paused=true;if(__rafId)cancelAnimationFrame(__rafId)}if(e.data&&e.data.type==="resume"){__paused=false;__origRAF.call(window,function(){})}});<\/script>';
   frame.__doc = (d.doc || '').replace(/<\/head>/i, pauseScript + '</head>');
   frame.__loaded = false;
