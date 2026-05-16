@@ -766,8 +766,12 @@ function makeCardEl(d){
     }
   }
 
-  // ─── Hover 浮出：提取 DNA（进入 kit 设计系统文档页） ───
-  {
+  // ─── Hover 浮出：提取 DNA（仅对有 kit 的卡片显示） ───
+  // 白名单：每张卡片需要在 KIT_AVAILABLE 注册才会出现按钮，避免点击随机卡片跳到 404。
+  // 新增 kit 后只需要在这个 Set 里加 slug（card id 去掉 'd-' 前缀）。
+  const KIT_AVAILABLE = new Set(['a-record','glyph-os']);
+  const _slug = (d.id||'').replace(/^d-/, '');
+  if(KIT_AVAILABLE.has(_slug)){
     const fav = document.createElement('button');
     fav.type='button';
     fav.className = 'card-fav';
