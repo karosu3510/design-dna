@@ -70,7 +70,8 @@
   @keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
   .card:hover{border-color:var(--border-strong)}
   .card-frame{width:100%;display:block;border:0;background:#0a0a0a;color-scheme:dark;pointer-events:none}
-  .card-frame--video{opacity:1;object-fit:cover}
+  .card-frame--video{opacity:1;display:block}
+  .card.has-scale > .card-frame--video{position:absolute;top:0;left:0;width:auto}
   .card-frame--live{position:absolute;inset:0;width:100%;opacity:0;transition:opacity .35s ease}
   .card.has-scale > .card-frame--live{position:absolute;top:0;left:0;width:auto}
   .card.is-live .card-frame--live{opacity:1}
@@ -656,7 +657,8 @@ function _mountLive(card){
   f.className = 'card-frame card-frame--live';
   f.setAttribute('sandbox','allow-scripts allow-same-origin');
   f.style.height = card.__frameHeight + 'px';
-  if(card.__isDashboard){
+  // 与下层 video poster 一致：所有 styleLock 卡都按 1100 逻辑宽渲染再 scale
+  if(card.classList.contains('has-scale')){
     f.style.width = '1100px';
     f.style.transformOrigin = 'top left';
     f.style.transform = card.__frameTransform || '';
@@ -773,12 +775,15 @@ function makeCardEl(d){
     card.classList.add('is-narrow');
   }
 
-  // ─── dashboard 卡：仅指无 externalUrl 的内联 srcdoc 卡（buildPinnedFor 5 张）。
-  // 其余 29 张虽有 styleLock，但都对应独立 HTML，按本地 iframe / video poster 走。
+  // ─── 缩放路径（保持重构前一致）：所有 styleLock 卡都按 1100 逻辑宽渲染，
+  // 外层 transform 缩到 1/3 列宽。让 dashboard / video poster 的视觉高度跟旧版一致。
+  // ─── 挂载路径：只有「有 styleLock 且没有 externalUrl」的卡（buildPinnedFor 5 张）
+  // 走常驻内联 srcdoc。其它 styleLock 卡有独立 HTML，feed 里走 video poster。
   const hasExt = !!d.externalUrl && d.externalUrl.indexOf('http') !== 0;
-  const isDashboard = !!d.styleLock && !hasExt;
-  const LOGICAL_W = isDashboard ? 1100 : 0;
-  if(isDashboard) card.classList.add('has-scale');
+  const isScaled = !!d.styleLock;            // 控制布局：是否按 1100 缩放
+  const isDashboard = !!d.styleLock && !hasExt;  // 控制挂载：是否常驻 srcdoc
+  const LOGICAL_W = isScaled ? 1100 : 0;
+  if(isScaled) card.classList.add('has-scale');
 
   // 解析 slug：dashboard 用 styleLock，其它从 externalUrl 推导
   const slug = d.styleLock || (d.externalUrl||'').replace(/\.html$/,'').split('/').pop() || d.id;
@@ -791,10 +796,16 @@ function makeCardEl(d){
   card.__slug = slug;
 
   if(HAS_VIDEO_POSTER){
-    // Variant 式 feed：默认 video poster loop，浏览器原生动画，CPU 极轻
+    // Variant 式 feed：默认 video poster loop，浏览器原生动画，CPU 极轻。
+    // 跟原 iframe 一样按 1100×<height> 逻辑尺寸渲染，外层 transform scale 缩到列宽，
+    // 这样和重构前的 dashboard 缩放路径完全一致。
     const v = document.createElement('video');
     v.className = 'card-frame card-frame--video';
     v.style.height = card.__frameHeight + 'px';
+    if(isScaled){
+      v.style.width = LOGICAL_W + 'px';
+      v.style.transformOrigin = 'top left';
+    }
     v.muted = true; v.loop = true; v.autoplay = true; v.playsInline = true;
     v.setAttribute('preload','auto');
     v.poster = 'posters/' + slug + '.jpg';
@@ -848,12 +859,13 @@ function makeCardEl(d){
     var cardW = card.clientWidth;
     var fallbackH = (d.height || 360) + 2;
     var cardH;
-    if(isDashboard && cardW > 0){
+    if(isScaled && cardW > 0){
       var scale = Math.min(1, cardW / LOGICAL_W);
       var tf = 'scale(' + scale + ')';
       card.__frameTransform = tf;
-      // 同步给当前已挂的 dashboard iframe（若已 mount）
+      // 同步给已挂的 dashboard iframe / video poster 元素
       if(card.__liveFrame) card.__liveFrame.style.transform = tf;
+      if(card.__videoEl) card.__videoEl.style.transform = tf;
       cardH = Math.round((d.height || 360) * scale) + 2;
     } else {
       cardH = fallbackH;
