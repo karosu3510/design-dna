@@ -1164,34 +1164,46 @@ async function downloadCardKit(d, btn){
 
     // ② 探测 kits/<slug>/ 目录是否存在 design-system 文件
     const kitBase = './kits/' + slug + '/';
-    const tryFiles = ['design-system.css','design-system.md','design-tokens.json','README.md'];
+    // 完整文件清单：核心文档 + AI 提示 + Tailwind preset + 8 个 component + 2 个 example + 入口可视化页
+    const kitFiles = [
+      'README.md','design-system.md','design-system.css','design-tokens.json',
+      'ai-prompt.md','tailwind-tokens.js','index.html',
+      'components/01-shell.html','components/02-pill.html','components/03-glass-panel.html',
+      'components/04-status-dot.html','components/05-mono-display.html','components/06-meter-ring.html',
+      'components/07-spectrum-bars.html','components/08-cap-label.html',
+      'examples/original.html','examples/settings-page.html'
+    ];
     const fetched = {};
     let hasKit = false;
-    await Promise.all(tryFiles.map(async (f)=>{
+    let hasKitIndex = false;
+    await Promise.all(kitFiles.map(async (f)=>{
       try{
         const r = await fetch(kitBase + f, {cache:'no-cache'});
-        if(r.ok){
-          const txt = await r.text();
-          // 简单 sanity check：HTML 404 fallback 通常是 <!DOCTYPE html>
-          if(!/^\s*<!DOCTYPE html/i.test(txt) || f.endsWith('.html')){
-            fetched[f] = txt;
-            hasKit = true;
-          }
-        }
+        if(!r.ok) return;
+        const txt = await r.text();
+        // GitHub Pages 404 fallback 是 HTML 文档；非 HTML 文件若拿到 <!DOCTYPE html> 就视作 404
+        const looksLike404 = /^\s*<!DOCTYPE html/i.test(txt) && !f.endsWith('.html') && !f.endsWith('.md');
+        if(looksLike404) return;
+        fetched[f] = txt;
+        hasKit = true;
+        if(f === 'index.html') hasKitIndex = true;
       }catch(_){}
     }));
 
-    // ③ 若 kit 中带了自己的 index.html / 资源就用它，否则注入卡片 HTML
-    if(html){
-      // 若存在 design-system.css，自动在卡片 HTML 顶部注入引用提示注释
-      folder.file('index.html', html);
-    }
+    // ③ 注入文件
+    //    - 若 kit 自带 index.html（可视化设计系统文档页），把卡片 HTML 改名 card.html，
+    //      让用户解压后默认看到 kit 文档而非原 1100×720 卡片
+    //    - 若 kit 没有 index.html，则卡片 HTML 仍命名 index.html
     if(hasKit){
       Object.entries(fetched).forEach(([name, txt])=>{
         folder.file(name, txt);
       });
-    } else {
-      // 回退 README，让 zip 至少自描述
+      if(html){
+        folder.file(hasKitIndex ? 'card.html' : 'index.html', html);
+      }
+    } else if(html){
+      folder.file('index.html', html);
+      // 回退 README
       const fallback = [
         '# ' + (d.title || slug) + ' · Inspiration Card',
         '',

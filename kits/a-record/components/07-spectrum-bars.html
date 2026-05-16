@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>a.Record · Component · Spectrum bars</title>
+<link rel="stylesheet" href="../design-system.css">
+<style>
+  body{display:grid;place-items:center;min-height:100vh;background:var(--ar-c-bg);padding:40px}
+  .demo-tag{position:absolute;top:18px;left:24px;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--ar-c-ink-3);font-weight:500}
+  .stage{width:660px;height:120px;border-radius:16px;background:var(--ar-c-softer);padding:0 22px;display:flex;align-items:center;justify-content:space-between;gap:18px}
+  .stage b{font-size:13px;font-weight:500;color:var(--ar-c-ink)}
+  .bars{display:flex;align-items:flex-end;gap:3px;height:50px}
+  .bars i{width:3px;border-radius:2px;background:var(--ar-c-ink-4);display:block;transform-origin:bottom;animation:bar 1.4s ease-in-out infinite}
+  .bars i:nth-child(odd){background:#a09e96}
+  @keyframes bar{0%,100%{transform:scaleY(.55)}50%{transform:scaleY(1.4)}}
+</style>
+</head>
+<body>
+<span class="demo-tag">07 · spectrum bars</span>
+<div class="stage">
+  <b>Spectrum</b>
+  <div class="bars" id="bars"></div>
+  <b style="font-family:var(--ar-font-mono);font-weight:300;font-size:13px;color:var(--ar-c-ink-2)">12.4 kHz</b>
+</div>
+<script>
+  // 24 bars with seeded heights so it doesn't look like a CSS animation grid
+  var bars = document.getElementById('bars');
+  for(var i=0;i<28;i++){
+    var b = document.createElement('i');
+    var h = 22 + Math.round(Math.random()*60);
+    var d = -(Math.random()*0.4).toFixed(2);
+    b.style.height = h + '%';
+    b.style.animationDelay = d + 's';
+    bars.appendChild(b);
+  }
+</script>
+</body>
+</html>

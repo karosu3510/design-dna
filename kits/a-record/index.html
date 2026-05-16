@@ -1,0 +1,354 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>a.Record · Design System</title>
+<link rel="stylesheet" href="./design-system.css">
+<style>
+  body{min-height:100vh;background:var(--ar-c-bg);color:var(--ar-c-ink);font-family:var(--ar-font-sans)}
+  .layout{display:grid;grid-template-columns:268px 1fr;min-height:100vh}
+
+  /* Sidebar */
+  .nav{padding:32px 22px;border-right:1px solid var(--ar-c-line);position:sticky;top:0;height:100vh;overflow-y:auto}
+  .nav-brand{display:flex;align-items:center;gap:10px;font-size:15px;font-weight:500;color:var(--ar-c-ink);margin-bottom:6px}
+  .nav-brand .mark{width:18px;height:18px;border-radius:50%;background:var(--ar-c-ink);position:relative;overflow:hidden;flex-shrink:0}
+  .nav-brand .mark::after{content:'';position:absolute;left:6px;top:0;width:8px;height:18px;background:var(--ar-c-bg);border-radius:8px}
+  .nav-sub{font-size:11.5px;color:var(--ar-c-ink-3);margin-bottom:24px}
+
+  .nav-cap{font-size:10.5px;font-weight:500;color:var(--ar-c-ink-3);letter-spacing:.18em;text-transform:uppercase;padding:0 10px;margin:18px 0 6px}
+  .nav-link{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:8px;font-size:13px;color:var(--ar-c-ink-2);cursor:pointer;letter-spacing:-0.005em;transition:background .15s}
+  .nav-link:hover{background:rgba(255,255,255,.5)}
+  .nav-link.active{background:var(--ar-c-shell);color:var(--ar-c-ink);box-shadow:var(--ar-shadow-pill)}
+  .nav-link .num{font-family:var(--ar-font-mono);font-size:11px;color:var(--ar-c-ink-3);font-weight:300;width:20px}
+  .nav-link.active .num{color:var(--ar-c-ink-2)}
+
+  .download-pill{margin-top:18px;height:36px;width:100%;border-radius:999px;background:var(--ar-c-ink);color:#fff;display:inline-flex;align-items:center;justify-content:center;gap:8px;font-size:12.5px;border:0;cursor:pointer;font-weight:500}
+  .download-pill svg{width:13px;height:13px}
+
+  /* Main */
+  main{padding:48px 56px}
+  .head{display:flex;flex-direction:column;gap:6px;margin-bottom:32px}
+  .head .ar-cap{margin-bottom:6px}
+  .head h1{font-size:48px;font-weight:500;letter-spacing:-0.03em;line-height:1}
+  .head .lead{font-size:14px;color:var(--ar-c-ink-3);max-width:540px;line-height:1.55;margin-top:10px}
+
+  .panel{background:var(--ar-c-shell);border-radius:20px;padding:24px;box-shadow:var(--ar-shadow-shell);margin-bottom:18px}
+  .panel h2{font-size:18px;font-weight:500;color:var(--ar-c-ink);margin-bottom:6px}
+  .panel .desc{font-size:12.5px;color:var(--ar-c-ink-3);margin-bottom:18px;max-width:560px;line-height:1.5}
+
+  /* Color swatches */
+  .swatch-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:10px}
+  .swatch{display:flex;flex-direction:column;gap:6px}
+  .swatch .chip{height:64px;border-radius:14px;border:1px solid var(--ar-c-line-2);position:relative;overflow:hidden}
+  .swatch .name{font-size:11.5px;color:var(--ar-c-ink-2);font-weight:500}
+  .swatch .hex{font-size:10.5px;color:var(--ar-c-ink-3);font-family:var(--ar-font-mono);letter-spacing:0}
+
+  /* Type scale */
+  .type-row{display:flex;align-items:baseline;justify-content:space-between;padding:12px 0;border-top:1px solid var(--ar-c-line)}
+  .type-row:first-child{border-top:0}
+  .type-row .demo{color:var(--ar-c-ink)}
+  .type-row .meta{font-family:var(--ar-font-mono);font-size:11px;color:var(--ar-c-ink-3);font-weight:300}
+
+  /* Spacing scale */
+  .sp-grid{display:grid;grid-template-columns:repeat(8,1fr);gap:12px}
+  .sp-cell{background:var(--ar-c-soft);border-radius:8px;display:flex;flex-direction:column;align-items:center;padding:14px 6px;gap:8px}
+  .sp-cell .bar{background:var(--ar-c-ink);border-radius:2px;width:auto;height:6px}
+  .sp-cell .name{font-family:var(--ar-font-mono);font-size:10.5px;color:var(--ar-c-ink-3)}
+
+  /* Component preview */
+  .comp-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .comp{background:var(--ar-c-bg);border-radius:14px;padding:0;overflow:hidden;border:1px solid var(--ar-c-line)}
+  .comp header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--ar-c-line);background:var(--ar-c-softer)}
+  .comp header b{font-size:12px;font-weight:500;color:var(--ar-c-ink)}
+  .comp header a{font-size:11px;color:var(--ar-c-ink-3);text-decoration:none}
+  .comp iframe{width:100%;height:300px;border:0;display:block;background:var(--ar-c-bg)}
+
+  /* Examples (full width) */
+  .example{background:var(--ar-c-bg);border-radius:16px;border:1px solid var(--ar-c-line);overflow:hidden}
+  .example header{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--ar-c-line);background:var(--ar-c-softer)}
+  .example header b{font-size:13px;font-weight:500}
+  .example header a{font-size:11.5px;color:var(--ar-c-ink-3);text-decoration:none}
+  .example iframe{width:100%;height:720px;border:0;display:block}
+
+  /* Code block */
+  pre.code{background:#1c1c1a;color:#e8e6df;border-radius:14px;padding:18px;font-family:var(--ar-font-mono);font-size:12px;overflow-x:auto;line-height:1.6}
+  pre.code .c{color:#92908a}
+  pre.code .k{color:#bfbdb5}
+  pre.code .s{color:#f1efe9}
+
+  .ai-toolbar{display:flex;gap:8px;margin-bottom:14px}
+  .copy-btn{height:30px;padding:0 14px;border-radius:999px;background:var(--ar-c-shell);border:1px solid var(--ar-c-line);font-size:11.5px;color:var(--ar-c-ink-2);cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+  .copy-btn:hover{border-color:var(--ar-c-ink-3);color:var(--ar-c-ink)}
+
+  footer{margin-top:32px;padding:24px 0;border-top:1px solid var(--ar-c-line);font-size:11.5px;color:var(--ar-c-ink-3);display:flex;justify-content:space-between}
+</style>
+</head>
+<body>
+<div class="layout">
+  <!-- Sidebar nav -->
+  <aside class="nav">
+    <div class="nav-brand"><div class="mark"></div><span>a.Record</span></div>
+    <div class="nav-sub">Design System · v1.0</div>
+
+    <div class="nav-cap">Foundations</div>
+    <a class="nav-link active" href="#overview"><span class="num">00</span>Overview</a>
+    <a class="nav-link" href="#color"><span class="num">01</span>Color</a>
+    <a class="nav-link" href="#type"><span class="num">02</span>Typography</a>
+    <a class="nav-link" href="#spacing"><span class="num">03</span>Spacing & radius</a>
+    <a class="nav-link" href="#motion"><span class="num">04</span>Motion</a>
+
+    <div class="nav-cap">Components</div>
+    <a class="nav-link" href="#c-shell"><span class="num">05</span>Shell</a>
+    <a class="nav-link" href="#c-pill"><span class="num">06</span>Pill</a>
+    <a class="nav-link" href="#c-glass"><span class="num">07</span>Glass panel</a>
+    <a class="nav-link" href="#c-status"><span class="num">08</span>Status dot</a>
+    <a class="nav-link" href="#c-mono"><span class="num">09</span>Mono display</a>
+    <a class="nav-link" href="#c-meter"><span class="num">10</span>Meter ring</a>
+    <a class="nav-link" href="#c-spectrum"><span class="num">11</span>Spectrum</a>
+    <a class="nav-link" href="#c-cap"><span class="num">12</span>Cap label</a>
+
+    <div class="nav-cap">Examples</div>
+    <a class="nav-link" href="#ex-original"><span class="num">13</span>Original</a>
+    <a class="nav-link" href="#ex-settings"><span class="num">14</span>Settings page</a>
+
+    <div class="nav-cap">For AI</div>
+    <a class="nav-link" href="#ai"><span class="num">15</span>Cursor / Claude rules</a>
+    <a class="nav-link" href="#tw"><span class="num">16</span>Tailwind preset</a>
+
+    <button class="download-pill" id="dlBtn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Download full kit
+    </button>
+  </aside>
+
+  <!-- Main content -->
+  <main>
+    <!-- Overview -->
+    <section id="overview" class="head">
+      <span class="ar-cap">Design DNA · Inspiration kit</span>
+      <h1>a.Record</h1>
+      <div class="lead">A warm audio dashboard system. Cream canvas, white cards, one red accent for "live". Inter for words, Geist Mono for numbers. Built for vocal tracking, but the tokens carry into any calm, precise interface.</div>
+    </section>
+
+    <!-- Color -->
+    <section id="color" class="panel">
+      <h2>01 · Color</h2>
+      <div class="desc">A 5-step warm neutral surface scale, 4-step ink ramp, and exactly one accent. No second saturated color is allowed.</div>
+      <div class="swatch-grid">
+        <div class="swatch"><div class="chip" style="background:#eceae3"></div><div class="name">canvas</div><div class="hex">#eceae3</div></div>
+        <div class="swatch"><div class="chip" style="background:#ffffff"></div><div class="name">shell</div><div class="hex">#ffffff</div></div>
+        <div class="swatch"><div class="chip" style="background:#f1efe9"></div><div class="name">hero</div><div class="hex">#f1efe9</div></div>
+        <div class="swatch"><div class="chip" style="background:#e8e6df"></div><div class="name">soft</div><div class="hex">#e8e6df</div></div>
+        <div class="swatch"><div class="chip" style="background:#efedf0"></div><div class="name">softer</div><div class="hex">#efedf0</div></div>
+        <div class="swatch"><div class="chip" style="background:#f24a3a"></div><div class="name">rec · accent</div><div class="hex">#f24a3a</div></div>
+        <div class="swatch"><div class="chip" style="background:#1c1c1a"></div><div class="name">ink</div><div class="hex">#1c1c1a</div></div>
+        <div class="swatch"><div class="chip" style="background:#5b5a55"></div><div class="name">ink-2</div><div class="hex">#5b5a55</div></div>
+        <div class="swatch"><div class="chip" style="background:#92908a"></div><div class="name">ink-3</div><div class="hex">#92908a</div></div>
+        <div class="swatch"><div class="chip" style="background:#bfbdb5"></div><div class="name">ink-4</div><div class="hex">#bfbdb5</div></div>
+      </div>
+    </section>
+
+    <!-- Type -->
+    <section id="type" class="panel">
+      <h2>02 · Typography</h2>
+      <div class="desc">Inter for UI and headlines. Geist Mono with tabular-nums for any number that ticks. Ten steps, never invent a new size.</div>
+      <div class="type-row">
+        <div class="demo" style="font-size:62px;font-family:var(--ar-font-mono);font-weight:200;letter-spacing:-0.05em;line-height:1;font-variant-numeric:tabular-nums">12:35:42</div>
+        <div class="meta">62px · Geist Mono 200 · timer</div>
+      </div>
+      <div class="type-row">
+        <div class="demo" style="font-size:34px;font-weight:500;letter-spacing:-0.025em">Vocal tracking</div>
+        <div class="meta">34px · Inter 500 · h1</div>
+      </div>
+      <div class="type-row">
+        <div class="demo" style="font-size:17px;font-weight:500">Recording active</div>
+        <div class="meta">17px · Inter 500 · lg</div>
+      </div>
+      <div class="type-row">
+        <div class="demo" style="font-size:13.5px;color:var(--ar-c-ink-3)">Block A — Take 04. Capture format 24-bit at 48 kHz.</div>
+        <div class="meta">13.5px · Inter 400 · body</div>
+      </div>
+      <div class="type-row">
+        <div class="demo ar-cap">Studio session</div>
+        <div class="meta">10.5px · Inter 500 · cap (+0.18em)</div>
+      </div>
+    </section>
+
+    <!-- Spacing & radius -->
+    <section id="spacing" class="panel">
+      <h2>03 · Spacing & radius</h2>
+      <div class="desc">4px grid for spacing. Five-step radius scale: shell → panel → card → tile → pill. Never mix radii arbitrarily.</div>
+      <div class="sp-grid">
+        <div class="sp-cell"><div class="bar" style="width:4px"></div><div class="name">4 · sp1</div></div>
+        <div class="sp-cell"><div class="bar" style="width:8px"></div><div class="name">8 · sp2</div></div>
+        <div class="sp-cell"><div class="bar" style="width:12px"></div><div class="name">12 · sp3</div></div>
+        <div class="sp-cell"><div class="bar" style="width:16px"></div><div class="name">16 · sp4</div></div>
+        <div class="sp-cell"><div class="bar" style="width:20px"></div><div class="name">20 · sp5</div></div>
+        <div class="sp-cell"><div class="bar" style="width:24px"></div><div class="name">24 · sp6</div></div>
+        <div class="sp-cell"><div class="bar" style="width:28px"></div><div class="name">28 · sp7</div></div>
+        <div class="sp-cell"><div class="bar" style="width:32px"></div><div class="name">32 · sp8</div></div>
+      </div>
+      <div style="display:flex;gap:14px;margin-top:18px;align-items:flex-end">
+        <div style="width:80px;height:80px;background:var(--ar-c-shell);border:1px solid var(--ar-c-line);border-radius:30px;text-align:center;font-family:var(--ar-font-mono);font-size:10.5px;color:var(--ar-c-ink-3);display:flex;align-items:flex-end;justify-content:center;padding-bottom:8px">30 · shell</div>
+        <div style="width:72px;height:72px;background:var(--ar-c-shell);border:1px solid var(--ar-c-line);border-radius:20px;text-align:center;font-family:var(--ar-font-mono);font-size:10.5px;color:var(--ar-c-ink-3);display:flex;align-items:flex-end;justify-content:center;padding-bottom:8px">20 · panel</div>
+        <div style="width:64px;height:64px;background:var(--ar-c-shell);border:1px solid var(--ar-c-line);border-radius:16px;text-align:center;font-family:var(--ar-font-mono);font-size:10.5px;color:var(--ar-c-ink-3);display:flex;align-items:flex-end;justify-content:center;padding-bottom:8px">16 · card</div>
+        <div style="width:56px;height:56px;background:var(--ar-c-shell);border:1px solid var(--ar-c-line);border-radius:14px;text-align:center;font-family:var(--ar-font-mono);font-size:10.5px;color:var(--ar-c-ink-3);display:flex;align-items:flex-end;justify-content:center;padding-bottom:8px">14 · tile</div>
+        <div style="height:34px;padding:0 18px;background:var(--ar-c-shell);border:1px solid var(--ar-c-line);border-radius:999px;font-family:var(--ar-font-mono);font-size:10.5px;color:var(--ar-c-ink-3);display:flex;align-items:center">999 · pill</div>
+      </div>
+    </section>
+
+    <!-- Motion -->
+    <section id="motion" class="panel">
+      <h2>04 · Motion</h2>
+      <div class="desc">Two easings, three durations. Real-time data uses low-pass smoothing (0.05–0.18), not CSS transitions.</div>
+      <pre class="code"><span class="c">// transitions</span>
+<span class="k">--ar-ease-out</span>:  cubic-bezier(0.22, 0.61, 0.36, 1);  <span class="c">// entrances</span>
+<span class="k">--ar-ease-soft</span>: cubic-bezier(0.4, 0, 0.2, 1);       <span class="c">// everything else</span>
+<span class="k">--ar-dur-fast</span>: 120ms;
+<span class="k">--ar-dur-base</span>: 240ms;
+<span class="k">--ar-dur-slow</span>: 600ms;
+
+<span class="c">// real-time numbers (don't use CSS)</span>
+value += (target - value) * <span class="s">0.18</span>;  <span class="c">// snappy   — input level</span>
+value += (target - value) * <span class="s">0.05</span>;  <span class="c">// inertial — LUFS, BPM</span></pre>
+    </section>
+
+    <!-- Components -->
+    <section class="panel">
+      <h2>Components</h2>
+      <div class="desc">Eight building blocks. Each is a self-contained HTML file under <code>components/</code> — open one, copy what you need.</div>
+      <div class="comp-grid">
+        <div class="comp" id="c-shell"><header><b>05 · Shell</b><a href="./components/01-shell.html" target="_blank">open ↗</a></header><iframe src="./components/01-shell.html" loading="lazy"></iframe></div>
+        <div class="comp" id="c-pill"><header><b>06 · Pill</b><a href="./components/02-pill.html" target="_blank">open ↗</a></header><iframe src="./components/02-pill.html" loading="lazy"></iframe></div>
+        <div class="comp" id="c-glass"><header><b>07 · Glass panel</b><a href="./components/03-glass-panel.html" target="_blank">open ↗</a></header><iframe src="./components/03-glass-panel.html" loading="lazy"></iframe></div>
+        <div class="comp" id="c-status"><header><b>08 · Status dot</b><a href="./components/04-status-dot.html" target="_blank">open ↗</a></header><iframe src="./components/04-status-dot.html" loading="lazy"></iframe></div>
+        <div class="comp" id="c-mono"><header><b>09 · Mono display</b><a href="./components/05-mono-display.html" target="_blank">open ↗</a></header><iframe src="./components/05-mono-display.html" loading="lazy"></iframe></div>
+        <div class="comp" id="c-meter"><header><b>10 · Meter ring</b><a href="./components/06-meter-ring.html" target="_blank">open ↗</a></header><iframe src="./components/06-meter-ring.html" loading="lazy"></iframe></div>
+        <div class="comp" id="c-spectrum"><header><b>11 · Spectrum</b><a href="./components/07-spectrum-bars.html" target="_blank">open ↗</a></header><iframe src="./components/07-spectrum-bars.html" loading="lazy"></iframe></div>
+        <div class="comp" id="c-cap"><header><b>12 · Cap label</b><a href="./components/08-cap-label.html" target="_blank">open ↗</a></header><iframe src="./components/08-cap-label.html" loading="lazy"></iframe></div>
+      </div>
+    </section>
+
+    <!-- Examples -->
+    <section class="panel">
+      <h2>Examples</h2>
+      <div class="desc">The same tokens carrying two completely different surfaces. If <em>settings-page</em> still feels like a.Record, the system works.</div>
+      <div class="example" id="ex-original" style="margin-bottom:14px"><header><b>13 · Original — Vocal tracking</b><a href="./examples/original.html" target="_blank">open ↗</a></header><iframe src="./examples/original.html" loading="lazy"></iframe></div>
+      <div class="example" id="ex-settings"><header><b>14 · Settings page (token-driven)</b><a href="./examples/settings-page.html" target="_blank">open ↗</a></header><iframe src="./examples/settings-page.html" loading="lazy" style="height:1100px"></iframe></div>
+    </section>
+
+    <!-- AI -->
+    <section id="ai" class="panel">
+      <h2>15 · For AI · Cursor / Claude rules</h2>
+      <div class="desc">Paste this into <code>.cursorrules</code> or any LLM system prompt. It primes generation in a.Record style — no purple gradients, no display serifs, no rogue accent colors.</div>
+      <div class="ai-toolbar">
+        <button class="copy-btn" id="copyRule">📋 Copy rule</button>
+        <a class="copy-btn" href="./ai-prompt.md" target="_blank">↗ Open ai-prompt.md</a>
+      </div>
+      <pre class="code" id="ruleBlock">Use the a.Record design system for all UI in this project.
+
+- Background canvas is warm cream #eceae3, never pure white. Card surfaces are #ffffff.
+- Inner panels (hero, sidebar, large blocks) use #f1efe9.
+- All interactive surfaces are 999px pill radius. Cards use 30/20/16/14 radius scale.
+- Inter for everything except numerical data. Geist Mono with tabular-nums for any number that ticks (timers, counters, dB, LUFS, BPM, file sizes).
+- Headlines: letter-spacing -0.025em. Body: -0.005em. Uppercase labels: +0.18em at 10.5px Inter Medium.
+- Exactly one accent: #f24a3a. Reserve it for live recording, errors, or destructive states. Never for branding, links, charts, decoration.
+- No gradients. No saturated UI colors. No sharp/glow shadows.
+- Three shadow recipes only: card, glass (with backdrop-filter blur 18px), pill.
+- Spacing on a 4px grid. Motion: 240ms cubic-bezier(.22,.61,.36,1) for entrances; real-time numbers via low-pass smoothing 0.05–0.18.
+- Reuse classes from design-system.css before authoring new CSS: .ar-shell, .ar-panel, .ar-pill, .ar-glass, .ar-mono, .ar-rec-dot, .ar-cap.
+
+If a request requires a saturated color, sharp shadow, or display serif, push back — those break the system.</pre>
+    </section>
+
+    <section id="tw" class="panel">
+      <h2>16 · For AI · Tailwind preset</h2>
+      <div class="desc">Drop <code>tailwind-tokens.js</code> into a Tailwind project as a preset and you instantly get <code>bg-canvas</code>, <code>text-ink</code>, <code>rounded-shell</code>, <code>shadow-card</code>.</div>
+      <pre class="code"><span class="c">// tailwind.config.js</span>
+<span class="k">module.exports</span> = {
+  <span class="k">presets</span>: [<span class="k">require</span>(<span class="s">'./tailwind-tokens.js'</span>)],
+  <span class="k">content</span>: [<span class="s">'./src/**/*.{html,js,ts,jsx,tsx}'</span>],
+};
+
+<span class="c">// then in your markup:</span>
+&lt;div <span class="k">class</span>=<span class="s">"bg-canvas text-ink min-h-screen"</span>&gt;
+  &lt;article <span class="k">class</span>=<span class="s">"bg-shell rounded-shell shadow-card p-7"</span>&gt;
+    &lt;h1 <span class="k">class</span>=<span class="s">"text-h1"</span>&gt;Vocal tracking&lt;/h1&gt;
+  &lt;/article&gt;
+&lt;/div&gt;</pre>
+    </section>
+
+    <footer>
+      <span>a.Record · Design DNA inspiration kit · v1.0.0</span>
+      <span><a href="https://karosu3510.github.io/design-dna/" target="_blank" style="color:inherit">karosu3510.github.io/design-dna</a></span>
+    </footer>
+  </main>
+</div>
+
+<script>
+  // Active nav link based on scroll
+  var links = document.querySelectorAll('.nav-link');
+  var sections = Array.from(links).map(function(a){ var id = a.getAttribute('href').slice(1); return document.getElementById(id); });
+  function syncNav(){
+    var y = window.scrollY + 120;
+    var bestIdx = 0;
+    sections.forEach(function(s, i){ if(s && s.offsetTop <= y) bestIdx = i; });
+    links.forEach(function(a, i){ a.classList.toggle('active', i === bestIdx); });
+  }
+  window.addEventListener('scroll', syncNav, { passive: true });
+
+  // Copy rule
+  document.getElementById('copyRule').addEventListener('click', function(){
+    var txt = document.getElementById('ruleBlock').textContent;
+    navigator.clipboard.writeText(txt).then(function(){
+      var b = document.getElementById('copyRule');
+      var old = b.textContent;
+      b.textContent = '✓ Copied';
+      setTimeout(function(){ b.textContent = old; }, 1400);
+    });
+  });
+
+  // Download kit (re-uses the same JSZip flow as the main library, but standalone here)
+  document.getElementById('dlBtn').addEventListener('click', async function(){
+    var btn = this;
+    var orig = btn.innerHTML;
+    btn.innerHTML = 'Packaging…';
+    try{
+      // Lazily inject JSZip if not present
+      if(typeof JSZip === 'undefined'){
+        await new Promise(function(res, rej){
+          var s = document.createElement('script');
+          s.src = 'https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js';
+          s.onload = res; s.onerror = rej; document.head.appendChild(s);
+        });
+      }
+      var zip = new JSZip();
+      var folder = zip.folder('a-record-kit');
+      var files = [
+        'README.md','design-system.md','design-system.css','design-tokens.json',
+        'ai-prompt.md','tailwind-tokens.js','index.html',
+        'components/01-shell.html','components/02-pill.html','components/03-glass-panel.html',
+        'components/04-status-dot.html','components/05-mono-display.html','components/06-meter-ring.html',
+        'components/07-spectrum-bars.html','components/08-cap-label.html',
+        'examples/original.html','examples/settings-page.html'
+      ];
+      await Promise.all(files.map(async function(f){
+        try{ var r = await fetch('./' + f, {cache:'no-cache'}); if(r.ok) folder.file(f, await r.text()); }catch(_){}
+      }));
+      var blob = await zip.generateAsync({type:'blob'});
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a'); a.href = url; a.download = 'a-record-kit.zip';
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      setTimeout(function(){ URL.revokeObjectURL(url); }, 1500);
+      btn.innerHTML = '✓ Downloaded';
+      setTimeout(function(){ btn.innerHTML = orig; }, 1400);
+    }catch(err){
+      console.warn(err);
+      btn.innerHTML = 'Failed';
+      setTimeout(function(){ btn.innerHTML = orig; }, 1500);
+    }
+  });
+</script>
+</body>
+</html>

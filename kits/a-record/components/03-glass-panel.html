@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>a.Record · Component · Glass panel</title>
+<link rel="stylesheet" href="../design-system.css">
+<style>
+  body{display:grid;place-items:center;min-height:100vh;background:var(--ar-c-bg);padding:40px}
+  .demo-tag{position:absolute;top:18px;left:24px;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--ar-c-ink-3);font-weight:500}
+  .stage{position:relative;width:780px;height:440px;background:var(--ar-c-hero);border-radius:20px;overflow:hidden}
+  /* fake terrain to show the blur context */
+  .stage::before{content:'';position:absolute;inset:auto 0 0 0;height:280px;background:linear-gradient(180deg, rgba(216,214,205,0) 0%, rgba(216,214,205,.55) 30%, rgba(208,205,194,.78) 65%, rgba(193,190,179,.92) 100%)}
+  .glass{position:absolute;left:24px;right:24px;bottom:24px;height:104px;border-radius:16px;padding:16px 22px;display:flex;align-items:center;justify-content:space-between;color:var(--ar-c-ink)}
+  .timer{font-family:var(--ar-font-mono);font-weight:200;font-size:62px;letter-spacing:-0.05em;line-height:1;font-variant-numeric:tabular-nums}
+  .session{text-align:right}
+  .session b{display:block;font-size:10.5px;font-weight:500;letter-spacing:.2em;text-transform:uppercase;color:var(--ar-c-ink-3);margin-bottom:6px}
+  .session span{font-size:13px;color:var(--ar-c-ink-2)}
+</style>
+</head>
+<body>
+<span class="demo-tag">03 · ar-glass</span>
+<div class="stage">
+  <div class="ar-glass glass">
+    <div class="timer">12:35:42</div>
+    <div class="session"><b>Block A — Take 04</b><span>Vocal · Neumann U87</span></div>
+  </div>
+</div>
+</body>
+</html>
