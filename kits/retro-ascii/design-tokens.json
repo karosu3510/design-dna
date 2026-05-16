@@ -1,0 +1,71 @@
+{
+  "$schema": "https://design-tokens.github.io/community-group/format/",
+  "name": "Retro ASCII Design System",
+  "version": "1.0.0",
+  "description": "CRT phosphor terminal. Tar-black canvas, P1 phosphor green primary, amber + red as alarm-only LEDs, JetBrains Mono everywhere, scanlines + vignette as page chrome. Inspired by 80s DEC terminals and modern CRT aesthetic projects.",
+  "color": {
+    "bg":      { "$value": "#05090A", "$type": "color", "$description": "Tar-black canvas — never #000" },
+    "shell":   { "$value": "#080F0B", "$type": "color", "$description": "Deepest panel" },
+    "card":    { "$value": "rgba(5,10,7,.6)", "$type": "color", "$description": "Translucent panel fill (let the radial gradient bleed through)" },
+    "line":    { "$value": "#0F1F14", "$type": "color", "$description": "Hairline border" },
+    "line-2":  { "$value": "#1a3320", "$type": "color", "$description": "Slightly stronger hairline" },
+    "ink":     { "$value": "#B8FFB8", "$type": "color", "$description": "Soft P1 phosphor — primary text" },
+    "hi":      { "$value": "#00FF6A", "$type": "color", "$description": "Phosphor highlight — titles, accents, brackets, cursor" },
+    "dim":     { "$value": "#2A4A32", "$type": "color", "$description": "Secondary / disabled phosphor" },
+    "dim-2":   { "$value": "#3a5e44", "$type": "color" },
+    "amber":   { "$value": "#FFB000", "$type": "color", "$description": "Warning LED — meter values, dangerous chips" },
+    "red":     { "$value": "#FF3B3B", "$type": "color", "$description": "Error LED — fatal / break only" }
+  },
+  "font": {
+    "family": {
+      "mono": { "$value": "'JetBrains Mono', 'IBM Plex Mono', 'Fira Code', 'Space Mono', ui-monospace, monospace", "$type": "fontFamily" }
+    },
+    "size": {
+      "h1":    { "$value": "34px", "$type": "dimension", "$description": "Hero ASCII glyph (RETRO wordmark)" },
+      "h2":    { "$value": "26px", "$type": "dimension", "$description": "Clock numerals" },
+      "md":    { "$value": "15px", "$type": "dimension", "$description": "Meter values" },
+      "base":  { "$value": "12px", "$type": "dimension", "$description": "Body terminal copy" },
+      "sm":    { "$value": "11px", "$type": "dimension", "$description": "Boot log line" },
+      "cap":   { "$value": "10px", "$type": "dimension", "$description": "Uppercase mono caption" },
+      "mini":  { "$value": "9px",  "$type": "dimension", "$description": "Meter label / chip text" }
+    },
+    "tracking": {
+      "body":  { "$value": "0.02em" },
+      "cap":   { "$value": "0.20em" },
+      "cap-2": { "$value": "0.25em" },
+      "cap-3": { "$value": "0.28em", "$description": "Brand wordmark" }
+    }
+  },
+  "effects": {
+    "glow":       { "$value": "0 0 2px rgba(0,255,106,.55), 0 0 8px rgba(0,255,106,.22)", "$description": "Default phosphor glow on text" },
+    "glow-amber": { "$value": "0 0 2px rgba(255,176,0,.55), 0 0 8px rgba(255,176,0,.22)" },
+    "glow-red":   { "$value": "0 0 2px rgba(255,59,59,.55), 0 0 8px rgba(255,59,59,.22)" },
+    "scanline":   { "$value": "rgba(0,255,106,.05)", "$description": "Single scanline tint (repeated every 3px)" }
+  },
+  "spacing": {
+    "1": { "$value": "4px",  "$type": "dimension" },
+    "2": { "$value": "6px",  "$type": "dimension" },
+    "3": { "$value": "8px",  "$type": "dimension" },
+    "4": { "$value": "12px", "$type": "dimension" },
+    "5": { "$value": "14px", "$type": "dimension" },
+    "6": { "$value": "18px", "$type": "dimension" }
+  },
+  "radius": {
+    "shell": { "$value": "0", "$type": "dimension", "$description": "All radius is 0 — this is a CRT" },
+    "panel": { "$value": "0", "$type": "dimension" },
+    "tile":  { "$value": "0", "$type": "dimension" },
+    "chip":  { "$value": "0", "$type": "dimension" }
+  },
+  "motion": {
+    "ease": {
+      "step": { "$value": "steps(1, end)", "$description": "Pixel-perfect frame swap" },
+      "out":  { "$value": "cubic-bezier(0.22, 0.61, 0.36, 1)" }
+    },
+    "duration": {
+      "blink": { "$value": "1200ms", "$description": "Cursor / live LED" },
+      "tick":  { "$value": "140ms" },
+      "fast":  { "$value": "180ms" },
+      "base":  { "$value": "240ms" }
+    }
+  }
+}

@@ -1,0 +1,406 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Retro ASCII · Design System</title>
+<link rel="stylesheet" href="./design-system.css">
+<style>
+  body{min-height:100vh;background:var(--ra-c-bg);color:var(--ra-c-ink);font-family:var(--ra-font-mono)}
+  .layout{display:grid;grid-template-columns:268px 1fr;min-height:100vh;position:relative;z-index:2}
+
+  /* Sidebar */
+  .nav{padding:32px 22px;border-right:1px dashed var(--ra-c-dim);position:sticky;top:0;height:100vh;overflow-y:auto;background:rgba(5,9,10,.85);backdrop-filter:blur(2px)}
+  .nav-brand{display:flex;align-items:center;gap:10px;font-size:14px;font-weight:700;color:var(--ra-c-hi);margin-bottom:6px;letter-spacing:.20em;font-family:var(--ra-font-mono);text-shadow:var(--ra-glow);text-transform:uppercase}
+  .nav-brand .mark{width:14px;height:14px;background:var(--ra-c-hi);box-shadow:var(--ra-glow);flex-shrink:0;position:relative}
+  .nav-brand .mark::after{content:'';position:absolute;left:5px;top:0;bottom:0;width:4px;background:var(--ra-c-bg)}
+  .nav-sub{font-family:var(--ra-font-mono);font-size:10px;color:var(--ra-c-dim);letter-spacing:.20em;text-transform:uppercase;margin-bottom:24px}
+
+  .nav-cap{font-family:var(--ra-font-mono);font-size:9.5px;font-weight:400;color:var(--ra-c-dim);letter-spacing:.20em;text-transform:uppercase;padding:0 10px;margin:18px 0 6px}
+  .nav-link{display:flex;align-items:center;gap:8px;padding:6px 10px;font-family:var(--ra-font-mono);font-size:11px;color:var(--ra-c-dim);cursor:pointer;letter-spacing:.06em;text-decoration:none;text-transform:uppercase}
+  .nav-link:hover{color:var(--ra-c-ink)}
+  .nav-link.active{color:var(--ra-c-hi);text-shadow:var(--ra-glow);background:rgba(0,255,106,.06)}
+  .nav-link.active::before{content:'›';margin-right:4px;color:var(--ra-c-hi)}
+  .nav-link .num{font-family:var(--ra-font-mono);font-size:10px;color:var(--ra-c-dim);width:22px}
+
+  .download-pill{margin-top:18px;height:36px;width:100%;background:var(--ra-c-hi);color:var(--ra-c-bg);display:inline-flex;align-items:center;justify-content:center;gap:8px;font-family:var(--ra-font-mono);font-size:11px;border:0;cursor:pointer;letter-spacing:.20em;text-transform:uppercase;box-shadow:var(--ra-glow);font-weight:700}
+  .download-pill svg{width:13px;height:13px}
+  .wb-pill{margin-top:8px;height:36px;width:100%;background:transparent;color:var(--ra-c-ink);display:inline-flex;align-items:center;justify-content:center;gap:8px;font-family:var(--ra-font-mono);font-size:11px;border:1px solid var(--ra-c-dim);cursor:pointer;letter-spacing:.20em;text-transform:uppercase}
+  .wb-pill:hover{border-color:var(--ra-c-hi);color:var(--ra-c-hi);text-shadow:var(--ra-glow)}
+  .wb-pill svg{width:13px;height:13px}
+
+  /* Main */
+  main{padding:48px 56px;max-width:1000px}
+  .hero{margin-bottom:36px}
+  .hero h1{font-family:var(--ra-font-mono);font-size:64px;line-height:1;color:var(--ra-c-hi);letter-spacing:.10em;font-weight:700;text-shadow:var(--ra-glow);text-transform:uppercase}
+  .hero .lead{margin-top:18px;font-size:13px;color:var(--ra-c-ink);max-width:600px;line-height:1.7;font-family:var(--ra-font-mono)}
+
+  .panel{margin-bottom:18px}
+  .panel-card{background:var(--ra-c-card);border:1px solid var(--ra-c-dim);padding:24px 28px;position:relative;overflow:hidden}
+  .panel-card::before,.panel-card::after{content:'';position:absolute;width:9px;height:9px;border:1px solid var(--ra-c-hi);opacity:.75}
+  .panel-card::before{top:-1px;left:-1px;border-right:none;border-bottom:none}
+  .panel-card::after{bottom:-1px;right:-1px;border-left:none;border-top:none}
+  .panel-card > *{position:relative;z-index:2}
+  .panel-card h2{font-family:var(--ra-font-mono);font-size:24px;color:var(--ra-c-hi);letter-spacing:.10em;text-transform:uppercase;margin-bottom:6px;font-weight:700;text-shadow:var(--ra-glow)}
+  .panel-card h2 .num{color:var(--ra-c-dim);margin-right:10px;font-size:14px;letter-spacing:.20em;font-weight:400;text-shadow:none}
+  .panel-card .desc{font-size:12px;color:var(--ra-c-ink);margin-bottom:18px;line-height:1.6;max-width:680px;font-family:var(--ra-font-mono)}
+
+  /* Color swatches */
+  .swatch-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:10px}
+  .swatch{display:flex;flex-direction:column;gap:6px}
+  .swatch .chip{height:54px;border:1px solid var(--ra-c-dim);position:relative;overflow:hidden}
+  .swatch .name{font-family:var(--ra-font-mono);font-size:10px;color:var(--ra-c-ink);letter-spacing:.06em;text-transform:uppercase}
+  .swatch .hex{font-family:var(--ra-font-mono);font-size:10px;color:var(--ra-c-dim)}
+
+  /* Type scale */
+  .type-row{display:flex;align-items:baseline;justify-content:space-between;padding:14px 0;border-top:1px dashed var(--ra-c-dim)}
+  .type-row:first-child{border-top:0}
+  .type-row .demo{color:var(--ra-c-ink);font-family:var(--ra-font-mono);text-shadow:var(--ra-glow)}
+  .type-row .meta{font-family:var(--ra-font-mono);font-size:10px;color:var(--ra-c-dim);letter-spacing:.06em;text-transform:uppercase}
+
+  /* Spacing scale */
+  .sp-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:12px}
+  .sp-cell{background:rgba(0,255,106,.04);border:1px dashed var(--ra-c-dim);display:flex;flex-direction:column;align-items:center;padding:14px 6px;gap:8px}
+  .sp-cell .bar{background:var(--ra-c-hi);width:auto;height:4px;box-shadow:var(--ra-glow)}
+  .sp-cell .name{font-family:var(--ra-font-mono);font-size:10px;color:var(--ra-c-dim);letter-spacing:.06em;text-transform:uppercase}
+
+  /* Component preview */
+  .comp-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .comp{background:var(--ra-c-card);border:1px solid var(--ra-c-dim);overflow:hidden}
+  .comp header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px dashed var(--ra-c-dim);background:rgba(0,255,106,.03)}
+  .comp header b{font-family:var(--ra-font-mono);font-size:10px;color:var(--ra-c-hi);letter-spacing:.20em;text-transform:uppercase;font-weight:400;text-shadow:var(--ra-glow)}
+  .comp header a{font-family:var(--ra-font-mono);font-size:10px;color:var(--ra-c-dim);text-decoration:none;letter-spacing:.06em}
+  .comp iframe{width:100%;height:300px;border:0;display:block;background:var(--ra-c-bg)}
+
+  /* Examples */
+  .example{border:1px solid var(--ra-c-dim);overflow:hidden}
+  .example header{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px dashed var(--ra-c-dim);background:rgba(0,255,106,.03)}
+  .example header b{font-family:var(--ra-font-mono);font-size:11px;font-weight:400;color:var(--ra-c-hi);letter-spacing:.20em;text-transform:uppercase;text-shadow:var(--ra-glow)}
+  .example header a{font-family:var(--ra-font-mono);font-size:10px;color:var(--ra-c-dim);text-decoration:none;letter-spacing:.06em}
+  .example iframe{width:100%;height:720px;border:0;display:block}
+
+  /* Code block */
+  pre.code{background:rgba(0,0,0,.6);color:var(--ra-c-ink);border:1px solid var(--ra-c-dim);padding:18px;font-family:var(--ra-font-mono);font-size:12px;overflow-x:auto;line-height:1.6;letter-spacing:.02em;text-shadow:var(--ra-glow)}
+  pre.code .c{color:var(--ra-c-dim);text-shadow:none}
+  pre.code .k{color:var(--ra-c-hi)}
+  pre.code .s{color:var(--ra-c-amber);text-shadow:var(--ra-glow-amber)}
+
+  .ai-toolbar{display:flex;gap:8px;margin-bottom:14px;align-items:center}
+  .copy-btn{height:30px;padding:0 14px;background:transparent;border:1px solid var(--ra-c-dim);font-family:var(--ra-font-mono);font-size:10px;color:var(--ra-c-ink);cursor:pointer;letter-spacing:.20em;text-transform:uppercase;text-decoration:none;display:inline-flex;align-items:center}
+  .copy-btn:hover{border-color:var(--ra-c-hi);color:var(--ra-c-hi);text-shadow:var(--ra-glow)}
+
+  footer{margin-top:32px;padding:24px 0;border-top:1px dashed var(--ra-c-dim);font-family:var(--ra-font-mono);font-size:10px;color:var(--ra-c-dim);display:flex;justify-content:space-between;letter-spacing:.20em;text-transform:uppercase}
+  footer a{color:inherit;text-decoration:none}
+</style>
+</head>
+<body class="ra-crt">
+<div class="layout">
+  <aside class="nav">
+    <div class="nav-brand"><div class="mark"></div><span>RETRO ASCII</span></div>
+    <div class="nav-sub">设计系统 · v1.0</div>
+
+    <div class="nav-cap">基础</div>
+    <a class="nav-link active" href="#overview"><span class="num">00</span>概览</a>
+    <a class="nav-link" href="#color"><span class="num">01</span>色彩</a>
+    <a class="nav-link" href="#type"><span class="num">02</span>字体</a>
+    <a class="nav-link" href="#spacing"><span class="num">03</span>间距与圆角</a>
+    <a class="nav-link" href="#motion"><span class="num">04</span>动效</a>
+
+    <div class="nav-cap">组件</div>
+    <a class="nav-link" href="#c-panel"><span class="num">05</span>面板与角标</a>
+    <a class="nav-link" href="#c-topbar"><span class="num">06</span>顶部栏 + 标签</a>
+    <a class="nav-link" href="#c-boot"><span class="num">07</span>启动日志</a>
+    <a class="nav-link" href="#c-meter"><span class="num">08</span>仪表</a>
+    <a class="nav-link" href="#c-tree"><span class="num">09</span>ASCII 目录</a>
+    <a class="nav-link" href="#c-clock"><span class="num">10</span>磷光时钟</a>
+    <a class="nav-link" href="#c-cursor"><span class="num">11</span>光标命令行</a>
+    <a class="nav-link" href="#c-events"><span class="num">12</span>事件流</a>
+
+    <div class="nav-cap">示例页面</div>
+    <a class="nav-link" href="#ex-original"><span class="num">13</span>原始 dashboard</a>
+    <a class="nav-link" href="#ex-changelog"><span class="num">14</span>Changelog 衍生</a>
+
+    <div class="nav-cap">AI 接入</div>
+    <a class="nav-link" href="#ai"><span class="num">15</span>Cursor 提示词</a>
+    <a class="nav-link" href="#tw"><span class="num">16</span>Tailwind 预设</a>
+
+    <button class="download-pill" id="dlBtn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      下载完整素材包
+    </button>
+    <button class="wb-pill" id="wbBtn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+      去 WorkBuddy 开发
+    </button>
+  </aside>
+
+  <main>
+    <section id="overview" class="hero">
+      <div class="ra-tape" style="border-top:0;padding-top:0">DESIGN DNA · INSPIRATION KIT</div>
+      <h1>Retro ASCII</h1>
+      <p class="lead">CRT 磷光终端。焦油色画布、P1 磷光绿，琥珀和红只作报警灯使用。JetBrains Mono 一统整张界面。扫描线 + vignette 是页面级机壳——它们不是装饰，而是这套系统读起来像 CRT 的承重结构。同一套 token 装进设置面板、长文 changelog、deploy log，仍然是同一台终端。</p>
+    </section>
+
+    <section id="color" class="panel">
+      <div class="panel-card">
+        <h2><span class="num">01</span>色彩</h2>
+        <p class="desc">单色磷光 + 双单点报警 LED。bg 是 #05090A 焦油黑，不是纯黑——纯黑会让 CRT 失去层次。</p>
+        <div class="swatch-grid">
+          <div class="swatch"><div class="chip" style="background:#05090A"></div><div class="name">bg</div><div class="hex">#05090A</div></div>
+          <div class="swatch"><div class="chip" style="background:#080F0B"></div><div class="name">shell</div><div class="hex">#080F0B</div></div>
+          <div class="swatch"><div class="chip" style="background:#0F1F14"></div><div class="name">line</div><div class="hex">#0F1F14</div></div>
+          <div class="swatch"><div class="chip" style="background:#1a3320"></div><div class="name">line-2</div><div class="hex">#1a3320</div></div>
+          <div class="swatch"><div class="chip" style="background:#2A4A32"></div><div class="name">dim</div><div class="hex">#2A4A32</div></div>
+          <div class="swatch"><div class="chip" style="background:#3a5e44"></div><div class="name">dim-2</div><div class="hex">#3a5e44</div></div>
+          <div class="swatch"><div class="chip" style="background:#B8FFB8"></div><div class="name">ink</div><div class="hex">#B8FFB8</div></div>
+          <div class="swatch"><div class="chip" style="background:#00FF6A;box-shadow:var(--ra-glow)"></div><div class="name">hi · phosphor</div><div class="hex">#00FF6A</div></div>
+          <div class="swatch"><div class="chip" style="background:#FFB000;box-shadow:var(--ra-glow-amber)"></div><div class="name">amber · warn</div><div class="hex">#FFB000</div></div>
+          <div class="swatch"><div class="chip" style="background:#FF3B3B;box-shadow:var(--ra-glow-red)"></div><div class="name">red · error</div><div class="hex">#FF3B3B</div></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="type" class="panel">
+      <div class="panel-card">
+        <h2><span class="num">02</span>字体</h2>
+        <p class="desc">JetBrains Mono 一统天下——所有标签、数字、正文、标题。无 sans-serif。每个文字节点都带磷光 text-shadow，这是系统读起来「emissive」的关键。</p>
+        <div class="type-row"><div class="demo" style="font-size:34px;letter-spacing:.10em;color:var(--ra-c-hi)">RETRO</div><div class="meta">34 · jetbrains mono · h1</div></div>
+        <div class="type-row"><div class="demo" style="font-size:26px;font-variant-numeric:tabular-nums;color:var(--ra-c-hi)">18:47:30</div><div class="meta">26 · jetbrains mono · h2</div></div>
+        <div class="type-row"><div class="demo" style="font-size:15px;color:var(--ra-c-amber);text-shadow:var(--ra-glow-amber);font-weight:700">38.2 Hz</div><div class="meta">15 · meter value</div></div>
+        <div class="type-row"><div class="demo" style="font-size:12px">karo@retro:~/projects$ ls ~/skills</div><div class="meta">12 · body terminal copy</div></div>
+        <div class="type-row"><div class="demo" style="font-size:11px">[0.622] glyph link: locked @ 38.2 Hz</div><div class="meta">11 · boot log line</div></div>
+        <div class="type-row"><div class="demo ra-tape" style="border-top:0;padding-top:0">UPTIME · THERMAL NOMINAL</div><div class="meta">10 · cap (+0.20em)</div></div>
+      </div>
+    </section>
+
+    <section id="spacing" class="panel">
+      <div class="panel-card">
+        <h2><span class="num">03</span>间距与圆角</h2>
+        <p class="desc">4px 网格。圆角全部为 0——这是 CRT，没有曲线。</p>
+        <div class="sp-grid">
+          <div class="sp-cell"><div class="bar" style="width:4px"></div><div class="name">4 · sp1</div></div>
+          <div class="sp-cell"><div class="bar" style="width:6px"></div><div class="name">6 · sp2</div></div>
+          <div class="sp-cell"><div class="bar" style="width:8px"></div><div class="name">8 · sp3</div></div>
+          <div class="sp-cell"><div class="bar" style="width:12px"></div><div class="name">12 · sp4</div></div>
+          <div class="sp-cell"><div class="bar" style="width:14px"></div><div class="name">14 · sp5</div></div>
+          <div class="sp-cell"><div class="bar" style="width:18px"></div><div class="name">18 · sp6</div></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="motion" class="panel">
+      <div class="panel-card">
+        <h2><span class="num">04</span>动效</h2>
+        <p class="desc">Retro ASCII 的动效是 terminal-real-time。LED/光标用 1200ms opacity 呼吸；像素帧 step easing；数字必须 setInterval 心跳。绝不用 CSS transition 动数字。</p>
+        <pre class="code"><span class="c">/* live LED + cursor — opacity blink only */</span>
+<span class="k">@keyframes</span> ra-blink { <span class="s">50%</span> { opacity: <span class="s">.25</span>; } }
+<span class="k">--ra-dur-blink</span>: <span class="s">1200ms</span>;
+
+<span class="c">/* numerical updates: setInterval cadence */</span>
+setInterval(spool, <span class="s">60-180</span>);   <span class="c">// boot log line</span>
+setInterval(meter, <span class="s">800</span>);      <span class="c">// meter value</span>
+setInterval(clock, <span class="s">1000</span>);     <span class="c">// clock tick</span>
+requestAnimationFrame(wave);   <span class="c">// canvas signal</span></pre>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-card">
+        <h2>组件</h2>
+        <p class="desc">8 个独立组件，每个文件可独立运行。打开看源码、复制片段、直接接入。</p>
+        <div class="comp-grid">
+          <div class="comp" id="c-panel"><header><b>05 · 面板与角标</b><a href="./components/01-panel.html" target="_blank">open ↗</a></header><iframe src="./components/01-panel.html" loading="lazy"></iframe></div>
+          <div class="comp" id="c-topbar"><header><b>06 · 顶部栏 + 标签</b><a href="./components/02-topbar-chips.html" target="_blank">open ↗</a></header><iframe src="./components/02-topbar-chips.html" loading="lazy"></iframe></div>
+          <div class="comp" id="c-boot"><header><b>07 · 启动日志</b><a href="./components/03-boot-log.html" target="_blank">open ↗</a></header><iframe src="./components/03-boot-log.html" loading="lazy"></iframe></div>
+          <div class="comp" id="c-meter"><header><b>08 · 仪表</b><a href="./components/04-meter.html" target="_blank">open ↗</a></header><iframe src="./components/04-meter.html" loading="lazy"></iframe></div>
+          <div class="comp" id="c-tree"><header><b>09 · ASCII 目录</b><a href="./components/05-ascii-tree.html" target="_blank">open ↗</a></header><iframe src="./components/05-ascii-tree.html" loading="lazy"></iframe></div>
+          <div class="comp" id="c-clock"><header><b>10 · 磷光时钟</b><a href="./components/06-clock.html" target="_blank">open ↗</a></header><iframe src="./components/06-clock.html" loading="lazy"></iframe></div>
+          <div class="comp" id="c-cursor"><header><b>11 · 光标命令行</b><a href="./components/07-cursor-prompt.html" target="_blank">open ↗</a></header><iframe src="./components/07-cursor-prompt.html" loading="lazy"></iframe></div>
+          <div class="comp" id="c-events"><header><b>12 · 事件流</b><a href="./components/08-event-feed.html" target="_blank">open ↗</a></header><iframe src="./components/08-event-feed.html" loading="lazy"></iframe></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-card">
+        <h2>示例页面</h2>
+        <p class="desc">同一套 token 承载完全不同的两个表面。如果 changelog 仍然是 Retro ASCII，token 系统就成立。</p>
+        <div class="example" id="ex-original" style="margin-bottom:14px"><header><b>13 · 原始 dashboard · 1100×720</b><a href="./examples/original.html" target="_blank">open ↗</a></header><iframe src="./examples/original.html" loading="lazy"></iframe></div>
+        <div class="example" id="ex-changelog"><header><b>14 · Changelog 衍生（token 检验）</b><a href="./examples/changelog.html" target="_blank">open ↗</a></header><iframe src="./examples/changelog.html" loading="lazy" style="height:1500px"></iframe></div>
+      </div>
+    </section>
+
+    <section id="ai" class="panel">
+      <div class="panel-card">
+        <h2><span class="num">15</span>AI 接入 · Cursor / Claude 提示词</h2>
+        <p class="desc">把下面这段贴进 <code>.cursorrules</code> 或任何 LLM 系统提示词，AI 生成的 UI 立刻进入 Retro ASCII 风格。</p>
+        <div class="ai-toolbar">
+          <button class="copy-btn" id="copyRule">复制提示词</button>
+          <a class="copy-btn" href="./ai-prompt.md" target="_blank">↗ ai-prompt.md</a>
+        </div>
+        <pre class="code" id="ruleBlock">Use the Retro ASCII design system for all UI in this project.
+
+- Page background #05090A — tar black, NEVER #000. Wrap root in .ra-crt for scanlines + vignette + center-bloom.
+- Panels: rgba(5,10,7,.6) translucent + 1px #0F1F14 border + bracket corners (::before/::after 7×7px L-corners). The brackets are the visual signature.
+- JetBrains Mono everywhere. No sans-serif anywhere. tabular-nums on all numerics.
+- Every text node carries text-shadow: 0 0 2px rgba(0,255,106,.55), 0 0 8px rgba(0,255,106,.22). Amber/red variants for warnings/errors.
+- Color discipline: #B8FFB8 ink + #00FF6A hi + #2A4A32 dim, plus #FFB000 amber (warnings/live values) + #FF3B3B red (errors only). Nothing else colored.
+- ALL radius is 0. No border-radius.
+- 4px spacing grid; 3-column 1fr/1.35fr/1fr layout is canonical.
+- Terminal-real-time motion: ra-blink 1200ms for LEDs/cursor; steps(1, end) for frame swaps; tick numbers via setInterval, never CSS transition.
+- Reuse .ra-panel / .ra-ttl / .ra-meter / .ra-line / .ra-chip / .ra-dot / .ra-cursor / .ra-tree before authoring new CSS.
+
+If a request requires a saturated UI color, soft shadow, sans-serif, or any rounded corner, push back — those break Retro ASCII.</pre>
+      </div>
+    </section>
+
+    <section id="tw" class="panel">
+      <div class="panel-card">
+        <h2><span class="num">16</span>AI 接入 · Tailwind 预设</h2>
+        <p class="desc">把 <code>tailwind-tokens.js</code> 当 preset 引入，所有命名空间立即可用。</p>
+        <pre class="code"><span class="c">// tailwind.config.js</span>
+<span class="k">module.exports</span> = {
+  <span class="k">presets</span>: [<span class="k">require</span>(<span class="s">'./tailwind-tokens.js'</span>)],
+  <span class="k">content</span>: [<span class="s">'./src/**/*.{html,js,ts,jsx,tsx}'</span>],
+};
+
+<span class="c">// markup:</span>
+&lt;body <span class="k">class</span>=<span class="s">"ra-crt bg-canvas text-ink min-h-screen font-mono"</span>&gt;
+  &lt;article <span class="k">class</span>=<span class="s">"ra-panel border border-line p-4 shadow-glow"</span>&gt;
+    &lt;div <span class="k">class</span>=<span class="s">"text-h1-ra text-hi"</span>&gt;RETRO&lt;/div&gt;
+  &lt;/article&gt;
+&lt;/body&gt;</pre>
+      </div>
+    </section>
+
+    <footer>
+      <span>Retro ASCII · Design DNA inspiration kit · v1.0.0</span>
+      <span><a href="https://karosu3510.github.io/design-dna/" target="_blank">karosu3510.github.io/design-dna</a></span>
+    </footer>
+  </main>
+</div>
+
+<script>
+  // active nav
+  var links = document.querySelectorAll('.nav-link');
+  var sections = Array.from(links).map(function(a){ var id = a.getAttribute('href').slice(1); return document.getElementById(id); });
+  function syncNav(){
+    var y = window.scrollY + 120;
+    var bestIdx = 0;
+    sections.forEach(function(s, i){ if(s && s.offsetTop <= y) bestIdx = i; });
+    links.forEach(function(a, i){ a.classList.toggle('active', i === bestIdx); });
+  }
+  window.addEventListener('scroll', syncNav, { passive: true });
+
+  // copy rule
+  document.getElementById('copyRule').addEventListener('click', function(){
+    var txt = document.getElementById('ruleBlock').textContent;
+    navigator.clipboard.writeText(txt).then(function(){
+      var b = document.getElementById('copyRule');
+      var old = b.textContent;
+      b.textContent = '✓ 已复制';
+      setTimeout(function(){ b.textContent = old; }, 1400);
+    });
+  });
+
+  // download kit
+  document.getElementById('dlBtn').addEventListener('click', async function(){
+    var btn = this;
+    var orig = btn.innerHTML;
+    btn.innerHTML = '打包中…';
+    try{
+      if(typeof JSZip === 'undefined'){
+        await new Promise(function(res, rej){
+          var s = document.createElement('script');
+          s.src = 'https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js';
+          s.onload = res; s.onerror = rej; document.head.appendChild(s);
+        });
+      }
+      var zip = new JSZip();
+      var folder = zip.folder('retro-ascii-kit');
+      var files = [
+        'README.md','design-system.md','design-system.css','design-tokens.json',
+        'ai-prompt.md','tailwind-tokens.js','index.html',
+        'components/01-panel.html','components/02-topbar-chips.html','components/03-boot-log.html',
+        'components/04-meter.html','components/05-ascii-tree.html','components/06-clock.html',
+        'components/07-cursor-prompt.html','components/08-event-feed.html',
+        'examples/original.html','examples/changelog.html'
+      ];
+      await Promise.all(files.map(async function(f){
+        try{ var r = await fetch('./' + f, {cache:'no-cache'}); if(r.ok) folder.file(f, await r.text()); }catch(_){}
+      }));
+      var blob = await zip.generateAsync({type:'blob'});
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a'); a.href = url; a.download = 'retro-ascii-kit.zip';
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      setTimeout(function(){ URL.revokeObjectURL(url); }, 1500);
+      btn.innerHTML = '✓ 已下载';
+      setTimeout(function(){ btn.innerHTML = orig; }, 1400);
+    }catch(err){
+      console.warn(err);
+      btn.innerHTML = '下载失败';
+      setTimeout(function(){ btn.innerHTML = orig; }, 1500);
+    }
+  });
+
+  // 去 WorkBuddy 开发
+  document.getElementById('wbBtn').addEventListener('click', async function(){
+    var btn = this;
+    var orig = btn.innerHTML;
+    var KIT_BASE = 'https://karosu3510.github.io/design-dna/kits/retro-ascii/';
+    var prompt = [
+      '我要基于 Design DNA 中的 Retro ASCII 设计系统继续开发。',
+      '',
+      '【素材包入口（请帮我读取这些文件作为视觉规范）】',
+      '- 设计系统总览：' + KIT_BASE + 'index.html',
+      '- design tokens（CSS 变量 + 组件类）：' + KIT_BASE + 'design-system.css',
+      '- design tokens（JSON）：' + KIT_BASE + 'design-tokens.json',
+      '- 完整文档：' + KIT_BASE + 'design-system.md',
+      '- AI 提示词与约束：' + KIT_BASE + 'ai-prompt.md',
+      '- Tailwind 预设：' + KIT_BASE + 'tailwind-tokens.js',
+      '- 组件示例（8 个独立 HTML）：' + KIT_BASE + 'components/',
+      '- 衍生用例（changelog）：' + KIT_BASE + 'examples/changelog.html',
+      '',
+      '【视觉铁律（必须遵守）】',
+      '- 画布 #05090A 焦油黑（绝不 #000）；wrap root in .ra-crt 自动加载 scanlines + vignette + center-bloom。',
+      '- 每张面板必须自带角标（::before / ::after 7×7px L-corner brackets）——这是视觉签名。',
+      '- 字体：JetBrains Mono 一统天下，绝无 sans-serif；所有数字 tabular-nums；每个文字节点带磷光 text-shadow。',
+      '- 颜色纪律：单色磷光 (#B8FFB8 ink + #00FF6A hi + #2A4A32 dim) + 双 LED：#FFB000 amber 仅 warn/live，#FF3B3B red 仅 fatal/error。',
+      '- 圆角全部 0，没有任何 border-radius。',
+      '- 间距 4px grid；3 列 1fr/1.35fr/1fr 是规范布局。',
+      '- 动效：LED/光标 1200ms opacity 呼吸；像素帧 steps(1, end)；数字用 setInterval 心跳 (60-180ms boot log / 800ms meter / 1000ms clock)，绝不用 CSS transition 动数字。',
+      '- 优先复用 .ra-panel / .ra-ttl / .ra-meter / .ra-line / .ra-chip / .ra-dot / .ra-cursor / .ra-tree，再写新 CSS。',
+      '',
+      '【我要开发的目标】',
+      '（在这里描述你想做的页面或组件，例如："Retro ASCII 风格的 deploy log 面板，streaming output + 3 个状态 chip"）',
+      '',
+      '【请按以下步骤执行】',
+      '1. 抓取 KIT_BASE 下关键文件加载视觉规范。',
+      '2. 给方案概要等我确认。',
+      '3. 我说「开干」之后，再生成代码。',
+    ].join('\n');
+
+    btn.innerHTML = '复制中…';
+    try{
+      await navigator.clipboard.writeText(prompt);
+      var iframe = document.createElement('iframe');
+      iframe.style.display='none';
+      iframe.src = 'codebuddy://codebuddy-ide';
+      document.body.appendChild(iframe);
+      setTimeout(function(){ try{ iframe.remove(); }catch(_){} }, 1500);
+      setTimeout(function(){
+        if(document.visibilityState === 'visible'){
+          window.open('https://www.codebuddy.cn/', '_blank', 'noopener');
+        }
+      }, 1200);
+      btn.innerHTML = '✓ 已复制 · 正在唤起 WorkBuddy';
+      setTimeout(function(){ btn.innerHTML = orig; }, 2400);
+    }catch(err){
+      console.warn(err);
+      btn.innerHTML = '复制失败';
+      setTimeout(function(){ btn.innerHTML = orig; }, 1500);
+    }
+  });
+</script>
+</body>
+</html>

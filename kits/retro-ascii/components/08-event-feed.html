@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Retro ASCII · Component · Event feed</title>
+<link rel="stylesheet" href="../design-system.css">
+<style>
+  body{display:grid;place-items:center;min-height:100vh;padding:48px}
+  .demo-tag{position:absolute;top:18px;left:24px;font-family:var(--ra-font-mono);font-size:10px;color:var(--ra-c-dim);letter-spacing:.20em;text-transform:uppercase}
+  .demo{width:520px;height:340px}
+  .feed{font-size:11px;line-height:1.6;height:100%;overflow:hidden}
+  .feed .row{display:flex;gap:8px}
+  .feed .ts{color:var(--ra-c-dim);font-variant-numeric:tabular-nums;flex-shrink:0}
+  .feed .lvl{flex-shrink:0;width:14px}
+  .feed .lvl.W{color:var(--ra-c-amber);text-shadow:var(--ra-glow-amber)}
+  .feed .lvl.E{color:var(--ra-c-red);text-shadow:var(--ra-glow-red)}
+  .feed .lvl.I{color:var(--ra-c-hi)}
+  .feed .msg b{color:var(--ra-c-hi);text-shadow:var(--ra-glow)}
+</style>
+</head>
+<body class="ra-crt">
+<span class="demo-tag">08 · event feed</span>
+<article class="ra-panel demo">
+  <div class="ra-ttl">
+    EVENTS
+    <span class="id">tail -f</span>
+  </div>
+  <div class="ra-body">
+    <div class="feed" id="feed"></div>
+  </div>
+</article>
+<script>
+  var pool = [
+    ['W','mem.zone',         '· frag 22%'],
+    ['I','glyph.link',       'signal locked @ 38.2 Hz'],
+    ['W','crt.phosphor',     '· burn-in risk'],
+    ['I','cache',            'hit 94.2%'],
+    ['W','crt.phosphor',     '· burn-in risk'],
+    ['W','mem.zone',         '· frag 22%'],
+    ['E','temp.n3',          'rising 68C'],
+    ['I','net.uplink',       '142 kpps · clean'],
+    ['W','disk.scrub',       'paused'],
+    ['I','ansi.ticker',      'rate 40 fps']
+  ];
+  var feed = document.getElementById('feed');
+  function pad(n){ return n < 10 ? '0' + n : n; }
+  function nowTs(){
+    var d = new Date();
+    return pad(d.getHours()) + ':' + pad(d.getMinutes()) + ':' + pad(d.getSeconds());
+  }
+  function append(){
+    var r = pool[Math.floor(Math.random() * pool.length)];
+    var row = document.createElement('div');
+    row.className = 'row';
+    row.innerHTML = '<span class="ts">' + nowTs() + '</span>' +
+                    '<span class="lvl ' + r[0] + '">[' + r[0] + ']</span>' +
+                    '<span class="msg"><b>' + r[1] + '</b> ' + r[2] + '</span>';
+    feed.appendChild(row);
+    while (feed.children.length > 16) feed.removeChild(feed.firstChild);
+  }
+  for (var i = 0; i < 10; i++) append();
+  setInterval(append, 1400);
+</script>
+</body>
+</html>

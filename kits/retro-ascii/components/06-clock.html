@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Retro ASCII · Component · Phosphor clock</title>
+<link rel="stylesheet" href="../design-system.css">
+<style>
+  body{display:grid;place-items:center;min-height:100vh;padding:48px}
+  .demo-tag{position:absolute;top:18px;left:24px;font-family:var(--ra-font-mono);font-size:10px;color:var(--ra-c-dim);letter-spacing:.20em;text-transform:uppercase}
+  .demo{width:420px}
+  .clk{font-size:32px;font-weight:700;color:var(--ra-c-hi);font-variant-numeric:tabular-nums;letter-spacing:.04em;text-shadow:var(--ra-glow);margin:8px 0 4px}
+  .date{font-size:11px;color:var(--ra-c-dim);letter-spacing:.20em;text-transform:uppercase;margin-bottom:14px}
+  .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;border:1px dashed var(--ra-c-dim);padding:10px}
+  .stats .ra-meter .v{font-size:14px}
+</style>
+</head>
+<body class="ra-crt">
+<span class="demo-tag">06 · phosphor clock</span>
+<article class="ra-panel demo">
+  <div class="ra-ttl">
+    CLOCK
+    <span class="id">local</span>
+  </div>
+  <div class="clk" id="clk">18:47:30</div>
+  <div class="date" id="date">SAT · MAY 16 · 2026</div>
+  <div class="stats">
+    <div class="ra-meter"><span class="k">THREADS</span><span class="v">154</span></div>
+    <div class="ra-meter"><span class="k">QPS</span><span class="v">1336</span></div>
+    <div class="ra-meter"><span class="k">LATENCY</span><span class="v">18ms</span></div>
+  </div>
+</article>
+<script>
+  function pad(n){ return n < 10 ? '0' + n : n; }
+  function tick(){
+    var d = new Date();
+    document.getElementById('clk').textContent = pad(d.getHours()) + ':' + pad(d.getMinutes()) + ':' + pad(d.getSeconds());
+    var days = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
+    var months = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+    document.getElementById('date').textContent =
+      days[d.getDay()] + ' · ' + months[d.getMonth()] + ' ' + pad(d.getDate()) + ' · ' + d.getFullYear();
+  }
+  tick(); setInterval(tick, 1000);
+</script>
+</body>
+</html>
