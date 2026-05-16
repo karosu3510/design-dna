@@ -760,17 +760,18 @@ function makeCardEl(d){
     }
   }
 
-  // ─── Hover 浮出：下载素材包（HTML + design system zip） ───
+  // ─── Hover 浮出：提取 DNA（进入 kit 设计系统文档页） ───
   {
     const fav = document.createElement('button');
     fav.type='button';
     fav.className = 'card-fav';
-    fav.dataset.act = 'download-kit';
-    fav.title = '下载该卡片素材包（HTML + Design System）';
-    fav.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg><span>下载素材包</span>';
+    fav.dataset.act = 'extract-dna';
+    fav.title = '提取该卡片的 Design DNA · 打开设计系统文档';
+    // code icon: < / >
+    fav.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/><line x1="13" y1="4" x2="11" y2="20"/></svg><span>提取 DNA</span>';
     fav.addEventListener('click',(e)=>{
       e.stopPropagation();
-      downloadCardKit(d, fav);
+      openCardDNA(d, fav);
     });
     card.appendChild(fav);
   }
@@ -1133,7 +1134,38 @@ async function copyCardCode(d, btn){
   }
 }
 
+// ─── 提取 DNA：打开卡片对应的 kit 设计系统文档页 ───
+// 约定：kits/<slug>/index.html 存在则在新标签打开；否则 flash 提示该卡片暂未提供 DNA。
+async function openCardDNA(d, btn){
+  const slug = (d.id||'').replace(/^d-/, '') || (d.styleLock || 'card');
+  const url = './kits/' + slug + '/index.html';
+  const setLabel = (txt)=>{
+    if(!btn) return;
+    const span = btn.querySelector('span');
+    if(span) span.textContent = txt;
+  };
+
+  // 先打开一个新标签（必须在用户点击的同一事件循环里 open，否则被弹窗拦截）
+  // 占位窗口，HEAD 验证通过后再赋 location；失败就立刻关闭并提示
+  const win = window.open('about:blank', '_blank');
+  setLabel('检查中…');
+  try{
+    const r = await fetch(url, { method:'HEAD', cache:'no-cache' });
+    if(!r.ok) throw new Error('no kit');
+    if(win){ win.location.href = url; }
+    else{ window.location.href = url; } // 弹窗被拦截时退化为同标签跳转
+    setLabel('提取 DNA');
+    if(typeof flash === 'function'){ flash('已打开 · ' + slug + ' DNA'); }
+  }catch(err){
+    if(win){ try{ win.close(); }catch(_){} }
+    setLabel('提取 DNA');
+    if(typeof flash === 'function'){ flash('该卡片暂未提供 DNA · ' + slug); }
+    else{ alert('该卡片暂未提供 Design DNA：' + slug); }
+  }
+}
+
 // ─── 下载卡片素材包（HTML + Design System zip） ───
+// 保留：当用户在 kit 文档页内一键下载时使用同一份打包逻辑（也保留以备未来恢复 hover 入口）。
 // 约定：如果项目存在 kits/<cardId>/，则一并打包；否则回退到只打 HTML
 async function downloadCardKit(d, btn){
   // 卡片 id：去掉前缀 'd-' 作为 kit slug，例如 d-a-record → a-record
