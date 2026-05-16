@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Glyph OS · Changelog</title>
+<link rel="stylesheet" href="../design-system.css">
+<style>
+  /* Token-only — no new colors, no new font families.
+     If this still feels like Glyph OS, the system carries. */
+  body{min-height:100vh;background:var(--gl-c-bg);padding:64px 0}
+  .page{width:840px;margin:0 auto;display:grid;grid-template-columns:200px 1fr;gap:36px}
+
+  /* Sidebar */
+  .side{padding-top:6px;position:sticky;top:32px;align-self:flex-start}
+  .side-brand{display:flex;align-items:center;gap:10px;font-size:15px;font-weight:500;color:var(--gl-c-ink);margin-bottom:4px}
+  .side-brand .mark{width:18px;height:18px;background:var(--gl-c-ink);position:relative;flex-shrink:0}
+  .side-brand .mark::after{content:'';position:absolute;left:6px;top:0;width:8px;height:18px;background:var(--gl-c-bg)}
+  .side-sub{font-family:var(--gl-font-pixel);font-size:13px;color:var(--gl-c-ink-3);letter-spacing:.18em;text-transform:uppercase;margin-bottom:24px}
+
+  .side-link{display:flex;align-items:center;gap:8px;padding:6px 0;font-family:var(--gl-font-pixel);font-size:14px;color:var(--gl-c-ink-3);text-decoration:none;letter-spacing:.06em;text-transform:uppercase;cursor:pointer}
+  .side-link:hover{color:var(--gl-c-ink)}
+  .side-link.active{color:var(--gl-c-ink)}
+  .side-link.active::before{content:'›';margin-right:4px;color:var(--gl-c-ok)}
+
+  /* Main */
+  main{padding-top:6px}
+  .head{margin-bottom:36px}
+  .head .ar-cap, .head .gl-tape{margin-bottom:6px}
+  .head h1{font-family:var(--gl-font-pixel);font-size:62px;line-height:1;color:var(--gl-c-ink);letter-spacing:.02em}
+  .head .lead{margin-top:14px;font-size:13.5px;color:var(--gl-c-ink-2);line-height:1.7;max-width:560px}
+
+  /* Release block (a single changelog entry is a gl-card) */
+  .release{margin-bottom:18px}
+  .release-head{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:8px}
+  .release-head .ver{font-family:var(--gl-font-pixel);font-size:46px;line-height:1;color:var(--gl-c-ink);letter-spacing:.02em}
+  .release-head .meta{text-align:right;font-family:var(--gl-font-pixel);font-size:12px;color:var(--gl-c-ink-3);letter-spacing:.18em;text-transform:uppercase;line-height:1.7}
+  .release-head .meta .live{display:inline-flex;align-items:center;gap:6px;color:var(--gl-c-ink)}
+  .release-head .meta .live .dot{width:8px;height:8px;background:var(--gl-c-rec);border-radius:50%;display:inline-block}
+
+  .release-head .badge{display:inline-block;font-family:var(--gl-font-pixel);font-size:11px;color:var(--gl-c-bg);background:var(--gl-c-ok);padding:2px 8px;letter-spacing:.18em;text-transform:uppercase}
+
+  .section{margin-top:14px}
+  .section .ar-cap, .section h3{font-family:var(--gl-font-pixel);font-size:13px;color:var(--gl-c-ink-3);letter-spacing:.18em;text-transform:uppercase;margin-bottom:6px;font-weight:400;font-family:var(--gl-font-pixel)}
+
+  .entries{padding:0;list-style:none;margin:0}
+  .entries li{display:grid;grid-template-columns:18px 1fr;gap:10px;padding:6px 0;font-size:13px;color:var(--gl-c-ink-2);line-height:1.55;font-family:var(--gl-font-sans)}
+  .entries li::before{content:'+';font-family:var(--gl-font-pixel);font-size:14px;color:var(--gl-c-ok);line-height:1.5}
+  .entries.fix li::before{content:'~';color:var(--gl-c-ink-3)}
+  .entries.break li::before{content:'!';color:var(--gl-c-rec)}
+  .entries li code{font-family:var(--gl-font-pixel);font-size:12.5px;color:var(--gl-c-ink);background:var(--gl-c-card-2);padding:0 6px;letter-spacing:0}
+  .entries li b{color:var(--gl-c-ink);font-weight:500}
+
+  .release-foot{margin-top:18px;padding-top:14px;border-top:1px solid var(--gl-c-line)}
+  .release-foot .ar-cap, .release-foot .gl-tape{display:flex;justify-content:space-between;color:var(--gl-c-ink-3);font-size:11.5px}
+
+  /* ASCII section break */
+  .ascii-break{margin:36px 0;font-family:var(--gl-font-pixel);font-size:14px;color:var(--gl-c-ink-3);letter-spacing:.18em;text-transform:uppercase;text-align:center;line-height:1.4;white-space:pre}
+
+  footer{margin-top:48px;padding-top:24px;border-top:1px solid var(--gl-c-line);font-family:var(--gl-font-pixel);font-size:12px;color:var(--gl-c-ink-3);letter-spacing:.18em;text-transform:uppercase;display:flex;justify-content:space-between}
+  footer a{color:inherit;text-decoration:none}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- sidebar -->
+  <aside class="side">
+    <div class="side-brand"><div class="mark"></div><span>Glyph OS</span></div>
+    <div class="side-sub">Changelog · v1</div>
+
+    <a class="side-link active" href="#v1-4">v1.4 · live</a>
+    <a class="side-link" href="#v1-3">v1.3</a>
+    <a class="side-link" href="#v1-2">v1.2</a>
+    <a class="side-link" href="#v1-1">v1.1</a>
+    <a class="side-link" href="#v1-0">v1.0</a>
+  </aside>
+
+  <!-- main -->
+  <main>
+    <section class="head">
+      <div class="gl-tape">RELEASE LOG / DEVICE FIRMWARE</div>
+      <h1>Changelog</h1>
+      <p class="lead">Every shipped version of Glyph OS. Newest on top. Plus
+        means new feature, tilde means fix, exclamation means breaking change.
+        Unstable channels are excluded — only general-availability lives here.</p>
+    </section>
+
+    <!-- v1.4 -->
+    <article id="v1-4" class="gl-card release">
+      <div class="release-head">
+        <div>
+          <div class="ver">v1.4</div>
+          <span class="badge" style="margin-top:8px">stable</span>
+        </div>
+        <div class="meta">
+          <div>2026-05-16</div>
+          <div class="live"><span class="dot"></span>now live</div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3>Added</h3>
+        <ul class="entries">
+          <li><b>Glyph matrix</b> — 28×11 dot grid module with token-driven shimmer at 110ms tick.</li>
+          <li><b>Radio tuner</b> — analog-style needle scaled across 88.1–108.0 MHz.</li>
+          <li>Pixel toggles now respond to <code>steps(1, end)</code> easing only — no tween, no bounce.</li>
+        </ul>
+      </div>
+
+      <div class="section">
+        <h3>Fixed</h3>
+        <ul class="entries fix">
+          <li>Battery <code>--gl-c-ok</code> bar no longer bleeds into the surrounding card on retina.</li>
+          <li>Now Playing inverse card no longer gets two box-shadows when stacked under a sticky nav.</li>
+          <li>Clock seconds drift after sleep — recompute on <code>visibilitychange</code>.</li>
+        </ul>
+      </div>
+
+      <div class="release-foot">
+        <div class="gl-tape"><span>shipped 16:48 UTC</span><span>build 14920</span></div>
+      </div>
+    </article>
+
+    <!-- ascii break -->
+    <pre class="ascii-break">.--..--..--..--..--..--..--..--..--..--..--..--.
+:..::..::..::..::..::..::..::..::..::..::..::..:
+'--''--''--''--''--''--''--''--''--''--''--''--'</pre>
+
+    <!-- v1.3 -->
+    <article id="v1-3" class="gl-card release">
+      <div class="release-head">
+        <div><div class="ver">v1.3</div></div>
+        <div class="meta"><div>2026-04-22</div><div>retired</div></div>
+      </div>
+
+      <div class="section">
+        <h3>Added</h3>
+        <ul class="entries">
+          <li>Quick bus row pill — <code>.gl-row</code> baseline.</li>
+          <li>Inverse card token <code>--gl-c-inv-bg</code> with one-per-layout discipline.</li>
+          <li><b>Pixel meter</b> — 22-segment battery + 14-block focus.</li>
+        </ul>
+      </div>
+
+      <div class="section">
+        <h3>Fixed</h3>
+        <ul class="entries fix">
+          <li>Module captions wrapping to two lines on narrow viewports.</li>
+        </ul>
+      </div>
+
+      <div class="release-foot">
+        <div class="gl-tape"><span>shipped 09:12 UTC</span><span>build 13770</span></div>
+      </div>
+    </article>
+
+    <!-- v1.2 -->
+    <article id="v1-2" class="gl-card release">
+      <div class="release-head">
+        <div><div class="ver">v1.2</div></div>
+        <div class="meta"><div>2026-03-08</div><div>retired</div></div>
+      </div>
+
+      <div class="section">
+        <h3>Breaking</h3>
+        <ul class="entries break">
+          <li>Removed soft-shadow tokens. Surfaces now separate via background step + 1px line only. Update any custom modules that referenced <code>--gl-shadow-*</code>.</li>
+        </ul>
+      </div>
+
+      <div class="section">
+        <h3>Added</h3>
+        <ul class="entries">
+          <li><b>Step easing</b> token <code>--gl-ease-step</code> — frame-perfect transitions.</li>
+          <li>Tape strip class <code>.gl-tape</code> for inline status copy.</li>
+        </ul>
+      </div>
+
+      <div class="release-foot">
+        <div class="gl-tape"><span>shipped 11:32 UTC</span><span>build 12064</span></div>
+      </div>
+    </article>
+
+    <!-- v1.1 -->
+    <article id="v1-1" class="gl-card release">
+      <div class="release-head">
+        <div><div class="ver">v1.1</div></div>
+        <div class="meta"><div>2026-02-14</div><div>retired</div></div>
+      </div>
+
+      <div class="section">
+        <h3>Added</h3>
+        <ul class="entries">
+          <li>Recording dot <code>.gl-rec</code> with single-purpose <code>--gl-c-rec</code>.</li>
+          <li>VT323 web-loaded as default pixel face.</li>
+        </ul>
+      </div>
+
+      <div class="release-foot">
+        <div class="gl-tape"><span>shipped 18:00 UTC</span><span>build 10802</span></div>
+      </div>
+    </article>
+
+    <!-- v1.0 -->
+    <article id="v1-0" class="gl-card release">
+      <div class="release-head">
+        <div><div class="ver">v1.0</div></div>
+        <div class="meta"><div>2026-01-09</div><div>retired</div></div>
+      </div>
+
+      <div class="section">
+        <h3>Initial</h3>
+        <ul class="entries">
+          <li>Pure black canvas + 4-step ink ramp + 1px hairlines.</li>
+          <li>Eight component primitives: card, cap, display, pixel, rec, row, tape, divider.</li>
+          <li>4px grid, 5-step radius scale, no shadows.</li>
+        </ul>
+      </div>
+
+      <div class="release-foot">
+        <div class="gl-tape"><span>seed</span><span>build 10000</span></div>
+      </div>
+    </article>
+
+    <footer>
+      <span>Glyph OS · changelog · token-driven page</span>
+      <span><a href="https://karosu3510.github.io/design-dna/" target="_blank">design-dna</a></span>
+    </footer>
+  </main>
+</div>
+</body>
+</html>

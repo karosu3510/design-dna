@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Glyph OS · Component · Spectrum (inverse)</title>
+<link rel="stylesheet" href="../design-system.css">
+<style>
+  body{display:grid;place-items:center;min-height:100vh;padding:48px}
+  .demo{width:560px;display:flex;flex-direction:column;justify-content:space-between;min-height:240px}
+  .demo h3{margin-top:8px;font-family:var(--gl-font-sans);font-size:22px;font-weight:600;letter-spacing:-0.01em;color:#0a0a0a}
+  .demo p{margin-top:6px;font-size:13px;color:#5a5a5a}
+  .bars{display:flex;align-items:flex-end;gap:2px;height:48px}
+  .bars i{width:6px;background:#0a0a0a;border-radius:1px;display:block;animation:bar 1.4s ease-in-out infinite}
+  .bars i:nth-child(odd){background:#3a3a3a}
+  @keyframes bar{0%,100%{transform:scaleY(.5)}50%{transform:scaleY(1.4)}}
+  .demo-tag{position:absolute;top:18px;left:24px;font-family:var(--gl-font-pixel);font-size:13px;color:var(--gl-c-ink-3);letter-spacing:.18em;text-transform:uppercase}
+</style>
+</head>
+<body>
+<span class="demo-tag">05 · spectrum (inverse)</span>
+<article class="gl-card gl-card--inverse demo">
+  <div class="gl-cap">Now playing <span class="gl-actions"><span></span></span></div>
+  <div>
+    <h3>AI writing tool for thoughtful creators</h3>
+    <p>Built to feel good and work hard.</p>
+  </div>
+  <div class="bars" id="bars"></div>
+</article>
+<script>
+  var bars = document.getElementById('bars');
+  for(var i=0;i<48;i++){
+    var b = document.createElement('i');
+    b.style.height = (18 + Math.round(Math.random()*80)) + '%';
+    b.style.animationDelay = (-Math.random()*0.6).toFixed(2) + 's';
+    bars.appendChild(b);
+  }
+</script>
+</body>
+</html>

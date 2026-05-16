@@ -1,0 +1,425 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Glyph OS — Pixel Desktop Dashboard</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=VT323&family=Inter:wght@400;500;600&display=swap');
+:root{
+  --gl-bg:        #000000;
+  --gl-shell:     #0e0e0e;
+  --gl-card:      #141414;
+  --gl-card-2:    #1b1b1b;
+  --gl-line:      #2a2a2a;
+  --gl-line-2:    #3a3a3a;
+  --gl-ink:       #ffffff;
+  --gl-ink-2:     #c5c5c5;
+  --gl-ink-3:     #7c7c7c;
+  --gl-ink-4:     #4a4a4a;
+  --gl-rec:       #ff3b30;
+  --gl-ok:        #c8ff5e;     /* 仅用于电量 OK / charging */
+  --gl-pixel:     'VT323','Press Start 2P',ui-monospace,Menlo,monospace;
+  --gl-sans:      'Inter','Helvetica Neue',Arial,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:1100px;height:720px;overflow:hidden;background:var(--gl-bg);color:var(--gl-ink);font-family:var(--gl-sans);-webkit-font-smoothing:antialiased}
+.stage{position:absolute;left:0;top:0;width:1100px;height:720px;transform-origin:top left;padding:18px;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:auto auto;gap:14px}
+.col-l{display:grid;grid-template-rows:286px 218px 1fr;gap:14px}
+.col-r{display:grid;grid-template-rows:212px 192px 168px;gap:14px}
+
+/* Common module-card */
+.mod{position:relative;background:var(--gl-card);border:1px solid var(--gl-line);border-radius:18px;padding:14px 16px;overflow:hidden}
+.mod .cap{font-family:var(--gl-pixel);font-size:14px;color:var(--gl-ink-3);letter-spacing:.16em;text-transform:uppercase;display:flex;align-items:center;justify-content:space-between}
+.mod .cap .actions{display:inline-flex;gap:6px;color:var(--gl-ink-4)}
+.mod .cap .actions span{display:inline-block;width:8px;height:8px;border:1px solid currentColor;border-radius:1px}
+.dot-rec{width:9px;height:9px;border-radius:50%;background:var(--gl-rec);box-shadow:0 0 0 3px rgba(255,59,48,.18)}
+
+/* ─── Device clock ─── */
+.clock-wrap{display:flex;flex-direction:column;height:100%}
+.clock{margin-top:8px;display:flex;align-items:center;gap:8px;font-family:var(--gl-pixel);font-size:118px;line-height:1;letter-spacing:0.02em;color:var(--gl-ink);text-shadow:0 0 0 var(--gl-ink)}
+.clock .colon{transform:translateY(-12px)}
+.clock-meta{margin-top:14px;font-family:var(--gl-pixel);font-size:14px;color:var(--gl-ink-3);letter-spacing:.16em;text-transform:uppercase}
+.clock-divider{margin:14px 0 10px;height:1px;background:linear-gradient(90deg,transparent,var(--gl-line-2) 25%,var(--gl-line-2) 75%,transparent)}
+.clock-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.clock-stats .lbl{font-family:var(--gl-pixel);font-size:13px;color:var(--gl-ink-3);letter-spacing:.16em;text-transform:uppercase}
+.clock-stats .val{margin-top:4px;font-family:var(--gl-pixel);font-size:30px;color:var(--gl-ink);letter-spacing:.04em}
+.clock-stats .val .unit{font-size:13px;color:var(--gl-ink-3);margin-left:4px;letter-spacing:.18em;text-transform:uppercase}
+.clock-tape{position:absolute;left:16px;right:16px;bottom:14px;font-family:var(--gl-pixel);font-size:12px;color:var(--gl-ink-3);letter-spacing:.18em;text-transform:uppercase}
+
+/* ─── Radio tuner ─── */
+.tuner{position:relative;height:100%;display:flex;flex-direction:column}
+.tuner .freq{position:absolute;right:14px;top:50%;transform:translateY(-50%);text-align:right}
+.tuner .freq .big{font-family:var(--gl-pixel);font-size:64px;line-height:1;color:var(--gl-ink)}
+.tuner .freq .sub{margin-top:6px;font-family:var(--gl-pixel);font-size:13px;color:var(--gl-ink-3);letter-spacing:.18em}
+.tuner .scale-wrap{position:absolute;left:16px;right:230px;top:50%;transform:translateY(-50%)}
+.tuner .scale{position:relative;height:62px;border-bottom:1px solid var(--gl-line-2)}
+.tuner .ticks{position:absolute;left:0;right:0;bottom:0;height:36px;display:flex;align-items:flex-end;gap:6px}
+.tuner .ticks i{display:block;width:1px;background:var(--gl-ink-3);opacity:.5}
+.tuner .needle{position:absolute;left:50%;bottom:0;width:1px;height:62px;background:var(--gl-ink);transform:translateX(-50%)}
+.tuner .needle::before{content:'';position:absolute;top:-12px;left:-7px;width:14px;height:14px;border:1.5px solid var(--gl-ink);background:var(--gl-card);border-radius:2px}
+.tuner .scale-cap{display:flex;justify-content:space-between;margin-top:6px;font-family:var(--gl-pixel);font-size:12px;color:var(--gl-ink-3)}
+
+/* ─── Quick bus + Focus ring (bottom row) ─── */
+.bottom-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;height:100%}
+.qb{padding:12px 14px;display:flex;flex-direction:column;gap:10px;height:100%}
+.qb .cap{margin-bottom:2px}
+.qb-list{display:flex;flex-direction:column;gap:6px;flex:1;justify-content:flex-start}
+.qb-row{height:32px;background:var(--gl-card-2);border-radius:8px;padding:0 12px;display:flex;align-items:center;justify-content:space-between;font-size:13px;color:var(--gl-ink);font-family:var(--gl-sans);font-weight:400}
+.qb-row .grip{display:grid;grid-template-columns:repeat(3,3px);grid-template-rows:repeat(2,3px);gap:2px}
+.qb-row .grip i{width:3px;height:3px;background:var(--gl-ink-3);border-radius:1px}
+
+.fr{padding:12px 14px;display:flex;flex-direction:column;height:100%}
+.fr-body{margin-top:8px;display:flex;align-items:center;gap:18px;flex:1}
+.fr-ring{position:relative;width:84px;height:84px}
+.fr-ring svg{display:block;width:100%;height:100%;transform:rotate(-90deg)}
+.fr-ring svg circle{fill:none}
+.fr-ring .center{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--gl-pixel);font-size:13px;color:var(--gl-ink-3);letter-spacing:.16em;text-transform:uppercase}
+.fr-text{font-family:var(--gl-pixel);color:var(--gl-ink)}
+.fr-text .big{font-size:38px;line-height:1}
+.fr-text .small{margin-top:8px;font-size:14px;color:var(--gl-ink-3);letter-spacing:.16em;text-transform:uppercase}
+.fr-blocks{margin-top:10px;display:flex;gap:5px}
+.fr-blocks i{width:18px;height:6px;background:var(--gl-line-2);border-radius:1px}
+.fr-blocks i.on{background:var(--gl-ink)}
+
+/* ─── Now playing ─── */
+.np{padding:18px 20px;background:#fafaf6;color:#0a0a0a;border-color:#fafaf6;display:flex;flex-direction:column;justify-content:space-between}
+.np .cap{color:#7c7c7c}
+.np .cap .actions span{border-color:#bbb}
+.np h3{margin-top:8px;font-size:22px;font-weight:600;color:#0a0a0a;letter-spacing:-0.01em;line-height:1.2;font-family:var(--gl-sans)}
+.np p{margin-top:6px;font-size:13px;color:#5a5a5a;line-height:1.4}
+.np .bars{display:flex;align-items:flex-end;gap:2px;height:48px;margin-top:auto}
+.np .bars i{width:6px;background:#0a0a0a;border-radius:1px;display:block;animation:npbar 1.4s ease-in-out infinite}
+.np .bars i:nth-child(odd){background:#3a3a3a}
+@keyframes npbar{0%,100%{transform:scaleY(.5)}50%{transform:scaleY(1.4)}}
+
+/* ─── Glyph matrix + Local sky ─── */
+.gm-row{display:grid;grid-template-columns:1.55fr 1fr;gap:14px}
+.gm{padding:12px 14px;display:flex;flex-direction:column;height:100%}
+.gm-grid{flex:1;margin-top:8px;display:grid;grid-template-columns:repeat(28,1fr);grid-template-rows:repeat(11,1fr);gap:3px}
+.gm-grid i{background:var(--gl-card-2);border-radius:1.5px}
+.gm-grid i.l1{background:#3a3a3a}
+.gm-grid i.l2{background:#7c7c7c}
+.gm-grid i.l3{background:#ffffff}
+
+.sky{padding:12px 14px;display:flex;flex-direction:column;height:100%;position:relative}
+.sky .num{margin-top:8px;font-family:var(--gl-pixel);font-size:62px;line-height:1;color:var(--gl-ink);display:flex;align-items:flex-start}
+.sky .num .deg{font-size:18px;color:var(--gl-ink-3);margin-left:6px;margin-top:6px}
+.sky .ascii{margin-top:10px;font-family:var(--gl-pixel);font-size:11px;line-height:1.05;color:var(--gl-ink-3);white-space:pre}
+.sky .meta{position:absolute;left:14px;bottom:12px;font-family:var(--gl-pixel);font-size:11px;color:var(--gl-ink-3);letter-spacing:.05em;line-height:1.5}
+
+/* ─── CPU + Battery ─── */
+.cpu-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.cpu{padding:12px 14px;display:flex;flex-direction:column;height:100%}
+.cpu .num{margin-top:6px;font-family:var(--gl-pixel);font-size:46px;line-height:1;color:var(--gl-ink)}
+.cpu .num .unit{font-size:14px;color:var(--gl-ink-3);margin-left:4px}
+.cpu .chart{flex:1;margin-top:6px;position:relative}
+.cpu .chart svg{width:100%;height:100%;display:block}
+.cpu .chart-meta{display:flex;justify-content:space-between;font-family:var(--gl-pixel);font-size:11px;color:var(--gl-ink-3);letter-spacing:.04em}
+
+.bat{padding:12px 14px;display:flex;flex-direction:column;height:100%}
+.bat .num{margin-top:6px;font-family:var(--gl-pixel);font-size:46px;line-height:1;color:var(--gl-ink)}
+.bat .num .unit{font-size:14px;color:var(--gl-ink-3);margin-left:4px}
+.bat-bars{margin-top:auto;display:flex;gap:2px;height:14px}
+.bat-bars i{flex:1;background:var(--gl-line);border-radius:1.5px}
+.bat-bars i.on{background:var(--gl-ok)}
+.bat-meta{margin-top:6px;display:flex;justify-content:space-between;font-family:var(--gl-pixel);font-size:11px;color:var(--gl-ink-3);letter-spacing:.06em}
+
+/* ─── Network + Ambient ─── */
+.net-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.net{padding:12px 14px;height:100%;display:flex;flex-direction:column;justify-content:space-between;overflow:hidden}
+.net .grid{display:grid;grid-template-columns:1fr 1fr;gap:6px 10px;font-family:var(--gl-pixel);font-size:12px}
+.net .grid div{display:flex;justify-content:space-between;color:var(--gl-ink-3)}
+.net .grid div b{color:var(--gl-ink);font-weight:400;font-family:var(--gl-pixel)}
+
+.amb{padding:12px 14px;height:100%;display:flex;flex-direction:column;overflow:hidden}
+.amb .vu{flex:1;margin-top:auto;display:flex;align-items:flex-end;gap:2px;height:30px}
+.amb .vu i{flex:1;background:var(--gl-line);border-radius:1px;display:block}
+.amb .vu i.on{background:var(--gl-ink)}
+.amb-meta{margin-top:6px;display:flex;justify-content:space-between;font-family:var(--gl-pixel);font-size:11px;color:var(--gl-ink-3)}
+</style>
+</head>
+<body>
+<div class="stage">
+
+  <!-- LEFT COLUMN -->
+  <div class="col-l">
+
+    <!-- Device clock -->
+    <article class="mod clock-wrap">
+      <div class="cap">Device clock <span class="dot-rec"></span></div>
+      <div class="clock" id="clock"><span>16</span><span class="colon">:</span><span>48</span></div>
+      <div class="clock-meta" id="clockMeta">SAT, MAY 16 :49</div>
+      <div class="clock-divider"></div>
+      <div class="clock-stats">
+        <div><div class="lbl">Uptime</div><div class="val">18:28:23</div></div>
+        <div><div class="lbl">Threads</div><div class="val">141</div></div>
+        <div><div class="lbl">Latency</div><div class="val">24<span class="unit">ms</span></div></div>
+      </div>
+      <div class="clock-tape">Glyph sequencer armed // thermal nominal // radio mesh clean</div>
+    </article>
+
+    <!-- Radio tuner -->
+    <article class="mod tuner">
+      <div class="cap">Radio tuner <span class="actions"><span></span></span></div>
+      <div class="scale-wrap">
+        <div class="scale">
+          <div class="ticks" id="tunerTicks"></div>
+          <div class="needle"></div>
+        </div>
+        <div class="scale-cap"><span>88.1</span><span>108.0</span></div>
+      </div>
+      <div class="freq">
+        <div class="big">98.7</div>
+        <div class="sub">98.7 MHz · 58 dB clean</div>
+      </div>
+    </article>
+
+    <!-- Quick bus + Focus ring -->
+    <div class="bottom-row">
+      <article class="mod qb">
+        <div class="cap">Quick bus <span class="actions"><span></span></span></div>
+        <div class="qb-list">
+          <div class="qb-row"><span>Wi-Fi 6E</span><span class="grip"><i></i><i></i><i></i><i></i><i></i><i></i></span></div>
+          <div class="qb-row"><span>Glyph Sync</span><span class="grip"><i></i><i></i><i></i><i></i><i></i><i></i></span></div>
+          <div class="qb-row"><span>Mic Gate</span><span class="grip"><i></i><i></i><i></i><i></i><i></i><i></i></span></div>
+          <div class="qb-row"><span>Focus Lock</span><span class="grip"><i></i><i></i><i></i><i></i><i></i><i></i></span></div>
+        </div>
+      </article>
+
+      <article class="mod fr">
+        <div class="cap">Focus ring <span class="actions"><span></span></span></div>
+        <div class="fr-body">
+          <div class="fr-ring">
+            <svg viewBox="0 0 100 100">
+              <circle cx="50" cy="50" r="42" stroke="rgba(255,255,255,.10)" stroke-width="6"/>
+              <circle id="frRing" cx="50" cy="50" r="42" stroke="#ffffff" stroke-width="6" stroke-linecap="round" stroke-dasharray="180 263.9"/>
+            </svg>
+            <div class="center">75%</div>
+          </div>
+          <div class="fr-text">
+            <div class="big">20:02</div>
+            <div class="small">deep work block</div>
+            <div class="fr-blocks" id="frBlocks"></div>
+          </div>
+        </div>
+      </article>
+    </div>
+  </div>
+
+  <!-- RIGHT COLUMN -->
+  <div class="col-r">
+
+    <!-- Now playing -->
+    <article class="mod np">
+      <div class="cap">Now playing <span class="actions"><span></span></span></div>
+      <div>
+        <h3>AI writing tool for thoughtful creators</h3>
+        <p>Built to feel good and work hard.</p>
+      </div>
+      <div class="bars" id="npBars"></div>
+    </article>
+
+    <!-- Glyph matrix + Local sky -->
+    <div class="gm-row">
+      <article class="mod gm">
+        <div class="cap">Glyph matrix <span class="actions"><span></span></span></div>
+        <div class="gm-grid" id="gmGrid"></div>
+      </article>
+
+      <article class="mod sky">
+        <div class="cap">Local sky <span class="actions"><span></span></span></div>
+        <div class="num" id="skyNum">28<span class="deg">°C</span></div>
+        <div class="ascii">.--..--..--..--.&#10;:..::..::..::..:&#10;'--''--''--''--'</div>
+        <div class="meta">thin cloud /<br>steady pressure</div>
+      </article>
+    </div>
+
+    <!-- CPU + Battery -->
+    <div class="cpu-row">
+      <article class="mod cpu">
+        <div class="cap">CPU load <span class="actions"><span></span></span></div>
+        <div class="num" id="cpuNum">38<span class="unit">%</span></div>
+        <div class="chart">
+          <svg viewBox="0 0 200 60" preserveAspectRatio="none">
+            <polyline id="cpuPoly" fill="none" stroke="#ffffff" stroke-width="1.4" points=""/>
+          </svg>
+        </div>
+        <div class="chart-meta"><span>8C</span><span>49.7°</span></div>
+      </article>
+
+      <article class="mod bat">
+        <div class="cap">Battery <span class="actions"><span></span></span></div>
+        <div class="num" id="batNum">92<span class="unit">%</span></div>
+        <div class="bat-bars" id="batBars"></div>
+        <div class="bat-meta"><span>charging</span><span>7H 40M</span></div>
+      </article>
+    </div>
+
+    <!-- Network + Ambient -->
+    <div class="net-row">
+      <article class="mod net">
+        <div class="cap">Network <span class="actions"><span></span></span></div>
+        <div class="grid">
+          <div><span>down</span><b id="netDn">412</b></div>
+          <div><span>rtt</span><b id="netRtt">14ms</b></div>
+          <div><span>up</span><b>96.0</b></div>
+          <div><span>loss</span><b>0%</b></div>
+        </div>
+      </article>
+
+      <article class="mod amb">
+        <div class="cap">Ambient VU <span class="actions"><span></span></span></div>
+        <div class="vu" id="ambVu"></div>
+        <div class="amb-meta"><span>−14 dB</span><span>peak</span></div>
+      </article>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─── Radio tuner ticks ───
+(function(){
+  var t = document.getElementById('tunerTicks');
+  for(var i=0;i<60;i++){
+    var b = document.createElement('i');
+    var h = (i % 5 === 0) ? 28 : 14;
+    b.style.height = h + 'px';
+    b.style.flex = '1';
+    t.appendChild(b);
+  }
+})();
+
+// ─── Glyph matrix dots ───
+(function(){
+  var g = document.getElementById('gmGrid');
+  var cells = 28 * 11;
+  for(var i=0;i<cells;i++){
+    var d = document.createElement('i');
+    var r = Math.random();
+    if(r > 0.92) d.classList.add('l3');
+    else if(r > 0.78) d.classList.add('l2');
+    else if(r > 0.5) d.classList.add('l1');
+    g.appendChild(d);
+  }
+  // periodic shimmer: random cells brighten
+  setInterval(function(){
+    var idx = Math.floor(Math.random() * cells);
+    var dot = g.children[idx];
+    if(!dot) return;
+    var prev = dot.className;
+    dot.className = 'l3';
+    setTimeout(function(){ dot.className = prev; }, 220);
+  }, 110);
+})();
+
+// ─── Now playing equalizer ───
+(function(){
+  var bars = document.getElementById('npBars');
+  for(var i=0;i<48;i++){
+    var b = document.createElement('i');
+    var h = 18 + Math.round(Math.random() * 80);
+    b.style.height = h + '%';
+    b.style.animationDelay = (-Math.random() * 0.6).toFixed(2) + 's';
+    bars.appendChild(b);
+  }
+})();
+
+// ─── Focus ring blocks ───
+(function(){
+  var blocks = document.getElementById('frBlocks');
+  for(var i=0;i<14;i++){
+    var b = document.createElement('i');
+    if(i < 9) b.classList.add('on');
+    blocks.appendChild(b);
+  }
+})();
+
+// ─── Battery bars ───
+(function(){
+  var b = document.getElementById('batBars');
+  for(var i=0;i<22;i++){
+    var seg = document.createElement('i');
+    if(i < 20) seg.classList.add('on');
+    b.appendChild(seg);
+  }
+})();
+
+// ─── Ambient VU ───
+(function(){
+  var v = document.getElementById('ambVu');
+  for(var i=0;i<46;i++){
+    var seg = document.createElement('i');
+    v.appendChild(seg);
+  }
+  var bars = v.children;
+  function tick(){
+    var thr = 8 + Math.random() * 18;
+    for(var i=0;i<bars.length;i++){
+      var d = Math.abs(i - bars.length/2);
+      var on = d < thr;
+      bars[i].classList.toggle('on', on);
+    }
+  }
+  setInterval(tick, 110);
+  tick();
+})();
+
+// ─── CPU sparkline ───
+(function(){
+  var poly = document.getElementById('cpuPoly');
+  var num = document.getElementById('cpuNum');
+  var pts = [];
+  for(var i=0;i<60;i++) pts.push(20 + Math.random()*30);
+  function render(){
+    var s = '';
+    for(var i=0;i<pts.length;i++){
+      var x = (i/(pts.length-1))*200;
+      var y = 60 - pts[i];
+      s += x.toFixed(1) + ',' + y.toFixed(1) + ' ';
+    }
+    poly.setAttribute('points', s);
+  }
+  render();
+  setInterval(function(){
+    pts.shift();
+    pts.push(20 + Math.random()*32);
+    render();
+    var v = Math.round(pts[pts.length-1] + 8);
+    num.firstChild.nodeValue = v;
+  }, 700);
+})();
+
+// ─── Live clock + meta ───
+(function(){
+  var hh = document.querySelectorAll('#clock span');
+  var meta = document.getElementById('clockMeta');
+  function pad(n){ return n < 10 ? '0' + n : '' + n; }
+  function tick(){
+    var d = new Date();
+    hh[0].textContent = pad(d.getHours());
+    hh[2].textContent = pad(d.getMinutes());
+    var days = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
+    var months = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+    meta.textContent = days[d.getDay()] + ', ' + months[d.getMonth()] + ' ' + d.getDate() + ' :' + pad(d.getSeconds());
+  }
+  tick(); setInterval(tick, 1000);
+})();
+
+// ─── Pause / resume from feed ───
+window.addEventListener('message', function(e){
+  if(!e.data || !e.data.type) return;
+  // Paused state is handled by the wrapper in feed; here we simply slow down decorations.
+});
+
+// ─── Viewport fit (when opened standalone) ───
+(function(){
+  function fit(){
+    var s = Math.min(window.innerWidth/1100, window.innerHeight/720);
+    document.querySelector('.stage').style.transform = 'translate(' + ((window.innerWidth - 1100*s)/2) + 'px,' + ((window.innerHeight - 720*s)/2) + 'px) scale(' + s + ')';
+  }
+  fit(); window.addEventListener('resize', fit);
+})();
+</script>
+</body>
+</html>
