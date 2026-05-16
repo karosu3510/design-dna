@@ -1,0 +1,76 @@
+/* GPU IO Fluid Simulation clone */
+window.GPU_IO_FLUID_DOC = `<html>
+	<head>
+		<title>Fluid Simulation</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+		<meta charset="utf-8"/>
+		<link rel="stylesheet" type="text/css" href="./gpu-io-fluid-assets/common/micromodal.css" />
+		<link rel="stylesheet" type="text/css" href="./gpu-io-fluid-assets/common/index.css" />
+		<script src="./gpu-io-fluid-assets/common/tweakpane-3.1.1.min.js"></script>
+		<script src="./gpu-io-fluid-assets/common/micromodal.min.js"></script>
+		<script src="./gpu-io-fluid-assets/common/canvas-capture.min.js"></script>
+		<script src="./gpu-io-fluid-assets/dist/gpu-io.min.js"></script>
+	<style>
+html,body{width:100%;height:100%;margin:0;overflow:hidden;background:#f7ecdc;}
+canvas{display:block;touch-action:none;}
+.tp-dfwv{transform:scale(.86);transform-origin:top right;right:8px!important;top:8px!important;}
+.modal__container{max-width:760px;}
+</style></head>
+	<body>
+		<div class="modal micromodal-slide" id="modal-1" aria-hidden="true">
+			<div class="modal__overlay" tabindex="-1" data-micromodal-close>
+			  <div class="modal__container" role="dialog" aria-modal="true" aria-labelledby="modal-1-title">
+				<header class="modal__header">
+				  <h2 class="modal__title" id="modal-1-title">
+					Fluid Simulation
+				  </h2>
+				  <button class="modal__close" aria-label="Close modal" data-micromodal-close></button>
+				</header>
+				<main class="modal__content" id="modal-1-content">
+					<p>
+						This simulation solves the <a href="https://en.wikipedia.org/wiki/Navier%E2%80%93Stokes_equations">Navier-Stokes equations</a> for incompressible fluids.
+						The fluid visualization includes thousands of <a href="https://en.wikipedia.org/wiki/Lagrangian_particle_tracking">Lagrangian particles</a> that follow the velocity field and leave behind semi-transparent trails as they move.
+						All computation happens in several GPU fragment shaders for real-time performance.  Written by <a href="http://www.amandaghassaei.com/">Amanda Ghassaei</a>.
+					</p>
+					<p>
+						Instructions: Touch/mouseover to apply a force to the fluid.  Toggle between showing the underlying pressure and velocity fields using the controls on the right.
+						Press "v" to record a video.
+					</p>
+					<p>
+						To learn more about the math involved, check out the following sources:
+					</p>
+					</p>
+						<a href="https://pdfs.semanticscholar.org/84b8/c7b7eecf90ebd9d54a51544ca0f8ff93c137.pdf">Real-time ink simulation using a grid-particle method</a> - mixing Eulerian and Lagrangian techniques for fluids.<br/>
+						<a href="http://developer.download.nvidia.com/books/HTML/gpugems/gpugems_ch38.html">Fast Fluid Dynamics Simulation on the GPU</a> - a very well written tutorial about programming the Navier-Stokes equations on a GPU.
+						Though not WebGL specific, it was still very useful.<br/>
+						<a href="http://jamie-wong.com/2016/08/05/webgl-fluid-simulation/">Fluid Simulation (with WebGL demo)</a> - this article has some nice, interactive graphics that helped me debug my code.<br/>
+						<a href="http://pages.cs.wisc.edu/~chaol/data/cs777/stam-stable_fluids.pdf">Stable Fluids</a> - a paper about stable numerical methods for evaluating Navier-Stokes on a discrete grid.  Also check out Stam's book <a href="https://amzn.to/3mmA8gI">The Art of Fluid Animation</a>.
+					</p>
+				  <p>
+					This page is part of a series of examples using <a href="https://apps.amandaghassaei.com/gpu-io/examples/">gpu-io</a>, a GPU-accelerated computing library for physics simulations and other mathematical calculations.
+					Find the source code on <a id="sourceCode" href="https://github.com/amandaghassaei/gpu-io/tree/main/examples/fluid">Github</a>.
+				  </p>
+				</main>
+			  </div>
+			</div>
+		  </div>
+	</body>
+	<script src="./gpu-io-fluid-assets/fluid-index.js"></script>
+	<script src="./gpu-io-fluid-assets/common/wrapper.js"></script>
+<script>
+(function(){
+  function stir(){
+    const canvas=document.querySelector('canvas'); if(!canvas)return;
+    const r=canvas.getBoundingClientRect();
+    let i=0; const n=48; const id=setInterval(()=>{
+      const x=r.left+r.width*(0.18+0.64*i/n);
+      const y=r.top+r.height*(0.52+0.22*Math.sin(i*.55));
+      canvas.dispatchEvent(new PointerEvent('pointermove',{bubbles:true,clientX:x,clientY:y,pointerId:1,pointerType:'mouse'}));
+      canvas.dispatchEvent(new MouseEvent('mousemove',{bubbles:true,clientX:x,clientY:y}));
+      i++; if(i>n) clearInterval(id);
+    },24);
+  }
+  setTimeout(stir,900); setInterval(stir,5000);
+})();
+</script></html>
+`;
