@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chainx stock investment dashboard</title>
+  <style>
+    :root {
+      --stage: #8d8d8d;
+      --browser: #0b0b11;
+      --panel: #111119;
+      --panel-2: #151520;
+      --panel-3: #1a1a26;
+      --line: rgba(255,255,255,.075);
+      --line-2: rgba(255,255,255,.12);
+      --text: #f4f2ff;
+      --muted: #8e8ca2;
+      --faint: #5f5d70;
+      --purple: #7b61ff;
+      --purple-2: #9b88ff;
+      --green: #5cffaa;
+      --red: #ff6868;
+      --amber: #ffc861;
+      --blue: #65a6ff;
+      --shadow: rgba(0,0,0,.35);
+      --cycle: 9000ms;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-height: 100%; background: var(--stage); color: var(--text); overflow: hidden; }
+
+    body {
+      display: grid;
+      place-items: center;
+      height: 100vh;
+    }
+
+    .stage {
+      width: min(100vw, 1280px);
+      aspect-ratio: 4 / 3;
+      background: #8c8c8c;
+      display: grid;
+      place-items: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .browser {
+      width: 1096px;
+      height: 826px;
+      border-radius: 22px;
+      background: var(--browser);
+      box-shadow: 0 34px 80px rgba(0,0,0,.24), 0 0 0 1px rgba(255,255,255,.14);
+      overflow: hidden;
+      transform: scale(.84);
+      transform-origin: center;
+    }
+
+    .chrome {
+      height: 56px;
+      background: #17171f;
+      display: grid;
+      grid-template-columns: 160px 1fr 160px;
+      align-items: center;
+      padding: 0 18px;
+      border-bottom: 1px solid rgba(255,255,255,.08);
+    }
+
+    .traffic { display: flex; gap: 9px; align-items: center; }
+    .dot { width: 12px; height: 12px; border-radius: 50%; background: #fa625b; }
+    .dot:nth-child(2) { background: #ffc14d; }
+    .dot:nth-child(3) { background: #33c75a; }
+
+    .address {
+      width: 570px;
+      height: 31px;
+      justify-self: center;
+      border-radius: 16px;
+      background: #24242d;
+      color: #a5a3b5;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      letter-spacing: .01em;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.06);
+    }
+
+    .chrome-icons { display: flex; justify-content: flex-end; gap: 13px; color: #8b8998; font-size: 16px; }
+
+    .app {
+      height: calc(100% - 56px);
+      background: #0b0b12;
+      display: grid;
+      grid-template-columns: 214px 1fr;
+      position: relative;
+    }
+
+    .sidebar {
+      background: #0f0f16;
+      border-right: 1px solid var(--line);
+      padding: 24px 16px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 22px;
+    }
+
+    .brand { display: flex; align-items: center; gap: 10px; padding: 0 8px; }
+    .brand-mark {
+      width: 31px;
+      height: 31px;
+      border-radius: 9px;
+      background: linear-gradient(135deg, #5f49ff, #9e8bff);
+      display: grid;
+      place-items: center;
+      box-shadow: 0 0 22px rgba(123,97,255,.34);
+    }
+    .brand-mark::before {
+      content: "";
+      width: 15px;
+      height: 15px;
+      border: 2px solid #fff;
+      border-radius: 5px;
+      transform: rotate(45deg);
+    }
+    .brand-name { font-size: 20px; font-weight: 700; letter-spacing: -.03em; }
+
+    .nav { display: flex; flex-direction: column; gap: 7px; }
+    .nav-title { font-size: 10px; color: #59576a; text-transform: uppercase; letter-spacing: .11em; padding: 12px 12px 3px; }
+    .nav-item {
+      height: 38px;
+      border-radius: 12px;
+      color: #8b899a;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 0 12px;
+      font-size: 13px;
+    }
+    .nav-item.active {
+      color: #fff;
+      background: rgba(123,97,255,.14);
+      box-shadow: inset 0 0 0 1px rgba(123,97,255,.16);
+    }
+    .nav-ico {
+      width: 17px;
+      height: 17px;
+      border-radius: 5px;
+      background: rgba(255,255,255,.09);
+      position: relative;
+    }
+    .active .nav-ico { background: var(--purple); box-shadow: 0 0 16px rgba(123,97,255,.5); }
+    .nav-sub { margin-left: 27px; display: flex; flex-direction: column; gap: 4px; padding: 0 0 2px; }
+    .nav-sub span { font-size: 12px; color: #626073; height: 24px; display: flex; align-items: center; }
+
+    .side-bottom { margin-top: auto; display: flex; flex-direction: column; gap: 14px; }
+    .upgrade {
+      border-radius: 18px;
+      padding: 16px;
+      min-height: 138px;
+      background: radial-gradient(circle at 50% 0%, rgba(123,97,255,.35), transparent 45%), #151520;
+      border: 1px solid rgba(255,255,255,.08);
+      position: relative;
+      overflow: hidden;
+    }
+    .upgrade h4 { margin: 0 0 6px; font-size: 14px; letter-spacing: -.02em; }
+    .upgrade p { margin: 0; color: #858294; font-size: 11px; line-height: 1.45; width: 130px; }
+    .upgrade button { margin-top: 14px; height: 31px; border: 0; border-radius: 10px; padding: 0 14px; background: #fff; color: #15131f; font-weight: 700; font-size: 12px; }
+    .switch-row { display: flex; align-items: center; justify-content: space-between; color: #8c8a9a; font-size: 12px; padding: 0 8px; }
+    .switch { width: 40px; height: 23px; border-radius: 20px; background: rgba(123,97,255,.24); position: relative; }
+    .switch::after { content: ""; position: absolute; right: 3px; top: 3px; width: 17px; height: 17px; border-radius: 50%; background: var(--purple); }
+
+    .main {
+      min-width: 0;
+      display: grid;
+      grid-template-rows: 70px 1fr;
+      background:
+        radial-gradient(circle at 70% 24%, rgba(123,97,255,.11), transparent 30%),
+        #0b0b12;
+    }
+
+    .ticker {
+      height: 70px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      overflow: hidden;
+      position: relative;
+    }
+    .ticker::before, .ticker::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 60px;
+      z-index: 2;
+      pointer-events: none;
+    }
+    .ticker::before { left: 0; background: linear-gradient(90deg, #0b0b12, transparent); }
+    .ticker::after { right: 0; background: linear-gradient(270deg, #0b0b12, transparent); }
+    .ticker-track {
+      display: flex;
+      gap: 12px;
+      padding-left: 22px;
+      animation: tickerMove 23s linear infinite;
+      will-change: transform;
+    }
+    @keyframes tickerMove { to { transform: translateX(-50%); } }
+    .stock {
+      flex: 0 0 142px;
+      height: 46px;
+      border-radius: 15px;
+      background: rgba(255,255,255,.035);
+      border: 1px solid rgba(255,255,255,.065);
+      padding: 9px 11px;
+      display: grid;
+      grid-template-columns: 1fr 44px;
+      align-items: center;
+    }
+    .stock b { font-size: 12px; letter-spacing: .02em; }
+    .stock small { display: block; color: #747184; font-size: 10px; margin-top: 2px; }
+    .spark { width: 44px; height: 22px; }
+    .spark path { fill: none; stroke-width: 2; stroke-linecap: round; }
+    .up { color: var(--green); } .down { color: var(--red); }
+
+    .content { padding: 24px 28px 28px; overflow: hidden; }
+    .topbar { height: 46px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 22px; }
+    .title-block h1 { margin: 0; font-size: 30px; line-height: 1; letter-spacing: -.04em; }
+    .title-block p { margin: 8px 0 0; font-size: 12px; color: var(--muted); }
+    .actions { display: flex; align-items: center; gap: 10px; }
+    .balance {
+      height: 37px;
+      border-radius: 12px;
+      background: #151520;
+      border: 1px solid var(--line);
+      padding: 0 13px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: #d7d4e8;
+    }
+    .btn {
+      height: 37px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,.08);
+      background: #151520;
+      color: #ddd9f2;
+      padding: 0 13px;
+      font-size: 12px;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+    }
+    .btn.primary { background: var(--purple); border-color: var(--purple); color: #fff; box-shadow: 0 12px 28px rgba(123,97,255,.32); }
+    .icon-btn { width: 37px; padding: 0; justify-content: center; color: #9b98aa; }
+    .avatar { width: 37px; height: 37px; border-radius: 50%; background: linear-gradient(135deg, #6653ff, #e5d6ff); box-shadow: inset 0 0 0 2px rgba(255,255,255,.18); }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1.06fr .84fr;
+      grid-template-rows: 252px 252px;
+      gap: 18px;
+    }
+    .card {
+      border-radius: 24px;
+      background: linear-gradient(180deg, rgba(255,255,255,.035), rgba(255,255,255,.02)), #111119;
+      border: 1px solid rgba(255,255,255,.075);
+      box-shadow: 0 18px 42px rgba(0,0,0,.18);
+      position: relative;
+      overflow: hidden;
+    }
+    .card-inner { position: absolute; inset: 0; padding: 21px; z-index: 2; }
+    .card-head { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; }
+    .label { font-size: 12px; color: #8a8799; }
+    .metric { font-size: 31px; font-weight: 760; letter-spacing: -.045em; margin-top: 9px; }
+    .delta { font-size: 11px; border-radius: 999px; padding: 5px 8px; background: rgba(92,255,170,.1); color: var(--green); }
+    .delta.red { background: rgba(255,104,104,.1); color: var(--red); }
+
+    .assets-card { grid-row: span 2; }
+    .assets-card::before {
+      content: "";
+      position: absolute;
+      inset: -30% -20% auto auto;
+      width: 330px;
+      height: 330px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(123,97,255,.22), transparent 63%);
+    }
+    .asset-ring {
+      height: 136px;
+      display: grid;
+      place-items: center;
+      margin-top: 8px;
+      position: relative;
+    }
+    .ring {
+      width: 130px;
+      height: 130px;
+      border-radius: 50%;
+      background: conic-gradient(var(--purple) 0 55%, #65a6ff 55% 75%, #5cffaa 75% 90%, #ffc861 90% 100%);
+      position: relative;
+      box-shadow: 0 0 36px rgba(123,97,255,.18);
+    }
+    .ring::after { content: ""; position: absolute; inset: 15px; border-radius: 50%; background: #111119; box-shadow: inset 0 0 0 1px rgba(255,255,255,.07); }
+    .ring-center { position: absolute; text-align: center; z-index: 2; }
+    .ring-center b { font-size: 20px; display: block; }
+    .ring-center span { font-size: 10px; color: var(--muted); }
+    .asset-list { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 17px; }
+    .asset-mini { min-height: 78px; border-radius: 17px; background: rgba(255,255,255,.035); border: 1px solid rgba(255,255,255,.065); padding: 13px; }
+    .asset-mini .row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 13px; font-size: 12px; color: #bdb9d0; }
+    .coin { width: 24px; height: 24px; border-radius: 50%; background: var(--purple); display: inline-grid; place-items: center; color: #fff; font-size: 10px; font-weight: 800; }
+    .coin.blue { background: var(--blue); } .coin.green { background: var(--green); color: #07160f; } .coin.amber { background: var(--amber); color: #180f00; }
+    .asset-mini b { font-size: 17px; letter-spacing: -.03em; }
+    .bar-stack { display: flex; height: 9px; border-radius: 10px; overflow: hidden; background: rgba(255,255,255,.06); margin-top: 16px; }
+    .bar-stack span:nth-child(1) { width: 52%; background: var(--purple); }
+    .bar-stack span:nth-child(2) { width: 22%; background: var(--blue); }
+    .bar-stack span:nth-child(3) { width: 16%; background: var(--green); }
+    .bar-stack span:nth-child(4) { flex: 1; background: var(--amber); }
+
+    .invest-card svg { position: absolute; left: 20px; right: 20px; bottom: 17px; width: calc(100% - 40px); height: 138px; overflow: visible; }
+    .grid-line { stroke: rgba(255,255,255,.06); stroke-width: 1; }
+    .chart-area { fill: rgba(123,97,255,.12); opacity: .8; }
+    .chart-line { fill: none; stroke: var(--purple-2); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; filter: drop-shadow(0 0 10px rgba(123,97,255,.5)); }
+    .chart-dot { fill: #fff; stroke: var(--purple); stroke-width: 3; }
+    .crosshair { stroke: rgba(255,255,255,.22); stroke-width: 1; stroke-dasharray: 4 5; }
+    .tooltip {
+      position: absolute;
+      right: 88px;
+      bottom: 118px;
+      padding: 8px 10px;
+      border-radius: 12px;
+      background: #f5f2ff;
+      color: #171421;
+      font-size: 11px;
+      font-weight: 750;
+      box-shadow: 0 14px 26px rgba(0,0,0,.25);
+    }
+    .tooltip small { display: block; color: #6b6477; font-size: 9px; margin-top: 2px; font-weight: 600; }
+
+    .profits-card { grid-column: 2; }
+    .bars { position: absolute; left: 22px; right: 22px; bottom: 22px; height: 118px; display: flex; align-items: end; gap: 11px; }
+    .bar-col { flex: 1; border-radius: 9px 9px 5px 5px; background: linear-gradient(180deg, var(--purple-2), rgba(123,97,255,.34)); min-height: 20px; transform-origin: bottom; position: relative; }
+    .bar-col:nth-child(2n) { background: linear-gradient(180deg, #5fd0ff, rgba(95,208,255,.22)); }
+    .bar-col:nth-child(3n) { background: linear-gradient(180deg, #5cffaa, rgba(92,255,170,.22)); }
+    .bar-col::after { content: ""; position: absolute; inset: 0; border-radius: inherit; background: linear-gradient(180deg, rgba(255,255,255,.24), transparent 45%); }
+    .months { position: absolute; left: 22px; right: 22px; bottom: 7px; display: flex; justify-content: space-between; color: #615f70; font-size: 9px; }
+
+    .ai-card { grid-column: 2; background: #101019; }
+    .ai-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 50% 78%, rgba(123,97,255,.55), transparent 42%), radial-gradient(circle at 70% 25%, rgba(95,208,255,.18), transparent 28%);
+      opacity: .95;
+    }
+    .ai-card::after {
+      content: "";
+      position: absolute;
+      left: -20%;
+      right: -20%;
+      bottom: -18%;
+      height: 72%;
+      background-image: linear-gradient(rgba(155,136,255,.22) 1px, transparent 1px), linear-gradient(90deg, rgba(155,136,255,.22) 1px, transparent 1px);
+      background-size: 34px 34px;
+      transform: perspective(450px) rotateX(62deg);
+      transform-origin: top;
+      opacity: .5;
+    }
+    .ai-copy { position: absolute; left: 21px; top: 20px; z-index: 3; width: 190px; }
+    .ai-copy h3 { margin: 0; font-size: 22px; letter-spacing: -.04em; line-height: 1.05; }
+    .ai-copy p { margin: 9px 0 0; color: #ada8c4; font-size: 11px; line-height: 1.55; }
+    .ai-btn { margin-top: 14px; height: 32px; border: 0; border-radius: 11px; background: #fff; color: #171421; font-size: 12px; font-weight: 800; padding: 0 13px; }
+    .cube { position: absolute; width: 18px; height: 18px; border-radius: 4px; background: rgba(181,169,255,.34); border: 1px solid rgba(255,255,255,.16); z-index: 2; animation: floatCube 2.9s ease-in-out infinite alternate; }
+    .cube:nth-child(1) { right: 76px; top: 58px; animation-delay: -.3s; }
+    .cube:nth-child(2) { right: 122px; top: 112px; width: 13px; height: 13px; animation-delay: -.8s; }
+    .cube:nth-child(3) { right: 44px; top: 139px; width: 11px; height: 11px; animation-delay: -1.2s; }
+    .cube:nth-child(4) { right: 158px; top: 74px; width: 9px; height: 9px; animation-delay: -1.7s; }
+    @keyframes floatCube { to { transform: translateY(-13px) scale(1.06); opacity: .72; } }
+
+    .load-mask {
+      pointer-events: none;
+      position: absolute;
+      inset: 56px 0 0 214px;
+      background: rgba(11,11,18,.68);
+      z-index: 10;
+      opacity: 0;
+      animation: maskCycle var(--cycle) cubic-bezier(.65,0,.35,1) infinite;
+    }
+
+    .reveal { animation: revealCycle var(--cycle) cubic-bezier(.22,1,.36,1) infinite; will-change: opacity, transform; }
+    .delay-1 { animation-delay: 70ms; } .delay-2 { animation-delay: 190ms; } .delay-3 { animation-delay: 330ms; } .delay-4 { animation-delay: 480ms; }
+    .delay-5 { animation-delay: 620ms; } .delay-6 { animation-delay: 760ms; }
+
+    @keyframes maskCycle {
+      0%, 12% { opacity: 0; }
+      16%, 29% { opacity: 1; }
+      43%, 100% { opacity: 0; }
+    }
+
+    @keyframes revealCycle {
+      0%, 12% { opacity: 1; transform: translateY(0) scale(1); filter: none; }
+      16%, 30% { opacity: .04; transform: translateY(8px) scale(.985); filter: saturate(.7); }
+      42%, 100% { opacity: 1; transform: translateY(0) scale(1); filter: none; }
+    }
+
+    .chart-line {
+      stroke-dasharray: 700;
+      stroke-dashoffset: 700;
+      animation: drawLine var(--cycle) cubic-bezier(.22,1,.36,1) infinite;
+    }
+    .chart-area, .chart-dot, .crosshair, .tooltip { animation: lateReveal var(--cycle) ease infinite; }
+    @keyframes drawLine {
+      0%, 30% { stroke-dashoffset: 700; opacity: .15; }
+      44%, 100% { stroke-dashoffset: 0; opacity: 1; }
+    }
+    @keyframes lateReveal {
+      0%, 38% { opacity: 0; transform: translateY(4px); }
+      52%, 100% { opacity: 1; transform: translateY(0); }
+    }
+
+    .bar-col { transform: scaleY(0); animation: growBars var(--cycle) cubic-bezier(.22,1,.36,1) infinite; }
+    .bar-col:nth-child(1) { animation-delay: 0ms; } .bar-col:nth-child(2) { animation-delay: 80ms; } .bar-col:nth-child(3) { animation-delay: 160ms; }
+    .bar-col:nth-child(4) { animation-delay: 240ms; } .bar-col:nth-child(5) { animation-delay: 320ms; } .bar-col:nth-child(6) { animation-delay: 400ms; }
+    .bar-col:nth-child(7) { animation-delay: 480ms; } .bar-col:nth-child(8) { animation-delay: 560ms; } .bar-col:nth-child(9) { animation-delay: 640ms; }
+    @keyframes growBars {
+      0%, 30% { transform: scaleY(0); opacity: .15; }
+      45%, 100% { transform: scaleY(1); opacity: 1; }
+    }
+
+    .scanline {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background: linear-gradient(180deg, transparent, rgba(255,255,255,.035), transparent);
+      transform: translateY(-100%);
+      animation: scan var(--cycle) ease-in-out infinite;
+      z-index: 20;
+      mix-blend-mode: screen;
+    }
+    @keyframes scan {
+      0%, 25% { transform: translateY(-100%); opacity: 0; }
+      34% { opacity: .65; }
+      50%, 100% { transform: translateY(100%); opacity: 0; }
+    }
+
+    .num { font-variant-numeric: tabular-nums; }
+    .ghost-frame {
+      position: absolute;
+      inset: 14px;
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,.04);
+      pointer-events: none;
+    }
+
+    @media (max-width: 980px) {
+      .browser { transform: scale(.72); }
+    }
+  </style>
+</head>
+<body>
+  <main class="stage" aria-label="Chainx stock investment dashboard animation">
+    <section class="browser">
+      <div class="chrome">
+        <div class="traffic"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
+        <div class="address">chainx.finance/dashboard</div>
+        <div class="chrome-icons"><span>⌘</span><span>↗</span><span>⋯</span></div>
+      </div>
+
+      <div class="app">
+        <aside class="sidebar">
+          <div class="brand">
+            <div class="brand-mark"></div>
+            <div class="brand-name">Chainx</div>
+          </div>
+
+          <nav class="nav">
+            <div class="nav-title">General</div>
+            <div class="nav-item active"><span class="nav-ico"></span>Dashboard</div>
+            <div class="nav-item"><span class="nav-ico"></span>Portfolio</div>
+            <div class="nav-sub"><span>Overview</span><span>Transactions</span><span>Watchlist</span></div>
+            <div class="nav-item"><span class="nav-ico"></span>Market</div>
+            <div class="nav-item"><span class="nav-ico"></span>Wallet</div>
+            <div class="nav-title">Tools</div>
+            <div class="nav-item"><span class="nav-ico"></span>Analytics</div>
+            <div class="nav-item"><span class="nav-ico"></span>Messages</div>
+            <div class="nav-item"><span class="nav-ico"></span>Settings</div>
+          </nav>
+
+          <div class="side-bottom">
+            <div class="upgrade reveal delay-5">
+              <h4>Upgrade plan</h4>
+              <p>Unlock advanced AI investing and custom portfolio analytics.</p>
+              <button>Upgrade</button>
+            </div>
+            <div class="switch-row"><span>Dark mode</span><span class="switch"></span></div>
+          </div>
+        </aside>
+
+        <section class="main">
+          <div class="ticker reveal delay-2">
+            <div class="ticker-track">
+              <div class="stock"><div><b>AAPL</b><small class="up">+1.24%</small></div><svg class="spark" viewBox="0 0 44 22"><path d="M2 15 L9 12 L15 14 L23 7 L31 9 L42 4" stroke="#5cffaa"/></svg></div>
+              <div class="stock"><div><b>TSLA</b><small class="down">-0.68%</small></div><svg class="spark" viewBox="0 0 44 22"><path d="M2 5 L10 7 L17 6 L24 13 L32 11 L42 17" stroke="#ff6868"/></svg></div>
+              <div class="stock"><div><b>NVDA</b><small class="up">+2.91%</small></div><svg class="spark" viewBox="0 0 44 22"><path d="M2 18 L9 14 L16 15 L23 10 L31 8 L42 3" stroke="#5cffaa"/></svg></div>
+              <div class="stock"><div><b>META</b><small class="up">+0.77%</small></div><svg class="spark" viewBox="0 0 44 22"><path d="M2 13 L10 15 L18 10 L25 12 L33 7 L42 8" stroke="#5cffaa"/></svg></div>
+              <div class="stock"><div><b>AMZN</b><small class="down">-1.12%</small></div><svg class="spark" viewBox="0 0 44 22"><path d="M2 6 L10 8 L18 7 L25 13 L33 14 L42 18" stroke="#ff6868"/></svg></div>
+              <div class="stock"><div><b>MSFT</b><small class="up">+1.03%</small></div><svg class="spark" viewBox="0 0 44 22"><path d="M2 16 L10 13 L18 14 L25 9 L34 10 L42 5" stroke="#5cffaa"/></svg></div>
+              <div class="stock"><div><b>AAPL</b><small class="up">+1.24%</small></div><svg class="spark" viewBox="0 0 44 22"><path d="M2 15 L9 12 L15 14 L23 7 L31 9 L42 4" stroke="#5cffaa"/></svg></div>
+              <div class="stock"><div><b>TSLA</b><small class="down">-0.68%</small></div><svg class="spark" viewBox="0 0 44 22"><path d="M2 5 L10 7 L17 6 L24 13 L32 11 L42 17" stroke="#ff6868"/></svg></div>
+              <div class="stock"><div><b>NVDA</b><small class="up">+2.91%</small></div><svg class="spark" viewBox="0 0 44 22"><path d="M2 18 L9 14 L16 15 L23 10 L31 8 L42 3" stroke="#5cffaa"/></svg></div>
+            </div>
+          </div>
+
+          <div class="content">
+            <div class="topbar reveal delay-1">
+              <div class="title-block">
+                <h1>Dashboard</h1>
+                <p>Track your portfolio, market signal, and AI recommendations.</p>
+              </div>
+              <div class="actions">
+                <div class="balance">Balance <b class="num" data-value="325980.65">$325,980.65</b></div>
+                <button class="btn">Add widget</button>
+                <button class="btn">All time</button>
+                <button class="btn primary">Buy asset</button>
+                <button class="btn icon-btn">⌕</button>
+                <button class="btn icon-btn">◔</button>
+                <div class="avatar"></div>
+              </div>
+            </div>
+
+            <div class="grid">
+              <article class="card assets-card reveal delay-2">
+                <div class="ghost-frame"></div>
+                <div class="card-inner">
+                  <div class="card-head"><div><div class="label">Total assets</div><div class="metric num" data-value="325980.65">$325,980.65</div></div><span class="delta">+12.8%</span></div>
+                  <div class="asset-ring">
+                    <div class="ring"></div>
+                    <div class="ring-center"><b>74%</b><span>growth</span></div>
+                  </div>
+                  <div class="bar-stack"><span></span><span></span><span></span><span></span></div>
+                  <div class="asset-list">
+                    <div class="asset-mini reveal delay-3"><div class="row"><span><span class="coin">B</span> Bitcoin</span><span class="up">+4.2%</span></div><b>$128,450</b></div>
+                    <div class="asset-mini reveal delay-4"><div class="row"><span><span class="coin blue">E</span> Ether</span><span class="up">+2.8%</span></div><b>$74,210</b></div>
+                    <div class="asset-mini reveal delay-5"><div class="row"><span><span class="coin green">N</span> Nvidia</span><span class="up">+6.1%</span></div><b>$62,880</b></div>
+                    <div class="asset-mini reveal delay-6"><div class="row"><span><span class="coin amber">A</span> Apple</span><span class="down">-0.4%</span></div><b>$40,440</b></div>
+                  </div>
+                </div>
+              </article>
+
+              <article class="card invest-card reveal delay-3">
+                <div class="card-inner">
+                  <div class="card-head"><div><div class="label">Total investments</div><div class="metric num" data-value="270560.20">$270,560.20</div></div><span class="delta">+8.6%</span></div>
+                </div>
+                <svg viewBox="0 0 390 150" preserveAspectRatio="none" aria-hidden="true">
+                  <line class="grid-line" x1="0" y1="25" x2="390" y2="25"/><line class="grid-line" x1="0" y1="65" x2="390" y2="65"/><line class="grid-line" x1="0" y1="105" x2="390" y2="105"/>
+                  <path class="chart-area" d="M6 112 C42 90 63 88 91 78 C126 58 142 50 169 72 C199 94 224 118 252 83 C281 45 312 33 338 47 C361 59 376 54 386 40 L386 150 L6 150 Z"/>
+                  <path class="chart-line" d="M6 112 C42 90 63 88 91 78 C126 58 142 50 169 72 C199 94 224 118 252 83 C281 45 312 33 338 47 C361 59 376 54 386 40"/>
+                  <line class="crosshair" x1="338" y1="14" x2="338" y2="137"/>
+                  <circle class="chart-dot" cx="338" cy="47" r="5"/>
+                </svg>
+                <div class="tooltip">$38,420<small>Sep 14, 2026</small></div>
+              </article>
+
+              <article class="card profits-card reveal delay-4">
+                <div class="card-inner">
+                  <div class="card-head"><div><div class="label">Total profits</div><div class="metric num" data-value="55420.45">$55,420.45</div></div><span class="delta">+18.2%</span></div>
+                </div>
+                <div class="bars" aria-hidden="true">
+                  <span class="bar-col" style="height:42%"></span><span class="bar-col" style="height:61%"></span><span class="bar-col" style="height:48%"></span><span class="bar-col" style="height:75%"></span><span class="bar-col" style="height:56%"></span><span class="bar-col" style="height:88%"></span><span class="bar-col" style="height:67%"></span><span class="bar-col" style="height:94%"></span><span class="bar-col" style="height:72%"></span>
+                </div>
+                <div class="months"><span>Jan</span><span>Mar</span><span>May</span><span>Jul</span><span>Sep</span></div>
+              </article>
+
+              <article class="card ai-card reveal delay-5">
+                <div class="cube"></div><div class="cube"></div><div class="cube"></div><div class="cube"></div>
+                <div class="ai-copy reveal delay-6">
+                  <div class="label">AI robo advisor</div>
+                  <h3>Optimize your next investment move.</h3>
+                  <p>Chainx scans market volatility and portfolio exposure in real time.</p>
+                  <button class="ai-btn">Ask advisor</button>
+                </div>
+              </article>
+            </div>
+          </div>
+        </section>
+
+        <div class="load-mask"></div>
+        <div class="scanline"></div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const cycle = 9000;
+    const startAt = 2700;
+    const duration = 1350;
+    const nums = [...document.querySelectorAll(".num[data-value]")];
+
+    function formatMoney(value) {
+      return "$" + value.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    function tick() {
+      const t = performance.now() % cycle;
+      let p = (t - startAt) / duration;
+      p = Math.max(0, Math.min(1, p));
+      const eased = 1 - Math.pow(1 - p, 3);
+
+      nums.forEach((el, i) => {
+        const target = Number(el.dataset.value);
+        const delay = i * 0.08;
+        const local = Math.max(0, Math.min(1, (p - delay) / (1 - delay)));
+        const localEase = 1 - Math.pow(1 - local, 3);
+        el.textContent = formatMoney(target * localEase);
+      });
+
+      if (t < startAt - 400 || t > startAt + duration + 6000) {
+        nums.forEach(el => el.textContent = formatMoney(Number(el.dataset.value)));
+      }
+
+      requestAnimationFrame(tick);
+    }
+
+    tick();
+  </script>
+</body>
+</html>
