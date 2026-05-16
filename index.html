@@ -863,7 +863,11 @@ function makeCardEl(d){
   // —— color-scheme: dark 让 iframe 内 about:blank 默认走深色 UA，不需要塞
   // stub srcdoc。之前 stub 触发的额外 load 事件会和 _drainFrameQueue 的
   // {once:true} 监听器产生时序竞态，导致部分卡片永远不淡出占位层。
-  const pauseScript = '<script>var __paused=false,__rafId=0;var __origRAF=window.requestAnimationFrame;window.requestAnimationFrame=function(cb){if(__paused){__rafId=0;return 0}return __origRAF.call(window,cb)};window.addEventListener("message",function(e){if(e.data&&e.data.type==="pause"){__paused=true;if(__rafId)cancelAnimationFrame(__rafId)}if(e.data&&e.data.type==="resume"){__paused=false;__origRAF.call(window,function(){})}});<\/script>';
+  // pause/resume 不能简单让 requestAnimationFrame 在 paused 时 return 0。
+  // 很多 canvas/WebGL 卡片是 loop(){ draw(); requestAnimationFrame(loop) }，如果 paused
+  // 时 return 0，loop 链条会永久断掉，滚回来 resume 也不会再画 → 黑屏。
+  // 正确做法：paused 时把 RAF callback 排队；resume 时重新调度这些 callback。
+  const pauseScript = '<script>(function(){var paused=false,origRAF=window.requestAnimationFrame,origCancel=window.cancelAnimationFrame,nextId=1,queued=new Map(),nativeIds=new Map();window.requestAnimationFrame=function(cb){if(paused){var id=nextId++;queued.set(id,cb);return id}var id=nextId++;var nid=origRAF.call(window,function(ts){nativeIds.delete(id);cb(ts)});nativeIds.set(id,nid);return id};window.cancelAnimationFrame=function(id){if(queued.has(id)){queued.delete(id);return}var nid=nativeIds.get(id);if(nid!=null){nativeIds.delete(id);origCancel.call(window,nid)}};window.addEventListener("message",function(e){if(!e.data)return;if(e.data.type==="pause"){paused=true}if(e.data.type==="resume"){if(!paused)return;paused=false;var cbs=Array.from(queued.values());queued.clear();cbs.forEach(function(cb){window.requestAnimationFrame(cb)})}});})();<\/script>';
   // Tier 1 manifest 化：d.doc 可能是 lazy 标记（'__LAZY__:KEY'），交给 _drainFrameQueue 异步解析
   // + 注入 pauseScript。frame.__pauseScript 由 _drainFrameQueue 在拿到 HTML 后做 head 注入。
   frame.__doc = d.doc || '';
