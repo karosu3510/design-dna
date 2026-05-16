@@ -69,12 +69,8 @@
   .card{margin:0;background:var(--bg-card);border:1px solid var(--border);border-radius:10px;overflow:hidden;position:relative;cursor:pointer;transition:transform .2s ease,border-color .2s ease;animation:rise .5s ease both}
   @keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
   .card:hover{border-color:var(--border-strong)}
-  .card-frame{width:100%;display:block;border:0;background:#0a0a0a;color-scheme:dark;pointer-events:none;opacity:0;transition:opacity .35s ease}
-  .card.is-live .card-frame{opacity:1}
-  .card-preview{position:absolute;inset:0;z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:24px;text-align:center;background:linear-gradient(180deg,#1a1a1a,#111);color:#fff;pointer-events:none;transition:opacity .35s ease;overflow:hidden}
-  .card.is-live .card-preview{opacity:0;pointer-events:none}
-  .card-preview-shimmer{position:absolute;inset:0;background:linear-gradient(110deg,transparent 30%,rgba(255,255,255,.06) 50%,transparent 70%);background-size:250% 100%;animation:shimmer 2s ease-in-out infinite}
-  @keyframes shimmer{0%{background-position:100% 0}100%{background-position:-100% 0}}
+  .card-frame{width:100%;display:block;border:0;background:#0a0a0a;color-scheme:dark;pointer-events:none}
+  .card-preview{position:absolute;inset:0;z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:24px;text-align:center;background:linear-gradient(180deg,#1a1a1a,#111);color:#fff;pointer-events:none;transition:opacity .25s ease}
   .card-preview.is-hiding{opacity:0}
   .card-preview::before{content:'';position:absolute;inset:12px;border:1px solid rgba(255,255,255,.08);border-radius:8px;pointer-events:none}
   .card-preview-title{font-size:15px;font-weight:600;max-width:80%;line-height:1.35;color:#f5f5f5}
@@ -626,41 +622,83 @@ let likedMap = new Map(JSON.parse(localStorage.getItem('variant_liked')||'[]'));
 const designStore = new Map();
 const lazyFrames = new Set();
 
-// ═══════════════════════════════════════════════════════════════════
-// 全量 live 预览 + iframe.src 并行加载 + shimmer 占位
-// ═══════════════════════════════════════════════════════════════════
-// 产品定义：用户进来第一时间所有卡片都加载，越快越好，全部动态。
-// 实现：
-//   1. 卡片创建即写 iframe.src（浏览器原生并行 fetch + parse，不走主线程 srcdoc）。
-//   2. iframe load 后从 shimmer 过渡到 live 内容（不用 timeout 强揭）。
-//   3. 不限流、不池化、不卸载——全部常驻。
-// ═══════════════════════════════════════════════════════════════════
-
-function mountFrame(frame){
-  if(frame.__mounted) return;
-  frame.__mounted = true;
-  // 优先用 src 指向独立 HTML 文件（浏览器原生并行 fetch + parse，不占主线程）。
-  // 外链（http 开头）或无 externalUrl 的卡退化到 srcdoc。
-  if(frame.__extUrl && frame.__extUrl.indexOf('http') !== 0){
-    frame.src = frame.__extUrl;
-  } else {
-    try{ frame.srcdoc = frame.__doc || ''; }catch(_){}
+// ─── iframe 加载并发限流 ───
+// 同时最多让 N 个 iframe 处于"刚注入 srcdoc + 内部资源仍在拉"的阶段，
+// 避免 30+ iframe 一起开吃带宽 / 主线程导致卡顿/loading 不出来。
+//
+// 参数演化（karo 实测）：
+//   v1: PARALLEL=3, TIMEOUT=3500ms — 30 张卡最坏 35s 排队，下方卡片永远刷不出
+//   v2: PARALLEL=5, TIMEOUT=2200ms — 减少 60% 队列等待，对带宽友好上限
+const FRAME_LOAD_PARALLEL = 5;
+const FRAME_LOAD_TIMEOUT_MS = 2200;
+let frameLoadingNow = 0;
+const frameLoadQueue = [];
+function _drainFrameQueue(){
+  while(frameLoadingNow < FRAME_LOAD_PARALLEL && frameLoadQueue.length){
+    const frame = frameLoadQueue.shift();
+    if(!frame || frame.__loaded) continue;
+    frameLoadingNow++;
+    let __released = false;
+    const finish = ()=>{
+      if(__released) return;        // 防双递减（load 事件 + 兜底超时同时到）
+      __released = true;
+      frameLoadingNow = Math.max(0, frameLoadingNow - 1);
+      frame.removeEventListener('load', finish);
+      _drainFrameQueue();
+    };
+    // iframe 'load' 事件在 srcdoc 注入完成、内部 DOM 加载完毕时触发
+    frame.addEventListener('load', finish, { once: true });
+    // 兜底：N 秒后无论是否触发 load，都释放槽位继续下一张（重资源卡走这条）
+    setTimeout(finish, FRAME_LOAD_TIMEOUT_MS);
+    try{ frame.srcdoc = frame.__doc || ''; }catch(_){ finish(); continue; }
+    frame.__loaded = true;
+    // 注意：不要在这里隐藏 preview 占位层！srcdoc 刚赋值时 iframe 内部文档
+    // 还没首次 paint，白底 UA stylesheet 会暴露一帧造成「闪白」。
+    // 但也不能等 iframe 'load'：重资源卡（fluid sim / 3D grid）的 load 要
+    // 等所有子资源拉完，可能 5-30s，期间内容其实已经在画但被 overlay 盖住。
+    // 折中：1200ms 后无条件淡出 overlay。如果 'load' 提前来了由 makeCardEl
+    // 里的 'load' 监听器先撤；两条路径都通过 _hideCardPreview 幂等。
+    setTimeout(function(){ _hideCardPreview(frame); }, 1200);
   }
 }
-
-// 幂等：iframe load 后切换到 live 态
-function onFrameReady(frame){
-  if(!frame || !frame.__mounted) return;
-  frame.__loaded = true;
-  if(frame.__cardEl){
-    frame.__cardEl.classList.add('is-live');
-  }
+// 幂等淡出 preview 占位层。多入口调用安全（load 事件 + drain 队列兜底定时器）。
+function _hideCardPreview(frame){
+  if(!frame || !frame.__preview) return;
+  var p = frame.__preview;
+  if(p.__hiding) return;
+  p.__hiding = true;
+  p.classList.add('is-hiding');
+  setTimeout(function(){ if(p && p.parentNode) p.style.display = 'none'; }, 280);
 }
-
-// 不再用 IO 限流；卡片创建时就启动加载。IO 仅用于未来可选的 pause/resume 优化。
+function loadLazyFrame(frame){
+  if(!frame || frame.__loaded || frame.__queued) return;
+  frame.__queued = true;
+  frameLoadQueue.push(frame);
+  _drainFrameQueue();
+}
+function pauseFrame(frame){
+  if(!frame || !frame.__loaded) return;
+  try{ frame.contentWindow.postMessage({type:'pause'},'*'); }catch(_){}
+}
+function resumeFrame(frame){
+  if(!frame || !frame.__loaded) return;
+  try{ frame.contentWindow.postMessage({type:'resume'},'*'); }catch(_){}
+}
+const cardFrameObserver = ('IntersectionObserver' in window) ? new IntersectionObserver((entries)=>{
+  entries.forEach(en=>{
+    const frame = en.target;
+    if(en.isIntersecting){
+      if(!frame.__loaded) loadLazyFrame(frame);
+      resumeFrame(frame);
+    } else {
+      pauseFrame(frame);
+    }
+  });
+},{ rootMargin:'80px 0px 80px 0px' }) : null;
 function observeCardFrame(frame){
-  // 立即挂载：不等视口，全量并行加载
-  mountFrame(frame);
+  lazyFrames.add(frame);
+  if(cardFrameObserver) cardFrameObserver.observe(frame);
+  else loadLazyFrame(frame);
 }
 
 function buildStyleChips(){
@@ -710,27 +748,29 @@ function makeCardEl(d){
     frame.style.width = LOGICAL_W + 'px';
     frame.style.transformOrigin = 'top left';
   }
-  frame.setAttribute('sandbox','allow-scripts allow-same-origin');
-  frame.setAttribute('loading','lazy');
-  // pauseScript 不再需要：Variant 式架构通过挂载/卸载 iframe 本身来控制生命周期，
-  // 不是在 iframe 内部 hack requestAnimationFrame。离屏直接卸载 = 释放一切资源。
-  frame.__doc = d.doc || '';
-  frame.__extUrl = d.externalUrl || '';
+  frame.setAttribute('sandbox','allow-scripts');
+  // 防闪白：依赖元素级 .card-frame { background:#0a0a0a; color-scheme:dark }
+  // —— color-scheme: dark 让 iframe 内 about:blank 默认走深色 UA，不需要塞
+  // stub srcdoc。之前 stub 触发的额外 load 事件会和 _drainFrameQueue 的
+  // {once:true} 监听器产生时序竞态，导致部分卡片永远不淡出占位层。
+  const pauseScript = '<script>var __paused=false,__rafId=0;var __origRAF=window.requestAnimationFrame;window.requestAnimationFrame=function(cb){if(__paused){__rafId=0;return 0}return __origRAF.call(window,cb)};window.addEventListener("message",function(e){if(e.data&&e.data.type==="pause"){__paused=true;if(__rafId)cancelAnimationFrame(__rafId)}if(e.data&&e.data.type==="resume"){__paused=false;__origRAF.call(window,function(){})}});<\/script>';
+  frame.__doc = (d.doc || '').replace(/<\/head>/i, pauseScript + '</head>');
   frame.__loaded = false;
-  frame.__mounted = false;
-  frame.__cardEl = card;
   card.appendChild(frame);
 
   const preview = document.createElement('div');
   preview.className = 'card-preview';
-  preview.innerHTML = '<div class="card-preview-shimmer"></div><div class="card-preview-title">'+(d.title||'Design preview')+'</div><div class="card-preview-sub">'+(d.styleLabel||'Design DNA')+'</div>';
+  preview.innerHTML = '<div class="card-preview-title">'+(d.title||'Design preview')+'</div><div class="card-preview-sub">加载中...</div>';
+  frame.__preview = preview;
   card.appendChild(preview);
   observeCardFrame(frame);
-  // iframe load = 内容 ready → 从 shimmer 过渡到 live 内容
   frame.addEventListener('load', function(){
-    if(frame.__mounted){
+    if(frame.__loaded && frame.__preview){
+      // 双 rAF 等 iframe 内文档完成首次 paint 后再淡出占位层（最理想路径）。
+      // 但只是其中一条入口——_drainFrameQueue 还会在 1500ms 后兜底淡出，
+      // 防止重资源卡的 load 拖到很久才 fire。两条路径通过 _hideCardPreview 幂等。
       requestAnimationFrame(function(){ requestAnimationFrame(function(){
-        onFrameReady(frame);
+        _hideCardPreview(frame);
       });});
     }
   });
