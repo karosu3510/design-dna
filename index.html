@@ -627,62 +627,25 @@ const designStore = new Map();
 const lazyFrames = new Set();
 
 // ═══════════════════════════════════════════════════════════════════
-// Variant 式虚拟预览：iframe 池化 + 视口感知 + shimmer 占位
+// 全量 live 预览 + iframe.src 并行加载 + shimmer 占位
 // ═══════════════════════════════════════════════════════════════════
-// 核心原则（参照 variant.style 逆向分析）：
-//   1. 同时最多 MAX_LIVE 个 live iframe，浏览器轻松跑满。
-//   2. 进入视口附近才挂载 iframe（写 srcdoc / 设 src），离屏 600ms 后卸载。
-//   3. 未挂载时显示 shimmer 占位（永远有画面，不会黑屏）。
-//   4. iframe load 后才从 shimmer 过渡到内容（不用 timeout 强揭）。
+// 产品定义：用户进来第一时间所有卡片都加载，越快越好，全部动态。
+// 实现：
+//   1. 卡片创建即写 iframe.src（浏览器原生并行 fetch + parse，不走主线程 srcdoc）。
+//   2. iframe load 后从 shimmer 过渡到 live 内容（不用 timeout 强揭）。
+//   3. 不限流、不池化、不卸载——全部常驻。
 // ═══════════════════════════════════════════════════════════════════
-
-const MAX_LIVE = 9;                    // 同时 live iframe 上限（首屏 2 行 6 张 + 预加载 buffer 3）
-const UNLOAD_DELAY = 600;             // 离屏后延迟卸载（防抖快滚）
-const livePool = [];                   // 当前 live iframe 列表
 
 function mountFrame(frame){
   if(frame.__mounted) return;
-  // 如果池子满了，从最旧的开始，只踢不在视口的（__inView 标记由 IO 维护）
-  while(livePool.length >= MAX_LIVE){
-    var victim = null;
-    for(var i = 0; i < livePool.length; i++){
-      if(!livePool[i].__inView && livePool[i] !== frame){ victim = livePool[i]; break; }
-    }
-    if(!victim){
-      // 全都在视口 → 不踢，允许超出上限（安全阀）
-      break;
-    }
-    unmountFrame(victim);
-  }
   frame.__mounted = true;
-  livePool.push(frame);
-  clearTimeout(frame.__unmountTimer);
-  // 优先用 src 指向独立 HTML 文件（和 Variant 一样：浏览器原生并行 fetch + parse，
-  // 不占主线程）。没有 externalUrl 或外链（http）的卡退化到 srcdoc。
+  // 优先用 src 指向独立 HTML 文件（浏览器原生并行 fetch + parse，不占主线程）。
+  // 外链（http 开头）或无 externalUrl 的卡退化到 srcdoc。
   if(frame.__extUrl && frame.__extUrl.indexOf('http') !== 0){
     frame.src = frame.__extUrl;
   } else {
     try{ frame.srcdoc = frame.__doc || ''; }catch(_){}
   }
-}
-
-function unmountFrame(frame){
-  if(!frame || !frame.__mounted) return;
-  frame.__mounted = false;
-  var idx = livePool.indexOf(frame);
-  if(idx >= 0) livePool.splice(idx, 1);
-  // 重置 iframe：清空内容释放内存
-  try{ frame.removeAttribute('src'); frame.srcdoc = ''; }catch(_){}
-  frame.__loaded = false;
-  // 恢复 shimmer 占位
-  if(frame.__cardEl){
-    frame.__cardEl.classList.remove('is-live');
-  }
-}
-
-function scheduleUnmount(frame){
-  clearTimeout(frame.__unmountTimer);
-  frame.__unmountTimer = setTimeout(function(){ unmountFrame(frame); }, UNLOAD_DELAY);
 }
 
 // 幂等：iframe load 后切换到 live 态
@@ -694,25 +657,10 @@ function onFrameReady(frame){
   }
 }
 
-const cardFrameObserver = ('IntersectionObserver' in window) ? new IntersectionObserver((entries)=>{
-  entries.forEach(en=>{
-    const frame = en.target;
-    if(en.isIntersecting){
-      frame.__inView = true;
-      clearTimeout(frame.__unmountTimer);
-      mountFrame(frame);
-    } else {
-      frame.__inView = false;
-      scheduleUnmount(frame);
-    }
-  });
-},{ rootMargin:'200px 0px 200px 0px' }) : null;
-
+// 不再用 IO 限流；卡片创建时就启动加载。IO 仅用于未来可选的 pause/resume 优化。
 function observeCardFrame(frame){
-  lazyFrames.add(frame);
-  if(cardFrameObserver) cardFrameObserver.observe(frame);
-  // 无 IO 支持的浏览器直接挂载
-  else mountFrame(frame);
+  // 立即挂载：不等视口，全量并行加载
+  mountFrame(frame);
 }
 
 function buildStyleChips(){
