@@ -1,0 +1,302 @@
+/* =========================================================
+   Retro ASCII · Design System
+   CRT phosphor terminal. Deep tar-black canvas, P1 phosphor green,
+   amber + red as alarm-only LEDs. JetBrains Mono everywhere.
+   Version: 1.0.0
+   Source: Design DNA inspiration library
+   =========================================================
+   Companion to: kits/retro-ascii/design-system.md
+   <link rel="stylesheet" href="./design-system.css">
+   ========================================================= */
+
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500;700&display=swap');
+
+:root{
+  /* ---------- Typography ---------- */
+  --ra-font-mono:    'JetBrains Mono','IBM Plex Mono','Fira Code','Space Mono',ui-monospace,Menlo,monospace;
+
+  /* Type scale (px) — ASCII art lives or dies on rhythm. Stay on this scale. */
+  --ra-fs-h1:   34px;  /* hero ASCII glyph (RETRO) */
+  --ra-fs-h2:   26px;  /* clock numerals */
+  --ra-fs-md:   15px;  /* meter values */
+  --ra-fs-base: 12px;  /* body terminal copy */
+  --ra-fs-sm:   11px;  /* boot log line */
+  --ra-fs-cap:  10px;  /* uppercase mono caption */
+  --ra-fs-mini:  9px;  /* meter label / chip text */
+
+  /* Tracking — wide on captions/chips, normal on body */
+  --ra-tr-body:  0.02em;
+  --ra-tr-cap:   0.20em;
+  --ra-tr-cap-2: 0.25em;
+  --ra-tr-cap-3: 0.28em;  /* brand wordmark */
+
+  /* ---------- Color (mono with two LED-amber-red alarm states) ---------- */
+  --ra-c-bg:        #05090A;  /* tar black, never #000 */
+  --ra-c-shell:     #080F0B;  /* deepest panel */
+  --ra-c-card:      rgba(5,10,7,.6);  /* panel translucent */
+  --ra-c-line:      #0F1F14;  /* hairline */
+  --ra-c-line-2:    #1a3320;  /* slightly stronger hairline */
+
+  --ra-c-ink:       #B8FFB8;  /* primary phosphor — soft green */
+  --ra-c-hi:        #00FF6A;  /* phosphor highlight (titles, accents) */
+  --ra-c-dim:       #2A4A32;  /* secondary / disabled phosphor */
+  --ra-c-dim-2:     #3a5e44;  /* slightly brighter dim */
+
+  /* Alarm LEDs — single-purpose, never decorative */
+  --ra-c-amber:     #FFB000;  /* warning / live data values */
+  --ra-c-red:       #FF3B3B;  /* error / fatal / break only */
+
+  /* ---------- Glow (the phosphor signature) ---------- */
+  --ra-glow:        0 0 2px rgba(0,255,106,.55), 0 0 8px rgba(0,255,106,.22);
+  --ra-glow-amber:  0 0 2px rgba(255,176,0,.55),  0 0 8px rgba(255,176,0,.22);
+  --ra-glow-red:    0 0 2px rgba(255,59,59,.55),  0 0 8px rgba(255,59,59,.22);
+  --ra-scan:        rgba(0,255,106,.05);
+
+  /* ---------- Spacing (4px grid) ---------- */
+  --ra-sp-1:  4px;
+  --ra-sp-2:  6px;
+  --ra-sp-3:  8px;
+  --ra-sp-4: 12px;
+  --ra-sp-5: 14px;
+  --ra-sp-6: 18px;
+
+  /* ---------- Radius (sharp — this is a CRT) ---------- */
+  --ra-r-shell: 0;
+  --ra-r-panel: 0;
+  --ra-r-tile:  0;
+  --ra-r-chip:  0;
+
+  /* ---------- Motion ---------- */
+  --ra-ease-step: steps(1, end);
+  --ra-ease-out:  cubic-bezier(.22,.61,.36,1);
+  --ra-dur-blink: 1200ms;   /* cursor / live LED */
+  --ra-dur-tick:   140ms;
+  --ra-dur-fast:   180ms;
+  --ra-dur-base:   240ms;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{
+  background: var(--ra-c-bg);
+  color: var(--ra-c-ink);
+  font-family: var(--ra-font-mono);
+  font-size: var(--ra-fs-base);
+  line-height: 1.45;
+  letter-spacing: var(--ra-tr-body);
+  text-shadow: var(--ra-glow);
+}
+
+/* ---------- CRT chrome (page-level overlays) ---------- */
+.ra-crt{
+  position: relative;
+  background:
+    radial-gradient(ellipse at center, rgba(0,255,106,.06), transparent 60%),
+    radial-gradient(ellipse at 50% 120%, rgba(0,40,15,.6), transparent 65%),
+    var(--ra-c-bg);
+}
+/* Scanline overlay — apply ::before to the crt container */
+.ra-crt::before{
+  content: '';
+  position: fixed; inset: 0;
+  pointer-events: none;
+  z-index: 9;
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0, transparent 2px,
+    var(--ra-scan) 2px, var(--ra-scan) 3px
+  );
+  mix-blend-mode: screen;
+}
+/* Vignette overlay */
+.ra-crt::after{
+  content: '';
+  position: fixed; inset: 0;
+  pointer-events: none;
+  z-index: 10;
+  background: radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,.55) 100%);
+}
+
+/* ---------- Core components ---------- */
+
+/* Panel — the workhorse module. Always ships with corner brackets. */
+.ra-panel{
+  position: relative;
+  border: 1px solid var(--ra-c-dim);
+  background:
+    linear-gradient(180deg, rgba(0,255,106,.03), transparent 50%),
+    var(--ra-c-card);
+  padding: 8px 12px 10px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.ra-panel::before,
+.ra-panel::after{
+  content: '';
+  position: absolute;
+  width: 7px;
+  height: 7px;
+  border: 1px solid var(--ra-c-hi);
+  opacity: .75;
+}
+.ra-panel::before{
+  top: -1px; left: -1px;
+  border-right: none;
+  border-bottom: none;
+}
+.ra-panel::after{
+  bottom: -1px; right: -1px;
+  border-left: none;
+  border-top: none;
+}
+
+/* Panel title */
+.ra-ttl{
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--ra-c-hi);
+  font-size: var(--ra-fs-cap);
+  letter-spacing: var(--ra-tr-cap-3);
+  text-transform: uppercase;
+  border-bottom: 1px dashed var(--ra-c-dim);
+  padding-bottom: 5px;
+  margin-bottom: 6px;
+}
+.ra-ttl .id{
+  color: var(--ra-c-dim);
+  margin-left: auto;
+  letter-spacing: var(--ra-tr-cap);
+}
+
+/* Panel body wrapper — for scrollable content */
+.ra-body{
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Topbar — the device chrome strip */
+.ra-topbar{
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  border: 1px solid var(--ra-c-dim);
+  padding: 6px 12px;
+  background: linear-gradient(180deg, rgba(0,255,106,.04), transparent);
+  font-size: var(--ra-fs-sm);
+}
+.ra-brand{
+  color: var(--ra-c-hi);
+  font-weight: 700;
+  letter-spacing: var(--ra-tr-cap-3);
+}
+.ra-brand small{
+  color: var(--ra-c-dim);
+  font-weight: 400;
+  letter-spacing: var(--ra-tr-cap-3);
+  margin-left: 6px;
+}
+
+/* Chip — KEY VALUE ASCII pill (no rounded edges) */
+.ra-chip{
+  border: 1px solid var(--ra-c-dim);
+  padding: 2px 7px;
+  letter-spacing: var(--ra-tr-cap);
+  font-size: var(--ra-fs-mini);
+  text-transform: uppercase;
+  color: var(--ra-c-ink);
+}
+.ra-chip b{ color: var(--ra-c-amber); font-weight: 700; }
+.ra-chip.is-red b{ color: var(--ra-c-red); }
+
+/* Live-link blinking phosphor dot (the only animation that uses opacity) */
+.ra-dot{
+  display: inline-block;
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: var(--ra-c-hi);
+  margin-right: 5px;
+  box-shadow: 0 0 5px var(--ra-c-hi);
+  animation: ra-blink var(--ra-dur-blink) infinite;
+}
+@keyframes ra-blink{ 50%{ opacity: .25; } }
+
+/* Block cursor — terminal caret */
+.ra-cursor{
+  display: inline-block;
+  width: 7px; height: 12px;
+  background: var(--ra-c-hi);
+  vertical-align: middle;
+  margin-left: 2px;
+  animation: ra-blink 1s steps(2) infinite;
+  box-shadow: 0 0 5px var(--ra-c-hi);
+}
+
+/* Boot-log line variants — color the timestamp prefix differently */
+.ra-line.is-ok   { color: var(--ra-c-hi); }
+.ra-line.is-warn { color: var(--ra-c-amber); text-shadow: var(--ra-glow-amber); }
+.ra-line.is-err  { color: var(--ra-c-red);   text-shadow: var(--ra-glow-red); }
+.ra-line.is-dim  { color: var(--ra-c-dim); }
+
+/* Meter (labelled live numeric + ASCII bar) */
+.ra-meter{ display: flex; flex-direction: column; gap: 2px; }
+.ra-meter .k{
+  font-size: var(--ra-fs-mini);
+  color: var(--ra-c-dim);
+  letter-spacing: var(--ra-tr-cap-2);
+  text-transform: uppercase;
+}
+.ra-meter .v{
+  color: var(--ra-c-amber);
+  font-size: var(--ra-fs-md);
+  font-weight: 700;
+  text-shadow: var(--ra-glow-amber);
+  font-variant-numeric: tabular-nums;
+}
+.ra-meter .bar{
+  font-family: var(--ra-font-mono);
+  font-size: 13px;
+  color: var(--ra-c-hi);
+  line-height: 1;
+  margin-top: 2px;
+  letter-spacing: 0;
+}
+
+/* ASCII tree */
+.ra-tree{
+  font-size: var(--ra-fs-sm);
+  white-space: pre;
+  line-height: 1.45;
+  color: var(--ra-c-ink);
+}
+.ra-tree .dir{ color: var(--ra-c-hi); }
+.ra-tree .sel{ background: rgba(0,255,106,.15); color: var(--ra-c-hi); }
+.ra-tree .ext{ color: var(--ra-c-dim); }
+
+/* Tape / status strip */
+.ra-tape{
+  font-size: var(--ra-fs-cap);
+  color: var(--ra-c-dim);
+  letter-spacing: var(--ra-tr-cap);
+  text-transform: uppercase;
+  border-top: 1px dashed var(--ra-c-dim);
+  padding-top: 6px;
+}
+
+/* Hairline divider (dashed by default — fits the CRT) */
+.ra-divider{
+  height: 1px;
+  border-top: 1px dashed var(--ra-c-dim);
+}
+
+/* ---------- Layout helpers ---------- */
+.ra-grid-3{
+  display: grid;
+  grid-template-columns: 1fr 1.35fr 1fr;
+  gap: 10px;
+}
+.ra-row-flex{ display: flex; align-items: center; gap: var(--ra-sp-3); }
+.ra-row-flex--between{ justify-content: space-between; }
+.ra-sp{ flex: 1; }

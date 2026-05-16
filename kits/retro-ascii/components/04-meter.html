@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Retro ASCII · Component · Meter</title>
+<link rel="stylesheet" href="../design-system.css">
+<style>
+  body{display:grid;place-items:center;min-height:100vh;padding:48px}
+  .demo-tag{position:absolute;top:18px;left:24px;font-family:var(--ra-font-mono);font-size:10px;color:var(--ra-c-dim);letter-spacing:.20em;text-transform:uppercase}
+  .demo{width:420px}
+  .meters{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+</style>
+</head>
+<body class="ra-crt">
+<span class="demo-tag">04 · meter</span>
+<article class="ra-panel demo">
+  <div class="ra-ttl">
+    METERS
+    <span class="id">live</span>
+  </div>
+  <div class="meters" id="meters">
+    <div class="ra-meter"><span class="k">CPU</span><span class="v" id="vCpu">25%</span><span class="bar" id="bCpu">██████░░░░░░░░░░</span></div>
+    <div class="ra-meter"><span class="k">MEM</span><span class="v" id="vMem">57%</span><span class="bar" id="bMem">██████████░░░░░░</span></div>
+    <div class="ra-meter"><span class="k">NET</span><span class="v" id="vNet">117K</span><span class="bar" id="bNet">████████░░░░░░░░</span></div>
+    <div class="ra-meter"><span class="k">DISK</span><span class="v" id="vDsk">40%</span><span class="bar" id="bDsk">██████░░░░░░░░░░</span></div>
+  </div>
+</article>
+<script>
+  // ASCII bar = N filled + (16-N) empty. Tick at 800ms — that's what
+  // separates a polled hardware reading from CSS animation.
+  function bar(pct){
+    var n = Math.round(pct / 100 * 16);
+    return Array(n+1).join('█') + Array(17-n).join('░');
+  }
+  var state = {Cpu:25, Mem:57, Net:117, Dsk:40};
+  function tick(){
+    state.Cpu = Math.max(5, Math.min(95, state.Cpu + (Math.random()-.5)*16));
+    state.Mem = Math.max(20, Math.min(95, state.Mem + (Math.random()-.5)*8));
+    state.Net = Math.max(20, Math.min(900, state.Net + (Math.random()-.5)*80));
+    state.Dsk = Math.max(20, Math.min(95, state.Dsk + (Math.random()-.5)*4));
+    document.getElementById('vCpu').textContent = Math.round(state.Cpu) + '%';
+    document.getElementById('vMem').textContent = Math.round(state.Mem) + '%';
+    document.getElementById('vNet').textContent = Math.round(state.Net) + 'K';
+    document.getElementById('vDsk').textContent = Math.round(state.Dsk) + '%';
+    document.getElementById('bCpu').textContent = bar(state.Cpu);
+    document.getElementById('bMem').textContent = bar(state.Mem);
+    document.getElementById('bNet').textContent = bar(state.Net / 9);
+    document.getElementById('bDsk').textContent = bar(state.Dsk);
+  }
+  tick(); setInterval(tick, 800);
+</script>
+</body>
+</html>

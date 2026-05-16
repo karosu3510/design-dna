@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Retro ASCII · Component · Cursor + prompt</title>
+<link rel="stylesheet" href="../design-system.css">
+<style>
+  body{display:grid;place-items:center;min-height:100vh;padding:48px}
+  .demo-tag{position:absolute;top:18px;left:24px;font-family:var(--ra-font-mono);font-size:10px;color:var(--ra-c-dim);letter-spacing:.20em;text-transform:uppercase}
+  .demo{width:580px}
+  .ps{font-size:12px;color:var(--ra-c-hi)}
+  .ps .at{color:var(--ra-c-amber)}
+  .ps .path{color:var(--ra-c-ink)}
+  .typed{color:var(--ra-c-ink)}
+  .helps{margin-top:14px;display:flex;flex-direction:column;gap:4px;font-size:11px;color:var(--ra-c-dim)}
+  .helps b{color:var(--ra-c-hi);text-shadow:var(--ra-glow)}
+</style>
+</head>
+<body class="ra-crt">
+<span class="demo-tag">07 · cursor + prompt</span>
+<article class="ra-panel demo">
+  <div class="ra-ttl">
+    SHELL
+    <span class="id">tty1</span>
+  </div>
+  <div style="font-family:var(--ra-font-mono);font-size:13px">
+    <span class="ps">karo<span class="at">@</span>retro<span class="at">:</span><span class="path">~/projects</span><span class="at">$</span></span>
+    <span class="typed" id="typed"></span><span class="ra-cursor"></span>
+  </div>
+  <div class="helps">
+    <span><b>TAB</b> · autocomplete</span>
+    <span><b>↑↓</b> · history</span>
+    <span><b>^C</b> · break</span>
+  </div>
+</article>
+<script>
+  // Type a command on a delay so the cursor blink reads naturally — like
+  // someone actually entered it.
+  var commands = [
+    'skill load retro-ascii',
+    'cat /proc/glyph | less',
+    'ticker --speed=40',
+    'ls ~/skills',
+    'grep -r "phosphor" src/'
+  ];
+  var typed = document.getElementById('typed');
+  var ci = 0;
+  function runCmd(){
+    var cmd = commands[ci % commands.length];
+    typed.textContent = '';
+    var i = 0;
+    var t = setInterval(function(){
+      if (i >= cmd.length){
+        clearInterval(t);
+        setTimeout(function(){ ci++; runCmd(); }, 1800);
+        return;
+      }
+      typed.textContent += cmd[i++];
+    }, 60);
+  }
+  runCmd();
+</script>
+</body>
+</html>

@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Retro ASCII · Changelog</title>
+<link rel="stylesheet" href="../design-system.css">
+<style>
+  /* Token-only — no new colors, no new font families.
+     If this still feels like Retro ASCII, the system carries. */
+  body{min-height:100vh;padding:64px 0}
+  .page{width:880px;margin:0 auto;display:grid;grid-template-columns:200px 1fr;gap:36px}
+
+  /* Sidebar */
+  .side{padding-top:6px;position:sticky;top:32px;align-self:flex-start}
+  .side-brand{display:flex;align-items:center;gap:10px;font-size:14px;font-weight:700;color:var(--ra-c-hi);margin-bottom:6px;letter-spacing:.20em;font-family:var(--ra-font-mono);text-shadow:var(--ra-glow)}
+  .side-brand .mark{width:14px;height:14px;background:var(--ra-c-hi);box-shadow:var(--ra-glow);flex-shrink:0;position:relative}
+  .side-brand .mark::after{content:'';position:absolute;left:5px;top:0;bottom:0;width:4px;background:var(--ra-c-bg)}
+  .side-sub{font-family:var(--ra-font-mono);font-size:10px;color:var(--ra-c-dim);letter-spacing:.20em;text-transform:uppercase;margin-bottom:24px}
+
+  .side-link{display:flex;align-items:center;gap:8px;padding:6px 0;font-family:var(--ra-font-mono);font-size:11px;color:var(--ra-c-dim);text-decoration:none;letter-spacing:.10em;text-transform:uppercase;cursor:pointer}
+  .side-link:hover{color:var(--ra-c-ink)}
+  .side-link.active{color:var(--ra-c-hi);text-shadow:var(--ra-glow)}
+  .side-link.active::before{content:'›';margin-right:4px;color:var(--ra-c-hi)}
+
+  /* Main */
+  main{padding-top:6px}
+  .head{margin-bottom:36px}
+  .head .ra-tape{margin-bottom:12px;border-top:0;padding-top:0}
+  .head h1{font-family:var(--ra-font-mono);font-size:42px;line-height:1;color:var(--ra-c-hi);letter-spacing:.10em;font-weight:700;text-shadow:var(--ra-glow);text-transform:uppercase}
+  .head .lead{margin-top:14px;font-size:12px;color:var(--ra-c-ink);line-height:1.7;max-width:560px;font-family:var(--ra-font-mono)}
+
+  /* Release block */
+  .release{margin-bottom:18px;padding:24px 28px}
+  .release-head{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:8px;position:relative;z-index:2}
+  .release-head .ver{font-family:var(--ra-font-mono);font-size:34px;line-height:1;color:var(--ra-c-hi);letter-spacing:.04em;font-weight:700;text-shadow:var(--ra-glow)}
+  .release-head .meta-r{text-align:right;font-family:var(--ra-font-mono);font-size:10px;color:var(--ra-c-dim);letter-spacing:.20em;text-transform:uppercase;line-height:1.7}
+  .release-head .meta-r .live{display:inline-flex;align-items:center;gap:6px;color:var(--ra-c-hi);text-shadow:var(--ra-glow)}
+  .release-head .badge{display:inline-block;font-family:var(--ra-font-mono);font-size:9.5px;color:var(--ra-c-bg);background:var(--ra-c-hi);padding:3px 8px;letter-spacing:.20em;text-transform:uppercase;box-shadow:var(--ra-glow)}
+
+  .section{margin-top:14px;position:relative;z-index:2}
+  .section h3{font-family:var(--ra-font-mono);font-size:10px;color:var(--ra-c-dim);letter-spacing:.20em;text-transform:uppercase;margin-bottom:6px;font-weight:400}
+
+  .entries{padding:0;list-style:none;margin:0}
+  .entries li{display:grid;grid-template-columns:18px 1fr;gap:10px;padding:6px 0;font-size:12px;color:var(--ra-c-ink);line-height:1.55;font-family:var(--ra-font-mono)}
+  .entries li::before{content:'+';font-family:var(--ra-font-mono);font-size:14px;color:var(--ra-c-hi);line-height:1.4;text-shadow:var(--ra-glow)}
+  .entries.fix li::before{content:'~';color:var(--ra-c-amber);text-shadow:var(--ra-glow-amber)}
+  .entries.break li::before{content:'!';color:var(--ra-c-red);text-shadow:var(--ra-glow-red)}
+  .entries li code{font-family:var(--ra-font-mono);font-size:11.5px;color:var(--ra-c-hi);background:rgba(0,255,106,.06);padding:0 6px;letter-spacing:0;text-shadow:var(--ra-glow);border:1px solid var(--ra-c-line)}
+  .entries li b{color:var(--ra-c-hi);font-weight:500;text-shadow:var(--ra-glow)}
+
+  .release-foot{margin-top:18px;padding-top:14px;border-top:1px dashed var(--ra-c-dim);position:relative;z-index:2}
+  .release-foot .strip{font-family:var(--ra-font-mono);font-size:9.5px;color:var(--ra-c-dim);letter-spacing:.20em;text-transform:uppercase;display:flex;justify-content:space-between}
+
+  /* ASCII section break */
+  .ascii-break{margin:36px 0;font-family:var(--ra-font-mono);font-size:12px;color:var(--ra-c-dim);letter-spacing:.05em;text-align:center;line-height:1.4;white-space:pre;text-shadow:var(--ra-glow)}
+
+  footer{margin-top:48px;padding-top:24px;border-top:1px dashed var(--ra-c-dim);font-family:var(--ra-font-mono);font-size:10px;color:var(--ra-c-dim);letter-spacing:.20em;text-transform:uppercase;display:flex;justify-content:space-between}
+  footer a{color:inherit;text-decoration:none}
+</style>
+</head>
+<body class="ra-crt">
+<div class="page">
+
+  <aside class="side">
+    <div class="side-brand"><div class="mark"></div><span>RETRO</span></div>
+    <div class="side-sub">Changelog · v1</div>
+
+    <a class="side-link active" href="#v1-4">v1.4 · live</a>
+    <a class="side-link" href="#v1-3">v1.3</a>
+    <a class="side-link" href="#v1-2">v1.2</a>
+    <a class="side-link" href="#v1-1">v1.1</a>
+    <a class="side-link" href="#v1-0">v1.0</a>
+  </aside>
+
+  <main>
+    <section class="head">
+      <div class="ra-tape">RELEASE LOG / DEVICE FIRMWARE</div>
+      <h1>CHANGELOG</h1>
+      <p class="lead">Every shipped version of Retro ASCII. Newest on top. Plus
+        means new feature, tilde means fix, exclamation means breaking change.
+        Unstable channels are excluded — only general-availability lives here.</p>
+    </section>
+
+    <article id="v1-4" class="ra-panel release">
+      <div class="release-head">
+        <div>
+          <div class="ver">v1.4</div>
+          <span class="badge" style="margin-top:8px">stable</span>
+        </div>
+        <div class="meta-r">
+          <div>2026-05-16</div>
+          <div class="live"><span class="ra-dot"></span>now live</div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3>Added</h3>
+        <ul class="entries">
+          <li><b>Bracket panel</b> — every <code>.ra-panel</code> now ships with 7×7 corner brackets via <code>::before</code> and <code>::after</code>. Visual signature locked in.</li>
+          <li><b>Boot log streaming</b> — variable 60-180ms cadence on log lines, four severity levels (ok / warn / err / dim).</li>
+          <li>Phosphor glow tokens — <code>--ra-glow</code> / <code>--ra-glow-amber</code> / <code>--ra-glow-red</code>, applied to every text node.</li>
+        </ul>
+      </div>
+
+      <div class="section">
+        <h3>Fixed</h3>
+        <ul class="entries fix">
+          <li>Scanline overlay was being clipped by panels with <code>overflow:hidden</code> — moved to <code>position:fixed</code>.</li>
+          <li>ASCII bar drift on resize — width now recomputed on <code>load</code> + ResizeObserver.</li>
+          <li>Cursor blink desync after sleep — restart on <code>visibilitychange</code>.</li>
+        </ul>
+      </div>
+
+      <div class="release-foot">
+        <div class="strip"><span>shipped 18:32 UTC</span><span>build 14920</span></div>
+      </div>
+    </article>
+
+    <pre class="ascii-break">+----+----+----+----+----+----+----+----+----+----+
+|    |    |    |    |    |    |    |    |    |    |
++----+----+----+----+----+----+----+----+----+----+</pre>
+
+    <article id="v1-3" class="ra-panel release">
+      <div class="release-head">
+        <div><div class="ver">v1.3</div></div>
+        <div class="meta-r"><div>2026-04-22</div><div>retired</div></div>
+      </div>
+
+      <div class="section">
+        <h3>Added</h3>
+        <ul class="entries">
+          <li>Topbar + chips — <code>.ra-topbar</code> baseline with <code>.ra-chip</code> uppercase pills.</li>
+          <li>Page chrome wrapper <code>.ra-crt</code> ships scanlines + vignette + center-bloom together.</li>
+          <li>ASCII tree primitive — <code>.ra-tree</code> with <code>dir</code> / <code>sel</code> / <code>ext</code> token classes.</li>
+        </ul>
+      </div>
+
+      <div class="section">
+        <h3>Fixed</h3>
+        <ul class="entries fix">
+          <li>Panel brackets misaligning by 1px on retina — added <code>top:-1px;left:-1px</code> offsets.</li>
+          <li>Phosphor glow accumulation in WebKit when many text nodes overlap.</li>
+        </ul>
+      </div>
+
+      <div class="release-foot">
+        <div class="strip"><span>shipped 09:12 UTC</span><span>build 13770</span></div>
+      </div>
+    </article>
+
+    <article id="v1-2" class="ra-panel release">
+      <div class="release-head">
+        <div><div class="ver">v1.2</div></div>
+        <div class="meta-r"><div>2026-03-08</div><div>retired</div></div>
+      </div>
+
+      <div class="section">
+        <h3>Breaking</h3>
+        <ul class="entries break">
+          <li>Removed all <code>border-radius</code> tokens. Right angles only — this is a CRT.</li>
+          <li>Page background lifted from <code>#000</code> to <code>#05090A</code>. Audit any hard-coded canvas colors.</li>
+        </ul>
+      </div>
+
+      <div class="section">
+        <h3>Added</h3>
+        <ul class="entries">
+          <li><b>Step easing</b> token <code>--ra-ease-step</code> — frame-perfect transitions.</li>
+          <li>Tape strip class <code>.ra-tape</code> for inline status copy.</li>
+          <li>Boot log line variants <code>.is-ok / .is-warn / .is-err / .is-dim</code>.</li>
+        </ul>
+      </div>
+
+      <div class="release-foot">
+        <div class="strip"><span>shipped 11:32 UTC</span><span>build 12064</span></div>
+      </div>
+    </article>
+
+    <article id="v1-1" class="ra-panel release">
+      <div class="release-head">
+        <div><div class="ver">v1.1</div></div>
+        <div class="meta-r"><div>2026-02-14</div><div>retired</div></div>
+      </div>
+
+      <div class="section">
+        <h3>Added</h3>
+        <ul class="entries">
+          <li>Live LED dot <code>.ra-dot</code> with single-purpose <code>--ra-c-hi</code> + 1200ms breath.</li>
+          <li>Block cursor <code>.ra-cursor</code> with <code>steps(2)</code> blink.</li>
+          <li>JetBrains Mono web-loaded as default mono face; IBM Plex Mono fallback.</li>
+        </ul>
+      </div>
+
+      <div class="release-foot">
+        <div class="strip"><span>shipped 14:08 UTC</span><span>build 10412</span></div>
+      </div>
+    </article>
+
+    <article id="v1-0" class="ra-panel release">
+      <div class="release-head">
+        <div><div class="ver">v1.0</div></div>
+        <div class="meta-r"><div>2026-01-04</div><div>archive</div></div>
+      </div>
+
+      <div class="section">
+        <h3>Added</h3>
+        <ul class="entries">
+          <li>Initial 3-column 1fr / 1.35fr / 1fr bento at 14×18 padding, gap 10px.</li>
+          <li>Color tokens locked in: ink / hi / dim plus amber + red alarm LEDs.</li>
+          <li>JetBrains Mono everywhere — no sans-serif anywhere in the system.</li>
+        </ul>
+      </div>
+
+      <div class="release-foot">
+        <div class="strip"><span>shipped 00:00 UTC</span><span>build 09001</span></div>
+      </div>
+    </article>
+
+    <footer>
+      <span>Retro ASCII · changelog · v1.4</span>
+      <span><a href="https://karosu3510.github.io/design-dna/" target="_blank">karosu3510.github.io/design-dna</a></span>
+    </footer>
+  </main>
+</div>
+</body>
+</html>

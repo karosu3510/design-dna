@@ -1,0 +1,387 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Retro ASCII · Original dashboard</title>
+<link rel="stylesheet" href="../design-system.css">
+<style>
+  /* The original 1100×720 retro terminal dashboard the Retro ASCII tokens
+     were extracted from. Token-driven where possible; layout-specific
+     sizing kept inline. */
+  html,body{height:720px;overflow:hidden}
+  .frame{position:relative;z-index:2;padding:14px 18px;display:grid;grid-template-columns:1fr 1.35fr 1fr;grid-template-rows:auto 1fr auto;gap:10px;height:720px}
+  .topbar-row{grid-column:1/-1}
+  .col{display:grid;gap:10px;min-height:0}
+  .col-l{grid-template-rows:1fr auto auto}
+  .col-c{grid-template-rows:auto 1fr auto}
+  .col-r{grid-template-rows:auto 1fr auto}
+
+  /* Boot log */
+  #bootLog{font-size:11px;white-space:pre-wrap;line-height:1.5}
+
+  /* Meters */
+  .meters{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+
+  /* Hero */
+  .hero{padding:6px 0 10px;color:var(--ra-c-hi)}
+  .hero pre{font-size:13px;line-height:1.05;letter-spacing:0;color:var(--ra-c-hi);text-shadow:var(--ra-glow)}
+  .hero-meta{font-size:10px;color:var(--ra-c-ink);letter-spacing:.20em;margin-top:6px;text-transform:uppercase}
+  .hero-meta b{color:var(--ra-c-amber);text-shadow:var(--ra-glow-amber)}
+  .hero-glyph{font-size:10px;color:var(--ra-c-dim);margin-top:4px;letter-spacing:.20em;text-transform:uppercase}
+
+  /* Wave canvas */
+  .wave-wrap{position:relative;flex:1;min-height:0}
+  .wave-wrap canvas{position:absolute;inset:0;width:100%;height:100%}
+  .wave-axes{position:absolute;inset:0;pointer-events:none;opacity:.45}
+  .wave-axes::before,.wave-axes::after{content:'';position:absolute;background:var(--ra-c-dim)}
+  .wave-axes::before{left:0;right:0;top:50%;height:1px}
+  .wave-axes::after{top:0;bottom:0;left:50%;width:1px}
+
+  /* Clock big */
+  .clock-big{font-size:30px;font-weight:700;color:var(--ra-c-hi);text-align:center;letter-spacing:.04em;font-variant-numeric:tabular-nums;margin:8px 0 4px;text-shadow:var(--ra-glow)}
+  .clock-date{font-size:10px;color:var(--ra-c-dim);letter-spacing:.20em;text-align:center;text-transform:uppercase;margin-bottom:10px}
+  .clock-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;border:1px dashed var(--ra-c-dim);padding:8px}
+  .clock-stats .ra-meter{align-items:center;text-align:center}
+  .clock-stats .ra-meter .v{font-size:14px}
+
+  /* Top procs (ASCII chart) */
+  .procs{display:flex;flex-direction:column;gap:5px;font-size:11px}
+  .procs .row{display:flex;align-items:center;gap:6px}
+  .procs .name{color:var(--ra-c-hi);width:62px;text-shadow:var(--ra-glow)}
+  .procs .bar{flex:1;color:var(--ra-c-hi);letter-spacing:0;font-size:11px}
+  .procs .pct{color:var(--ra-c-amber);text-shadow:var(--ra-glow-amber);width:34px;text-align:right;font-variant-numeric:tabular-nums}
+
+  /* Events */
+  .events{display:flex;flex-direction:column;gap:4px;font-size:11px;line-height:1.55}
+  .events .row{display:flex;gap:6px}
+  .events .ts{color:var(--ra-c-dim);font-variant-numeric:tabular-nums;flex-shrink:0}
+  .events .lvl{flex-shrink:0;width:18px}
+  .events .lvl.W{color:var(--ra-c-amber);text-shadow:var(--ra-glow-amber)}
+  .events .lvl.E{color:var(--ra-c-red);text-shadow:var(--ra-glow-red)}
+  .events .lvl.I{color:var(--ra-c-hi)}
+  .events .msg b{color:var(--ra-c-hi);text-shadow:var(--ra-glow)}
+
+  /* Bottom prompt strip */
+  .bottombar{grid-column:1/-1;display:flex;align-items:center;gap:8px;border:1px solid var(--ra-c-dim);padding:6px 12px;background:linear-gradient(0deg,rgba(0,255,106,.04),transparent);font-size:11px}
+  .bottombar .ps{color:var(--ra-c-hi)}
+  .bottombar .ps .at{color:var(--ra-c-amber)}
+  .bottombar .ps .path{color:var(--ra-c-ink)}
+  .bottombar .typed{color:var(--ra-c-ink)}
+  .bottombar .help{margin-left:auto;color:var(--ra-c-dim);letter-spacing:.20em;text-transform:uppercase;font-size:10px}
+</style>
+</head>
+<body class="ra-crt">
+<div class="frame">
+
+  <div class="ra-topbar topbar-row">
+    <div class="ra-brand">RETRO<small>· ASCII</small></div>
+    <span class="ra-sp"></span>
+    <span class="ra-chip" style="font-size:11px">AI writing tool for thoughtful creators // Built to feel good and work hard.</span>
+    <span class="ra-chip"><span class="ra-dot"></span>LINK <b>STABLE</b></span>
+    <span class="ra-chip">NODE <b>KARO-01</b></span>
+    <span class="ra-chip">UPTIME <b id="upT">18:28:45</b></span>
+  </div>
+
+  <div class="col col-l">
+    <article class="ra-panel">
+      <div class="ra-ttl">BOOT SEQUENCE <span class="id">/var/log/boot.0</span></div>
+      <div class="ra-body"><pre id="bootLog"></pre></div>
+    </article>
+
+    <article class="ra-panel">
+      <div class="ra-ttl"><span class="ra-dot"></span>METERS <span class="id">live</span></div>
+      <div class="meters" id="meters">
+        <div class="ra-meter"><span class="k">CPU</span><span class="v" id="vCpu">25%</span><span class="bar" id="bCpu">██████░░░░░░░░░░</span></div>
+        <div class="ra-meter"><span class="k">MEM</span><span class="v" id="vMem">57%</span><span class="bar" id="bMem">██████████░░░░░░</span></div>
+        <div class="ra-meter"><span class="k">NET</span><span class="v" id="vNet">117K</span><span class="bar" id="bNet">████████░░░░░░░░</span></div>
+        <div class="ra-meter"><span class="k">DISK</span><span class="v" id="vDsk">40%</span><span class="bar" id="bDsk">██████░░░░░░░░░░</span></div>
+      </div>
+    </article>
+
+    <article class="ra-panel">
+      <div class="ra-ttl">FILE TREE <span class="id">~/retro</span></div>
+      <pre class="ra-tree" id="tree"><span class="dir">~/retro-ascii</span>
+├── <span class="dir">src/</span>
+│  ├── boot.asm        <span class="ext">·  1.2K</span>
+│  ├── crt.c           <span class="ext">·  8.4K</span>
+│  └── ansi.ts         <span class="ext">·  4.7K</span>
+├── <span class="sel">skills/</span>
+│  ├── glyph-link.md
+│  └── scanline.md
+├── README.md          <span class="ext">·  3.3K</span>
+└── Makefile           <span class="ext">·  0.4K</span></pre>
+    </article>
+  </div>
+
+  <div class="col col-c">
+    <article class="ra-panel hero">
+      <div class="ra-ttl">ASCII <span class="id">#1</span></div>
+      <pre> ____  _____ _____ ____   ___
+|  _ \| ____|_   _|  _ \ / _ \
+| |_) |  _|   | | | |_) | | | |
+|  _ &lt;| |___  | | |  _ &lt;| |_| |
+|_| \_\_____| |_| |_| \_\\___/
+        A · S · C · I · I  </pre>
+      <div class="hero-meta">MODE <b>terminal</b>  PHOSPHOR <b>P1</b>  SCAN <b>60Hz</b></div>
+      <div class="hero-glyph">GLYPH CP437</div>
+    </article>
+
+    <article class="ra-panel">
+      <div class="ra-ttl">SIGNAL WAVE <span class="id">ch-0 · noise</span></div>
+      <div class="ra-body wave-wrap">
+        <canvas id="wave"></canvas>
+        <div class="wave-axes"></div>
+      </div>
+      <div class="ra-tape" id="waveTape">CH0 38.2 HZ · RMS 0.71 · SNR 92DB</div>
+    </article>
+
+    <article class="ra-panel">
+      <div class="ra-ttl">JOB <span class="id" id="jobId">#A04F COMPLETE IN 812MS · MESH CL</span></div>
+    </article>
+  </div>
+
+  <div class="col col-r">
+    <article class="ra-panel">
+      <div class="ra-ttl">CLOCK <span class="id">local</span></div>
+      <div class="clock-big" id="clk">18:47:30</div>
+      <div class="clock-date" id="clkDate">SAT · MAY 16 · 2026</div>
+      <div class="clock-stats">
+        <div class="ra-meter"><span class="k">THREADS</span><span class="v">154</span></div>
+        <div class="ra-meter"><span class="k">QPS</span><span class="v">1336</span></div>
+        <div class="ra-meter"><span class="k">LATENCY</span><span class="v">18ms</span></div>
+      </div>
+    </article>
+
+    <article class="ra-panel">
+      <div class="ra-ttl">ASCII CHART <span class="id">top procs</span></div>
+      <div class="procs" id="procs"></div>
+    </article>
+
+    <article class="ra-panel">
+      <div class="ra-ttl">EVENTS <span class="id">tail -f</span></div>
+      <div class="events" id="events"></div>
+    </article>
+  </div>
+
+  <div class="bottombar">
+    <span class="ps">karo<span class="at">@</span>retro<span class="at">:</span><span class="path">~/projects</span><span class="at">$</span></span>
+    <span class="typed" id="typed"></span>
+    <span class="ra-cursor"></span>
+    <span class="help">TAB · autocomplete</span>
+  </div>
+</div>
+
+<script>
+// boot log
+(function(){
+  var lines = [
+    ['dim', '[0.000] Loading retro-ascii kernel v0.9.1 ...'],
+    ['ok',  '[0.012] CPU: 8 cores online · P1 phosphor'],
+    ['ok',  '[0.121] Mount /dev/sda1 -> /            [ OK ]'],
+    ['dim', '[0.318] Probing glyph link ...'],
+    ['warn','[0.412] glyph link: weak, retry (1/3)'],
+    ['ok',  '[0.622] glyph link: locked @ 38.2 Hz'],
+    ['ok',  '[0.812] systemd-ascii.service       [ OK ]'],
+    ['ok',  '[0.914] ansi-ticker.service         [ OK ]'],
+    ['ok',  '[1.024] crt-phosphor.service        [ OK ]']
+  ];
+  var log = document.getElementById('bootLog');
+  var i = 0;
+  function next(){
+    if (i >= lines.length){
+      setTimeout(function(){ log.innerHTML=''; i=0; next(); }, 4000);
+      return;
+    }
+    var L = lines[i++];
+    var el = document.createElement('span');
+    el.className = 'ra-line is-' + L[0];
+    el.style.display = 'block';
+    el.textContent = L[1];
+    log.appendChild(el);
+    setTimeout(next, 80 + Math.random() * 140);
+  }
+  next();
+})();
+
+// meters
+(function(){
+  function bar(pct){
+    var n = Math.round(pct / 100 * 16);
+    return Array(n+1).join('█') + Array(17-n).join('░');
+  }
+  var state = {Cpu:25, Mem:57, Net:117, Dsk:40};
+  function tick(){
+    state.Cpu = Math.max(5, Math.min(95, state.Cpu + (Math.random()-.5)*16));
+    state.Mem = Math.max(20, Math.min(95, state.Mem + (Math.random()-.5)*8));
+    state.Net = Math.max(20, Math.min(900, state.Net + (Math.random()-.5)*80));
+    state.Dsk = Math.max(20, Math.min(95, state.Dsk + (Math.random()-.5)*4));
+    document.getElementById('vCpu').textContent = Math.round(state.Cpu) + '%';
+    document.getElementById('vMem').textContent = Math.round(state.Mem) + '%';
+    document.getElementById('vNet').textContent = Math.round(state.Net) + 'K';
+    document.getElementById('vDsk').textContent = Math.round(state.Dsk) + '%';
+    document.getElementById('bCpu').textContent = bar(state.Cpu);
+    document.getElementById('bMem').textContent = bar(state.Mem);
+    document.getElementById('bNet').textContent = bar(state.Net / 9);
+    document.getElementById('bDsk').textContent = bar(state.Dsk);
+  }
+  tick(); setInterval(tick, 800);
+})();
+
+// wave canvas
+(function(){
+  var c = document.getElementById('wave'), ctx = c.getContext('2d');
+  function size(){
+    c.width = c.clientWidth * (window.devicePixelRatio || 1);
+    c.height = c.clientHeight * (window.devicePixelRatio || 1);
+  }
+  size(); window.addEventListener('resize', size);
+  var phase = 0;
+  function draw(){
+    var W = c.width, H = c.height;
+    ctx.clearRect(0, 0, W, H);
+    // green wave
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = '#00FF6A';
+    ctx.shadowColor = 'rgba(0,255,106,.6)'; ctx.shadowBlur = 8;
+    ctx.beginPath();
+    for (var x = 0; x < W; x++){
+      var t = x / W * Math.PI * 4 + phase;
+      var y = H/2 + (Math.sin(t)*0.5 + Math.sin(t*1.7)*0.25 + Math.sin(t*0.5)*0.15) * H * 0.35;
+      x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+    // amber overlay (noise reference)
+    ctx.lineWidth = 1.2;
+    ctx.strokeStyle = '#FFB000';
+    ctx.shadowColor = 'rgba(255,176,0,.5)'; ctx.shadowBlur = 6;
+    ctx.beginPath();
+    for (var x = 0; x < W; x++){
+      var t = x / W * Math.PI * 6 + phase * 0.6;
+      var y = H/2 + (Math.sin(t)*0.4) * H * 0.25;
+      x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+    ctx.shadowBlur = 0;
+    phase += 0.04;
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+// clock
+(function(){
+  function pad(n){ return n < 10 ? '0' + n : n; }
+  function tick(){
+    var d = new Date();
+    document.getElementById('clk').textContent = pad(d.getHours()) + ':' + pad(d.getMinutes()) + ':' + pad(d.getSeconds());
+    var days = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
+    var months = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+    document.getElementById('clkDate').textContent =
+      days[d.getDay()] + ' · ' + months[d.getMonth()] + ' ' + pad(d.getDate()) + ' · ' + d.getFullYear();
+  }
+  tick(); setInterval(tick, 1000);
+  // uptime
+  var up = 18*3600 + 28*60 + 45;
+  setInterval(function(){
+    up++;
+    document.getElementById('upT').textContent =
+      pad(Math.floor(up/3600)) + ':' + pad(Math.floor(up/60)%60) + ':' + pad(up%60);
+  }, 1000);
+})();
+
+// procs
+(function(){
+  var procs = [
+    {name:'ansi-ti', pct:76},
+    {name:'crt-dae', pct:55},
+    {name:'glyph-l', pct:40},
+    {name:'retro-f', pct:24},
+    {name:'node',    pct:15}
+  ];
+  function bar(pct){
+    var n = Math.round(pct / 100 * 16);
+    return Array(n+1).join('█') + Array(17-n).join('░');
+  }
+  function render(){
+    var el = document.getElementById('procs');
+    el.innerHTML = '';
+    procs.forEach(function(p){
+      var row = document.createElement('div');
+      row.className = 'row';
+      row.innerHTML = '<span class="name">' + p.name + '</span>' +
+                      '<span class="bar">' + bar(p.pct) + '</span>' +
+                      '<span class="pct">' + p.pct + '%</span>';
+      el.appendChild(row);
+    });
+  }
+  render();
+  setInterval(function(){
+    procs.forEach(function(p){
+      p.pct = Math.max(8, Math.min(95, p.pct + (Math.random()-.5)*8));
+    });
+    render();
+  }, 1200);
+})();
+
+// events
+(function(){
+  var pool = [
+    ['W','mem.zone',         '· frag 22%'],
+    ['I','glyph.link',       'signal locked @ 38.2 Hz'],
+    ['W','crt.phosphor',     '· burn-in risk'],
+    ['I','cache',            'hit 94.2%'],
+    ['W','crt.phosphor',     '· burn-in risk'],
+    ['W','mem.zone',         '· frag 22%'],
+    ['E','temp.n3',          'rising 68C'],
+    ['I','net.uplink',       '142 kpps · clean']
+  ];
+  var feed = document.getElementById('events');
+  function pad(n){ return n < 10 ? '0' + n : n; }
+  function nowTs(){
+    var d = new Date();
+    return pad(d.getHours()) + ':' + pad(d.getMinutes()) + ':' + pad(d.getSeconds());
+  }
+  function append(){
+    var r = pool[Math.floor(Math.random() * pool.length)];
+    var row = document.createElement('div');
+    row.className = 'row';
+    row.innerHTML = '<span class="ts">' + nowTs() + '</span>' +
+                    '<span class="lvl ' + r[0] + '">[' + r[0] + ']</span>' +
+                    '<span class="msg"><b>' + r[1] + '</b> ' + r[2] + '</span>';
+    feed.appendChild(row);
+    while (feed.children.length > 8) feed.removeChild(feed.firstChild);
+  }
+  for (var i = 0; i < 8; i++) append();
+  setInterval(append, 1400);
+})();
+
+// prompt typing
+(function(){
+  var commands = [
+    'grep -r "phosphor" src/',
+    'cat /proc/glyph | less',
+    'ticker --speed=40',
+    'ls ~/skills',
+    'skill load retro-ascii'
+  ];
+  var typed = document.getElementById('typed');
+  var ci = 0;
+  function runCmd(){
+    var cmd = commands[ci % commands.length];
+    typed.textContent = '';
+    var i = 0;
+    var t = setInterval(function(){
+      if (i >= cmd.length){
+        clearInterval(t);
+        setTimeout(function(){ ci++; runCmd(); }, 1800);
+        return;
+      }
+      typed.textContent += cmd[i++];
+    }, 70);
+  }
+  runCmd();
+})();
+</script>
+</body>
+</html>
