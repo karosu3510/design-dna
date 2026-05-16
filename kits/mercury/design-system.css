@@ -309,10 +309,10 @@ html,body{
 .mc-acct .mc-avatar--sv{ background: #e7eefb; color: #1857c4; }
 .mc-acct .mc-avatar--t { background: #fdf1da; color: #a35d00; }
 .mc-acct .mc-avatar--io{ background: var(--mc-c-p-100); color: var(--mc-c-p-700); }
-.mc-acct .mc-acct-meta{ display: flex; flex-direction: column; gap: 1px; min-width: 0; flex: 1; }
-.mc-acct .mc-acct-name{ font-size: var(--mc-fs-base); color: var(--mc-c-ink); font-weight: 500; }
-.mc-acct .mc-acct-sub{ font-size: var(--mc-fs-mini); color: var(--mc-c-mute); font-family: var(--mc-font-mono); }
-.mc-acct .mc-acct-bal{ font-family: var(--mc-font-mono); font-size: var(--mc-fs-sm); color: var(--mc-c-ink-2); font-variant-numeric: tabular-nums; }
+.mc-acct .mc-acct-meta{ display: flex; flex-direction: column; gap: 1px; min-width: 0; flex: 1; overflow: hidden; }
+.mc-acct .mc-acct-name{ font-size: var(--mc-fs-base); color: var(--mc-c-ink); font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mc-acct .mc-acct-sub{ font-size: var(--mc-fs-mini); color: var(--mc-c-mute); font-family: var(--mc-font-mono); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mc-acct .mc-acct-bal{ font-family: var(--mc-font-mono); font-size: var(--mc-fs-sm); color: var(--mc-c-ink-2); font-variant-numeric: tabular-nums; flex-shrink: 0; margin-left: 8px; text-align: right; white-space: nowrap; }
 
 /* Section caption (sidebar label) */
 .mc-section{
