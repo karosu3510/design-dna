@@ -25,6 +25,9 @@
 
   .download-pill{margin-top:18px;height:36px;width:100%;border-radius:999px;background:var(--ar-c-ink);color:#fff;display:inline-flex;align-items:center;justify-content:center;gap:8px;font-size:12.5px;border:0;cursor:pointer;font-weight:500}
   .download-pill svg{width:13px;height:13px}
+  .wb-pill{margin-top:8px;height:36px;width:100%;border-radius:999px;background:var(--ar-c-shell);color:var(--ar-c-ink);display:inline-flex;align-items:center;justify-content:center;gap:8px;font-size:12.5px;border:1px solid var(--ar-c-line);cursor:pointer;font-weight:500;box-shadow:var(--ar-shadow-pill);transition:border-color .15s,background .15s}
+  .wb-pill:hover{border-color:var(--ar-c-ink-3);background:#fafaf6}
+  .wb-pill svg{width:13px;height:13px}
 
   /* Main */
   main{padding:48px 56px}
@@ -119,6 +122,10 @@
     <button class="download-pill" id="dlBtn">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
       下载完整素材包
+    </button>
+    <button class="wb-pill" id="wbBtn" title="复制开发提示词并打开 WorkBuddy">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+      去 WorkBuddy 开发
     </button>
   </aside>
 
@@ -347,6 +354,69 @@ If a request requires a saturated color, sharp shadow, or display serif, push ba
       console.warn(err);
       btn.innerHTML = '下载失败';
       setTimeout(function(){ btn.innerHTML = orig; }, 1500);
+    }
+  });
+
+  // 去 WorkBuddy 开发：复制带 kit 链接的开发提示词，再打开 WorkBuddy
+  document.getElementById('wbBtn').addEventListener('click', async function(){
+    var btn = this;
+    var orig = btn.innerHTML;
+    var KIT_BASE = 'https://karosu3510.github.io/design-dna/kits/a-record/';
+    var prompt = [
+      '我要基于 Design DNA 中的 a.Record 设计系统继续开发。',
+      '',
+      '【素材包入口（请帮我读取这些文件作为视觉规范）】',
+      '- 设计系统总览：' + KIT_BASE + 'index.html',
+      '- design tokens（CSS 变量 + 组件类）：' + KIT_BASE + 'design-system.css',
+      '- design tokens（JSON）：' + KIT_BASE + 'design-tokens.json',
+      '- 完整文档：' + KIT_BASE + 'design-system.md',
+      '- AI 提示词与约束：' + KIT_BASE + 'ai-prompt.md',
+      '- Tailwind 预设：' + KIT_BASE + 'tailwind-tokens.js',
+      '- 组件示例（8 个独立 HTML）：' + KIT_BASE + 'components/',
+      '- 衍生用例（设置页）：' + KIT_BASE + 'examples/settings-page.html',
+      '',
+      '【视觉铁律（必须遵守）】',
+      '- 画布奶油色 #eceae3，卡片纯白 #ffffff，内层面板 #f1efe9；不要纯白页底，不要纯黑页底。',
+      '- 字体：UI/标题用 Inter；任何会变化的数字（计时器/电量/dB/LUFS/BPM/文件大小）必须用 Geist Mono 并配 `font-variant-numeric: tabular-nums`。',
+      '- 颜色纪律：唯一允许的强色是 #f24a3a，仅用于「录制中 / 错误 / 危险操作」；不要第二个高饱和色，不要渐变，不要紫蓝色。',
+      '- 圆角阶梯只允许：30 / 20 / 16 / 14 / 999，禁止其它值。',
+      '- 间距遵守 4px grid（4/8/12/16/20/24/28/32）。',
+      '- 阴影只用三类：card / glass（搭配 backdrop-filter blur 18px）/ pill；不要 0 0 20px 类发光阴影。',
+      '- 动效：进入用 240ms cubic-bezier(.22,.61,.36,1)；实时数字用低通平滑（0.05–0.18）而非 CSS transition。',
+      '- 优先复用 .ar-shell / .ar-panel / .ar-pill / .ar-glass / .ar-mono / .ar-rec-dot / .ar-cap，再写新 CSS。',
+      '',
+      '【我要开发的目标】',
+      '（在这里描述你想做的页面或组件，例如："基于 a.Record 设计系统做一个云端项目仪表盘，包含项目列表、计费用量、最近活动三个模块"）',
+      '',
+      '【请按以下步骤执行】',
+      '1. 抓取上面 KIT_BASE 下的关键文件（design-system.css、design-system.md、ai-prompt.md），把视觉规范完整加载进上下文。',
+      '2. 给我一个简短方案概要（信息架构 + 用到的现有组件类 + 是否需要新组件），等我确认。',
+      '3. 我说「开干」之后，按 a.Record 的 token 体系生成代码。',
+    ].join('\n');
+
+    btn.innerHTML = '复制中…';
+    try{
+      await navigator.clipboard.writeText(prompt);
+      // 打开 WorkBuddy 主站
+      window.open('https://www.codebuddy.cn/', '_blank', 'noopener');
+      btn.innerHTML = '✓ 提示词已复制，请粘贴';
+      setTimeout(function(){ btn.innerHTML = orig; }, 2200);
+    }catch(err){
+      // 兜底：用 textarea + execCommand
+      try{
+        var ta = document.createElement('textarea');
+        ta.value = prompt; ta.style.position='fixed'; ta.style.opacity='0';
+        document.body.appendChild(ta); ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+        window.open('https://www.codebuddy.cn/', '_blank', 'noopener');
+        btn.innerHTML = '✓ 提示词已复制，请粘贴';
+        setTimeout(function(){ btn.innerHTML = orig; }, 2200);
+      }catch(_){
+        console.warn(err);
+        btn.innerHTML = '复制失败';
+        setTimeout(function(){ btn.innerHTML = orig; }, 1500);
+      }
     }
   });
 </script>
