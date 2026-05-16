@@ -657,8 +657,13 @@ function mountFrame(frame){
   frame.__mounted = true;
   livePool.push(frame);
   clearTimeout(frame.__unmountTimer);
-  // 写 srcdoc 启动 iframe runtime
-  try{ frame.srcdoc = frame.__doc || ''; }catch(_){}
+  // 优先用 src 指向独立 HTML 文件（和 Variant 一样：浏览器原生并行 fetch + parse，
+  // 不占主线程）。没有 externalUrl 或外链（http）的卡退化到 srcdoc。
+  if(frame.__extUrl && frame.__extUrl.indexOf('http') !== 0){
+    frame.src = frame.__extUrl;
+  } else {
+    try{ frame.srcdoc = frame.__doc || ''; }catch(_){}
+  }
 }
 
 function unmountFrame(frame){
@@ -666,8 +671,8 @@ function unmountFrame(frame){
   frame.__mounted = false;
   var idx = livePool.indexOf(frame);
   if(idx >= 0) livePool.splice(idx, 1);
-  // 重置 iframe：清空 srcdoc 释放内存
-  try{ frame.srcdoc = ''; }catch(_){}
+  // 重置 iframe：清空内容释放内存
+  try{ frame.removeAttribute('src'); frame.srcdoc = ''; }catch(_){}
   frame.__loaded = false;
   // 恢复 shimmer 占位
   if(frame.__cardEl){
@@ -757,10 +762,12 @@ function makeCardEl(d){
     frame.style.width = LOGICAL_W + 'px';
     frame.style.transformOrigin = 'top left';
   }
-  frame.setAttribute('sandbox','allow-scripts');
+  frame.setAttribute('sandbox','allow-scripts allow-same-origin');
+  frame.setAttribute('loading','lazy');
   // pauseScript 不再需要：Variant 式架构通过挂载/卸载 iframe 本身来控制生命周期，
   // 不是在 iframe 内部 hack requestAnimationFrame。离屏直接卸载 = 释放一切资源。
   frame.__doc = d.doc || '';
+  frame.__extUrl = d.externalUrl || '';
   frame.__loaded = false;
   frame.__mounted = false;
   frame.__cardEl = card;
