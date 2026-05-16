@@ -639,7 +639,10 @@ function _drainFrameQueue(){
     setTimeout(finish, 3500);
     try{ frame.srcdoc = frame.__doc || ''; }catch(_){ finish(); continue; }
     frame.__loaded = true;
-    if(frame.__preview) frame.__preview.style.display = 'none';
+    // 注意：不要在这里隐藏 preview 占位层！srcdoc 刚赋值时 iframe 内部文档
+    // 还没首次 paint，白底 UA stylesheet 会暴露一帧造成「闪白」。占位层
+    // 真正撤掉发生在 makeCardEl 内的 frame.addEventListener('load', ...)
+    // 中——那里等两个 rAF 才淡出。
   }
 }
 function loadLazyFrame(frame){
