@@ -5,8 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Design DNA — endless designs, just scroll</title>
 <!-- 把 cards/all.json 提前到首屏 critical chain：浏览器一拿到 HTML 就开始下载这份 bundle，
-     和 templates.js / 内联 script 解析并行，下面 __cardLoader 启动时 fetch 直接 hit 缓存。 -->
-<link rel="preload" href="./cards/all.json" as="fetch" type="application/json" crossorigin="anonymous" />
+     和 templates.js / 内联 script 解析并行，下面 __cardLoader 启动时 fetch 直接 hit 缓存。
+     注意：preload 的 CORS 模式必须和实际 fetch 一致（这里都是同源 same-origin），所以
+     不能写 crossorigin="anonymous"，否则浏览器会做两次请求（preload 一次 + fetch 一次）。 -->
+<link rel="preload" href="./cards/all.json" as="fetch" type="application/json" />
 <!-- JSZip 懒加载：仅在用户点击「下载素材包」时按需注入，避免首屏 100KB CDN 阻塞 -->
 <script>
   window.__loadJSZip = function(){
@@ -697,6 +699,8 @@ const frameLoadQueue = [];
 function _drainFrameQueue(){
   while(frameLoadingNow < FRAME_LOAD_PARALLEL && frameLoadQueue.length){
     const frame = frameLoadQueue.shift();
+    // 出队即清 __queued，避免下一次 IO 触发时被 short-circuit
+    if(frame) frame.__queued = false;
     if(!frame || frame.__loaded) continue;
 
     // ─── 进槽位前先确保 HTML 已就绪 ───
@@ -717,6 +721,7 @@ function _drainFrameQueue(){
           loader.ensureDoc(key).then(function(){
             frame.__fetching = false;
             // 拿到 HTML 后回到队首（视觉上更连贯）
+            frame.__queued = true;
             frameLoadQueue.unshift(frame);
             _drainFrameQueue();
           });
@@ -756,7 +761,27 @@ function _hideCardPreview(frame){
   setTimeout(function(){ if(p && p.parentNode) p.style.display = 'none'; }, 280);
 }
 function loadLazyFrame(frame){
-  if(!frame || frame.__loaded || frame.__queued) return;
+  if(!frame || frame.__queued) return;
+  // 已加载过的 frame：检查 iframe 内文档是不是被浏览器卸载（重资源卡离开视口太久
+  // 浏览器会回收 canvas / WebGL / DOM backing store，回来时 contentDocument 是空的）。
+  // 如果空了 → 重置 __loaded 让队列重写 srcdoc；不空 → resumeFrame 即可。
+  if(frame.__loaded){
+    var alive = false;
+    try{
+      var doc = frame.contentDocument;
+      alive = !!(doc && doc.body && doc.body.childNodes.length > 0);
+    }catch(_){ alive = true; }   // cross-origin 视为 alive
+    if(alive) return;
+    // 卸载 → 重置标志，重新进队列写 srcdoc；同时把 preview overlay 显回来盖住空白
+    frame.__loaded = false;
+    frame.__fetching = false;
+    if(frame.__preview){
+      var p = frame.__preview;
+      p.__hiding = false;
+      p.classList.remove('is-hiding');
+      p.style.display = '';
+    }
+  }
   frame.__queued = true;
   frameLoadQueue.push(frame);
   _drainFrameQueue();
