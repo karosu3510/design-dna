@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>a.Record · Component · Pill</title>
+<link rel="stylesheet" href="../design-system.css">
+<style>
+  body{display:grid;place-items:center;min-height:100vh;background:var(--ar-c-bg);padding:40px}
+  .demo-stage{display:flex;flex-direction:column;gap:32px;align-items:flex-start}
+  .demo-tag{position:absolute;top:18px;left:24px;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--ar-c-ink-3);font-weight:500}
+  .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  .row-label{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--ar-c-ink-3);font-weight:500;margin-bottom:8px}
+  .pill-mic{height:32px;padding:0 14px 0 12px;border-radius:999px;background:var(--ar-c-shell);border:1px solid var(--ar-c-line);display:inline-flex;align-items:center;gap:8px;font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--ar-c-ink-2);font-weight:500;box-shadow:var(--ar-shadow-pill)}
+  .pill-dark{height:34px;padding:0 18px;border-radius:999px;background:var(--ar-c-ink);color:#fff;font-size:12.5px;border:0;display:inline-flex;align-items:center;gap:8px;font-weight:500}
+  .pill-rec{height:34px;padding:0 14px;border-radius:999px;background:var(--ar-c-rec);color:#fff;font-size:12.5px;border:0;display:inline-flex;align-items:center;gap:8px;font-weight:500}
+</style>
+</head>
+<body>
+<span class="demo-tag">02 · ar-pill</span>
+<div class="demo-stage">
+  <div>
+    <div class="row-label">Default</div>
+    <div class="row">
+      <button class="ar-pill">About session</button>
+      <button class="ar-pill">Studio settings</button>
+      <button class="ar-pill">Export</button>
+    </div>
+  </div>
+  <div>
+    <div class="row-label">With icon</div>
+    <div class="row">
+      <span class="pill-mic">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="2" width="6" height="11" rx="3"/><path d="M5 10v2a7 7 0 0 0 14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/></svg>
+        Neumann U87
+      </span>
+    </div>
+  </div>
+  <div>
+    <div class="row-label">Solid · primary action</div>
+    <div class="row">
+      <button class="pill-dark">Stop session</button>
+      <button class="pill-rec">● Recording</button>
+    </div>
+  </div>
+</div>
+</body>
+</html>

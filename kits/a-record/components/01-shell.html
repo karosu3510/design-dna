@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>a.Record · Component · Shell</title>
+<link rel="stylesheet" href="../design-system.css">
+<style>
+  body{display:grid;place-items:center;min-height:100vh;background:var(--ar-c-bg);padding:40px}
+  .demo-shell{width:944px;height:520px;display:grid;grid-template-rows:auto 1fr;gap:20px}
+  .demo-tag{position:absolute;top:18px;left:24px;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--ar-c-ink-3);font-weight:500}
+</style>
+</head>
+<body>
+<span class="demo-tag">01 · ar-shell</span>
+<div class="ar-shell demo-shell">
+  <div class="ar-row ar-row--between">
+    <div class="ar-row" style="gap:14px">
+      <div style="width:18px;height:18px;border-radius:50%;background:var(--ar-c-ink);position:relative;overflow:hidden">
+        <span style="position:absolute;left:6px;top:0;width:8px;height:18px;background:var(--ar-c-shell);border-radius:8px"></span>
+      </div>
+      <span style="font-size:15px;font-weight:500;color:var(--ar-c-ink)">a.Record</span>
+    </div>
+    <button class="ar-pill">Settings</button>
+  </div>
+  <div class="ar-panel">
+    <h1 class="ar-h1">Outer rounded surface</h1>
+    <p class="ar-body" style="margin-top:10px">The cream-on-white shell anchors every a.Record layout. It owns the 30px radius, the soft elevation, and the 28px content padding.</p>
+  </div>
+</div>
+</body>
+</html>

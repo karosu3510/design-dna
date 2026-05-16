@@ -157,5 +157,50 @@ If you need a new component:
    or as a second muted accent (e.g. studio green) — never a saturated UI color.
 3. Numbers always Geist Mono. Words always Inter.
 
+---
+
+## 10. Component library
+
+The kit ships 8 live, self-contained component demos under `components/`.
+Each is a standalone HTML file — open it in a browser, view source, copy
+the snippet you need.
+
+| #  | File                          | Component       | What it teaches |
+| -- | ----------------------------- | --------------- | ----------------- |
+| 01 | `01-shell.html`               | Outer shell     | 30px radius, 28px padding, soft elevation |
+| 02 | `02-pill.html`                | Pill button     | Default / icon / dark / red variants |
+| 03 | `03-glass-panel.html`         | Glass panel     | `backdrop-filter: blur(18px) saturate(1.05)` over a colored hero |
+| 04 | `04-status-dot.html`          | Status dot      | Pulsing red recording dot + idle gray variant |
+| 05 | `05-mono-display.html`        | Mono display    | Geist Mono with tabular-nums for elapsed / level / storage |
+| 06 | `06-meter-ring.html`          | Meter ring      | Animated SVG ring with low-pass smoothing (0.18 fast, 0.05 slow) |
+| 07 | `07-spectrum-bars.html`       | Spectrum bars   | 28-bar CSS animation, ink-4 + 2-tone shading |
+| 08 | `08-cap-label.html`           | Cap label       | Uppercase 10.5px caption + section heading pattern |
+
+**Composition rule**: every screen in this system is built from these 8
+blocks plus `.ar-grid-side` / `.ar-stack` / `.ar-row` layout helpers.
+If you find yourself authoring a 9th component, ask whether it can be
+expressed as a composition first.
+
+---
+
+## 11. AI integration
+
+This kit ships a dedicated AI prompt artifact: [`ai-prompt.md`](./ai-prompt.md).
+
+Three drop-in surfaces:
+1. **Cursor / Claude rule** — paste into `.cursorrules` to prime any code
+   generation in this project.
+2. **Generation template** — wrap any prompt with the constraints block
+   so one-shot AI requests stay in style.
+3. **AI-readable JSON** — for tooling, MCP servers, or function-calling
+   pipelines.
+
+The rule is intentionally strict ("no second accent color, no display
+serifs, no purple gradients"). It prevents the model from drifting
+toward generic "AI UI" defaults.
+
+---
+
 When in doubt, reference [`index.html`](./index.html) — it is the
-canonical example of every token in use.
+canonical browser-based documentation, with every token, every
+component, and both example pages rendered live in one scroll.

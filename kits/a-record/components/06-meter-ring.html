@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>a.Record · Component · Meter ring</title>
+<link rel="stylesheet" href="../design-system.css">
+<style>
+  body{display:grid;place-items:center;min-height:100vh;background:var(--ar-c-bg);padding:40px}
+  .demo-tag{position:absolute;top:18px;left:24px;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--ar-c-ink-3);font-weight:500}
+  .stage{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;width:560px}
+  .gauge{height:200px;background:var(--ar-c-shell);border:1px solid var(--ar-c-line-2);border-radius:14px;padding:16px 14px 12px;display:flex;flex-direction:column;align-items:center;box-shadow:var(--ar-shadow-pill)}
+  .gauge .cap{font-size:10.5px;font-weight:500;color:var(--ar-c-ink-3);letter-spacing:.18em;text-transform:uppercase;align-self:flex-start}
+  .ring{position:relative;margin-top:8px;width:130px;height:130px}
+  .ring svg{display:block;width:100%;height:100%;transform:rotate(-90deg)}
+  .ring svg circle{transition:stroke-dasharray .12s linear}
+  .ring .num{position:absolute;inset:0;display:grid;place-items:center}
+  .ring .num em{font-style:normal;font-family:var(--ar-font-mono);font-weight:200;font-size:26px;letter-spacing:-0.03em;display:block;text-align:center;font-variant-numeric:tabular-nums;color:var(--ar-c-ink)}
+  .ring .num small{display:block;font-size:9.5px;color:var(--ar-c-ink-3);letter-spacing:.2em;text-transform:uppercase;margin-top:4px;text-align:center}
+</style>
+</head>
+<body>
+<span class="demo-tag">06 · meter ring</span>
+<div class="stage">
+  <div class="gauge">
+    <span class="cap">Input level</span>
+    <div class="ring">
+      <svg viewBox="0 0 120 120">
+        <circle cx="60" cy="60" r="50" fill="none" stroke="rgba(28,28,26,.06)" stroke-width="6"/>
+        <circle id="ringInput" cx="60" cy="60" r="50" fill="none" stroke="var(--ar-c-ink)" stroke-width="6" stroke-linecap="round" stroke-dasharray="220 314"/>
+      </svg>
+      <div class="num"><em id="numInput">−11</em><small>dBFS</small></div>
+    </div>
+  </div>
+  <div class="gauge">
+    <span class="cap">Loudness</span>
+    <div class="ring">
+      <svg viewBox="0 0 120 120">
+        <circle cx="60" cy="60" r="50" fill="none" stroke="rgba(28,28,26,.06)" stroke-width="6"/>
+        <circle id="ringLoud" cx="60" cy="60" r="50" fill="none" stroke="var(--ar-c-ink-2)" stroke-width="6" stroke-linecap="round" stroke-dasharray="155 314"/>
+      </svg>
+      <div class="num"><em id="numLoud">−15</em><small>LUFS</small></div>
+    </div>
+  </div>
+</div>
+<script>
+  // Demo: animate input/loudness with low-pass smoothing (matches a.Record's recipe).
+  var CIRC = 2 * Math.PI * 50;
+  function animate(circleEl, numEl, range, retargetMs, smoothing){
+    var target = (range[0]+range[1])/2, value = target;
+    setInterval(function(){ target = range[0] + Math.random()*(range[1]-range[0]); }, retargetMs);
+    function tick(){
+      value += (target - value) * smoothing;
+      var pct = (value - range[0]) / (range[1] - range[0]); // 0..1
+      var dash = Math.max(0, Math.min(1, pct)) * CIRC;
+      circleEl.setAttribute('stroke-dasharray', dash + ' ' + CIRC);
+      numEl.textContent = '−' + Math.round(-value);
+      requestAnimationFrame(tick);
+    }
+    tick();
+  }
+  animate(document.getElementById('ringInput'), document.getElementById('numInput'), [-16,-6], 280, 0.18);
+  animate(document.getElementById('ringLoud'),  document.getElementById('numLoud'),  [-18,-12], 1400, 0.05);
+</script>
+</body>
+</html>
