@@ -177,50 +177,21 @@ function _mountIframe(card){
   card.__liveFrame = f;
 }
 
-// LIVE_BUDGET：同时 mount 的非 dashboard iframe 上限。WebGL/Three.js 重资源卡（gpu-io-fluid /
-// delphi-three / cinematic-3d-scroll / pixel-transition / webgl-magazine / card-beam-animation 等）
-// 单张就能吃掉一个 GPU 通道；超过 4 张就会把 tab 主线程吃死，hover/click 全部失灵。Variant 实测同时
-// 活 ≤ 4-5 张。这里取 4 留余量给 5 张常驻 dashboard。
-var LIVE_BUDGET = 4;
-var liveOrder = []; // 仅排队非 dashboard 卡（dashboard 不进队，不占预算）
-
-function _evictIfOverBudget(){
-  // liveOrder 里只有非 dashboard 卡。超过预算就踢「不在视口」的，没有就踢最早进入的。
-  while(liveOrder.length > LIVE_BUDGET){
-    var victim = null, victimIdx = -1;
-    for(var i = 0; i < liveOrder.length; i++){
-      if(!liveOrder[i].__visible){ victim = liveOrder[i]; victimIdx = i; break; }
-    }
-    if(!victim){ victim = liveOrder[0]; victimIdx = 0; }
-    liveOrder.splice(victimIdx,1);
-    _unmountLive(victim);
-  }
-}
+// 视口里能看到的卡都活，离屏全部 unmount。
+// rootMargin=120px 已经把"intersecting"限制到真实可见区域附近，靠 IntersectionObserver
+// 自然行为决定 mount/unmount 集合即可，无需再叠 LIVE_BUDGET——那只会踢掉用户正在看的卡。
+// dashboard 5 张照旧常驻，浏览器对完全离屏的 iframe 自动 throttle。
 
 var _liveObserver = ('IntersectionObserver' in window) ? new IntersectionObserver(function(entries){
   entries.forEach(function(e){
     var card = e.target;
     card.__visible = e.isIntersecting;
     if(e.isIntersecting){
-      if(!card.__live){
-        _mountIframe(card);
-        // dashboard 不进 liveOrder（不占预算，常驻）；其它卡进队列做 LRU
-        if(!card.__isDashboard){
-          liveOrder.push(card);
-          _evictIfOverBudget();
-        }
-      }
+      if(!card.__live) _mountIframe(card);
     } else {
-      // dashboard 卡（5 张）一旦 mount 就常驻：
-      // 1) 反复 unmount/remount 会重新 parse 几十 KB srcdoc + 重启内部 RAF，
-      //    滚回顶部时 5 张同时排队会让主线程卡死。
-      // 2) 浏览器对完全离屏的 iframe 会自动 throttle 内部动画，CPU 负担可忽略。
+      // dashboard 卡常驻，离屏不卸载（浏览器自动 throttle）
       if(card.__isDashboard) return;
-      if(card.__live){
-        var idx = liveOrder.indexOf(card);
-        if(idx >= 0) liveOrder.splice(idx, 1);
-        _unmountLive(card);
-      }
+      if(card.__live) _unmountLive(card);
     }
   });
 },{ rootMargin:'120px 0px 120px 0px' }) : null;
