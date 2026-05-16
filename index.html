@@ -705,15 +705,28 @@ var _liveObserver = ('IntersectionObserver' in window) ? new IntersectionObserve
   entries.forEach(function(e){
     var card = e.target;
     card.__visible = e.isIntersecting;
+    var v = card.__videoEl;
     if(e.isIntersecting){
       if(liveQueue.indexOf(card) < 0) liveQueue.push(card);
+      // 视口内才让 video 真正播放，避免 29 个 video 同时跑把主线程/GPU 吃干
+      if(v){
+        try{
+          // 重新挂 src（之前可能被卸载）
+          if(!v.src) v.src = 'posters/' + card.__slug + '.webm';
+          v.play().catch(function(){});
+        }catch(_){}
+      }
     } else {
       var i = liveQueue.indexOf(card); if(i>=0) liveQueue.splice(i,1);
       _unmountLive(card);
+      // 离屏：暂停视频但保留首帧 poster；下次进入视口立刻 play()
+      if(v){
+        try{ v.pause(); }catch(_){}
+      }
     }
   });
   _balanceLive();
-},{ rootMargin:'120px 0px 120px 0px' }) : null;
+},{ rootMargin:'400px 0px 400px 0px' }) : null;
 window.addEventListener('scroll', function(){
   // 滚动会改变与视口中心的距离，需要重排
   if(_liveObserver) _balanceLive();
@@ -821,8 +834,10 @@ function makeCardEl(d){
       v.style.width = LOGICAL_W + 'px';
       v.style.transformOrigin = 'top left';
     }
-    v.muted = true; v.loop = true; v.autoplay = true; v.playsInline = true;
-    v.setAttribute('preload','auto');
+    v.muted = true; v.loop = true; v.playsInline = true;
+    // 不设 autoplay：由 _liveObserver 在视口内手动 play()，离屏 pause()。
+    // 全量 autoplay 会让 29 个 video 同时解码，挤占 GPU/主线程，导致首屏卡片 RAF 被节流变静态。
+    v.setAttribute('preload','metadata');
     v.poster = 'posters/' + slug + '.jpg';
     v.src = 'posters/' + slug + '.webm';
     card.appendChild(v);
