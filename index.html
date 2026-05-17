@@ -4,6 +4,15 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Design DNA — endless designs, just scroll</title>
+<!-- 站点 favicon：用 logo.png（青蛙）做主图标，加 apple-touch + og:image 一并兼容 Linear/Slack/iMessage 的 link preview -->
+<link rel="icon" type="image/png" href="logo.png?v=22" sizes="any">
+<link rel="apple-touch-icon" href="logo.png?v=22">
+<link rel="shortcut icon" href="logo.png?v=22">
+<meta property="og:image" content="https://karosu3510.github.io/design-dna/logo.png?v=22">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://karosu3510.github.io/design-dna/logo.png?v=22">
+<meta property="og:title" content="Design DNA — endless designs, just scroll">
+<meta property="og:description" content="A curated feed of design inspiration. 1100×720 cards, real animations, no slop.">
 <!-- POSTER 缓存版本：每次替换 posters/*.jpg 时手动 +1，让浏览器立刻拉新图。 -->
 <script>window.POSTER_VERSION = '22';</script>
 <!-- 大尺寸 stub 预览图 preload：让浏览器在主线程层就开始拉，等 iframe srcdoc 挂载时直接命中 HTTP cache，避免首次进卡 1-2s 白屏 -->
