@@ -3,8 +3,9 @@ html,body{min-height:720px;background:#eee;}
 body{overflow:auto;}
 main{min-height:720px;}
 .frame{font-size:12px;}
-.content{padding-top:96px;}
-.content__text{font-size:clamp(2.1rem,3.25vw,3.7rem);line-height:1.05;}
+/* 内容容器限宽并居中，文字与图片网格用同一最大宽 */
+.content{padding-top:96px;max-width:990px;margin-inline:auto;padding-inline:24px;box-sizing:border-box;}
+.content__text{font-size:clamp(2.1rem,3.25vw,3.7rem);line-height:1.05;margin-inline:0;}
 .content__title{font-size:1.45rem;margin-top:34px;margin-bottom:22px;}
 .grid{margin-inline:auto;max-width:990px;}
 .content__more{font-size:1.05rem;}
