@@ -144,23 +144,37 @@ function _injectPauseScript(html){
 // 详情页 / 提取 DNA / 复制代码路径不变，仍能跳到真页面。
 
 function _buildPosterSrcdoc(slug){
-  // 1100×720 静态图卡片，黑底，只有一张 jpg。无脚本，无 RAF，几乎 0 资源消耗。
+  // 备用：dashboard 没录 jpg 就不走这条；外链卡现在走 <img> 直挂路径，不再 srcdoc。
   return '<!doctype html><html><head><style>html,body{margin:0;padding:0;background:#0a0a0a;width:1100px;height:720px;overflow:hidden}img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;-webkit-user-drag:none}</style></head><body><img src="posters/'+slug+'.jpg" alt=""></body></html>';
 }
 
 function _loadFrame(card){
   if(!card || card.__loaded) return;
-  var f = card.__frame;
-  if(!f) return;
   card.__loaded = true;
-  // 外链卡 → jpg 静态预览（13 点前的产品形态）
-  // dashboard 卡 → 完整 srcdoc + pauseScript（保留 pause/resume）
+  // 外链卡 → 直接挂 <img> 元素铺满卡片（不走 iframe，零开销）
+  // dashboard 卡 → iframe srcdoc + pauseScript（保留 pause/resume）
   if(card.__extUrl && card.__slug){
-    f.srcdoc = _buildPosterSrcdoc(card.__slug);
-  } else if(card.__doc){
-    f.srcdoc = _injectPauseScript(card.__doc);
-  } else if(card.__extUrl){
-    f.src = card.__extUrl;
+    var img = document.createElement('img');
+    img.className = 'card-frame card-poster-fill';
+    img.alt = '';
+    img.loading = 'lazy';
+    img.decoding = 'async';
+    img.src = 'posters/' + card.__slug + '.jpg';
+    // 替换原 iframe 节点
+    if(card.__frame && card.__frame.parentNode){
+      card.__frame.parentNode.replaceChild(img, card.__frame);
+    } else {
+      card.appendChild(img);
+    }
+    card.__frame = img; // 保留引用，applyRowSpan 不会再改它（img 不需要 transform scale）
+  } else {
+    var f = card.__frame;
+    if(!f) return;
+    if(card.__doc){
+      f.srcdoc = _injectPauseScript(card.__doc);
+    } else if(card.__extUrl){
+      f.src = card.__extUrl;
+    }
   }
   // 揭开 preview
   card.classList.add('is-live');
@@ -298,8 +312,9 @@ function makeCardEl(d){
       var scale = Math.min(1, cardW / LOGICAL_W);
       var tf = 'scale(' + scale + ')';
       card.__frameTransform = tf;
-      // 同步给已挂的 iframe（dashboard srcdoc 或外链 src）
-      if(card.__frame) card.__frame.style.transform = tf;
+      // 同步给已挂的 iframe（dashboard srcdoc 或外链 src）。
+      // img 占位（外链卡降级路径）走 object-fit:cover 自动适配，不要 transform。
+      if(card.__frame && card.__frame.tagName !== 'IMG') card.__frame.style.transform = tf;
       cardH = Math.round((d.height || 360) * scale) + 2;
     } else {
       cardH = fallbackH;
