@@ -13,6 +13,6 @@ body{display:grid;place-items:center}
 </style>
 </head>
 <body>
-<img class="preview" src="https://karosu3510.github.io/design-dna/cinematic-3d-scroll-preview.jpg?v=202605161250" alt="Cinematic 3D Scroll cylinder preview" />
+<img class="preview" src="https://karosu3510.github.io/design-dna/cinematic-3d-scroll-preview.jpg?v=202605171322" alt="Cinematic 3D Scroll cylinder preview" loading="eager" decoding="sync" />
 </body>
 </html>`;
