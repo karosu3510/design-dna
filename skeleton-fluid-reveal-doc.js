@@ -13,6 +13,6 @@ body{display:grid;place-items:center}
 </style>
 </head>
 <body>
-<img class="preview" src="https://karosu3510.github.io/design-dna/skeleton-fluid-preview.png?v=202605151348" alt="Skeleton Fluid Reveal x-ray preview" />
+<img class="preview" src="https://karosu3510.github.io/design-dna/skeleton-fluid-preview.jpg?v=202605171333" alt="Skeleton Fluid Reveal x-ray preview" loading="eager" decoding="sync" />
 </body>
 </html>`;

@@ -563,6 +563,13 @@ function openDetail(d, opts){
     'nathan-smith',
     'lorenzo-daldosso',
     'carrot-tech',
+    // stub-doc 重 GPU 卡：feed 是预览图，详情必须加载真 module script
+    // iframe 内嵌时 about:srcdoc 沙盒坑 + 缓存层 + WebGPU 初始化 → 详情页要等 3-5s
+    // 直接整页跳 externalUrl，浏览器原生承载，最稳最快
+    'skeleton-fluid-reveal',  // WebGPU + 885KB module js
+    'cinematic-3d-scroll',    // GSAP + 2.9MB GLB + module js
+    'webgl-magazine',         // OGL + module js
+    'superhi-plus',           // 整站 SuperHi 克隆，module js
   ]);
   if(d.styleLock && STANDALONE_SITE_SLUGS.has(d.styleLock) && d.externalUrl){
     // 加 ?v=POSTER_VERSION 破缓存，确保改过的真站点 HTML 立刻生效
