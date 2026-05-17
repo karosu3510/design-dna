@@ -102,6 +102,19 @@ design-dna 的真实例子：13:00 前 `webgl-magazine-doc.js` 是 716 字节的
 - karo 一旦说出「你不要拍脑袋 / 仔细看一下」，立刻停止当前思路，做考古，不要继续凭直觉打补丁。
 - 每次新 patch 之前问自己：**「我能用代码证明我的诊断对吗？」** 答不上来就先去找证据。
 
+## 七、替换被强缓存的资源时必须 bump cache-busting version
+
+> 2026-05-17 12:33：karo 看到 jpg 没换，其实线上文件已替换，但浏览器 30 天缓存了旧版。
+
+替换以下任何一类资源必须同时 bump `window.POSTER_VERSION`：
+- `posters/<slug>.jpg`（feed/详情 poster）
+- 任何被 CDN/浏览器长缓存的图片、字体、视频
+
+bump 流程：`index.html` 顶部 `window.POSTER_VERSION = 'N'` → N+1。所有 `posters/*.jpg` 引用都自动通过 `?v=` 拼上去。
+
+**rule**：完成"替换 jpg / png / webm"的 commit 之前，强制检查 git diff 里是否同时改了 POSTER_VERSION。没改就停下来加上。
+
+
 ## 当前 feed 架构（终态约定，2026-05-17 11:31 main `24ae588`）
 
 3 层混合：
