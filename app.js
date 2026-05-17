@@ -173,7 +173,9 @@ function _loadFrame(card){
     img.alt = '';
     img.loading = 'lazy';
     img.decoding = 'async';
-    img.src = 'posters/' + slug + '.jpg';
+    // ?v=POSTER_VERSION 是 cache-busting 参数：每次刷新 poster 时改 version 让所有
+    // 用户立刻看到新图，不用等浏览器缓存过期。新 poster 替换后顺手 bump 一下。
+    img.src = 'posters/' + slug + '.jpg?v=' + (window.POSTER_VERSION || '1');
     if(card.__frame && card.__frame.parentNode){
       card.__frame.parentNode.replaceChild(img, card.__frame);
     } else {
@@ -299,7 +301,7 @@ function makeCardEl(d){
   const preview = document.createElement('div');
   preview.className = 'card-preview';
   // dashboard 没录 jpg poster，退回纯渐变 + 标题
-  var posterUrl = hasExt ? ('posters/' + slug + '.jpg') : '';
+  var posterUrl = hasExt ? ('posters/' + slug + '.jpg?v=' + (window.POSTER_VERSION || '1')) : '';
   preview.innerHTML =
     (posterUrl ? '<img class="card-poster" alt="" loading="lazy" src="'+posterUrl+'"/>' : '') +
     '<div class="card-preview-shimmer"></div>'+
@@ -593,7 +595,7 @@ function openDetail(d, opts){
   if(isHeavy && d.doc && !docIsStub){
     // 重 GPU 卡：第 1 帧先 jpg poster 让用户 0ms 看到画面，下一个事件循环再注入真 doc
     const slug = d.styleLock;
-    const posterDoc = '<!doctype html><html><head><style>html,body{margin:0;padding:0;background:#0a0a0a;width:100%;height:100%;overflow:hidden;display:grid;place-items:center;color:#aaa;font:13px -apple-system,sans-serif}img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;opacity:.92}.tip{position:relative;z-index:2;padding:8px 14px;background:rgba(0,0,0,.55);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.1);border-radius:999px;letter-spacing:.02em}</style></head><body><img src="posters/'+slug+'.jpg"><div class="tip">载入交互体验...</div></body></html>';
+    const posterDoc = '<!doctype html><html><head><style>html,body{margin:0;padding:0;background:#0a0a0a;width:100%;height:100%;overflow:hidden;display:grid;place-items:center;color:#aaa;font:13px -apple-system,sans-serif}img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;opacity:.92}.tip{position:relative;z-index:2;padding:8px 14px;background:rgba(0,0,0,.55);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.1);border-radius:999px;letter-spacing:.02em}</style></head><body><img src="posters/'+slug+'.jpg?v='+(window.POSTER_VERSION||'1')+'"><div class="tip">载入交互体验...</div></body></html>';
     frame.srcdoc = posterDoc;
     setTimeout(function(){ frame.srcdoc = reset + d.doc; }, 80);
   } else if(d.doc && !docIsStub){
@@ -605,7 +607,7 @@ function openDetail(d, opts){
     // 第一帧先用 jpg poster + spinner 给视觉反馈，避免白屏。
     const reqId = ++_detailReqSeq;
     const slug = d.styleLock || (d.externalUrl||'').replace(/\.html$/,'').split('/').pop();
-    var posterUrl = slug ? ('posters/'+slug+'.jpg') : '';
+    var posterUrl = slug ? ('posters/'+slug+'.jpg?v='+(window.POSTER_VERSION||'1')) : '';
     var loadingDoc = '<!doctype html><html><head><style>html,body{margin:0;padding:0;background:#0a0a0a;width:100%;height:100%;overflow:hidden;display:grid;place-items:center;color:#aaa;font:13px -apple-system,sans-serif}img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;opacity:.92}.tip{position:relative;z-index:2;padding:8px 14px;background:rgba(0,0,0,.55);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.1);border-radius:999px;letter-spacing:.02em}</style></head><body>'+(posterUrl?'<img src="'+posterUrl+'">':'')+'<div class="tip">载入交互体验...</div></body></html>';
     frame.removeAttribute('src');
     frame.srcdoc = loadingDoc;
