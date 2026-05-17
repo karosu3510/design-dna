@@ -178,6 +178,22 @@
   .detail-meta-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:0 2px;font-size:12.5px;color:var(--text-soft)}
   .detail-meta-row .dot{width:3px;height:3px;border-radius:50%;background:var(--text-mute)}
 
+  /* ─── Fullscreen 模式：站点克隆卡（marginalia / nathan-smith / lorenzo-daldosso / carrot-tech） ─── */
+  /* 这些卡本身就是真站点，详情页应当像 2026-05-16 13:00 前那样「整页全屏」展示，没有边框、没有侧栏挤压 */
+  .detail-view.fullscreen{left:0}
+  .detail-view.fullscreen .detail-top{position:fixed;top:0;left:0;right:0;background:rgba(20,20,20,.55);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid rgba(255,255,255,.06);z-index:5;height:44px;padding:0 16px;opacity:0;transform:translateY(-100%);transition:opacity .2s ease,transform .25s ease;pointer-events:none}
+  .detail-view.fullscreen .detail-top:hover,
+  .detail-view.fullscreen.crumb-hint .detail-top{opacity:1;transform:none;pointer-events:auto}
+  /* 顶部 6px hover 触发区，让用户能找到顶栏 */
+  .detail-view.fullscreen::before{content:'';position:fixed;top:0;left:0;right:0;height:8px;z-index:6}
+  .detail-view.fullscreen::before:hover ~ .detail-top,
+  .detail-view.fullscreen:hover .detail-top{opacity:1;transform:none;pointer-events:auto}
+  .detail-view.fullscreen .detail-body{padding:0;overflow:hidden;height:100vh}
+  .detail-view.fullscreen .detail-stage{width:100%;gap:0;height:100%}
+  .detail-view.fullscreen .detail-frame-wrap{border-radius:0;width:100% !important;height:100vh !important;margin:0 !important}
+  .detail-view.fullscreen .detail-frame{width:100% !important;height:100% !important;transform:none !important;position:relative !important}
+  .detail-view.fullscreen .detail-meta-row{display:none}
+
   .drawer-sub{font-size:12px;color:var(--text-mute)}
   .btn{display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 12px;border-radius:8px;font-size:12.5px;font-weight:500;border:1px solid var(--border-strong);background:transparent;color:var(--text);transition:background .15s ease}
   .btn:hover{background:rgba(255,255,255,0.04)}

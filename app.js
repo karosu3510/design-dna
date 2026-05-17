@@ -575,18 +575,18 @@ function openDetail(d, opts){
   const availH = Math.round(vh * 0.88);
 
   if(d.styleLock && RESPONSIVE_DETAIL_SLUGS.has(d.styleLock)){
-    // 自适应网站卡：iframe 100% 宽高填满详情区，不 scale
-    wrap.style.width = '100%';
-    wrap.style.height = availH + 'px';
-    wrap.style.margin = '0 auto';
-    wrap.style.position = 'relative';
-    frame.style.width = '100%';
-    frame.style.height = '100%';
-    frame.style.transform = 'none';
-    frame.style.position = 'absolute';
-    frame.style.top = '0';
-    frame.style.left = '0';
+    // 自适应网站卡：进入「全屏模式」——left:0 顶到屏幕边、隐藏顶栏（hover 显示）、
+    // iframe 100vh 真全屏，跟 2026-05-16 13:00 前 window.location.href 跳转的全屏视觉一致
+    detailView.classList.add('fullscreen');
+    // 进场 1.5s 给一个顶栏 hint，让用户知道有返回入口
+    detailView.classList.add('crumb-hint');
+    setTimeout(function(){ detailView.classList.remove('crumb-hint'); }, 1600);
+    // 清掉 fixed 卡用的 inline 样式，避免污染（CSS !important 已兜底，但保持 inline 干净）
+    wrap.style.cssText = '';
+    frame.style.cssText = '';
   } else {
+    detailView.classList.remove('fullscreen');
+    detailView.classList.remove('crumb-hint');
     // fixed 1100×720 卡：scale 放大铺满
     const LOGICAL_W = 1100, LOGICAL_H = (d.height || 720);
     const scale = Math.min(stageW / LOGICAL_W, availH / LOGICAL_H);
@@ -656,6 +656,8 @@ function openDetail(d, opts){
 var _detailReqSeq = 0;
 function closeDetail(opts){
   detailView.classList.remove('open');
+  detailView.classList.remove('fullscreen');
+  detailView.classList.remove('crumb-hint');
   detailView.setAttribute('aria-hidden','true');
   document.body.classList.remove('is-detail');
   // 清空 iframe 以释放内存
