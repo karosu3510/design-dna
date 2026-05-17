@@ -552,6 +552,26 @@ function openDetail(d, opts){
   //   - 轻量外链卡（有 d.doc）：直接 srcdoc=d.doc（feed srcdoc 的内容跟 .html 里几乎一样），0ms 显示。
   //   - 重 GPU 卡（HEAVY_GPU_SLUGS）：先显示 1100×720 jpg poster + spinner（0ms 视觉反馈），
   //     后台 fetch externalUrl HTML，得到后写 srcdoc。这样视觉上立刻有图，1-3s 后真页面无缝替换。
+  //
+  // ─── 站点克隆卡例外：直接整页跳（回滚 2026-05-16 13:00 前方案） ───
+  // marginalia / nathan-smith / lorenzo-daldosso / carrot-tech 这类「真站点」卡，
+  // iframe 内嵌总会有顶栏/边距/缓存层各种坑（karo 反复反馈"还是没改"）。
+  // 直接 window.location.href = externalUrl，让浏览器原生承载真站点，所见即所得。
+  // 返回路径靠 marginalia.html 自己的 ".back" 链接 + 浏览器 ← 后退键。
+  const STANDALONE_SITE_SLUGS = new Set([
+    'marginalia',
+    'nathan-smith',
+    'lorenzo-daldosso',
+    'carrot-tech',
+  ]);
+  if(d.styleLock && STANDALONE_SITE_SLUGS.has(d.styleLock) && d.externalUrl){
+    // 加 ?v=POSTER_VERSION 破缓存，确保改过的真站点 HTML 立刻生效
+    var v = (window.POSTER_VERSION || '1');
+    var sep = d.externalUrl.indexOf('?') >= 0 ? '&' : '?';
+    window.location.href = d.externalUrl + sep + 'v=' + v;
+    return;
+  }
+
   const frame = document.getElementById('dFrame');
   // 详情页：移除 sandbox 让 iframe 用真实同源 origin（webgl-magazine 这种 module script
   // 必须真实 origin 才能跑起来，sandbox=allow-scripts 会让它在 about:srcdoc origin 下
