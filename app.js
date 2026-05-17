@@ -158,6 +158,7 @@ var HEAVY_GPU_SLUGS = new Set([
   'gpu-io-fluid',         // 真 WebGL fluid sim
   'scroll-3d-grid',       // 51KB GSAP+Lenis+ScrollTrigger
   'book-gallery-3d',      // 5 张高清外链图 + 3D transform
+  'vortex-gallery',       // Three.js 600 instancedMesh + atlas + GLSL 旋涡
 ]);
 
 function _loadFrame(card){
@@ -587,6 +588,7 @@ function openDetail(d, opts){
     // 13:00 前默认就是 window.location 跳真页面，整页 flex centered 完美展示
     'lucid-drift',            // .card 居中卡片，aspect-ratio 3:4
     'makeway-grid-effect',    // Codrops 演示页，body min-height + 长内容滚动，iframe 嵌不下
+    'vortex-gallery',         // Three.js 600 instances 旋涡 wheel-driven，要全屏 fixed canvas + wheel 拦截
   ]);
   if(d.styleLock && STANDALONE_SITE_SLUGS.has(d.styleLock) && d.externalUrl){
     // 加 ?v=POSTER_VERSION 破缓存，确保改过的真站点 HTML 立刻生效
@@ -1321,6 +1323,14 @@ function buildPinnedFor(styleId, headlineFallback){
       id:'d-delphi-three', styleId:'delphi-three', styleLabel:'Three.js tunnel', sref:'delphi-three-pin', prompt:'Delphi Three clone yourself infinite 3D perspective grid tunnel', pinned:true,
       title:'Delphi · Clone yourself', height:720, styleLock:'delphi-three',
       doc: (typeof DELPHI_THREE_DOC !== 'undefined') ? DELPHI_THREE_DOC : '', externalUrl:'delphi-three.html'
+    });
+  } catch(_){}
+  // Vortex Gallery — J0SUKE Three.js 600 instances + atlas + GLSL 旋涡
+  try {
+    firstBatch.push({
+      id:'d-vortex-gallery', styleId:'vortex-gallery', styleLabel:'WebGL vortex gallery', sref:'j0suke-vortex-gallery', prompt:'J0SUKE vortex gallery Three.js 600 instanced photo cylinder wheel-driven spin', pinned:true,
+      title:'Vortex Gallery · Wheel-driven photo cylinder', height:720, styleLock:'vortex-gallery',
+      doc: (typeof VORTEX_GALLERY_DOC !== 'undefined') ? VORTEX_GALLERY_DOC : '', externalUrl:'vortex-gallery.html'
     });
   } catch(_){}
   // WebGL Magazine — source-based WebGL magazine carousel
