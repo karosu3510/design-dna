@@ -586,6 +586,7 @@ function openDetail(d, opts){
     // 自适应卡片型（min-height:100vh + place-items:center，iframe scale 会上下截断）
     // 13:00 前默认就是 window.location 跳真页面，整页 flex centered 完美展示
     'lucid-drift',            // .card 居中卡片，aspect-ratio 3:4
+    'makeway-grid-effect',    // Codrops 演示页，body min-height + 长内容滚动，iframe 嵌不下
   ]);
   if(d.styleLock && STANDALONE_SITE_SLUGS.has(d.styleLock) && d.externalUrl){
     // 加 ?v=POSTER_VERSION 破缓存，确保改过的真站点 HTML 立刻生效
