@@ -148,25 +148,38 @@ function _buildPosterSrcdoc(slug){
   return '<!doctype html><html><head><style>html,body{margin:0;padding:0;background:#0a0a0a;width:1100px;height:720px;overflow:hidden}img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;-webkit-user-drag:none}</style></head><body><img src="posters/'+slug+'.jpg" alt=""></body></html>';
 }
 
+// 仅这几张外链卡走 jpg 静态降级——它们是真 WebGL/Three.js/重资源 GSAP+Lenis，
+// 同时跑会撞合成器物理上限。其它外链卡（CSS/canvas2D/轻量 GSAP）继续走真 srcdoc + pauseScript。
+// 13 点前 webgl-magazine / cinematic-3d-scroll / skeleton-fluid-reveal 的 doc.js 本身就是
+// 一张 <img>（不在这个白名单也不动画），现在新增 5 张重 GPU 卡进来对齐。
+var HEAVY_GPU_SLUGS = new Set([
+  'delphi-three',         // Three.js infinite tunnel
+  'card-beam-animation',  // Three.js + 12 个 THREE 调用
+  'gpu-io-fluid',         // 真 WebGL fluid sim
+  'scroll-3d-grid',       // 51KB GSAP+Lenis+ScrollTrigger
+  'book-gallery-3d',      // 5 张高清外链图 + 3D transform
+]);
+
 function _loadFrame(card){
   if(!card || card.__loaded) return;
   card.__loaded = true;
-  // 外链卡 → 直接挂 <img> 元素铺满卡片（不走 iframe，零开销）
-  // dashboard 卡 → iframe srcdoc + pauseScript（保留 pause/resume）
-  if(card.__extUrl && card.__slug){
+  var slug = card.__slug || '';
+  // 重 GPU 卡 → 直接挂 <img>（零开销，不耗 RAF/GPU context）
+  // 其它外链卡 → 真 srcdoc + pauseScript（恢复动画）
+  // dashboard 卡 → 真 srcdoc + pauseScript
+  if(card.__extUrl && HEAVY_GPU_SLUGS.has(slug)){
     var img = document.createElement('img');
     img.className = 'card-frame card-poster-fill';
     img.alt = '';
     img.loading = 'lazy';
     img.decoding = 'async';
-    img.src = 'posters/' + card.__slug + '.jpg';
-    // 替换原 iframe 节点
+    img.src = 'posters/' + slug + '.jpg';
     if(card.__frame && card.__frame.parentNode){
       card.__frame.parentNode.replaceChild(img, card.__frame);
     } else {
       card.appendChild(img);
     }
-    card.__frame = img; // 保留引用，applyRowSpan 不会再改它（img 不需要 transform scale）
+    card.__frame = img;
   } else {
     var f = card.__frame;
     if(!f) return;
