@@ -557,31 +557,53 @@ function openDetail(d, opts){
   // 必须真实 origin 才能跑起来，sandbox=allow-scripts 会让它在 about:srcdoc origin 下
   // 解析失败）。所有外链卡都是项目自己的页面，没有 cross-site 风险。
   frame.removeAttribute('sandbox');
-  // 详情页"全屏展示"：iframe 内部页面通常用 1100×720 硬编码尺寸（feed 卡的固定尺寸），
-  // 我们在外层套一层 transform: scale 让它铺满详情区。
-  // 计算：详情区可用宽度 = stage 宽度（min 1600 / 100%），可用高度 = 视口 92vh。
-  // scale = min(可用宽/1100, 可用高/720)，等比放大不超出。
+
+  // ─── 详情页 iframe 尺寸策略 ───
+  // 大多数卡是 1100×720 fixed（hero 海报型），需要 transform:scale 放大到视口。
+  // 但有些卡本身就是「自适应网站」（marginalia 用 grid+vw 布局），应该直接 100% 铺满，不要 scale。
+  // 把这些 slug 加进 RESPONSIVE_DETAIL_SLUGS 即可走原生铺满路径。
+  const RESPONSIVE_DETAIL_SLUGS = new Set([
+    'marginalia',          // Marginalia 杂志网站（grid + clamp(8.5vw)）
+    'nathan-smith',        // 站点克隆，自适应
+    'lorenzo-daldosso',    // 站点克隆，自适应
+    'carrot-tech',         // 站点克隆，自适应
+  ]);
   const wrap = frame.parentElement; // .detail-frame-wrap
   const stage = wrap && wrap.parentElement; // .detail-stage
   const stageW = (stage ? stage.clientWidth : window.innerWidth) || window.innerWidth;
   const vh = window.innerHeight || 900;
   const availH = Math.round(vh * 0.88);
-  const LOGICAL_W = 1100, LOGICAL_H = (d.height || 720);
-  const scale = Math.min(stageW / LOGICAL_W, availH / LOGICAL_H);
-  const renderedW = Math.round(LOGICAL_W * scale);
-  const renderedH = Math.round(LOGICAL_H * scale);
-  // wrap 容器尺寸 = 缩放后的视觉尺寸；iframe 设成逻辑尺寸 + scale transform
-  wrap.style.width = renderedW + 'px';
-  wrap.style.height = renderedH + 'px';
-  wrap.style.margin = '0 auto';
-  wrap.style.position = 'relative';
-  frame.style.width = LOGICAL_W + 'px';
-  frame.style.height = LOGICAL_H + 'px';
-  frame.style.transform = 'scale(' + scale + ')';
-  frame.style.transformOrigin = 'top left';
-  frame.style.position = 'absolute';
-  frame.style.top = '0';
-  frame.style.left = '0';
+
+  if(d.styleLock && RESPONSIVE_DETAIL_SLUGS.has(d.styleLock)){
+    // 自适应网站卡：iframe 100% 宽高填满详情区，不 scale
+    wrap.style.width = '100%';
+    wrap.style.height = availH + 'px';
+    wrap.style.margin = '0 auto';
+    wrap.style.position = 'relative';
+    frame.style.width = '100%';
+    frame.style.height = '100%';
+    frame.style.transform = 'none';
+    frame.style.position = 'absolute';
+    frame.style.top = '0';
+    frame.style.left = '0';
+  } else {
+    // fixed 1100×720 卡：scale 放大铺满
+    const LOGICAL_W = 1100, LOGICAL_H = (d.height || 720);
+    const scale = Math.min(stageW / LOGICAL_W, availH / LOGICAL_H);
+    const renderedW = Math.round(LOGICAL_W * scale);
+    const renderedH = Math.round(LOGICAL_H * scale);
+    wrap.style.width = renderedW + 'px';
+    wrap.style.height = renderedH + 'px';
+    wrap.style.margin = '0 auto';
+    wrap.style.position = 'relative';
+    frame.style.width = LOGICAL_W + 'px';
+    frame.style.height = LOGICAL_H + 'px';
+    frame.style.transform = 'scale(' + scale + ')';
+    frame.style.transformOrigin = 'top left';
+    frame.style.position = 'absolute';
+    frame.style.top = '0';
+    frame.style.left = '0';
+  }
   frame.removeAttribute('src');
 
   const isHeavy = !!d.styleLock && HEAVY_GPU_SLUGS && HEAVY_GPU_SLUGS.has(d.styleLock);
