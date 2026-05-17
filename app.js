@@ -637,7 +637,10 @@ function openDetail(d, opts){
     setTimeout(function(){
       if(reqId !== _detailReqSeq) return;
       frame.removeAttribute('srcdoc');
-      frame.src = d.externalUrl;
+      // cache-busting：detail 页静态 HTML 也按 POSTER_VERSION 破缓存，避免 marginalia.html
+      // 这种"已改过但浏览器仍持有旧 30 天缓存"的卡看不到更新
+      var detailV = (window.POSTER_VERSION || '1');
+      frame.src = d.externalUrl + (d.externalUrl.indexOf('?')>=0 ? '&' : '?') + 'v=' + detailV;
     }, 80);
   }
 
