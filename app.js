@@ -1559,6 +1559,16 @@ function buildPinnedFor(styleId, headlineFallback){
   }
   // 1) 首批立即渲染
   appendDesigns(pendingDesigns.splice(0, INITIAL_RENDER));
+  // 1.5) 初始 hash 路由：直接访问 #d/<id> URL 时打开对应详情页
+  // 之前只有 popstate 才触发 → 直接粘贴 URL 不会自动打开 → STANDALONE 跳转也不触发
+  // 这是 karo 反复反馈"还是没改好"的真正根因之一
+  setTimeout(function(){
+    var m = location.hash.match(/^#d\/(.+)$/);
+    if(m){
+      var d = designStore.get(m[1]);
+      if(d) openDetail(d, {skipHash:true});
+    }
+  }, 0);
   // 2) 用 requestIdleCallback / 退化的 setTimeout 在主线程空闲时分批续渲
   var _idle = window.requestIdleCallback || function(cb){ return setTimeout(function(){ cb({timeRemaining:function(){return 12;}, didTimeout:false}); }, 220); };
   function _idleAppend(){
