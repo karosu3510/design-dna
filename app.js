@@ -103,127 +103,78 @@ const designStore = new Map();
 const lazyFrames = new Set();
 
 // ═══════════════════════════════════════════════════════════════════
-// Variant 式 feed：iframe.src + jpg 占位 + IntersectionObserver 视口预算
+// Lazy iframe + pause/resume（回归 5/16 14:59 的 79f7cf9 架构）
 // ═══════════════════════════════════════════════════════════════════
-//   1. 默认每张卡是 <img class="card-poster"> 占位（来自 posters/<slug>.jpg），不挂 iframe。
-//   2. 进视口（含 rootMargin buffer）才挂 sandboxed <iframe src="<slug>.html">，
-//      离开视口立刻 iframe.src='about:blank' + 移除节点 → 释放 RAF / 内存。
-//   3. dashboard 5 张（无 externalUrl）走 srcdoc，同样按 observer 视口预算。
-//   4. 同时活的 iframe 数量由浏览器自动控制（视口能容纳的 + rootMargin 内的，约 6-9 张）。
-//      没有手写每帧 layout 的 scroll handler，主线程不会被锁。
-const liveSet = new Set();
-function _unmountLive(card){
-  if(!card || !card.__live) return;
-  card.__live = false;
-  liveSet.delete(card);
-  card.classList.remove('is-live');
-  if(card.__liveFrame){
-    try{ card.__liveFrame.src = 'about:blank'; }catch(_){}
-    if(card.__liveFrame.parentNode) card.__liveFrame.parentNode.removeChild(card.__liveFrame);
-    card.__liveFrame = null;
-  }
-  // 让 preview/poster 占位重新出现
-  var p = card.__preview;
-  if(p){
-    p.__hiding = false;
-    p.classList.remove('is-hiding');
-    p.style.display = '';
-  }
+// 经实测唯一不卡死且滚回顶不冷启动的方案：
+//   1. 每张卡创建时 iframe 节点已挂在 DOM 中（不写 srcdoc）。
+//   2. IntersectionObserver（rootMargin 300px）：
+//      - 进视口：首次 lazy 写入 srcdoc 启动 RAF；之后只发 resume。
+//      - 离屏：postMessage 给 iframe 发 pause（不卸载 iframe，不清 srcdoc）。
+//   3. iframe 内部劫持 requestAnimationFrame，pause 时 callback 进队列不丢，
+//      resume 时 flush 一次性重启全部链式回调。
+//      → 解决经典 bug：pause 丢 cb 会让 loop(){RAF(loop)} 链永久断。
+//   4. iframe 永不 unmount → 不会触发 Chrome 的 5-10s 冷启动延迟。
+// 同时 live 的 iframe 数 = 视口内 + rootMargin 内 ≈ 6-9，CPU 上限可控。
+
+// pauseScript 会注入到每张 iframe 的 <head>：用 RAF callback queue 而不是直接 return 0。
+var PAUSE_SCRIPT = '<script>(function(){var __paused=false;var __queue=[];var __nextId=-1;var __qmap=new Map();var __origRAF=window.requestAnimationFrame;var __origCAF=window.cancelAnimationFrame;window.requestAnimationFrame=function(cb){if(__paused){var id=__nextId--;__qmap.set(id,cb);__queue.push(id);return id;}return __origRAF.call(window,cb);};window.cancelAnimationFrame=function(id){if(id<0){__qmap.delete(id);var i=__queue.indexOf(id);if(i>=0)__queue.splice(i,1);return;}return __origCAF.call(window,id);};window.addEventListener("message",function(e){if(!e.data)return;if(e.data.type==="pause"){__paused=true;}else if(e.data.type==="resume"){__paused=false;var q=__queue.slice();__queue.length=0;for(var i=0;i<q.length;i++){var cb=__qmap.get(q[i]);__qmap.delete(q[i]);if(cb)__origRAF.call(window,cb);}}});})();<\/script>';
+
+// 注入 pause 脚本到 srcdoc / 外链 doc。外链卡（externalUrl）我们没法注入到目标页里——
+// 但浏览器对完全离屏的 iframe 自动有 throttle（HTML5 spec），实测离屏 iframe RAF 节流到 ~1Hz，
+// CPU 影响很小。所以 pause/resume 主要保护「视口外但还在 rootMargin buffer 内」的卡。
+function _injectPauseScript(html){
+  if(!html) return html;
+  if(/<\/head>/i.test(html)) return html.replace(/<\/head>/i, PAUSE_SCRIPT + '</head>');
+  // 没 </head> 就塞到开头
+  return PAUSE_SCRIPT + html;
 }
 
-// 通用 iframe 挂载：根据 card 是 dashboard 还是外链卡，分别走 srcdoc / src
-function _mountIframe(card){
-  if(card.__live) return;
-  card.__live = true;
-  liveSet.add(card);
-  var f = document.createElement('iframe');
-  f.className = 'card-frame card-frame--live';
-  f.setAttribute('sandbox','allow-scripts allow-same-origin');
-  f.setAttribute('loading','lazy');
-  f.style.height = card.__frameHeight + 'px';
-  // 跟原布局一致：所有 styleLock 卡按 1100 逻辑宽渲染再 scale
-  if(card.classList.contains('has-scale')){
-    f.style.width = '1100px';
-    f.style.transformOrigin = 'top left';
-    f.style.transform = card.__frameTransform || '';
-  }
-  var revealed = false;
-  var reveal = function(){
-    if(revealed) return; revealed = true;
-    // 卸载守卫：如果在等待期间卡片被 unmount（card.__live=false），不要再 hide preview，
-    // 避免用户滚回来看到 preview 已被前一次 mount 的 setTimeout 隐藏掉而 iframe 还没 parse 完 → 黑屏
-    if(!card.__live) return;
-    card.classList.add('is-live');
-    var p = card.__preview;
-    if(p && !p.__hiding){
-      p.__hiding = true;
-      p.classList.add('is-hiding');
-      setTimeout(function(){ if(p.parentNode) p.style.display='none'; }, 320);
-    }
-  };
-  f.addEventListener('load', function(){
-    requestAnimationFrame(function(){ requestAnimationFrame(reveal); });
-  });
-  // 兜底：1500ms 后即使 load 没 fire 也淡出 poster（重资源 iframe 的 load 可能很慢）
-  setTimeout(reveal, 1500);
-  if(card.__isDashboard){
-    f.srcdoc = card.__doc || '';
-  } else if(card.__extUrl){
+function _loadFrame(card){
+  if(!card || card.__loaded) return;
+  var f = card.__frame;
+  if(!f) return;
+  card.__loaded = true;
+  // 优先 src（外链卡），fallback srcdoc（dashboard）
+  if(card.__extUrl){
     f.src = card.__extUrl;
-  } else {
-    try{ f.srcdoc = card.__doc || ''; }catch(_){ }
+  } else if(card.__doc){
+    f.srcdoc = _injectPauseScript(card.__doc);
   }
-  card.appendChild(f);
-  card.__liveFrame = f;
+  // 揭开 preview
+  card.classList.add('is-live');
+  var p = card.__preview;
+  if(p && !p.__hiding){
+    p.__hiding = true;
+    p.classList.add('is-hiding');
+    setTimeout(function(){ if(p.parentNode) p.style.display='none'; }, 320);
+  }
 }
 
-// LRU 视口预算 + 永不 remount 已卸载的卡之外的「最近 N 张」。
-//
-// 实测得到的两条铁律：
-//  1. 浏览器对反复 unmount→remount 的 iframe 会冷启动 RAF（实测延迟 5-10s 才出现第一帧），
-//     看起来就是 karo 报告的「几秒后变静态」。
-//  2. 30+ 张 live iframe 同时跑会让父页面主线程冻死，hover/click 失灵。
-//
-// 折中：维持一个 LRU 队列（含视口内 + 最近滚走的几张），队尾踢出去的卡才真正 unmount。
-// LIVE_BUDGET=10 给 5 视口卡 + 5 缓冲；用户在视口附近来回滚不会触发 unmount/remount 风暴。
-var LIVE_BUDGET = 10;
-var liveOrder = [];
+function _pauseFrame(card){
+  if(!card || !card.__loaded) return;
+  var f = card.__frame;
+  if(!f) return;
+  try{ f.contentWindow.postMessage({type:'pause'}, '*'); }catch(_){ }
+}
 
-function _evictIfOverBudget(){
-  while(liveOrder.length > LIVE_BUDGET){
-    var victim = null, victimIdx = -1;
-    // 优先踢离屏的（visible=false）
-    for(var i=0;i<liveOrder.length;i++){
-      if(!liveOrder[i].__visible){ victim = liveOrder[i]; victimIdx = i; break; }
-    }
-    if(!victim){ victim = liveOrder[0]; victimIdx = 0; }
-    liveOrder.splice(victimIdx,1);
-    _unmountLive(victim);
-  }
+function _resumeFrame(card){
+  if(!card || !card.__loaded) return;
+  var f = card.__frame;
+  if(!f) return;
+  try{ f.contentWindow.postMessage({type:'resume'}, '*'); }catch(_){ }
 }
 
 var _liveObserver = ('IntersectionObserver' in window) ? new IntersectionObserver(function(entries){
   entries.forEach(function(e){
     var card = e.target;
-    card.__visible = e.isIntersecting;
     if(e.isIntersecting){
-      if(!card.__live){
-        _mountIframe(card);
-        if(!card.__isDashboard){
-          liveOrder.push(card);
-          _evictIfOverBudget();
-        }
-      } else if(!card.__isDashboard){
-        // 已 live 的卡进视口 → 标记最近使用
-        var i = liveOrder.indexOf(card);
-        if(i >= 0){ liveOrder.splice(i,1); liveOrder.push(card); }
-      }
+      if(!card.__loaded) _loadFrame(card);
+      else _resumeFrame(card);
+    } else {
+      _pauseFrame(card);
     }
   });
-},{ rootMargin:'200px 0px 200px 0px' }) : null;
-// rootMargin 从 400px 收紧到 120px：rootMargin 太大 = 视口外几屏的卡也被算 intersecting 提前 mount，
-// 几十张 WebGL iframe 同时跑会让主线程卡死。120px 让 mount 紧贴可视区，离开半屏立刻 unmount。
-// 没有 scroll handler，IntersectionObserver 已够异步触发。
+},{ rootMargin:'300px 0px 300px 0px' }) : null;
 
 function buildStyleChips(){
   const row = document.getElementById('styleRow');
@@ -272,14 +223,28 @@ function makeCardEl(d){
   const slug = d.styleLock || (d.externalUrl||'').replace(/\.html$/,'').split('/').pop() || d.id;
 
   card.__isDashboard = isDashboard;
-  card.__extUrl = d.externalUrl || '';
+  card.__extUrl = (hasExt ? d.externalUrl : '') || '';
   card.__doc = d.doc || '';
   card.__frameHeight = d.height || 360;
   card.__slug = slug;
 
-  // ─── 占位层先挂上（确保 mount 路径里 card.__preview 已存在） ───
-  // jpg poster 作为视口外的「静态预览」，确保滚到没动画的卡也不空白。
-  // 卡片首次离屏后，iframe 被卸载，poster 立刻重现。
+  // ─── 1. iframe 节点先挂上（不写 srcdoc/src，等进视口才 lazy 写入） ───
+  // 这样 DOM 结构稳定，进视口后只是给 iframe 赋 src/srcdoc，不需要 createElement，
+  // 也不会有"卸载→重挂"导致的 RAF 冷启动。
+  const frame = document.createElement('iframe');
+  frame.className = 'card-frame card-frame--live';
+  frame.setAttribute('sandbox','allow-scripts allow-same-origin');
+  frame.setAttribute('loading','lazy');
+  frame.style.height = card.__frameHeight + 'px';
+  if(isScaled){
+    frame.style.width = '1100px';
+    frame.style.transformOrigin = 'top left';
+  }
+  card.__frame = frame;
+  card.__loaded = false;
+  card.appendChild(frame);
+
+  // ─── 2. 占位层覆盖在 iframe 上，等 iframe load 后淡出 ───
   const preview = document.createElement('div');
   preview.className = 'card-preview';
   // dashboard 没录 jpg poster，退回纯渐变 + 标题
@@ -292,9 +257,9 @@ function makeCardEl(d){
   card.__preview = preview;
   card.appendChild(preview);
 
-  // 所有卡都走 IntersectionObserver：进视口挂 iframe，离屏卸载
+  // ─── 3. observe：进视口 lazy load，离屏 pause（不卸载） ───
   if(_liveObserver) _liveObserver.observe(card);
-  else _mountIframe(card);
+  else _loadFrame(card);
 
   // ─── 高度对齐策略 ───
   // 1) 普通卡：按模板声明 d.height 直接 span。
@@ -310,7 +275,7 @@ function makeCardEl(d){
       var tf = 'scale(' + scale + ')';
       card.__frameTransform = tf;
       // 同步给已挂的 iframe（dashboard srcdoc 或外链 src）
-      if(card.__liveFrame) card.__liveFrame.style.transform = tf;
+      if(card.__frame) card.__frame.style.transform = tf;
       cardH = Math.round((d.height || 360) * scale) + 2;
     } else {
       cardH = fallbackH;
