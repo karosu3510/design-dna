@@ -562,29 +562,40 @@ function openDetail(d, opts){
   const isHeavy = !!d.styleLock && HEAVY_GPU_SLUGS && HEAVY_GPU_SLUGS.has(d.styleLock);
   const reset = '<style>html,body{background:transparent !important;margin:0;padding:0}</style>';
 
-  if(isHeavy && d.doc){
+  // 5 张 doc.js 是 700 字节的「<img>」静态预览，不是真页面（webgl-magazine /
+  // cinematic-3d-scroll / skeleton-fluid-reveal / marginalia / superhi-plus）。
+  // 这些卡详情页必须 fetch externalUrl 的真 HTML，不能用 d.doc——否则用户只看到一张图。
+  const docIsStub = !d.doc || d.doc.length < 2000;
+
+  if(isHeavy && d.doc && !docIsStub){
     // 重 GPU 卡：第 1 帧先 jpg poster 让用户 0ms 看到画面，下一个事件循环再注入真 doc
-    // （避免 srcdoc 解析 + Three.js init 阻塞主线程时用户看到的 1-3s 黑屏）
     const slug = d.styleLock;
     const posterDoc = '<!doctype html><html><head><style>html,body{margin:0;padding:0;background:#0a0a0a;width:100%;height:100%;overflow:hidden;display:grid;place-items:center;color:#aaa;font:13px -apple-system,sans-serif}img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;opacity:.92}.tip{position:relative;z-index:2;padding:8px 14px;background:rgba(0,0,0,.55);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.1);border-radius:999px;letter-spacing:.02em}</style></head><body><img src="posters/'+slug+'.jpg"><div class="tip">载入交互体验...</div></body></html>';
     frame.srcdoc = posterDoc;
-    // 下一个事件循环替换为真 doc，让 jpg 有机会先 paint
-    setTimeout(function(){
-      frame.srcdoc = reset + d.doc;
-    }, 80);
-  } else if(d.doc){
+    setTimeout(function(){ frame.srcdoc = reset + d.doc; }, 80);
+  } else if(d.doc && !docIsStub){
     // 轻量外链卡 / dashboard：feed 用的 doc 字段在详情页同样能跑，0ms 注入
     frame.srcdoc = reset + d.doc;
   } else if(d.externalUrl){
-    // 兜底：没 doc 字段，fetch 真 HTML
+    // doc 是 stub 或不存在 → fetch 真 HTML。同时显示 jpg poster 兜底视觉。
     const reqId = ++_detailReqSeq;
-    frame.srcdoc = reset + '<div style="color:#666;font:13px sans-serif;padding:24px">Loading…</div>';
+    const slug = d.styleLock || (d.externalUrl||'').replace(/\.html$/,'').split('/').pop();
+    var posterUrl = slug ? ('posters/'+slug+'.jpg') : '';
+    var loadingDoc = '<!doctype html><html><head><style>html,body{margin:0;padding:0;background:#0a0a0a;width:100%;height:100%;overflow:hidden;display:grid;place-items:center;color:#aaa;font:13px -apple-system,sans-serif}img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;opacity:.92}.tip{position:relative;z-index:2;padding:8px 14px;background:rgba(0,0,0,.55);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.1);border-radius:999px;letter-spacing:.02em}</style></head><body>'+(posterUrl?'<img src="'+posterUrl+'">':'')+'<div class="tip">载入交互体验...</div></body></html>';
+    frame.srcdoc = loadingDoc;
     fetch(d.externalUrl, {cache:'no-cache'}).then(r=>r.text()).then(html=>{
       if(reqId !== _detailReqSeq) return;
-      const baseHref = d.externalUrl.replace(/[^/]+$/, '');
+      // 注入 base 让相对路径资源解析正确
+      const baseHref = (location.pathname.replace(/[^/]+$/, '') + d.externalUrl).replace(/[^/]+$/, '');
       const baseTag = '<base href="'+baseHref+'">';
-      const injected = html.replace(/<head[^>]*>/i, m => m + baseTag);
-      frame.srcdoc = reset + injected;
+      const injected = /<head[^>]*>/i.test(html)
+        ? html.replace(/<head[^>]*>/i, m => m + baseTag)
+        : '<head>' + baseTag + '</head>' + html;
+      frame.srcdoc = injected;
+    }).catch(()=>{
+      // 网络失败兜底：保留 poster + 提示
+      var failDoc = loadingDoc.replace('载入交互体验...', '加载失败，请稍后重试');
+      frame.srcdoc = failDoc;
     });
   }
 
