@@ -129,17 +129,37 @@ function _injectPauseScript(html){
   return PAUSE_SCRIPT + html;
 }
 
+// 13 点前的产品定义复盘：feed 不是「全部真动画」，而是「5 张 dashboard srcdoc + 静态截图墙」。
+// 重 WebGL/Three.js/GSAP 卡（webgl-magazine / cinematic-3d-scroll / skeleton-fluid-reveal 等）
+// 在 13 点前的 doc.js 是 700 字节的「<img src=preview.jpg>」静态预览，不跑动画。
+// 详情页才跳转到真页面。
+//
+// 我们后期把这个设计破坏了：13:26 加入 scroll-3d-grid（51KB GSAP+Lenis）、13:42 加入
+// gpu-io-fluid（真 WebGL），还把外链卡改成 iframe.src 直接拉真页面，14 张重 GPU 卡
+// 同时跑必撞合成器上限。
+//
+// 修复：所有外链卡（hasExt=true 即 d.externalUrl 存在的 29 张非 dashboard 卡）feed 内
+// 一律降级为 jpg 静态预览（posters/<slug>.jpg 已录好，27MB 全在）。Dashboard 5 张
+// 维持完整 srcdoc + pauseScript（这些是纯 DOM/CSS dashboard，不耗 GPU）。
+// 详情页 / 提取 DNA / 复制代码路径不变，仍能跳到真页面。
+
+function _buildPosterSrcdoc(slug){
+  // 1100×720 静态图卡片，黑底，只有一张 jpg。无脚本，无 RAF，几乎 0 资源消耗。
+  return '<!doctype html><html><head><style>html,body{margin:0;padding:0;background:#0a0a0a;width:1100px;height:720px;overflow:hidden}img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;-webkit-user-drag:none}</style></head><body><img src="posters/'+slug+'.jpg" alt=""></body></html>';
+}
+
 function _loadFrame(card){
   if(!card || card.__loaded) return;
   var f = card.__frame;
   if(!f) return;
   card.__loaded = true;
-  // 全部走 srcdoc：注入 PAUSE_SCRIPT 才能 pause/resume RAF。
-  // externalUrl 留作详情页跳转用，不再用于 feed iframe.src。
-  if(card.__doc){
+  // 外链卡 → jpg 静态预览（13 点前的产品形态）
+  // dashboard 卡 → 完整 srcdoc + pauseScript（保留 pause/resume）
+  if(card.__extUrl && card.__slug){
+    f.srcdoc = _buildPosterSrcdoc(card.__slug);
+  } else if(card.__doc){
     f.srcdoc = _injectPauseScript(card.__doc);
   } else if(card.__extUrl){
-    // 兜底：万一某张卡漏了 doc.js，仍可走 src（但不会有 pause/resume）
     f.src = card.__extUrl;
   }
   // 揭开 preview
