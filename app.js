@@ -176,6 +176,9 @@ function _loadFrame(card){
     // ?v=POSTER_VERSION 是 cache-busting 参数：每次刷新 poster 时改 version 让所有
     // 用户立刻看到新图，不用等浏览器缓存过期。新 poster 替换后顺手 bump 一下。
     img.src = 'posters/' + slug + '.jpg?v=' + (window.POSTER_VERSION || '1');
+    // 重 GPU 卡用 <img>，浏览器有原生 decode → 等 onload 再揭开
+    img.onload = function(){ _revealCard(card); };
+    img.onerror = function(){ _revealCard(card); };
     if(card.__frame && card.__frame.parentNode){
       card.__frame.parentNode.replaceChild(img, card.__frame);
     } else {
@@ -185,13 +188,23 @@ function _loadFrame(card){
   } else {
     var f = card.__frame;
     if(!f) return;
+    // 关键：iframe load 事件触发后再揭开 preview，避免 srcdoc 解析中的白底闪烁
+    // iframe 默认 chrome 背景是白色，load 前 preview 透出会看到白闪一下
+    f.addEventListener('load', function(){ _revealCard(card); }, {once:true});
+    // 兜底 timeout 1.6s：极端慢网/慢机器下保证 preview 不会永远盖在上面
+    setTimeout(function(){ _revealCard(card); }, 1600);
     if(card.__doc){
       f.srcdoc = _injectPauseScript(card.__doc);
     } else if(card.__extUrl){
       f.src = card.__extUrl;
     }
   }
-  // 揭开 preview
+}
+
+// preview 揭开：等 iframe/img 真正出第一帧后调用，避免白闪
+function _revealCard(card){
+  if(!card || card.__revealed) return;
+  card.__revealed = true;
   card.classList.add('is-live');
   var p = card.__preview;
   if(p && !p.__hiding){
