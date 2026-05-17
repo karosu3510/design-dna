@@ -555,10 +555,31 @@ function openDetail(d, opts){
   // 必须真实 origin 才能跑起来，sandbox=allow-scripts 会让它在 about:srcdoc origin 下
   // 解析失败）。所有外链卡都是项目自己的页面，没有 cross-site 风险。
   frame.removeAttribute('sandbox');
-  // 详情页尽量把 iframe 撑大：基于视口高度动态算
+  // 详情页"全屏展示"：iframe 内部页面通常用 1100×720 硬编码尺寸（feed 卡的固定尺寸），
+  // 我们在外层套一层 transform: scale 让它铺满详情区。
+  // 计算：详情区可用宽度 = stage 宽度（min 1600 / 100%），可用高度 = 视口 92vh。
+  // scale = min(可用宽/1100, 可用高/720)，等比放大不超出。
+  const wrap = frame.parentElement; // .detail-frame-wrap
+  const stage = wrap && wrap.parentElement; // .detail-stage
+  const stageW = (stage ? stage.clientWidth : window.innerWidth) || window.innerWidth;
   const vh = window.innerHeight || 900;
-  const targetH = Math.min(Math.max((d.height||720) + 40, Math.round(vh * 0.72)), Math.round(vh * 0.92));
-  frame.style.height = targetH + 'px';
+  const availH = Math.round(vh * 0.88);
+  const LOGICAL_W = 1100, LOGICAL_H = (d.height || 720);
+  const scale = Math.min(stageW / LOGICAL_W, availH / LOGICAL_H);
+  const renderedW = Math.round(LOGICAL_W * scale);
+  const renderedH = Math.round(LOGICAL_H * scale);
+  // wrap 容器尺寸 = 缩放后的视觉尺寸；iframe 设成逻辑尺寸 + scale transform
+  wrap.style.width = renderedW + 'px';
+  wrap.style.height = renderedH + 'px';
+  wrap.style.margin = '0 auto';
+  wrap.style.position = 'relative';
+  frame.style.width = LOGICAL_W + 'px';
+  frame.style.height = LOGICAL_H + 'px';
+  frame.style.transform = 'scale(' + scale + ')';
+  frame.style.transformOrigin = 'top left';
+  frame.style.position = 'absolute';
+  frame.style.top = '0';
+  frame.style.left = '0';
   frame.removeAttribute('src');
 
   const isHeavy = !!d.styleLock && HEAVY_GPU_SLUGS && HEAVY_GPU_SLUGS.has(d.styleLock);
