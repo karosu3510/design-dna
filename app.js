@@ -599,7 +599,10 @@ function openDetail(d, opts){
   const stage = wrap && wrap.parentElement; // .detail-stage
   const stageW = (stage ? stage.clientWidth : window.innerWidth) || window.innerWidth;
   const vh = window.innerHeight || 900;
-  const availH = Math.round(vh * 0.88);
+  // detail 容器实际占用：detail-top 52px + .detail-body padding 20+40 + meta-row 约 40px + gap 14 ≈ 170px
+  // 之前 vh*0.88 估算偏大，矮屏会让 720 卡 scale 后被上下截断（karo 反馈 d-lucid-drift）
+  // 改成 vh - 180 给 buffer，且最小不低于 480 避免极端情况下 scale 太小
+  const availH = Math.max(480, vh - 180);
 
   if(d.styleLock && RESPONSIVE_DETAIL_SLUGS.has(d.styleLock)){
     // 自适应网站卡：进入「全屏模式」——left:0 顶到屏幕边、隐藏顶栏（hover 显示）、
