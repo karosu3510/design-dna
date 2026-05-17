@@ -7,9 +7,11 @@
 		<meta name="description" content="On-scroll animations for perspective image grids with different layouts." />
 		<meta name="keywords" content="on scroll animation, 3d, image grid, perspective, gsap, javascript, css grid" />
 		<meta name="author" content="Codrops" />
-		<link rel="stylesheet" href="https://use.typekit.net/hky5sxh.css">
+		<!-- typekit removed 2026-05-17 -->
 		
-		<script>document.documentElement.className="js";var supportsCssVars=function(){var e,t=document.createElement("style");return t.innerHTML="root: { --tmp-var: bold; }",document.head.appendChild(t),e=!!(window.CSS&&window.CSS.supports&&window.CSS.supports("font-weight","var(--tmp-var)")),t.parentNode.removeChild(t),e};supportsCssVars()||alert("Please view this demo in a modern browser that supports CSS Variables.");</script>
+		<script>document.documentElement.className="js";var supportsCssVars=function(){var e,t=document.createElement("style");return t.innerHTML="root: { --tmp-var: bold; }",document.head.appendChild(t),e=!!(window.CSS&&window.CSS.supports&&window.CSS.supports("font-weight","var(--tmp-var)")),t.parentNode.removeChild(t),e};supportsCssVars()||alert("Please view this demo in a modern browser that supports CSS Variables.");
+		/* loading 兜底：删 typekit 后 webfontloader 可能不 resolve，2.5s 强制移除 body.loading */
+		setTimeout(function(){document.body && document.body.classList.remove('loading');}, 2500);</script>
 	<style>
 *,
 *::after,
