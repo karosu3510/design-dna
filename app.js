@@ -1147,14 +1147,14 @@ function buildPinnedFor(styleId, headlineFallback){
       doc: (typeof A_RECORD_DOC !== 'undefined') ? A_RECORD_DOC : '', externalUrl:'a-record.html'
     });
   } catch(_){}
-  // Vercel Deploy — frontend cloud overview (Geist + shadow-as-border)
-  try {
-    firstBatch.push({
-      id:'d-vercel-deploy', styleId:'vercel-deploy', styleLabel:'Vercel · Frontend cloud', sref:'vercel-deploy-pin', prompt:'Vercel deploy dashboard with Geist typography, shadow-as-border, three-step pipeline', pinned:true,
-      title:'Vercel · Ship at the speed of thought', height:720, styleLock:'vercel-deploy',
-      doc: (typeof VERCEL_DEPLOY_DOC !== 'undefined') ? VERCEL_DEPLOY_DOC : '', externalUrl:'vercel-deploy.html'
-    });
-  } catch(_){}
+  // Vercel Deploy — removed 2026-05-17: 效果不达标
+  // try {
+  //   firstBatch.push({
+  //     id:'d-vercel-deploy', styleId:'vercel-deploy', styleLabel:'Vercel · Frontend cloud', sref:'vercel-deploy-pin', prompt:'Vercel deploy dashboard with Geist typography, shadow-as-border, three-step pipeline', pinned:true,
+  //     title:'Vercel · Ship at the speed of thought', height:720, styleLock:'vercel-deploy',
+  //     doc: (typeof VERCEL_DEPLOY_DOC !== 'undefined') ? VERCEL_DEPLOY_DOC : '', externalUrl:'vercel-deploy.html'
+  //   });
+  // } catch(_){}
   // Glyph OS removed (2026-05-16) — overlaps with Nothing System dashboard, kept only Nothing as the canonical pixel-desktop sample.
   // Book Gallery — CodePen 3D page flip
   try {
