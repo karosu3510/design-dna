@@ -160,6 +160,7 @@ var HEAVY_GPU_SLUGS = new Set([
   'book-gallery-3d',      // 5 张高清外链图 + 3D transform
   'vortex-gallery',       // Three.js 600 instancedMesh + atlas + GLSL 旋涡
   'onscroll-filter',      // 7 张 SVG image + feTurbulence/feDisplacementMap 噪声滤镜，scroll-driven
+  'lines-to-layout',      // GSAP Flip 大字行 → image 大图布局切换 + custom cursor
 ]);
 
 function _loadFrame(card){
@@ -591,6 +592,7 @@ function openDetail(d, opts){
     'makeway-grid-effect',    // Codrops 演示页，body min-height + 长内容滚动，iframe 嵌不下
     'vortex-gallery',         // Three.js 600 instances 旋涡 wheel-driven，要全屏 fixed canvas + wheel 拦截
     'onscroll-filter',        // Codrops 长滚动页面，7 个 section 各 100vh+，iframe 嵌不下；Lenis 平滑滚 + ScrollTrigger 必须真 scroll
+    'lines-to-layout',        // Codrops main 100vh + custom cursor + Flip 全屏布局切换，iframe scale 嵌不下
   ]);
   if(d.styleLock && STANDALONE_SITE_SLUGS.has(d.styleLock) && d.externalUrl){
     // 加 ?v=POSTER_VERSION 破缓存，确保改过的真站点 HTML 立刻生效
@@ -1341,6 +1343,14 @@ function buildPinnedFor(styleId, headlineFallback){
       id:'d-onscroll-filter', styleId:'onscroll-filter', styleLabel:'SVG noise filter scroll', sref:'codrops-onscrollfilter', prompt:'Codrops Fabio Ottaviani on-scroll SVG mask feTurbulence feDisplacement filter reveal', pinned:true,
       title:'On-Scroll Filter · SVG noise reveal', height:720, styleLock:'onscroll-filter',
       doc: (typeof ONSCROLL_FILTER_DOC !== 'undefined') ? ONSCROLL_FILTER_DOC : '', externalUrl:'onscroll-filter.html'
+    });
+  } catch(_){}
+  // Lines to Layout — Codrops GSAP Flip lines→image layout transition + custom cursor
+  try {
+    firstBatch.push({
+      id:'d-lines-to-layout', styleId:'lines-to-layout', styleLabel:'Lines to layout flip', sref:'codrops-linestolayout', prompt:'Codrops typography rows to image content layout switch animation GSAP Flip plugin custom cursor turbulence', pinned:true,
+      title:'Lines to Layout · Typography flip', height:720, styleLock:'lines-to-layout',
+      doc: (typeof LINES_TO_LAYOUT_DOC !== 'undefined') ? LINES_TO_LAYOUT_DOC : '', externalUrl:'lines-to-layout.html'
     });
   } catch(_){}
   // WebGL Magazine — source-based WebGL magazine carousel

@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en" class="no-js">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lines to Content Layout · Codrops clone</title>
+<style>
+*,*::after,*::before { box-sizing: border-box; }
+
+:root { font-size: 12px; }
+
+body{
+  margin:0;
+  --color-text:#111;
+  --color-bg:#e5e5e5;
+  --color-link:#000;
+  --color-link-hover:#111;
+  --padding-ver:5vw;
+  --padding-hor:1rem;
+  --cursor-stroke:#cc1111;
+  color: var(--color-text);
+  background-color: var(--color-bg);
+  /* acumin-pro/kudryashev 是 Adobe typekit；本地 fallback 链 */
+  font-family: "acumin-pro", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Page Loader */
+.js .loading::before, .js .loading::after { content:''; position: fixed; z-index:1000; }
+.js .loading::before { top:0; left:0; width:100%; height:100%; background: var(--color-bg); }
+.js .loading::after {
+  top:50%; left:50%; width:100px; height:100px; margin:-50px 0 0 -50px;
+  border-radius:50%; border:2px solid var(--cursor-stroke);
+  animation: loaderAnim 0.7s linear infinite alternate forwards;
+}
+@keyframes loaderAnim { to { opacity:1; transform: scale3d(.5,.5,1); } }
+
+a { text-decoration:none; color: var(--color-link); outline:none; }
+a:hover { color: var(--color-link-hover); outline:none; }
+
+.hover-line { white-space: nowrap; overflow: hidden; position: relative; }
+.hover-line::before{
+  content:''; height:1px; width:100%; background: currentColor;
+  position: absolute; top: 92%; transition: transform .3s; transform-origin: 0% 50%;
+}
+.hover-line:hover::before { transform: scaleX(0); transform-origin: 100% 50%; }
+
+.unbutton { background: none; border: 0; padding: 0; margin: 0; font: inherit; cursor: pointer; }
+.unbutton:focus { outline: none; }
+
+main{
+  display: grid;
+  height: 100vh;
+  padding: 0;
+  position: relative;
+}
+
+.frame{
+  grid-area: 1 / 1 / 2 / 2;
+  text-align: center;
+  text-transform: uppercase;
+  display: flex;
+  padding: var(--padding-hor) calc(var(--padding-ver) + 0.6vw);
+  flex-direction: column;
+  align-self: start;
+  position: relative;
+  z-index: 100;
+}
+.frame__title{ font-size: 1rem; margin: 1rem 0; font-weight: normal; }
+.frame__links{ display: inline-block; }
+.frame__links a{ margin: 0 0.5rem; }
+
+.intro, .content-wrap { grid-area: 1 / 1 / 2 / 2; }
+
+.intro{
+  flex: 1;
+  display: grid;
+  max-height: 40vmax;
+  margin: auto 0;
+  padding: 0 var(--padding-ver);
+  grid-template-columns: 28% 1fr 22%;
+  grid-template-rows: repeat(4, 1fr);
+  align-items: center;
+  grid-column-gap: 3%;
+  grid-row-gap: 2.5vmax;
+  font-size: 8.625vw;
+  line-height: 0.7;
+  letter-spacing: -0.075vw;
+  /* kudryashev-d-excontrast-sans typekit fallback */
+  font-family: "kudryashev-d-excontrast-sans", "Bodoni Moda", "Didot", "Times New Roman", serif;
+  font-weight: 300;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.intro--close{ pointer-events: none; }
+
+.image{
+  overflow: hidden;
+  width: 100%; height: 100%;
+  position: relative;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  will-change: transform;
+}
+.image--up{ grid-area: 2 / 3; }
+.image--down{ grid-area: 3; }
+
+.image__inner{
+  width: 100%; height: 100%;
+  background-size: cover;
+  background-position: 50% 50%;
+}
+
+.row--1{ grid-area: 1 / 1 / 2 / 4; }
+.row--2{ grid-area: 2 / 1 / 3 / 4; }
+.row--3{ grid-area: 3 / 2 / 4 / 4; }
+.row--4{ grid-area: 4 / 1 / 5 / 4; }
+
+.oh{ position: relative; display: inline-block; overflow: hidden; }
+.oh > span { display: inline-block; will-change: transform; }
+.row__text span { padding-top: 1.5vw; }
+
+.content-wrap{ align-self: stretch; display: grid; }
+.content{
+  opacity: 0;
+  pointer-events: none;
+  grid-area: 1 / 1 / 2 / 2;
+  display: grid;
+  grid-template-columns: 100%;
+  height: 100%;
+  grid-template-rows: 1fr 50%;
+  padding: 0 var(--padding-ver);
+}
+.content--open{ opacity: 1; pointer-events: auto; }
+.content--open .content__row--image{ pointer-events: none; }
+
+.content__row--text{
+  padding: calc(var(--padding-hor) + 9rem) 0 2.5rem;
+  display: grid;
+  grid-template-areas: 'title number' 'back back' 'meta meta';
+  grid-template-columns: 1fr auto;
+  grid-template-rows: auto 1fr auto;
+}
+.content__row--image + .content__row--text{ padding-bottom: 1.5rem; }
+
+.content__title{
+  grid-area: title;
+  font-family: "kudryashev-d-excontrast-sans", "Bodoni Moda", "Didot", "Times New Roman", serif;
+  font-weight: 300;
+  text-transform: uppercase;
+  font-size: clamp(2rem, 4vw, 4rem);
+  line-height: 1;
+  margin: 0;
+}
+
+.content__number{
+  grid-area: number;
+  place-self: start end;
+  font-size: clamp(3rem, 10vw, 10rem);
+  line-height: 0.55;
+  position: relative;
+  display: flex;
+  align-items: start;
+  justify-content: start;
+  align-content: start;
+}
+.content__number .oh > span{
+  padding-bottom: 1.75vw;
+  padding-left: 6vw;
+  position: relative;
+  display: block;
+}
+.content__number .oh > span::before{
+  content:'';
+  width: 1px;
+  height: 111%;
+  background: currentColor;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  transform: rotate(25deg);
+  transform-origin: 100% 100%;
+}
+
+.content__back{
+  grid-area: back;
+  justify-self: start;
+  align-self: center;
+  overflow: hidden;
+}
+.content__back svg{
+  width: 100px;
+  stroke: #000;
+  stroke-width: 0.3px;
+  transition: transform 0.2s;
+  transform-origin: 0% 50%;
+  transform: scaleX(0.8);
+}
+.content__back:hover svg{ transform: scaleX(1); }
+
+.content__meta{
+  grid-area: meta;
+  text-transform: uppercase;
+  display: flex;
+  justify-content: space-between;
+  font-size: clamp(0.75rem, 3vw, 1.5rem);
+  line-height: 1;
+}
+.content__meta-text--center{ text-align: center; }
+
+.cursor{ display: none; }
+
+@media screen and (min-width: 53em){
+  .frame{ flex-direction: row; }
+  .frame__title{ margin-top: 0; }
+  .frame__links{ margin-left: 8vw; }
+  .content__row--text{ padding: calc(var(--padding-hor) + 4rem) 0 2.5rem; }
+}
+
+@media (any-pointer: fine){
+  .cursor{
+    position: fixed; top: 0; left: 0;
+    display: block;
+    pointer-events: none;
+    z-index: 10000;
+  }
+  .cursor__inner{
+    fill: none;
+    stroke: var(--cursor-stroke);
+    stroke-width: 1.3px;
+  }
+  .no-js .cursor{ display: none; }
+}
+</style>
+<script>document.documentElement.className = "js";</script>
+</head>
+<body class="loading">
+<main>
+  <div class="frame">
+    <h1 class="frame__title">Lines to Content Layout Animation</h1>
+    <nav class="frame__links">
+      <a class="hover-line" href="./index.html">← Back to Design DNA</a>
+      <a class="hover-line" href="https://tympanus.net/Development/LinesToLayout/" target="_blank" rel="noreferrer">Original demo</a>
+      <a class="hover-line" href="https://github.com/codrops/LinesToLayout" target="_blank" rel="noreferrer">GitHub</a>
+    </nav>
+  </div>
+
+  <div class="intro">
+    <div class="row row--1"><span class="row__text oh"><span data-direction="top">Facts do</span></span> <span class="row__text oh"><span data-direction="right">not</span></span></div>
+    <div class="row row--2"><span class="row__text oh"><span data-direction="left">cease</span></span> <span class="row__text oh"><span data-direction="bottom">to exist</span></span></div>
+    <div class="row row--3"><span class="row__text oh"><span data-direction="right">because</span></span> <span data-direction="right" class="row__text oh"><span data-direction="right">they</span></span></div>
+    <div class="row row--4"><span class="row__text oh"><span data-direction="bottom">are ignored</span></span></div>
+    <div class="image image--up">
+      <div class="image__inner" style="background-image:url(lines-to-layout-img/1.jpg)" data-direction="right"></div>
+    </div>
+    <div class="image image--down">
+      <div class="image__inner" style="background-image:url(lines-to-layout-img/2.jpg)" data-direction="left"></div>
+    </div>
+  </div>
+
+  <section class="content-wrap">
+    <div class="content">
+      <div class="content__row content__row--image"></div>
+      <div class="content__row content__row--text">
+        <h2 class="content__title">
+          <span class="oh"><span>The progressive power</span></span><br/>
+          <span class="oh"><span>of frequencies</span></span>
+        </h2>
+        <span class="content__number"><span class="oh"><span>1</span></span></span>
+        <button class="content__back unbutton">
+          <svg viewBox="0 0 50 9"><path d="m0 4.5 5-3m-5 3 5 3m45-3h-77"></path></svg>
+        </button>
+        <div class="content__meta">
+          <span class="content__meta-text"><span class="oh"><span>Mind Depth</span></span></span>
+          <span class="content__meta-text content__meta-text--center"><span class="oh"><span>Souls</span></span> <br/><span class="oh"><span>for freedom</span></span></span>
+          <span class="content__meta-text"><span class="oh"><span>Made by Humans</span></span> <br/><span class="oh"><span>in 2022</span></span></span>
+        </div>
+      </div>
+    </div>
+    <div class="content">
+      <div class="content__row content__row--text">
+        <h2 class="content__title">
+          <span class="oh"><span>Quantum enhancement</span></span><br/>
+          <span class="oh"><span>for the world</span></span>
+        </h2>
+        <span class="content__number"><span class="oh"><span>2</span></span></span>
+        <button class="content__back unbutton">
+          <svg viewBox="0 0 50 9"><path d="m0 4.5 5-3m-5 3 5 3m45-3h-77"></path></svg>
+        </button>
+        <div class="content__meta">
+          <span class="content__meta-text"><span class="oh"><span>Novel World</span></span></span>
+          <span class="content__meta-text content__meta-text--center"><span class="oh"><span>Souls</span></span> <br/><span class="oh"><span>for love</span></span></span>
+          <span class="content__meta-text"><span class="oh"><span>Made by Humans</span></span> <br/><span class="oh"><span>in 2022</span></span></span>
+        </div>
+      </div>
+      <div class="content__row content__row--image"></div>
+    </div>
+  </section>
+</main>
+
+<svg class="cursor" width="100" height="100" viewBox="0 0 100 100">
+  <defs>
+    <filter id="cursor-filter" x="-50%" y="-50%" width="200%" height="200%" filterUnits="objectBoundingBox">
+      <feTurbulence type="fractalNoise" baseFrequency="0" numOctaves="1" result="warp" />
+      <feOffset dx="0" result="warpOffset" />
+      <feDisplacementMap xChannelSelector="R" yChannelSelector="G" scale="40" in="SourceGraphic" in2="warpOffset" />
+    </filter>
+  </defs>
+  <circle class="cursor__inner" cx="50" cy="50" r="10"/>
+</svg>
+<svg class="cursor" width="100" height="100" viewBox="0 0 100 100" data-amt="0.15" data-radius-enter="40">
+  <circle class="cursor__inner" cx="50" cy="50" r="10"/>
+</svg>
+
+<!-- Local copies of GSAP + Flip (复用 onscroll-filter-assets/) -->
+<script src="onscroll-filter-assets/gsap.min.js"></script>
+<script src="onscroll-filter-assets/Flip.min.js"></script>
+<script>
+(function(){
+  gsap.registerPlugin(Flip);
+
+  /* ============ Cursor (port of src/js/cursor.js) ============ */
+  const lerp = (a, b, n) => (1 - n) * a + n * b;
+  let cursor = { x: 0, y: 0 };
+  window.addEventListener('mousemove', ev => { cursor = { x: ev.clientX, y: ev.clientY }; });
+
+  class CursorElement {
+    constructor(DOM_el){
+      this.DOM = { el: DOM_el };
+      this.DOM.inner = this.DOM.el.querySelector('.cursor__inner');
+      this.filterId = '#cursor-filter';
+      this.DOM.feTurbulence = document.querySelector(this.filterId + ' > feTurbulence');
+      this.radiusOnEnter = 30;
+      this.opacityOnEnter = 1;
+      this.renderedStyles = {
+        tx:      { previous: 0,  current: 0,  amt: 0.2 },
+        ty:      { previous: 0,  current: 0,  amt: 0.2 },
+        radius:  { previous: 20, current: 20, amt: 0.2 },
+        opacity: { previous: 1,  current: 1,  amt: 0.2 }
+      };
+      this.primitiveValues = { turbulence: 0 };
+      this.createFilterTimeline();
+
+      this.DOM.el.style.opacity = 0;
+      this.bounds = this.DOM.el.getBoundingClientRect();
+      this.radiusOnEnter  = this.DOM.el.dataset.radiusEnter  || this.radiusOnEnter;
+      this.opacityOnEnter = this.DOM.el.dataset.opacityEnter || this.opacityOnEnter;
+      for (const key in this.renderedStyles) {
+        this.renderedStyles[key].amt = this.DOM.el.dataset.amt || this.renderedStyles[key].amt;
+      }
+      this.radius = this.DOM.inner.getAttribute('r');
+      this.renderedStyles.radius.previous = this.renderedStyles.radius.current = this.radius;
+
+      const onMouseMoveEv = () => {
+        this.renderedStyles.tx.previous = this.renderedStyles.tx.current = cursor.x - this.bounds.width / 2;
+        this.renderedStyles.ty.previous = this.renderedStyles.ty.current = cursor.y - this.bounds.height / 2;
+        this.DOM.el.style.opacity = 1;
+        requestAnimationFrame(() => this.render());
+        window.removeEventListener('mousemove', onMouseMoveEv);
+      };
+      window.addEventListener('mousemove', onMouseMoveEv);
+    }
+    enter(){
+      this.renderedStyles.radius.current  = this.radiusOnEnter;
+      this.renderedStyles.opacity.current = this.opacityOnEnter;
+      if(this.filterTimeline) this.filterTimeline.restart();
+    }
+    leave(){
+      this.renderedStyles.radius.current  = this.radius;
+      this.renderedStyles.opacity.current = 1;
+      if(this.filterTimeline) this.filterTimeline.progress(1).kill();
+    }
+    createFilterTimeline(){
+      if(!this.DOM.feTurbulence) return;
+      this.filterTimeline = gsap.timeline({
+        paused: true,
+        onStart: () => { this.DOM.inner.style.filter = 'url(' + this.filterId + ')'; },
+        onUpdate: () => { this.DOM.feTurbulence.setAttribute('baseFrequency', this.primitiveValues.turbulence); },
+        onComplete: () => { this.DOM.inner.style.filter = 'none'; }
+      })
+      .to(this.primitiveValues, {
+        duration: 3, ease: 'none', repeat: -1, yoyo: true,
+        startAt: { turbulence: 0.15 }, turbulence: 0.13
+      });
+    }
+    render(){
+      this.renderedStyles.tx.current = cursor.x - this.bounds.width / 2;
+      this.renderedStyles.ty.current = cursor.y - this.bounds.height / 2;
+      for (const key in this.renderedStyles) {
+        this.renderedStyles[key].previous = lerp(
+          this.renderedStyles[key].previous,
+          this.renderedStyles[key].current,
+          this.renderedStyles[key].amt
+        );
+      }
+      this.DOM.el.style.transform = 'translateX(' + this.renderedStyles.tx.previous + 'px) translateY(' + this.renderedStyles.ty.previous + 'px)';
+      this.DOM.inner.setAttribute('r', this.renderedStyles.radius.previous);
+      this.DOM.el.style.opacity = this.renderedStyles.opacity.previous;
+      requestAnimationFrame(() => this.render());
+    }
+  }
+
+  class Cursor {
+    constructor(Dom_elems, triggerSelector){
+      this.cursorElements = [];
+      [...Dom_elems].forEach(el => this.cursorElements.push(new CursorElement(el)));
+      [...document.querySelectorAll(triggerSelector || 'a')].forEach(link => {
+        link.addEventListener('mouseenter', () => this.enter());
+        link.addEventListener('mouseleave', () => this.leave());
+      });
+    }
+    enter(){ for(const el of this.cursorElements) el.enter(); }
+    leave(){ for(const el of this.cursorElements) el.leave(); }
+  }
+
+  /* ============ Layout flip (port of src/js/index.js) ============ */
+  const intro = document.querySelector('.intro');
+  const introTexts = [...intro.querySelectorAll('.row__text.oh > span')];
+  const images = [...intro.querySelectorAll('.image')];
+  const contents = [...document.querySelectorAll('.content')];
+  const contentTexts = contents.map(c => [...c.querySelectorAll('.oh > span')]);
+  const contentRowImages = [...document.querySelectorAll('.content > .content__row--image')];
+  const contentBackCtrls = [...document.querySelectorAll('.content button.content__back')];
+
+  function openContent(image, position){
+    const otherImages = images.filter(el => el !== image).map(el => el.querySelector('.image__inner'));
+    gsap.timeline({ defaults: { duration: 1.1, ease: 'power4.inOut' } })
+      .addLabel('start', 0)
+      .add(() => {
+        const state = Flip.getState(image);
+        contentRowImages[position].appendChild(image);
+        Flip.from(state, { duration: 1.2, ease: 'power4.inOut', absolute: true });
+
+        intro.classList.add('intro--close');
+        contents[position].classList.add('content--open');
+
+        gsap.set(contentBackCtrls[position], { xPercent: 20, opacity: 0 });
+        gsap.set(contentTexts[position], { yPercent: 101 });
+      }, 'start')
+      .to([introTexts, otherImages], {
+        xPercent: (_, target) => {
+          switch(target.dataset.direction){
+            case 'right': return 101;
+            case 'left':  return -101;
+            default:      return 0;
+          }
+        },
+        yPercent: (_, target) => {
+          switch(target.dataset.direction){
+            case 'top':    return -101;
+            case 'bottom': return 101;
+            default:       return 0;
+          }
+        }
+      }, 'start')
+      .addLabel('content', 'start+=0.7')
+      .to(contentTexts[position], { ease: 'expo', yPercent: 0 }, 'content')
+      .to(contentBackCtrls[position], { ease: 'expo', xPercent: 0, opacity: 1 }, 'content');
+  }
+
+  function closeContent(image, position){
+    const otherImages = images.filter(el => el !== image).map(el => el.querySelector('.image__inner'));
+    gsap.timeline({
+      defaults: { duration: 1.1, ease: 'power4.inOut' },
+      onComplete: () => {
+        intro.classList.remove('intro--close');
+        contents[position].classList.remove('content--open');
+      }
+    })
+      .addLabel('start', 0)
+      .to(contentTexts[position], { duration: 0.8, yPercent: 101 }, 'start')
+      .to(contentBackCtrls[position], { duration: 0.8, xPercent: 20, opacity: 0 }, 'start')
+      .add(() => {
+        const state = Flip.getState(image);
+        intro.appendChild(image);
+        Flip.from(state, { duration: 1.2, ease: 'power4.inOut', absolute: true });
+      }, 'start')
+      .addLabel('intro', 'start+=0.6')
+      .to([introTexts, otherImages], { ease: 'expo', xPercent: 0, yPercent: 0 }, 'intro');
+  }
+
+  images.forEach((image, position) => {
+    image.addEventListener('click', () => openContent(image, position));
+  });
+  contentBackCtrls.forEach((ctrl, position) => {
+    ctrl.addEventListener('click', () => closeContent(images[position], position));
+  });
+
+  // Cursor 初始化
+  new Cursor(document.querySelectorAll('.cursor'), 'a, .intro > .image, .content__back');
+
+  // 等图片预加载（用 <img> 探针代替 imagesLoaded 包）
+  function preloadBgImages(){
+    const urls = [...document.querySelectorAll('.image__inner')].map(el => {
+      const m = (el.style.backgroundImage || '').match(/url\("?([^")]+)"?\)/);
+      return m ? m[1] : null;
+    }).filter(Boolean);
+    return Promise.all(urls.map(src => new Promise(resolve => {
+      const img = new Image();
+      img.onload = img.onerror = resolve;
+      img.src = src;
+    })));
+  }
+  preloadBgImages().then(() => document.body.classList.remove('loading'));
+  // 安全兜底（4s 不管加载情况强制结束 loading）
+  setTimeout(() => document.body.classList.remove('loading'), 4000);
+})();
+</script>
+</body>
+</html>
