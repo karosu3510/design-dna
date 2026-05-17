@@ -542,21 +542,52 @@ function openDetail(d, opts){
   if(idEl) idEl.textContent = '#' + d.id;
   const pEl = document.getElementById('dPrompt');
   if(pEl) pEl.textContent = d.prompt || '—';
-  // If card has an external URL, navigate directly instead of iframe
-  if(d.externalUrl){
-    window.location.href = d.externalUrl;
-    return;
-  }
+
+  // ─── 详情页打开策略（2026-05-17 改 from window.location 到 iframe srcdoc） ───
+  // 旧：所有外链卡 → window.location.href = externalUrl，整页跳 → 白屏 1-3s。
+  // 新：所有卡都用 detailView 内 iframe，秒开。
+  //   - dashboard 卡（无 externalUrl）：直接 srcdoc=d.doc，0ms 显示。
+  //   - 轻量外链卡（有 d.doc）：直接 srcdoc=d.doc（feed srcdoc 的内容跟 .html 里几乎一样），0ms 显示。
+  //   - 重 GPU 卡（HEAVY_GPU_SLUGS）：先显示 1100×720 jpg poster + spinner（0ms 视觉反馈），
+  //     后台 fetch externalUrl HTML，得到后写 srcdoc。这样视觉上立刻有图，1-3s 后真页面无缝替换。
   const frame = document.getElementById('dFrame');
+  // sandbox 必须 allow-same-origin 才能让 iframe 内 fetch 同源资源（gpu-io 等需要）
   frame.setAttribute('sandbox','allow-scripts allow-same-origin');
-  // 详情页尽量把 iframe 撑大：基于视口高度动态算，最少 72vh，最多 92vh
+  // 详情页尽量把 iframe 撑大：基于视口高度动态算
   const vh = window.innerHeight || 900;
   const targetH = Math.min(Math.max((d.height||720) + 40, Math.round(vh * 0.72)), Math.round(vh * 0.92));
   frame.style.height = targetH + 'px';
-    frame.removeAttribute('src');
-    // iframe 内部 html/body 默认白底 → 透出纯黑宿主，去掉 dashboard 外圈白细线
-    const reset = '<style>html,body{background:transparent !important;margin:0;padding:0}</style>';
+  frame.removeAttribute('src');
+
+  const isHeavy = !!d.styleLock && HEAVY_GPU_SLUGS && HEAVY_GPU_SLUGS.has(d.styleLock);
+  const reset = '<style>html,body{background:transparent !important;margin:0;padding:0}</style>';
+
+  if(isHeavy && d.doc){
+    // 重 GPU 卡：第 1 帧先 jpg poster 让用户 0ms 看到画面，下一个事件循环再注入真 doc
+    // （避免 srcdoc 解析 + Three.js init 阻塞主线程时用户看到的 1-3s 黑屏）
+    const slug = d.styleLock;
+    const posterDoc = '<!doctype html><html><head><style>html,body{margin:0;padding:0;background:#0a0a0a;width:100%;height:100%;overflow:hidden;display:grid;place-items:center;color:#aaa;font:13px -apple-system,sans-serif}img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;opacity:.92}.tip{position:relative;z-index:2;padding:8px 14px;background:rgba(0,0,0,.55);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.1);border-radius:999px;letter-spacing:.02em}</style></head><body><img src="posters/'+slug+'.jpg"><div class="tip">载入交互体验...</div></body></html>';
+    frame.srcdoc = posterDoc;
+    // 下一个事件循环替换为真 doc，让 jpg 有机会先 paint
+    setTimeout(function(){
+      frame.srcdoc = reset + d.doc;
+    }, 80);
+  } else if(d.doc){
+    // 轻量外链卡 / dashboard：feed 用的 doc 字段在详情页同样能跑，0ms 注入
     frame.srcdoc = reset + d.doc;
+  } else if(d.externalUrl){
+    // 兜底：没 doc 字段，fetch 真 HTML
+    const reqId = ++_detailReqSeq;
+    frame.srcdoc = reset + '<div style="color:#666;font:13px sans-serif;padding:24px">Loading…</div>';
+    fetch(d.externalUrl, {cache:'no-cache'}).then(r=>r.text()).then(html=>{
+      if(reqId !== _detailReqSeq) return;
+      const baseHref = d.externalUrl.replace(/[^/]+$/, '');
+      const baseTag = '<base href="'+baseHref+'">';
+      const injected = html.replace(/<head[^>]*>/i, m => m + baseTag);
+      frame.srcdoc = reset + injected;
+    });
+  }
+
   detailView.classList.add('open');
   detailView.setAttribute('aria-hidden','false');
   document.body.classList.add('is-detail');
@@ -568,6 +599,8 @@ function openDetail(d, opts){
     try{ history.pushState({detail:d.id}, '', '#d/'+d.id); }catch(e){}
   }
 }
+// 详情页 fetch 序号，用于丢弃过期请求（用户快速切卡时）
+var _detailReqSeq = 0;
 function closeDetail(opts){
   detailView.classList.remove('open');
   detailView.setAttribute('aria-hidden','true');
