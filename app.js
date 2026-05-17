@@ -1416,14 +1416,14 @@ function buildPinnedFor(styleId, headlineFallback){
       doc: (typeof SCROLL_3D_GRID_DOC !== 'undefined') ? SCROLL_3D_GRID_DOC : '', externalUrl:'scroll-3d-grid.html'
     });
   } catch(_){}
-  // GPU IO Fluid — Amanda Ghassaei WebGL fluid simulation
-  try {
-    firstBatch.push({
-      id:'d-gpu-io-fluid', styleId:'gpu-io-fluid', styleLabel:'GPU fluid sim', sref:'gpu-io-fluid', prompt:'Amanda Ghassaei GPU IO fluid simulation particles velocity pressure WebGL', pinned:true,
-      title:'GPU IO · Fluid simulation', height:720, styleLock:'gpu-io-fluid',
-      doc: (typeof GPU_IO_FLUID_DOC !== 'undefined') ? GPU_IO_FLUID_DOC : '', externalUrl:'gpu-io-fluid.html'
-    });
-  } catch(_){}
+  // GPU IO Fluid — removed 2026-05-17: 视觉/性能与库内其它卡重合度高，karo 决定下线
+  // try {
+  //   firstBatch.push({
+  //     id:'d-gpu-io-fluid', styleId:'gpu-io-fluid', styleLabel:'GPU fluid sim', sref:'gpu-io-fluid', prompt:'Amanda Ghassaei GPU IO fluid simulation particles velocity pressure WebGL', pinned:true,
+  //     title:'GPU IO · Fluid simulation', height:720, styleLock:'gpu-io-fluid',
+  //     doc: (typeof GPU_IO_FLUID_DOC !== 'undefined') ? GPU_IO_FLUID_DOC : '', externalUrl:'gpu-io-fluid.html'
+  //   });
+  // } catch(_){}
   // Glitch Perspective — Codrops 3D pixel glitch hover
   try {
     firstBatch.push({
