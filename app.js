@@ -159,6 +159,7 @@ var HEAVY_GPU_SLUGS = new Set([
   'scroll-3d-grid',       // 51KB GSAP+Lenis+ScrollTrigger
   'book-gallery-3d',      // 5 张高清外链图 + 3D transform
   'vortex-gallery',       // Three.js 600 instancedMesh + atlas + GLSL 旋涡
+  'onscroll-filter',      // 7 张 SVG image + feTurbulence/feDisplacementMap 噪声滤镜，scroll-driven
 ]);
 
 function _loadFrame(card){
@@ -589,6 +590,7 @@ function openDetail(d, opts){
     'lucid-drift',            // .card 居中卡片，aspect-ratio 3:4
     'makeway-grid-effect',    // Codrops 演示页，body min-height + 长内容滚动，iframe 嵌不下
     'vortex-gallery',         // Three.js 600 instances 旋涡 wheel-driven，要全屏 fixed canvas + wheel 拦截
+    'onscroll-filter',        // Codrops 长滚动页面，7 个 section 各 100vh+，iframe 嵌不下；Lenis 平滑滚 + ScrollTrigger 必须真 scroll
   ]);
   if(d.styleLock && STANDALONE_SITE_SLUGS.has(d.styleLock) && d.externalUrl){
     // 加 ?v=POSTER_VERSION 破缓存，确保改过的真站点 HTML 立刻生效
@@ -1331,6 +1333,14 @@ function buildPinnedFor(styleId, headlineFallback){
       id:'d-vortex-gallery', styleId:'vortex-gallery', styleLabel:'WebGL vortex gallery', sref:'j0suke-vortex-gallery', prompt:'J0SUKE vortex gallery Three.js 600 instanced photo cylinder wheel-driven spin', pinned:true,
       title:'Vortex Gallery · Wheel-driven photo cylinder', height:720, styleLock:'vortex-gallery',
       doc: (typeof VORTEX_GALLERY_DOC !== 'undefined') ? VORTEX_GALLERY_DOC : '', externalUrl:'vortex-gallery.html'
+    });
+  } catch(_){}
+  // OnScroll Filter — Codrops × Fabio Ottaviani SVG mask + feTurbulence displacement
+  try {
+    firstBatch.push({
+      id:'d-onscroll-filter', styleId:'onscroll-filter', styleLabel:'SVG noise filter scroll', sref:'codrops-onscrollfilter', prompt:'Codrops Fabio Ottaviani on-scroll SVG mask feTurbulence feDisplacement filter reveal', pinned:true,
+      title:'On-Scroll Filter · SVG noise reveal', height:720, styleLock:'onscroll-filter',
+      doc: (typeof ONSCROLL_FILTER_DOC !== 'undefined') ? ONSCROLL_FILTER_DOC : '', externalUrl:'onscroll-filter.html'
     });
   } catch(_){}
   // WebGL Magazine — source-based WebGL magazine carousel
