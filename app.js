@@ -134,11 +134,13 @@ function _loadFrame(card){
   var f = card.__frame;
   if(!f) return;
   card.__loaded = true;
-  // 优先 src（外链卡），fallback srcdoc（dashboard）
-  if(card.__extUrl){
-    f.src = card.__extUrl;
-  } else if(card.__doc){
+  // 全部走 srcdoc：注入 PAUSE_SCRIPT 才能 pause/resume RAF。
+  // externalUrl 留作详情页跳转用，不再用于 feed iframe.src。
+  if(card.__doc){
     f.srcdoc = _injectPauseScript(card.__doc);
+  } else if(card.__extUrl){
+    // 兜底：万一某张卡漏了 doc.js，仍可走 src（但不会有 pause/resume）
+    f.src = card.__extUrl;
   }
   // 揭开 preview
   card.classList.add('is-live');
@@ -233,7 +235,9 @@ function makeCardEl(d){
   // 也不会有"卸载→重挂"导致的 RAF 冷启动。
   const frame = document.createElement('iframe');
   frame.className = 'card-frame card-frame--live';
-  frame.setAttribute('sandbox','allow-scripts allow-same-origin');
+  // 全部走 srcdoc 模式：sandbox=allow-scripts 即可（不需要 same-origin）。
+  // pauseScript 在 srcdoc 内部劫持 RAF，postMessage pause/resume 正常工作。
+  frame.setAttribute('sandbox','allow-scripts');
   frame.setAttribute('loading','lazy');
   frame.style.height = card.__frameHeight + 'px';
   if(isScaled){
