@@ -551,8 +551,10 @@ function openDetail(d, opts){
   //   - 重 GPU 卡（HEAVY_GPU_SLUGS）：先显示 1100×720 jpg poster + spinner（0ms 视觉反馈），
   //     后台 fetch externalUrl HTML，得到后写 srcdoc。这样视觉上立刻有图，1-3s 后真页面无缝替换。
   const frame = document.getElementById('dFrame');
-  // sandbox 必须 allow-same-origin 才能让 iframe 内 fetch 同源资源（gpu-io 等需要）
-  frame.setAttribute('sandbox','allow-scripts allow-same-origin');
+  // 详情页：移除 sandbox 让 iframe 用真实同源 origin（webgl-magazine 这种 module script
+  // 必须真实 origin 才能跑起来，sandbox=allow-scripts 会让它在 about:srcdoc origin 下
+  // 解析失败）。所有外链卡都是项目自己的页面，没有 cross-site 风险。
+  frame.removeAttribute('sandbox');
   // 详情页尽量把 iframe 撑大：基于视口高度动态算
   const vh = window.innerHeight || 900;
   const targetH = Math.min(Math.max((d.height||720) + 40, Math.round(vh * 0.72)), Math.round(vh * 0.92));
@@ -577,26 +579,21 @@ function openDetail(d, opts){
     // 轻量外链卡 / dashboard：feed 用的 doc 字段在详情页同样能跑，0ms 注入
     frame.srcdoc = reset + d.doc;
   } else if(d.externalUrl){
-    // doc 是 stub 或不存在 → fetch 真 HTML。同时显示 jpg poster 兜底视觉。
+    // doc 是 stub 或不存在 → 详情页直接 iframe.src 加载真页面（最稳的兜底，
+    // 模块脚本/CSS 相对路径/字体/资源全部按真实 origin 解析，不会有 srcdoc 沙盒坑）。
+    // 第一帧先用 jpg poster + spinner 给视觉反馈，避免白屏。
     const reqId = ++_detailReqSeq;
     const slug = d.styleLock || (d.externalUrl||'').replace(/\.html$/,'').split('/').pop();
     var posterUrl = slug ? ('posters/'+slug+'.jpg') : '';
     var loadingDoc = '<!doctype html><html><head><style>html,body{margin:0;padding:0;background:#0a0a0a;width:100%;height:100%;overflow:hidden;display:grid;place-items:center;color:#aaa;font:13px -apple-system,sans-serif}img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;opacity:.92}.tip{position:relative;z-index:2;padding:8px 14px;background:rgba(0,0,0,.55);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.1);border-radius:999px;letter-spacing:.02em}</style></head><body>'+(posterUrl?'<img src="'+posterUrl+'">':'')+'<div class="tip">载入交互体验...</div></body></html>';
+    frame.removeAttribute('src');
     frame.srcdoc = loadingDoc;
-    fetch(d.externalUrl, {cache:'no-cache'}).then(r=>r.text()).then(html=>{
+    // 下一个事件循环切到真 src，让 poster 先 paint
+    setTimeout(function(){
       if(reqId !== _detailReqSeq) return;
-      // 注入 base 让相对路径资源解析正确
-      const baseHref = (location.pathname.replace(/[^/]+$/, '') + d.externalUrl).replace(/[^/]+$/, '');
-      const baseTag = '<base href="'+baseHref+'">';
-      const injected = /<head[^>]*>/i.test(html)
-        ? html.replace(/<head[^>]*>/i, m => m + baseTag)
-        : '<head>' + baseTag + '</head>' + html;
-      frame.srcdoc = injected;
-    }).catch(()=>{
-      // 网络失败兜底：保留 poster + 提示
-      var failDoc = loadingDoc.replace('载入交互体验...', '加载失败，请稍后重试');
-      frame.srcdoc = failDoc;
-    });
+      frame.removeAttribute('srcdoc');
+      frame.src = d.externalUrl;
+    }, 80);
   }
 
   detailView.classList.add('open');
