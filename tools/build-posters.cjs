@@ -69,6 +69,7 @@ const TARGETS = [
   ['nathan-smith', 'nathan-smith.html'],
   ['lorenzo-daldosso', 'lorenzo-daldosso.html'],
   ['carrot-tech', 'carrot-tech.html'],
+  ['architecture-overview', 'architecture-overview.html'],
   // buildPinnedFor 系列（nothing / retro-ascii / linear / nothing-mobile / mercury）
   // 没有独立 HTML，由 index.html 内联模板渲染。这 5 张保持「常驻 live iframe」即可：
   // 5 张 live iframe 仍在 ≤6 的安全 CPU 预算内，剩下 29 张走 video poster。
