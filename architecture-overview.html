@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Architecture Overview · Project Logs</title>
+<style>
+  /* ============================================================
+     Layer 1 — Linear DESIGN.md tokens (deep-dark canvas + lavender)
+     Layer 2 — variant.com-inspired card layout (top bar / center
+              radial visual / right log timeline / bottom transport)
+     Layer 3 — Polar Perlin Noise Loops (M0nica, Coding Train #136.1)
+              as the center visual
+  ============================================================ */
+  :root {
+    /* Reference uses a violet-tinted dark, not Linear's near-black.
+       Sampled from the screenshot — left column lighter, right column slightly darker. */
+    --canvas:        #1d1924;   /* viz column base */
+    --canvas-right:  #181420;   /* logs column base */
+    --surface-1:     #25202c;
+    --surface-2:     #2d2735;
+    --surface-3:     #322b3b;
+    --surface-4:     #382f42;
+    --hairline:      #2e2738;
+    --hairline-strong:#3d3447;
+
+    --ink:           #f7f8f8;
+    --ink-muted:     #d0d6e0;
+    --ink-subtle:    #8a8f98;
+    --ink-tertiary:  #62666d;
+
+    --primary:       #5e6ad2;   /* Linear lavender */
+    --primary-hover: #828fff;
+    --accent-warm:   #e8a35c;   /* warm amber pin/cursor in reference */
+
+    --r-xs: 4px; --r-sm: 6px; --r-md: 8px; --r-lg: 12px; --r-xl: 16px; --r-pill: 9999px;
+    --sp-xxs: 4px; --sp-xs: 8px; --sp-sm: 12px; --sp-md: 16px; --sp-lg: 24px; --sp-xl: 32px;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  html, body { width: 100%; height: 100%; }
+  body {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #14111c;             /* slightly darker matte around the card */
+    color: var(--ink);
+    font-family: 'PingFang SC', 'PingFang HK', 'PingFang TC',
+                 -apple-system, BlinkMacSystemFont,
+                 'Helvetica Neue', 'Hiragino Sans GB',
+                 'Microsoft YaHei', sans-serif;
+    font-size: 14px;
+    letter-spacing: -0.05px;
+    -webkit-font-smoothing: antialiased;
+    overflow: hidden;
+  }
+
+  /* ============================================================
+     STAGE — 1100×720 fixed
+  ============================================================ */
+  .stage {
+    position: relative;
+    width: 1100px;
+    height: 720px;
+    background: var(--canvas);
+    overflow: hidden;
+    border-radius: 16px;
+    box-shadow:
+      0 30px 80px rgba(0,0,0,0.55),
+      0 0 0 1px rgba(255,255,255,0.04);
+    flex-shrink: 0;
+  }
+
+  /* ============================================================
+     LAYOUT GRID
+     - Left/center : viz column (740px)
+     - Right       : Project Logs panel (360px)
+  ============================================================ */
+  .viz-col {
+    position: absolute;
+    top: 0; left: 0;
+    width: 740px;
+    height: 720px;
+    /* no hairline — reference relies on column-color contrast instead */
+  }
+  .logs-col {
+    position: absolute;
+    top: 0; right: 0;
+    width: 360px;
+    height: 720px;
+    background: var(--canvas-right);
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ============================================================
+     TOP BAR (inside viz column)
+  ============================================================ */
+  .topbar {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 80px;
+    padding: 20px 24px;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    align-items: center;
+    z-index: 5;
+  }
+  .brand { display: flex; align-items: center; gap: 14px; }
+  .brand .mark {
+    width: 28px; height: 28px;
+    border-radius: var(--r-md);
+    background: linear-gradient(135deg, var(--primary), #4a52a0);
+    display: grid; place-items: center;
+    color: var(--ink);
+    font: 600 14px/1 'PingFang SC', system-ui;
+    box-shadow: 0 0 0 1px var(--hairline-strong) inset;
+  }
+  .brand .name { font: 500 14px/1.2 'PingFang SC'; letter-spacing: -0.2px; }
+  .brand .role { font: 400 11px/1.3 'JetBrains Mono', ui-monospace, monospace;
+                 color: var(--ink-subtle); margin-top: 2px; letter-spacing: 0; }
+  .brand .role .ver { color: var(--ink-tertiary); }
+
+  .now {
+    text-align: center;
+    color: var(--ink);
+  }
+  .now .eyebrow {
+    font: 500 10px/1.3 'PingFang SC';
+    color: var(--ink-tertiary);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  .now .title {
+    font: 500 14px/1.2 'PingFang SC';
+    letter-spacing: -0.2px;
+  }
+
+  .topbar-right { display: flex; justify-content: flex-end; }
+
+  .user-pill {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 14px 5px 5px;
+    border-radius: var(--r-pill);
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--hairline);
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+  }
+  .user-pill:hover { background: rgba(255,255,255,0.06); border-color: var(--hairline-strong); }
+  .user-pill .avatar {
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent-warm), #b86a2a);
+    display: grid; place-items: center;
+    color: #2a1808;
+    font: 600 10px/1 'PingFang SC';
+    letter-spacing: 0.5px;
+  }
+  .user-pill .uname {
+    font: 500 11px/1 'JetBrains Mono', ui-monospace, monospace;
+    color: var(--ink);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .user-pill .chev {
+    color: var(--ink-subtle);
+    font-size: 10px;
+    margin-left: 2px;
+  }
+
+  /* ============================================================
+     CANVAS — center radial noise visual
+  ============================================================ */
+  #viz {
+    position: absolute;
+    top: 80px;
+    left: 0;
+    width: 740px;
+    height: 560px;
+    display: block;
+  }
+  /* warm cursor + center pin overlay */
+  .pin {
+    position: absolute;
+    top: 360px;          /* roughly canvas center y */
+    left: 370px;         /* roughly canvas center x */
+    width: 1px;
+    height: 60px;
+    background: linear-gradient(180deg, transparent, var(--accent-warm) 40%, var(--accent-warm));
+    transform: translate(-50%, -100%);
+    pointer-events: none;
+    z-index: 4;
+  }
+  .pin::after {
+    content: '';
+    position: absolute;
+    bottom: -3px; left: -3px;
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--accent-warm);
+    box-shadow: 0 0 12px rgba(232, 163, 92, 0.6);
+  }
+
+  /* ============================================================
+     TRANSPORT BAR (bottom of viz column)
+  ============================================================ */
+  .transport {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 80px;
+    padding: 0 24px;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 16px;
+    align-items: center;
+    z-index: 5;
+  }
+  .tcontrols, .tend { display: flex; align-items: center; gap: 8px; }
+  .ticon {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--hairline);
+    display: grid; place-items: center;
+    color: var(--ink-muted);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .ticon:hover { background: rgba(255,255,255,0.08); color: var(--ink); }
+  .ticon.play {
+    background: rgba(255,255,255,0.10);
+    border-color: var(--hairline-strong);
+    color: var(--ink);
+  }
+  .ticon svg { width: 14px; height: 14px; }
+
+  .tslider {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    color: var(--ink-subtle);
+  }
+  .track {
+    flex: 1;
+    height: 4px;
+    background: var(--surface-2);
+    border-radius: var(--r-pill);
+    position: relative;
+    overflow: hidden;
+  }
+  .track .fill {
+    position: absolute;
+    top: 0; left: 0; bottom: 0;
+    width: 53%;
+    background: var(--ink-muted);
+    border-radius: var(--r-pill);
+  }
+  .track .knob {
+    position: absolute;
+    top: 50%;
+    left: 53%;
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: var(--ink);
+    transform: translate(-50%, -50%);
+    box-shadow: 0 0 0 4px rgba(247,248,248,0.08);
+  }
+  .ttime {
+    font: 400 11px/1 'JetBrains Mono', ui-monospace, monospace;
+    color: var(--ink-muted);
+    letter-spacing: 0.06em;
+    white-space: nowrap;
+    min-width: 92px;
+    text-align: right;
+  }
+  .ttime .total { color: var(--ink-tertiary); }
+
+  /* ============================================================
+     PROJECT LOGS PANEL (right column)
+  ============================================================ */
+  .logs-head {
+    flex-shrink: 0;
+    height: 64px;
+    padding: 0 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--hairline);
+  }
+  .logs-head .ltitle {
+    display: flex; align-items: center; gap: 10px;
+    font: 500 14px/1.2 'PingFang SC';
+  }
+  .logs-head .ltitle svg { width: 14px; height: 14px; color: var(--ink-subtle); }
+  .logs-head .lmeta {
+    font: 500 10px/1 'PingFang SC';
+    color: var(--ink-tertiary);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+
+  .logs-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px 20px 16px 20px;
+    position: relative;
+  }
+  /* timeline rail */
+  .logs-body::before {
+    content: '';
+    position: absolute;
+    top: 16px; bottom: 16px;
+    left: 34px;            /* aligns with avatar center 20+14 */
+    width: 1px;
+    background: var(--hairline);
+  }
+  .logs-body::-webkit-scrollbar { width: 4px; }
+  .logs-body::-webkit-scrollbar-thumb { background: var(--hairline-strong); border-radius: 4px; }
+
+  .log {
+    position: relative;
+    padding-left: 42px;
+    padding-bottom: 28px;
+  }
+  .log .avatar {
+    position: absolute;
+    top: 0; left: 0;
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: var(--surface-1);
+    border: 1px solid var(--hairline);
+    display: grid; place-items: center;
+    color: var(--ink-muted);
+    overflow: hidden;
+  }
+  .log .avatar img { width: 100%; height: 100%; object-fit: cover; }
+  .log .avatar svg { width: 12px; height: 12px; }
+
+  .log .head {
+    display: flex; justify-content: space-between; align-items: baseline;
+    margin-bottom: 6px;
+  }
+  .log .ltitle {
+    font: 500 14px/1.2 'PingFang SC';
+    letter-spacing: -0.15px;
+  }
+  .log .lts {
+    font: 400 10px/1 'JetBrains Mono', ui-monospace, monospace;
+    color: var(--ink-tertiary);
+    letter-spacing: 0.06em;
+  }
+  .log .lbody {
+    font: 400 12.5px/1.55 'PingFang SC';
+    color: var(--ink-muted);
+    letter-spacing: -0.05px;
+    margin: 0 0 10px 0;
+  }
+  .tags { display: flex; flex-wrap: wrap; gap: 5px; }
+  .tag {
+    padding: 2px 7px;
+    border-radius: var(--r-xs);
+    border: 1px solid var(--hairline);
+    background: var(--surface-1);
+    font: 400 10.5px/1.4 'JetBrains Mono', ui-monospace, monospace;
+    color: var(--ink-muted);
+    letter-spacing: 0.02em;
+  }
+  .tag.warm { color: var(--accent-warm); border-color: rgba(232,163,92,0.35); }
+
+  .metric {
+    margin-top: 10px;
+    border: 1px solid var(--hairline);
+    border-radius: var(--r-md);
+    background: var(--surface-1);
+    padding: 10px 12px;
+    font: 400 11px/1.7 'JetBrains Mono', ui-monospace, monospace;
+  }
+  .metric .row { display: flex; justify-content: space-between; }
+  .metric .k { color: var(--ink-subtle); }
+  .metric .v { color: #6fcf97; }   /* success green like reference */
+
+  /* ============================================================
+     SEND BAR (bottom of logs column)
+  ============================================================ */
+  .send {
+    flex-shrink: 0;
+    height: 72px;
+    padding: 14px 16px;
+    border-top: 1px solid var(--hairline);
+    display: flex; gap: 8px; align-items: center;
+  }
+  .send input {
+    flex: 1;
+    height: 40px;
+    padding: 0 14px;
+    border-radius: var(--r-pill);
+    background: var(--surface-1);
+    border: 1px solid var(--hairline);
+    color: var(--ink);
+    font: 400 12.5px/1 'PingFang SC';
+    outline: none;
+  }
+  .send input::placeholder { color: var(--ink-tertiary); }
+  .send input:focus { border-color: var(--hairline-strong); }
+  .send .btn-send {
+    height: 40px;
+    padding: 0 18px;
+    border-radius: var(--r-pill);
+    background: var(--ink);
+    color: var(--canvas);
+    font: 600 11px/1 'PingFang SC';
+    letter-spacing: 0.16em;
+    border: none;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .send .btn-send:hover { background: var(--ink-muted); }
+</style>
+</head>
+<body>
+  <div class="stage">
+
+    <!-- ============== LEFT/CENTER : VIZ COLUMN ============== -->
+    <div class="viz-col">
+
+      <!-- Top bar -->
+      <div class="topbar">
+        <div class="brand">
+          <div class="mark">△</div>
+          <div>
+            <div class="name">Computer Science</div>
+            <div class="role">SYS_VER <span class="ver">4.1.0</span></div>
+          </div>
+        </div>
+        <div class="now">
+          <div class="eyebrow">Now Inspecting</div>
+          <div class="title">Architecture Overview</div>
+        </div>
+        <div class="topbar-right">
+        </div>
+      </div>
+
+      <!-- Center radial visual: polar perlin noise loops -->
+      <canvas id="viz" width="740" height="560"></canvas>
+      <div class="pin"></div>
+
+      <!-- Transport -->
+      <div class="transport">
+        <div class="tcontrols">
+          <div class="ticon" title="Record">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="6"/>
+            </svg>
+          </div>
+          <div class="ticon" title="Like">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+            </svg>
+          </div>
+          <div class="ticon play" title="Play">
+            <svg viewBox="0 0 24 24" fill="currentColor">
+              <path d="M8 5v14l11-7z"/>
+            </svg>
+          </div>
+        </div>
+        <div class="tslider">
+          <div class="track">
+            <div class="fill"></div>
+            <div class="knob"></div>
+          </div>
+          <div class="ttime">02:41 <span class="total">/ 05:00</span></div>
+        </div>
+        <div class="tend">
+          <div class="ticon" title="Dislike">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3H10z"/>
+              <path d="M22 2h-4v13h4z"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============== RIGHT : PROJECT LOGS ============== -->
+    <div class="logs-col">
+
+      <div class="logs-head">
+        <div class="ltitle">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="4" y1="6" x2="20" y2="6"/>
+            <line x1="4" y1="12" x2="20" y2="12"/>
+            <line x1="4" y1="18" x2="20" y2="18"/>
+            <circle cx="8" cy="6" r="2" fill="currentColor"/>
+            <circle cx="16" cy="12" r="2" fill="currentColor"/>
+            <circle cx="10" cy="18" r="2" fill="currentColor"/>
+          </svg>
+          Project Logs
+        </div>
+        <div class="lmeta">3 ENTRIES</div>
+      </div>
+
+      <div class="logs-body">
+
+        <!-- log 1 -->
+        <div class="log">
+          <div class="avatar">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M3 12h4l3-9 4 18 3-9h4"/>
+            </svg>
+          </div>
+          <div class="head">
+            <div class="ltitle">System Init</div>
+            <div class="lts">00:00</div>
+          </div>
+          <p class="lbody">Core competencies loaded. Focusing on backend architecture, distributed systems, and systems-level programming.</p>
+          <div class="tags">
+            <span class="tag">C++</span>
+            <span class="tag">Go</span>
+            <span class="tag">Rust</span>
+            <span class="tag">PostgreSQL</span>
+          </div>
+        </div>
+
+        <!-- log 2 -->
+        <div class="log">
+          <div class="avatar">
+            <img src="https://images.unsplash.com/photo-1518770660439-4636190af475?w=120&h=120&fit=crop&q=80" alt="">
+          </div>
+          <div class="head">
+            <div class="ltitle">Distributed Key-Value Store</div>
+            <div class="lts">01:14</div>
+          </div>
+          <p class="lbody">Designed and implemented a fault-tolerant, distributed key-value store using the Raft consensus algorithm. Handles leader election, log replication, and persistence under network partitions.</p>
+          <div class="tags">
+            <span class="tag warm">Go</span>
+            <span class="tag">Raft</span>
+            <span class="tag">gRPC</span>
+          </div>
+          <div class="metric">
+            <div class="row"><span class="k">Throughput:</span><span class="v">15k ops/sec</span></div>
+            <div class="row"><span class="k">Latency (p99):</span><span class="v">&lt; 2ms</span></div>
+            <div class="row"><span class="k">Status:</span><span class="v">Deployed</span></div>
+          </div>
+        </div>
+
+        <!-- log 3 -->
+        <div class="log">
+          <div class="avatar">
+            <img src="https://images.unsplash.com/photo-1518770660439-4636190af475?w=120&h=120&fit=crop&q=80&sat=-100" alt="">
+          </div>
+          <div class="head">
+            <div class="ltitle">Neural Net Kernel Optimizer</div>
+            <div class="lts">03:42</div>
+          </div>
+          <p class="lbody">Custom CUDA kernels for matrix multiplication and convolution layers. Achieved significant speedups over standard cuBLAS implementations for specific edge-case tensor dimensions.</p>
+          <div class="tags">
+            <span class="tag warm">CUDA</span>
+            <span class="tag">C++</span>
+            <span class="tag">PyTorch</span>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="send">
+        <input type="text" placeholder="Execute command or contact..." />
+        <button class="btn-send">SEND</button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ============== POLAR PERLIN NOISE LOOPS ============== -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
+  <script>
+    // v3 — Reference is rotating wobbly rings, not perlin noise.
+    // Use mel_viz-style sinusoidal lobe distortion + global clockwise rotation.
+    // Inner rings: stronger lobe + warm color; outer rings: tighter + cool lavender.
+    let phase = 0;
+    let rotation = 0;
+    const NUM_RINGS = 60;
+
+    function setup() {
+      const canvas = createCanvas(740, 560);
+      // parent to .viz-col so absolute positioning is relative to the card,
+      // not document.body — keeps it centered when stage is centered on screen.
+      const vizCol = document.querySelector('.viz-col');
+      canvas.parent(vizCol);
+      const auto = canvas.elt;
+      auto.id = 'p5viz';
+      const placeholder = document.getElementById('viz');
+      if (placeholder) placeholder.remove();
+      auto.style.position = 'absolute';
+      auto.style.top = '80px';
+      auto.style.left = '0';
+      auto.style.zIndex = '1';
+    }
+
+    function draw() {
+      clear();
+      translate(width / 2, height / 2);
+      rotate(rotation);                 // global clockwise rotation
+      noFill();
+      strokeWeight(0.6);
+
+      // ---- Single shape signature, replicated across all rings ----
+      // Reference: every ring is the same gentle ~7-lobe rounded heptagon,
+      // just scaled outward. NO per-ring phase offset, NO varying lobe count,
+      // NO extreme inner-core distortion. The whole stack rotates together.
+      const LOBES = 7;
+      const AMP_RATIO = 0.045;          // distortion as fraction of radius
+
+      for (let i = 1; i <= NUM_RINGS; i++) {
+        const t = i / NUM_RINGS;        // 0 inner → 1 outer
+        const baseR = t * 240 + 8;
+        const amp   = baseR * AMP_RATIO;
+
+        // Color: warm amber innermost → cool lavender outer
+        const r = 232 - t * 92;
+        const g = 163 - t * 29;
+        const b = 92  + t * 128;
+
+        // Single bright band at mid-radius (t ≈ 0.5), rest stays moderately
+        // visible. Gaussian peak at 0.5 with sigma 0.05 → only ~3 rings light
+        // up in the bright band. Baseline 95 keeps the rest readable.
+        const peak = Math.exp(-Math.pow((t - 0.5) / 0.05, 2));
+        const alpha = 95 + peak * 110;
+
+        stroke(r, g, b, alpha);
+
+        beginShape();
+        for (let a = 0; a < TWO_PI; a += 0.022) {
+          const wobble = Math.sin(a * LOBES + phase) * amp;
+          const rr = baseR + wobble;
+          vertex(rr * Math.cos(a), rr * Math.sin(a));
+        }
+        endShape(CLOSE);
+      }
+
+      phase    += 0.006;          // very slow shape morph
+      rotation += 0.0028;         // global clockwise rotation
+    }
+  </script>
+</body>
+</html>
