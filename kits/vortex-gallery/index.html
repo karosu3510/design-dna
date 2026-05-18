@@ -13,7 +13,12 @@ body{background:var(--vg-c-void);color:var(--vg-c-ink);font-family:var(--vg-font
 .layout{display:grid;grid-template-columns:280px 1fr;min-height:100vh}
 
 /* Sidebar */
-.nav{padding:32px 22px;border-right:1px solid var(--vg-c-line);position:sticky;top:0;height:100vh;overflow-y:auto;background:var(--vg-c-void)}
+.nav{padding:24px 22px 18px;border-right:1px solid var(--vg-c-line);position:sticky;top:0;height:100vh;background:var(--vg-c-void);display:flex;flex-direction:column;box-sizing:border-box;overflow:hidden}
+.nav-head{flex-shrink:0}
+.nav-list{flex:1;min-height:0;overflow-y:auto;margin:8px -8px 0;padding:0 8px;scrollbar-width:thin;scrollbar-color:var(--vg-c-line) transparent}
+.nav-list::-webkit-scrollbar{width:6px}
+.nav-list::-webkit-scrollbar-thumb{background:var(--vg-c-line);border-radius:3px}
+.nav-actions{flex-shrink:0;display:flex;flex-direction:column;gap:8px;padding-top:14px;border-top:1px solid var(--vg-c-line);margin-top:14px}
 .nav-brand{display:flex;align-items:center;gap:10px;font-size:15px;font-weight:500;color:var(--vg-c-ink);margin-bottom:6px}
 .nav-brand .mark{width:18px;height:18px;border-radius:50%;background:var(--vg-c-ember);box-shadow:0 0 14px rgba(255,122,61,.5);flex-shrink:0}
 .nav-sub{font-size:11px;color:var(--vg-c-ink-3);margin-bottom:24px;font-family:var(--vg-font-mono);letter-spacing:.18em;text-transform:uppercase}
@@ -25,11 +30,12 @@ body{background:var(--vg-c-void);color:var(--vg-c-ink);font-family:var(--vg-font
 .nav-link .num{font-family:var(--vg-font-mono);font-size:10px;color:var(--vg-c-ink-3);font-weight:300;width:22px;letter-spacing:.18em}
 .nav-link.active .num{color:var(--vg-c-ember)}
 
-.dl-pill{margin-top:18px;height:36px;width:100%;border-radius:999px;background:var(--vg-c-ember);color:#0a0a0a;display:inline-flex;align-items:center;justify-content:center;gap:8px;font-size:12px;border:0;cursor:pointer;font-weight:500;font-family:var(--vg-font-sans)}
+.dl-pill{height:36px;width:100%;border-radius:999px;background:var(--vg-c-ember);color:#0a0a0a;display:inline-flex;align-items:center;justify-content:center;gap:8px;font-size:12px;border:0;cursor:pointer;font-weight:500;font-family:var(--vg-font-sans);transition:background .2s ease,transform .2s cubic-bezier(.16,1,.3,1)}
+.dl-pill:hover{background:#ff8b54;transform:translateY(-1px)}
 .dl-pill svg{width:13px;height:13px}
-.wb-pill{margin-top:8px;height:36px;width:100%;border-radius:999px;background:var(--vg-c-shell);color:var(--vg-c-ink);display:inline-flex;align-items:center;justify-content:center;gap:8px;font-size:12px;border:1px solid var(--vg-c-line);cursor:pointer;font-weight:500;font-family:var(--vg-font-sans);transition:border-color .15s,background .15s}
-.wb-pill:hover{background:var(--vg-c-soft);border-color:var(--vg-c-line-2)}
-.wb-pill svg{width:13px;height:13px}
+.wb-pill{height:36px;width:100%;border-radius:999px;background:var(--vg-c-shell);color:var(--vg-c-ink);display:inline-flex;align-items:center;justify-content:center;gap:8px;font-size:12px;border:1px solid var(--vg-c-line);cursor:pointer;font-weight:500;font-family:var(--vg-font-sans);transition:border-color .15s,background .15s,transform .2s cubic-bezier(.16,1,.3,1)}
+.wb-pill:hover{background:var(--vg-c-soft);border-color:var(--vg-c-line-2);transform:translateY(-1px)}
+.wb-pill svg{width:13px;height:13px;color:var(--vg-c-ember)}
 
 /* Main */
 main{padding:48px 56px;max-width:1100px}
@@ -112,9 +118,12 @@ footer a{color:var(--vg-c-ember);text-decoration:none}
 
   <!-- Sidebar -->
   <aside class="nav">
-    <div class="nav-brand"><div class="mark"></div><span>Vortex Gallery</span></div>
-    <div class="nav-sub">Design System · v1.0</div>
+    <div class="nav-head">
+      <div class="nav-brand"><div class="mark"></div><span>Vortex Gallery</span></div>
+      <div class="nav-sub">Design System · v1.0</div>
+    </div>
 
+    <div class="nav-list">
     <div class="nav-cap">基础</div>
     <a class="nav-link active" href="#overview"><span class="num">00</span>概览</a>
     <a class="nav-link" href="#color"><span class="num">01</span>色彩</a>
@@ -142,15 +151,19 @@ footer a{color:var(--vg-c-ember);text-decoration:none}
     <div class="nav-cap">AI 接入</div>
     <a class="nav-link" href="#ai"><span class="num">16</span>Cursor / Claude 提示词</a>
     <a class="nav-link" href="#tw"><span class="num">17</span>Tailwind 预设</a>
+    </div>
 
-    <button class="dl-pill" id="dlBtn">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-      下载完整素材包
-    </button>
-    <button class="wb-pill" id="wbBtn" title="复制开发提示词并打开 WorkBuddy">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-      去 WorkBuddy 开发
-    </button>
+    <div class="nav-spacer"></div>
+    <div class="nav-actions">
+      <button class="dl-pill" id="dlBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        下载完整素材包
+      </button>
+      <button class="wb-pill" id="wbBtn" title="复制开发提示词并打开 WorkBuddy">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+        去 WorkBuddy 开发
+      </button>
+    </div>
   </aside>
 
   <!-- Main content -->
