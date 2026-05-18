@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>07 · Vortex Strip</title>
+<link rel="stylesheet" href="../design-system.css">
+<style>html,body{margin:0;height:100%}body{background:var(--vg-c-void);color:var(--vg-c-ink);font-family:var(--vg-font-sans);display:grid;place-items:center;padding:0}
+.wrap{width:100%;padding:48px 0;position:relative;mask-image:linear-gradient(90deg,transparent 0%,#000 8%,#000 92%,transparent 100%);-webkit-mask-image:linear-gradient(90deg,transparent 0%,#000 8%,#000 92%,transparent 100%)}
+.cap{padding:0 56px;display:flex;justify-content:space-between;margin-bottom:18px;font-family:var(--vg-font-mono);font-size:10px;letter-spacing:.24em;color:var(--vg-c-ink-3);text-transform:uppercase}
+.strip{display:flex;gap:18px;padding:0 56px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none}
+.strip::-webkit-scrollbar{display:none}
+.tile{flex:0 0 200px;aspect-ratio:3/4;border-radius:10px;overflow:hidden;position:relative;scroll-snap-align:start;cursor:pointer;transition:transform 260ms cubic-bezier(.16,1,.3,1)}
+.tile:hover{transform:scale(1.04)}
+.tile .img{position:absolute;inset:0;background-size:cover}
+.tile::after{content:'';position:absolute;inset:0;border-radius:inherit;box-shadow:inset 0 0 0 1px rgba(255,255,255,.06);pointer-events:none}
+.tile .label{position:absolute;left:10px;bottom:10px;font-family:var(--vg-font-mono);font-size:10px;letter-spacing:.18em;color:#fff;text-transform:uppercase;text-shadow:0 1px 4px rgba(0,0,0,.6)}
+</style></head>
+<body class="vg">
+<div class="wrap">
+  <div class="cap"><span>VORTEX STRIP / 12 ITEMS</span><span>WHEEL · DRAG</span></div>
+  <div class="strip" id="strip"></div>
+</div>
+<script>
+const palette=[['#3a78ff','#1a1a3a'],['#ff7a3d','#6a2310'],['#ffd24a','#6a4810'],['#fafafa','#2a2a2a'],['#3a78ff','#0a0a3a'],['#ff7a3d','#3a1208'],['#ffd24a','#3a2a08'],['#3a78ff','#1a1a3a'],['#ff7a3d','#6a2310'],['#ffd24a','#6a4810'],['#fafafa','#2a2a2a'],['#3a78ff','#0a0a3a']];
+const strip=document.getElementById('strip');
+palette.forEach((p,i)=>{
+  const t=document.createElement('div');t.className='tile';
+  t.innerHTML=`<div class="img" style="background:linear-gradient(160deg,${p[0]} 0%, ${p[1]} 100%)"></div><div class="label">${String(i+1).padStart(2,'0')} · OPUS</div>`;
+  strip.appendChild(t);
+});
+// 横向 wheel → 横向滚动（不依赖 trackpad）
+strip.addEventListener('wheel',e=>{
+  if(Math.abs(e.deltaY)>Math.abs(e.deltaX)){e.preventDefault();strip.scrollLeft+=e.deltaY}
+},{passive:false});
+</script>
+</body></html>

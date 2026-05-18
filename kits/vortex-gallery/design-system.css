@@ -1,0 +1,241 @@
+/* =========================================================
+   Vortex Gallery · Design System
+   Deep-space WebGL gallery / cinematic media archive
+   Version: 1.0.0
+   Source: Design DNA inspiration library
+   Original: J0SUKE / vortex-gallery (https://github.com/J0SUKE/vortex-gallery)
+   =========================================================
+   Import before your styles:
+   <link rel="stylesheet" href="./design-system.css">
+   ========================================================= */
+
+/* ---------- 1. Typography ---------- */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600&family=Inter+Tight:wght@300;500;600&family=JetBrains+Mono:wght@300;400;500&display=swap');
+
+:root{
+  /* Font stacks */
+  --vg-font-sans:    'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --vg-font-display: 'Inter Tight', 'Inter', -apple-system, sans-serif;
+  --vg-font-mono:    'JetBrains Mono', 'SF Mono', ui-monospace, Menlo, monospace;
+
+  /* Type scale (px) */
+  --vg-fs-hero:    84px;
+  --vg-fs-display: 56px;
+  --vg-fs-h1:      36px;
+  --vg-fs-h2:      22px;
+  --vg-fs-lg:      17px;
+  --vg-fs-md:      15px;
+  --vg-fs-base:    13.5px;
+  --vg-fs-sm:      12px;
+  --vg-fs-cap:     10px;
+  --vg-fs-mini:    9px;
+
+  /* Letter-spacing */
+  --vg-tracking-tight: -0.04em;   /* hero / display */
+  --vg-tracking-snug:  -0.02em;   /* h1 / h2 */
+  --vg-tracking-base:  -0.005em;  /* body */
+  --vg-tracking-cap:   0.18em;    /* uppercase caption */
+  --vg-tracking-wide:  0.24em;    /* mono index numbers */
+
+  /* ---------- 2. Color (deep space + vintage embers) ---------- */
+  --vg-c-void:    #0a0a0a;
+  --vg-c-depth:   #101010;
+  --vg-c-shell:   #161616;
+  --vg-c-soft:    #1f1f1f;
+  --vg-c-line:    rgba(255,255,255,.08);
+  --vg-c-line-2:  rgba(255,255,255,.14);
+
+  --vg-c-ink:     #fafafa;
+  --vg-c-ink-2:   rgba(255,255,255,.62);
+  --vg-c-ink-3:   rgba(255,255,255,.42);
+  --vg-c-ink-4:   rgba(255,255,255,.22);
+
+  --vg-c-ember:      #ff7a3d;        /* vintage poster orange — primary accent */
+  --vg-c-ember-soft: rgba(255,122,61,.18);
+  --vg-c-ember-ring: rgba(255,122,61,.40);
+  --vg-c-sun:        #ffd24a;        /* secondary accent (numerals, badges) */
+  --vg-c-ocean:      #3a78ff;        /* link / nav underline */
+
+  /* ---------- 3. Spacing (4px grid) ---------- */
+  --vg-sp-1: 4px;
+  --vg-sp-2: 8px;
+  --vg-sp-3: 12px;
+  --vg-sp-4: 16px;
+  --vg-sp-5: 20px;
+  --vg-sp-6: 24px;
+  --vg-sp-7: 32px;
+  --vg-sp-8: 48px;
+  --vg-sp-9: 64px;
+
+  /* ---------- 4. Radius ---------- */
+  --vg-r-shell: 20px;
+  --vg-r-panel: 14px;
+  --vg-r-card:  10px;
+  --vg-r-tile:  6px;
+  --vg-r-pill:  999px;
+
+  /* ---------- 5. Shadow ---------- */
+  --vg-shadow-depth: 0 1px 0 rgba(255,255,255,.04) inset, 0 24px 48px rgba(0,0,0,.6);
+  --vg-shadow-glow:  0 0 0 1px rgba(255,122,61,.4), 0 0 36px rgba(255,122,61,.18);
+  --vg-shadow-inset: inset 0 0 0 1px rgba(255,255,255,.06);
+
+  /* ---------- 6. Motion ---------- */
+  --vg-ease-vortex: cubic-bezier(0.16, 1, 0.3, 1);   /* hero entry, image flip-in */
+  --vg-ease-soft:   cubic-bezier(0.4, 0, 0.2, 1);    /* default */
+  --vg-ease-snap:   cubic-bezier(0.22, 0.61, 0.36, 1);
+
+  --vg-dur-fast: 120ms;
+  --vg-dur-base: 260ms;
+  --vg-dur-slow: 640ms;
+
+  /* lerp 系数（不要写进 CSS transition，给 JS RAF 用）
+     --vg-lerp-snappy   0.18  — cursor / hover follow
+     --vg-lerp-balanced 0.10  — default scroll
+     --vg-lerp-inertial 0.05  — vortex camera momentum
+  */
+}
+
+/* ---------- 7. Base ---------- */
+.vg, body.vg{
+  background: var(--vg-c-void);
+  color: var(--vg-c-ink);
+  font-family: var(--vg-font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  letter-spacing: var(--vg-tracking-base);
+}
+
+/* ---------- 8. Type primitives ---------- */
+.vg-hero{
+  font-family: var(--vg-font-display);
+  font-size: var(--vg-fs-hero);
+  font-weight: 500;
+  line-height: 0.92;
+  letter-spacing: var(--vg-tracking-tight);
+  color: var(--vg-c-ink);
+}
+.vg-display{
+  font-family: var(--vg-font-display);
+  font-size: var(--vg-fs-display);
+  font-weight: 400;
+  line-height: 0.96;
+  letter-spacing: var(--vg-tracking-tight);
+}
+.vg-h1{ font-size: var(--vg-fs-h1); font-weight: 500; letter-spacing: var(--vg-tracking-snug); line-height: 1.05; }
+.vg-h2{ font-size: var(--vg-fs-h2); font-weight: 500; letter-spacing: var(--vg-tracking-snug); line-height: 1.15; }
+.vg-body{ font-size: var(--vg-fs-base); font-weight: 400; color: var(--vg-c-ink-2); line-height: 1.55; }
+.vg-mono{
+  font-family: var(--vg-font-mono);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0;
+}
+.vg-cap{
+  font-size: var(--vg-fs-cap);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: var(--vg-tracking-cap);
+  color: var(--vg-c-ink-3);
+}
+.vg-index{
+  font-family: var(--vg-font-mono);
+  font-size: var(--vg-fs-cap);
+  letter-spacing: var(--vg-tracking-wide);
+  color: var(--vg-c-ink-3);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- 9. Surfaces ---------- */
+.vg-shell{
+  background: var(--vg-c-depth);
+  border: 1px solid var(--vg-c-line);
+  border-radius: var(--vg-r-shell);
+  box-shadow: var(--vg-shadow-depth);
+}
+.vg-panel{
+  background: var(--vg-c-shell);
+  border: 1px solid var(--vg-c-line);
+  border-radius: var(--vg-r-panel);
+}
+.vg-tile{
+  background: var(--vg-c-shell);
+  border: 1px solid var(--vg-c-line);
+  border-radius: var(--vg-r-tile);
+}
+
+/* ---------- 10. Interactive primitives ---------- */
+.vg-pill{
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 32px;
+  padding: 0 16px;
+  background: var(--vg-c-shell);
+  color: var(--vg-c-ink);
+  border: 1px solid var(--vg-c-line);
+  border-radius: var(--vg-r-pill);
+  font-size: var(--vg-fs-sm);
+  font-weight: 500;
+  letter-spacing: var(--vg-tracking-base);
+  cursor: pointer;
+  transition: background var(--vg-dur-base) var(--vg-ease-soft),
+              border-color var(--vg-dur-base) var(--vg-ease-soft);
+}
+.vg-pill:hover{ background: var(--vg-c-soft); border-color: var(--vg-c-line-2); }
+.vg-pill--ember{
+  background: var(--vg-c-ember);
+  color: #0a0a0a;
+  border-color: transparent;
+}
+.vg-pill--ember:hover{ background: #ff8b54; }
+
+.vg-btn-ghost{
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 28px;
+  padding: 0 12px;
+  background: transparent;
+  color: var(--vg-c-ink-2);
+  border: 1px solid var(--vg-c-line);
+  border-radius: var(--vg-r-pill);
+  font-size: var(--vg-fs-sm);
+  cursor: pointer;
+  transition: color var(--vg-dur-fast) var(--vg-ease-soft), border-color var(--vg-dur-fast) var(--vg-ease-soft);
+}
+.vg-btn-ghost:hover{ color: var(--vg-c-ink); border-color: var(--vg-c-line-2); }
+
+/* ---------- 11. Decorative ---------- */
+.vg-dot{
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--vg-c-ember);
+  box-shadow: 0 0 12px var(--vg-c-ember-ring);
+}
+.vg-rule{
+  height: 1px;
+  background: var(--vg-c-line);
+  margin: var(--vg-sp-6) 0;
+}
+
+/* ---------- 12. Layout helpers ---------- */
+.vg-stack{ display: flex; flex-direction: column; gap: var(--vg-sp-4); }
+.vg-row{ display: flex; align-items: center; gap: var(--vg-sp-3); }
+.vg-grid-2{ display: grid; grid-template-columns: 1fr 1fr; gap: var(--vg-sp-4); }
+.vg-grid-3{ display: grid; grid-template-columns: 1fr 1fr 1fr; gap: var(--vg-sp-4); }
+
+/* ---------- 13. Image / media ---------- */
+.vg-poster{
+  position: relative;
+  border-radius: var(--vg-r-card);
+  overflow: hidden;
+  background: var(--vg-c-shell);
+}
+.vg-poster img{ width: 100%; height: 100%; object-fit: cover; display: block; }
+.vg-poster::after{
+  content:'';
+  position: absolute; inset: 0;
+  border-radius: inherit;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.06);
+  pointer-events: none;
+}

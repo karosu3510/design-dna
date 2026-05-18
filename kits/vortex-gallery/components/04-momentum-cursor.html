@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>04 · Momentum Cursor</title>
+<link rel="stylesheet" href="../design-system.css">
+<style>html,body{margin:0;height:100%}body{background:var(--vg-c-void);color:var(--vg-c-ink);font-family:var(--vg-font-sans);overflow:hidden;cursor:none}
+.help{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none}
+.help h2{font-size:36px;font-weight:500;letter-spacing:-.02em;font-family:'Inter Tight',Inter,sans-serif;margin:0 0 8px}
+.help p{font-size:13px;color:var(--vg-c-ink-3);margin:0;font-family:var(--vg-font-mono);letter-spacing:.18em;text-transform:uppercase}
+.cursor{position:fixed;top:0;left:0;width:40px;height:40px;pointer-events:none;will-change:transform;mix-blend-mode:screen}
+.cursor circle{fill:none;stroke:var(--vg-c-ember);stroke-width:1.4}
+.target{position:absolute;display:inline-flex;align-items:center;height:36px;padding:0 18px;border-radius:999px;background:var(--vg-c-shell);border:1px solid var(--vg-c-line);font-size:13px;cursor:pointer;color:var(--vg-c-ink)}
+</style></head>
+<body class="vg">
+<div class="help">
+  <h2>Momentum cursor</h2>
+  <p>Move mouse · lerp 0.18</p>
+</div>
+<svg class="cursor" viewBox="0 0 100 100"><circle cx="50" cy="50" r="14"/></svg>
+<button class="target" style="left:120px;top:140px">hover me</button>
+<button class="target" style="right:120px;bottom:120px">or me</button>
+<script>
+let cursor={x:0,y:0},rendered={x:0,y:0,r:14};
+const el=document.querySelector('.cursor'),circle=el.querySelector('circle');
+addEventListener('mousemove',e=>{cursor.x=e.clientX;cursor.y=e.clientY});
+document.querySelectorAll('.target').forEach(t=>{
+  t.addEventListener('mouseenter',()=>rendered.r=28);
+  t.addEventListener('mouseleave',()=>rendered.r=14);
+});
+function loop(){
+  rendered.x += (cursor.x - rendered.x) * 0.18;
+  rendered.y += (cursor.y - rendered.y) * 0.18;
+  circle.setAttribute('r', circle.getAttribute('r') ? rendered.r : 14);
+  circle.setAttribute('r', rendered.r);
+  el.style.transform = `translate(${rendered.x-20}px, ${rendered.y-20}px)`;
+  requestAnimationFrame(loop);
+}
+requestAnimationFrame(loop);
+</script>
+</body></html>

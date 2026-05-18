@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>06 · Mono Readout</title>
+<link rel="stylesheet" href="../design-system.css">
+<style>html,body{margin:0;height:100%}body{background:var(--vg-c-void);color:var(--vg-c-ink);font-family:var(--vg-font-sans);display:grid;place-items:center;padding:48px;gap:32px}
+.shell{padding:32px;width:560px;display:grid;grid-template-columns:1fr 1fr;gap:24px}
+.cell{display:flex;flex-direction:column;gap:6px}
+.cap{font-family:var(--vg-font-mono);font-size:10px;letter-spacing:.24em;color:var(--vg-c-ink-3);text-transform:uppercase}
+.val{font-family:var(--vg-font-mono);font-size:42px;font-weight:300;letter-spacing:-.02em;color:var(--vg-c-ink);font-variant-numeric:tabular-nums;line-height:1}
+.unit{font-family:var(--vg-font-mono);font-size:11px;color:var(--vg-c-ink-3);letter-spacing:.18em;text-transform:uppercase}
+.bar{height:2px;background:var(--vg-c-soft);border-radius:1px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--vg-c-ember);transition:width 600ms cubic-bezier(.16,1,.3,1)}
+</style></head>
+<body class="vg">
+<div class="vg-shell shell">
+  <div class="cell">
+    <span class="cap">Frame</span>
+    <span class="val" id="frame">000</span>
+    <div class="bar"><i id="b1" style="width:0"></i></div>
+    <span class="unit">/ 600</span>
+  </div>
+  <div class="cell">
+    <span class="cap">Velocity</span>
+    <span class="val" id="vel">0.00</span>
+    <div class="bar"><i id="b2" style="width:0"></i></div>
+    <span class="unit">m·s⁻¹</span>
+  </div>
+  <div class="cell">
+    <span class="cap">Light</span>
+    <span class="val" id="lux">000</span>
+    <div class="bar"><i id="b3" style="width:0"></i></div>
+    <span class="unit">lux</span>
+  </div>
+  <div class="cell">
+    <span class="cap">Inertia</span>
+    <span class="val" id="iner">0.000</span>
+    <div class="bar"><i id="b4" style="width:0"></i></div>
+    <span class="unit">lerp</span>
+  </div>
+</div>
+<script>
+let f=0,v=0,vT=0,l=0,i=0;
+function r(){return Math.random()}
+setInterval(()=>{vT=r()*4;l=Math.round(r()*900);i=0.05+r()*0.13},800);
+function loop(){
+  f=(f+1)%600;v+=(vT-v)*.05;i+=(i*.96+r()*.02-i)*.05;
+  document.getElementById('frame').textContent=String(f).padStart(3,'0');
+  document.getElementById('vel').textContent=v.toFixed(2);
+  document.getElementById('lux').textContent=l;
+  document.getElementById('iner').textContent=i.toFixed(3);
+  document.getElementById('b1').style.width=(f/600*100)+'%';
+  document.getElementById('b2').style.width=Math.min(100,v/4*100)+'%';
+  document.getElementById('b3').style.width=Math.min(100,l/900*100)+'%';
+  document.getElementById('b4').style.width=Math.min(100,i/0.18*100)+'%';
+  requestAnimationFrame(loop);
+}
+requestAnimationFrame(loop);
+</script>
+</body></html>

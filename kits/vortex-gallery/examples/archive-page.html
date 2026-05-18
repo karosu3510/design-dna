@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Archive · Vortex Gallery example</title>
+<link rel="stylesheet" href="../design-system.css">
+<style>
+html,body{margin:0;min-height:100%}
+body{background:var(--vg-c-void);color:var(--vg-c-ink);font-family:var(--vg-font-sans);padding-bottom:120px}
+
+.topbar{position:sticky;top:0;z-index:10;backdrop-filter:blur(14px);background:rgba(10,10,10,.72);border-bottom:1px solid var(--vg-c-line);padding:18px 48px;display:flex;align-items:center;justify-content:space-between}
+.brand{display:flex;align-items:center;gap:10px;font-family:var(--vg-font-mono);font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--vg-c-ink-2)}
+.brand .dot{width:6px;height:6px;border-radius:50%;background:var(--vg-c-ember);box-shadow:0 0 12px rgba(255,122,61,.6)}
+.nav{display:flex;gap:22px;font-size:12px;letter-spacing:.18em;text-transform:uppercase;font-family:var(--vg-font-mono);color:var(--vg-c-ink-3)}
+.nav a{color:inherit;text-decoration:none;transition:color 260ms ease}
+.nav a:hover,.nav a.active{color:var(--vg-c-ink)}
+
+.hero{padding:112px 48px 80px;display:grid;grid-template-columns:1fr 240px;gap:48px;align-items:end;border-bottom:1px solid var(--vg-c-line)}
+.hero h1{font-family:'Inter Tight',Inter,sans-serif;font-size:84px;font-weight:500;letter-spacing:-.04em;line-height:.92;margin:0}
+.hero .lead{font-size:15px;color:var(--vg-c-ink-2);line-height:1.6;max-width:36ch}
+.hero .meta{display:flex;flex-direction:column;gap:14px;align-items:flex-end}
+.hero .meta .row{display:flex;gap:14px;align-items:baseline;font-family:var(--vg-font-mono);font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--vg-c-ink-3)}
+.hero .meta .row b{color:var(--vg-c-ink);font-weight:500}
+
+.bar{padding:24px 48px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--vg-c-line);font-family:var(--vg-font-mono);font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:var(--vg-c-ink-3)}
+.bar .filters{display:flex;gap:8px}
+.bar .filters .pill{height:28px;padding:0 14px;border-radius:999px;background:var(--vg-c-shell);border:1px solid var(--vg-c-line);color:var(--vg-c-ink-2);cursor:pointer;font-family:var(--vg-font-mono);letter-spacing:.18em;font-size:10px;text-transform:uppercase;display:inline-flex;align-items:center;gap:6px}
+.bar .filters .pill.active{background:var(--vg-c-ember);color:#0a0a0a;border-color:transparent}
+.bar .filters .pill:hover:not(.active){background:var(--vg-c-soft);color:var(--vg-c-ink)}
+
+.grid{padding:32px 48px;display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:18px}
+.card{aspect-ratio:3/4;border-radius:10px;overflow:hidden;position:relative;cursor:pointer;transition:transform 260ms cubic-bezier(.16,1,.3,1)}
+.card:hover{transform:scale(1.04)}
+.card .img{position:absolute;inset:0;background-size:cover;background-position:50% 50%}
+.card::after{content:'';position:absolute;inset:0;border-radius:inherit;box-shadow:inset 0 0 0 1px rgba(255,255,255,.06);pointer-events:none}
+.card .meta{position:absolute;left:12px;right:12px;bottom:12px;display:flex;justify-content:space-between;font-family:var(--vg-font-mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:#fff;opacity:0;transition:opacity 260ms ease;text-shadow:0 1px 4px rgba(0,0,0,.6)}
+.card:hover .meta{opacity:1}
+.card .badge{position:absolute;left:10px;top:10px;display:none;width:6px;height:6px;border-radius:50%;background:var(--vg-c-ember);box-shadow:0 0 12px rgba(255,122,61,.7)}
+.card.featured .badge{display:block}
+
+.section-cap{padding:64px 48px 16px;font-family:var(--vg-font-mono);font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:var(--vg-c-ink-3);display:flex;justify-content:space-between;align-items:end}
+.section-cap h2{font-family:'Inter Tight',Inter,sans-serif;font-size:36px;font-weight:500;letter-spacing:-.02em;margin:0;color:var(--vg-c-ink)}
+
+.tape{padding:64px 48px;background:var(--vg-c-depth);border-top:1px solid var(--vg-c-line);border-bottom:1px solid var(--vg-c-line);margin:64px 0;display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center}
+.tape h3{font-family:'Inter Tight',Inter,sans-serif;font-size:56px;font-weight:400;letter-spacing:-.04em;line-height:.96;margin:0}
+.tape p{font-size:14px;color:var(--vg-c-ink-2);line-height:1.6;max-width:46ch}
+.tape .num{font-family:var(--vg-font-mono);font-size:96px;font-weight:200;color:var(--vg-c-ember);letter-spacing:-.04em;line-height:1;font-variant-numeric:tabular-nums}
+.tape .num small{display:block;font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--vg-c-ink-3);margin-top:8px}
+</style>
+</head>
+<body class="vg">
+
+<div class="topbar">
+  <div class="brand"><span class="dot"></span>Vortex · Archive</div>
+  <nav class="nav">
+    <a href="#" class="active">Index</a>
+    <a href="#">Vols</a>
+    <a href="#">Studio</a>
+    <a href="#">Press</a>
+  </nav>
+</div>
+
+<section class="hero">
+  <div>
+    <h1>Footage,<br/>not&nbsp;a&nbsp;feed.</h1>
+    <p class="lead" style="margin-top:24px">A token-driven archive built from the Vortex Gallery DNA. 24 plates from a 1953–1962 travel series, indexed and pageable. Same depth, same ember, no scrollbar.</p>
+  </div>
+  <div class="meta">
+    <div class="row"><span>VOL</span><b>I · 1953—1962</b></div>
+    <div class="row"><span>PLATES</span><b>24</b></div>
+    <div class="row"><span>EDITION</span><b>002</b></div>
+  </div>
+</section>
+
+<div class="bar">
+  <span>24 plates · sorted by year</span>
+  <div class="filters">
+    <button class="pill active">All</button>
+    <button class="pill">1950s</button>
+    <button class="pill">1960s</button>
+    <button class="pill">Featured</button>
+  </div>
+</div>
+
+<div class="grid" id="grid"></div>
+
+<div class="section-cap">
+  <h2>Featured plate</h2>
+  <span>03 / 24 · 1948</span>
+</div>
+
+<section class="tape">
+  <div>
+    <h3>Friendly<br/>Business.</h3>
+    <p style="margin-top:24px">A 1948 hand-set sans plate, brewer's mark on cobalt, lifted from the Pacific run. The single ember dot in the topbar matches the original four-color overprint. Dark surface lets the saturation breathe.</p>
+  </div>
+  <div>
+    <div class="num">03<small>plate · vol I</small></div>
+  </div>
+</section>
+
+<div class="section-cap">
+  <h2>Recent additions</h2>
+  <span>Updated · 2026.05.18</span>
+</div>
+<div class="grid" id="grid2"></div>
+
+<script>
+const palette=[
+  ['#3a78ff','#1a1a3a','01','1953'],
+  ['#ff7a3d','#6a2310','02','1955'],
+  ['#ffd24a','#6a4810','03','1948',true],
+  ['#fafafa','#2a2a2a','04','1962'],
+  ['#3a78ff','#0a0a3a','05','1957'],
+  ['#ff7a3d','#3a1208','06','1949'],
+  ['#ffd24a','#3a2a08','07','1958'],
+  ['#3a78ff','#1a1a3a','08','1951'],
+  ['#ff7a3d','#6a2310','09','1960'],
+  ['#ffd24a','#6a4810','10','1962',true],
+  ['#fafafa','#2a2a2a','11','1956'],
+  ['#3a78ff','#0a0a3a','12','1953'],
+];
+function render(id, list){
+  const g=document.getElementById(id);
+  list.forEach(([c1,c2,n,y,feat])=>{
+    const card=document.createElement('div');
+    card.className='card'+(feat?' featured':'');
+    card.innerHTML=`<div class="img" style="background:linear-gradient(160deg,${c1} 0%, ${c2} 100%)"></div><span class="badge"></span><div class="meta"><span>OPUS-${n}</span><span>${y}</span></div>`;
+    g.appendChild(card);
+  });
+}
+render('grid',palette);
+render('grid2',palette.slice().reverse().slice(0,8));
+</script>
+</body>
+</html>

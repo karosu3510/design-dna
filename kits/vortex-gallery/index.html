@@ -1,0 +1,505 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Vortex Gallery · Design System</title>
+<link rel="icon" type="image/png" href="../../logo.png">
+<link rel="stylesheet" href="./design-system.css">
+<style>
+html,body{margin:0;min-height:100vh}
+body{background:var(--vg-c-void);color:var(--vg-c-ink);font-family:var(--vg-font-sans)}
+
+.layout{display:grid;grid-template-columns:280px 1fr;min-height:100vh}
+
+/* Sidebar */
+.nav{padding:32px 22px;border-right:1px solid var(--vg-c-line);position:sticky;top:0;height:100vh;overflow-y:auto;background:var(--vg-c-void)}
+.nav-brand{display:flex;align-items:center;gap:10px;font-size:15px;font-weight:500;color:var(--vg-c-ink);margin-bottom:6px}
+.nav-brand .mark{width:18px;height:18px;border-radius:50%;background:var(--vg-c-ember);box-shadow:0 0 14px rgba(255,122,61,.5);flex-shrink:0}
+.nav-sub{font-size:11px;color:var(--vg-c-ink-3);margin-bottom:24px;font-family:var(--vg-font-mono);letter-spacing:.18em;text-transform:uppercase}
+
+.nav-cap{font-size:10px;font-weight:500;color:var(--vg-c-ink-3);letter-spacing:.18em;text-transform:uppercase;padding:0 10px;margin:18px 0 6px;font-family:var(--vg-font-mono)}
+.nav-link{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:8px;font-size:13px;color:var(--vg-c-ink-2);cursor:pointer;text-decoration:none;letter-spacing:-0.005em;transition:background .15s,color .15s}
+.nav-link:hover{background:var(--vg-c-shell);color:var(--vg-c-ink)}
+.nav-link.active{background:var(--vg-c-shell);color:var(--vg-c-ember)}
+.nav-link .num{font-family:var(--vg-font-mono);font-size:10px;color:var(--vg-c-ink-3);font-weight:300;width:22px;letter-spacing:.18em}
+.nav-link.active .num{color:var(--vg-c-ember)}
+
+.dl-pill{margin-top:18px;height:36px;width:100%;border-radius:999px;background:var(--vg-c-ember);color:#0a0a0a;display:inline-flex;align-items:center;justify-content:center;gap:8px;font-size:12px;border:0;cursor:pointer;font-weight:500;font-family:var(--vg-font-sans)}
+.dl-pill svg{width:13px;height:13px}
+.wb-pill{margin-top:8px;height:36px;width:100%;border-radius:999px;background:var(--vg-c-shell);color:var(--vg-c-ink);display:inline-flex;align-items:center;justify-content:center;gap:8px;font-size:12px;border:1px solid var(--vg-c-line);cursor:pointer;font-weight:500;font-family:var(--vg-font-sans);transition:border-color .15s,background .15s}
+.wb-pill:hover{background:var(--vg-c-soft);border-color:var(--vg-c-line-2)}
+.wb-pill svg{width:13px;height:13px}
+
+/* Main */
+main{padding:48px 56px;max-width:1100px}
+.head{display:flex;flex-direction:column;gap:6px;margin-bottom:32px}
+.head .vg-cap{margin-bottom:6px}
+.head h1{font-family:'Inter Tight',Inter,sans-serif;font-size:84px;font-weight:500;letter-spacing:-.04em;line-height:.92;margin:0}
+.head .lead{font-size:14px;color:var(--vg-c-ink-2);max-width:560px;line-height:1.6;margin-top:18px}
+
+.panel{background:var(--vg-c-depth);border:1px solid var(--vg-c-line);border-radius:14px;padding:24px;margin-bottom:18px}
+.panel h2{font-size:22px;font-weight:500;letter-spacing:-.02em;color:var(--vg-c-ink);margin:0 0 6px;font-family:'Inter Tight',Inter,sans-serif}
+.panel .desc{font-size:13px;color:var(--vg-c-ink-2);margin-bottom:18px;max-width:600px;line-height:1.55}
+
+/* Color swatches */
+.swatch-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:10px}
+.swatch{display:flex;flex-direction:column;gap:6px}
+.swatch .chip{height:64px;border-radius:10px;border:1px solid var(--vg-c-line);position:relative;overflow:hidden}
+.swatch .name{font-size:11px;color:var(--vg-c-ink);font-weight:500}
+.swatch .hex{font-size:10px;color:var(--vg-c-ink-3);font-family:var(--vg-font-mono);letter-spacing:0}
+
+/* Type scale */
+.type-row{display:flex;align-items:baseline;justify-content:space-between;padding:14px 0;border-top:1px solid var(--vg-c-line)}
+.type-row:first-child{border-top:0}
+.type-row .demo{color:var(--vg-c-ink)}
+.type-row .meta{font-family:var(--vg-font-mono);font-size:11px;color:var(--vg-c-ink-3);font-weight:300;letter-spacing:0}
+
+/* Spacing scale */
+.sp-grid{display:grid;grid-template-columns:repeat(9,1fr);gap:8px}
+.sp-cell{background:var(--vg-c-shell);border-radius:6px;display:flex;flex-direction:column;align-items:center;padding:14px 6px;gap:8px}
+.sp-cell .bar{background:var(--vg-c-ember);border-radius:2px;height:6px}
+.sp-cell .name{font-family:var(--vg-font-mono);font-size:9.5px;color:var(--vg-c-ink-3);letter-spacing:.05em}
+
+/* Component preview */
+.comp-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.comp{background:var(--vg-c-shell);border-radius:10px;padding:0;overflow:hidden;border:1px solid var(--vg-c-line)}
+.comp header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--vg-c-line);background:var(--vg-c-soft)}
+.comp header b{font-size:12px;font-weight:500;color:var(--vg-c-ink);font-family:var(--vg-font-mono);letter-spacing:.05em}
+.comp header a{font-size:11px;color:var(--vg-c-ember);text-decoration:none;font-family:var(--vg-font-mono);letter-spacing:.05em}
+.comp iframe{width:100%;height:300px;border:0;display:block;background:var(--vg-c-void)}
+
+/* Examples (full width) */
+.example{background:var(--vg-c-shell);border-radius:14px;border:1px solid var(--vg-c-line);overflow:hidden}
+.example header{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--vg-c-line);background:var(--vg-c-soft)}
+.example header b{font-size:13px;font-weight:500;font-family:var(--vg-font-mono);letter-spacing:.05em}
+.example header a{font-size:11.5px;color:var(--vg-c-ember);text-decoration:none}
+.example iframe{width:100%;height:720px;border:0;display:block}
+
+/* Code block */
+pre.code{background:#000;color:var(--vg-c-ink);border:1px solid var(--vg-c-line);border-radius:10px;padding:18px;font-family:var(--vg-font-mono);font-size:12px;overflow-x:auto;line-height:1.6;letter-spacing:0}
+pre.code .c{color:var(--vg-c-ink-3)}
+pre.code .k{color:var(--vg-c-ember)}
+pre.code .s{color:var(--vg-c-sun)}
+
+.ai-toolbar{display:flex;gap:8px;margin-bottom:14px}
+.copy-btn{height:30px;padding:0 14px;border-radius:999px;background:var(--vg-c-shell);border:1px solid var(--vg-c-line);font-size:11.5px;color:var(--vg-c-ink-2);cursor:pointer;display:inline-flex;align-items:center;gap:6px;text-decoration:none;font-family:var(--vg-font-sans)}
+.copy-btn:hover{border-color:var(--vg-c-line-2);color:var(--vg-c-ink);background:var(--vg-c-soft)}
+
+/* GitHub source tree */
+.gh-bar{display:flex;align-items:center;gap:10px;padding:14px 18px;background:var(--vg-c-shell);border:1px solid var(--vg-c-line);border-radius:10px;margin-bottom:18px}
+.gh-bar svg{width:16px;height:16px;color:var(--vg-c-ink)}
+.gh-bar .repo{flex:1;font-family:var(--vg-font-mono);font-size:12px;color:var(--vg-c-ink);letter-spacing:0}
+.gh-bar .repo b{color:var(--vg-c-ember);font-weight:500}
+.gh-bar a{font-size:11px;color:var(--vg-c-ink-3);text-decoration:none;display:inline-flex;align-items:center;gap:4px;font-family:var(--vg-font-mono);letter-spacing:.05em}
+.gh-bar a:hover{color:var(--vg-c-ember)}
+
+.tree{font-family:var(--vg-font-mono);font-size:12.5px;line-height:1.85;color:var(--vg-c-ink-2);background:#000;border:1px solid var(--vg-c-line);border-radius:10px;padding:18px 22px;letter-spacing:0;overflow-x:auto}
+.tree .dir{color:var(--vg-c-sun)}
+.tree .file{color:var(--vg-c-ink-2)}
+.tree .file:hover{color:var(--vg-c-ember)}
+.tree .file{text-decoration:none;display:inline}
+.tree .cmt{color:var(--vg-c-ink-3)}
+.tree a{color:inherit;text-decoration:none}
+.tree a:hover{color:var(--vg-c-ember)}
+
+footer{margin-top:32px;padding:24px 0;border-top:1px solid var(--vg-c-line);font-size:11.5px;color:var(--vg-c-ink-3);display:flex;justify-content:space-between;font-family:var(--vg-font-mono);letter-spacing:.05em}
+footer a{color:var(--vg-c-ember);text-decoration:none}
+</style>
+</head>
+<body class="vg">
+<div class="layout">
+
+  <!-- Sidebar -->
+  <aside class="nav">
+    <div class="nav-brand"><div class="mark"></div><span>Vortex Gallery</span></div>
+    <div class="nav-sub">Design System · v1.0</div>
+
+    <div class="nav-cap">基础</div>
+    <a class="nav-link active" href="#overview"><span class="num">00</span>概览</a>
+    <a class="nav-link" href="#color"><span class="num">01</span>色彩</a>
+    <a class="nav-link" href="#type"><span class="num">02</span>字体</a>
+    <a class="nav-link" href="#spacing"><span class="num">03</span>间距与圆角</a>
+    <a class="nav-link" href="#motion"><span class="num">04</span>动效</a>
+
+    <div class="nav-cap">组件</div>
+    <a class="nav-link" href="#c-shell"><span class="num">05</span>Void shell</a>
+    <a class="nav-link" href="#c-pill"><span class="num">06</span>Ember pill</a>
+    <a class="nav-link" href="#c-poster"><span class="num">07</span>Poster tile</a>
+    <a class="nav-link" href="#c-cursor"><span class="num">08</span>Momentum cursor</a>
+    <a class="nav-link" href="#c-cap"><span class="num">09</span>Cap index</a>
+    <a class="nav-link" href="#c-mono"><span class="num">10</span>Mono readout</a>
+    <a class="nav-link" href="#c-strip"><span class="num">11</span>Vortex strip</a>
+    <a class="nav-link" href="#c-glow"><span class="num">12</span>Glow badge</a>
+
+    <div class="nav-cap">示例</div>
+    <a class="nav-link" href="#ex-original"><span class="num">13</span>原始效果</a>
+    <a class="nav-link" href="#ex-archive"><span class="num">14</span>Archive 衍生页</a>
+
+    <div class="nav-cap">GitHub 工程</div>
+    <a class="nav-link" href="#source"><span class="num">15</span>源码工程结构</a>
+
+    <div class="nav-cap">AI 接入</div>
+    <a class="nav-link" href="#ai"><span class="num">16</span>Cursor / Claude 提示词</a>
+    <a class="nav-link" href="#tw"><span class="num">17</span>Tailwind 预设</a>
+
+    <button class="dl-pill" id="dlBtn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      下载完整素材包
+    </button>
+    <button class="wb-pill" id="wbBtn" title="复制开发提示词并打开 WorkBuddy">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+      去 WorkBuddy 开发
+    </button>
+  </aside>
+
+  <!-- Main content -->
+  <main>
+    <!-- Overview -->
+    <section id="overview" class="head">
+      <span class="vg-cap">Design DNA · Inspiration kit</span>
+      <h1>Vortex<br/>Gallery.</h1>
+      <div class="lead">A deep-space WebGL gallery system. Void canvas, vintage ember accent, momentum-driven scroll. Distilled from <a href="https://github.com/J0SUKE/vortex-gallery" target="_blank" style="color:var(--vg-c-ember);text-decoration:none">J0SUKE / vortex-gallery</a> for cinematic media archives, photo essays, and label catalogs.</div>
+    </section>
+
+    <!-- Color -->
+    <section id="color" class="panel">
+      <h2>01 · Color</h2>
+      <div class="desc">Four-tier void scale (never lighter than #1f1f1f), four-step ink ramp, and one ember accent. Sun and ocean are optional, never replace ember.</div>
+      <div class="swatch-grid">
+        <div class="swatch"><div class="chip" style="background:#0a0a0a"></div><div class="name">void</div><div class="hex">#0a0a0a</div></div>
+        <div class="swatch"><div class="chip" style="background:#101010"></div><div class="name">depth</div><div class="hex">#101010</div></div>
+        <div class="swatch"><div class="chip" style="background:#161616"></div><div class="name">shell</div><div class="hex">#161616</div></div>
+        <div class="swatch"><div class="chip" style="background:#1f1f1f"></div><div class="name">soft</div><div class="hex">#1f1f1f</div></div>
+        <div class="swatch"><div class="chip" style="background:#ff7a3d"></div><div class="name">ember · accent</div><div class="hex">#ff7a3d</div></div>
+        <div class="swatch"><div class="chip" style="background:#ffd24a"></div><div class="name">sun</div><div class="hex">#ffd24a</div></div>
+        <div class="swatch"><div class="chip" style="background:#3a78ff"></div><div class="name">ocean</div><div class="hex">#3a78ff</div></div>
+        <div class="swatch"><div class="chip" style="background:#fafafa"></div><div class="name">ink</div><div class="hex">#fafafa</div></div>
+        <div class="swatch"><div class="chip" style="background:rgba(255,255,255,.62)"></div><div class="name">ink-2</div><div class="hex">62% white</div></div>
+        <div class="swatch"><div class="chip" style="background:rgba(255,255,255,.42)"></div><div class="name">ink-3</div><div class="hex">42% white</div></div>
+        <div class="swatch"><div class="chip" style="background:rgba(255,255,255,.22)"></div><div class="name">ink-4</div><div class="hex">22% white</div></div>
+      </div>
+    </section>
+
+    <!-- Type -->
+    <section id="type" class="panel">
+      <h2>02 · Typography</h2>
+      <div class="desc">Inter Tight 500 for hero / display. Inter for UI / body. JetBrains Mono with tabular-nums for any ticking number. Three families, ten sizes, never invent another.</div>
+      <div class="type-row">
+        <div class="demo" style="font-family:'Inter Tight',Inter,sans-serif;font-size:84px;font-weight:500;letter-spacing:-.04em;line-height:.92">Footage</div>
+        <div class="meta">84px · Inter Tight 500 · hero (-.04em)</div>
+      </div>
+      <div class="type-row">
+        <div class="demo" style="font-family:'Inter Tight',Inter,sans-serif;font-size:36px;font-weight:500;letter-spacing:-.02em">The vortex archive</div>
+        <div class="meta">36px · Inter Tight 500 · h1</div>
+      </div>
+      <div class="type-row">
+        <div class="demo" style="font-family:'JetBrains Mono',monospace;font-size:42px;font-weight:300;letter-spacing:-.02em;font-variant-numeric:tabular-nums">600 / 24</div>
+        <div class="meta">42px · JetBrains Mono 300 · readout</div>
+      </div>
+      <div class="type-row">
+        <div class="demo" style="font-size:13.5px;color:var(--vg-c-ink-2)">Wheel-driven inertia, no scrollbar. 600 instanced posters, three lerp speeds.</div>
+        <div class="meta">13.5px · Inter 400 · body</div>
+      </div>
+      <div class="type-row">
+        <div class="demo vg-index">01 / 24 · OPUS</div>
+        <div class="meta">10px · JetBrains Mono · index (+0.24em)</div>
+      </div>
+    </section>
+
+    <!-- Spacing & radius -->
+    <section id="spacing" class="panel">
+      <h2>03 · Spacing & radius</h2>
+      <div class="desc">4px grid for spacing (4/8/12/16/20/24/32/48/64). Five-step radius scale: 20 / 14 / 10 / 6 / 999. No improvisation.</div>
+      <div class="sp-grid">
+        <div class="sp-cell"><div class="bar" style="width:4px"></div><div class="name">4 · sp1</div></div>
+        <div class="sp-cell"><div class="bar" style="width:8px"></div><div class="name">8 · sp2</div></div>
+        <div class="sp-cell"><div class="bar" style="width:12px"></div><div class="name">12 · sp3</div></div>
+        <div class="sp-cell"><div class="bar" style="width:16px"></div><div class="name">16 · sp4</div></div>
+        <div class="sp-cell"><div class="bar" style="width:20px"></div><div class="name">20 · sp5</div></div>
+        <div class="sp-cell"><div class="bar" style="width:24px"></div><div class="name">24 · sp6</div></div>
+        <div class="sp-cell"><div class="bar" style="width:32px"></div><div class="name">32 · sp7</div></div>
+        <div class="sp-cell"><div class="bar" style="width:48px"></div><div class="name">48 · sp8</div></div>
+        <div class="sp-cell"><div class="bar" style="width:64px"></div><div class="name">64 · sp9</div></div>
+      </div>
+      <div style="display:flex;gap:14px;margin-top:18px;align-items:flex-end">
+        <div style="width:80px;height:80px;background:var(--vg-c-shell);border:1px solid var(--vg-c-line);border-radius:20px;text-align:center;font-family:var(--vg-font-mono);font-size:10.5px;color:var(--vg-c-ink-3);display:flex;align-items:flex-end;justify-content:center;padding-bottom:8px">20 · shell</div>
+        <div style="width:72px;height:72px;background:var(--vg-c-shell);border:1px solid var(--vg-c-line);border-radius:14px;text-align:center;font-family:var(--vg-font-mono);font-size:10.5px;color:var(--vg-c-ink-3);display:flex;align-items:flex-end;justify-content:center;padding-bottom:8px">14 · panel</div>
+        <div style="width:64px;height:64px;background:var(--vg-c-shell);border:1px solid var(--vg-c-line);border-radius:10px;text-align:center;font-family:var(--vg-font-mono);font-size:10.5px;color:var(--vg-c-ink-3);display:flex;align-items:flex-end;justify-content:center;padding-bottom:8px">10 · card</div>
+        <div style="width:56px;height:56px;background:var(--vg-c-shell);border:1px solid var(--vg-c-line);border-radius:6px;text-align:center;font-family:var(--vg-font-mono);font-size:10.5px;color:var(--vg-c-ink-3);display:flex;align-items:flex-end;justify-content:center;padding-bottom:8px">6 · tile</div>
+        <div style="height:34px;padding:0 18px;background:var(--vg-c-shell);border:1px solid var(--vg-c-line);border-radius:999px;font-family:var(--vg-font-mono);font-size:10.5px;color:var(--vg-c-ink-3);display:flex;align-items:center">999 · pill</div>
+      </div>
+    </section>
+
+    <!-- Motion -->
+    <section id="motion" class="panel">
+      <h2>04 · Motion</h2>
+      <div class="desc">Three easings, three durations. Wheel/momentum-driven values use lerp + RAF, never CSS transition.</div>
+      <pre class="code"><span class="c">// CSS transitions</span>
+<span class="k">--vg-ease-vortex</span>: cubic-bezier(0.16, 1, 0.3, 1);     <span class="c">// hero entry, image flip-in</span>
+<span class="k">--vg-ease-soft</span>:   cubic-bezier(0.4, 0, 0.2, 1);       <span class="c">// default UI</span>
+<span class="k">--vg-ease-snap</span>:   cubic-bezier(0.22, 0.61, 0.36, 1);   <span class="c">// affordance</span>
+<span class="k">--vg-dur-fast</span>: 120ms;
+<span class="k">--vg-dur-base</span>: 260ms;
+<span class="k">--vg-dur-slow</span>: 640ms;
+
+<span class="c">// Lerp constants — wheel/cursor (use in RAF, not CSS)</span>
+current += (target - current) * <span class="s">0.18</span>;  <span class="c">// snappy   — cursor follow</span>
+current += (target - current) * <span class="s">0.10</span>;  <span class="c">// balanced — default scroll</span>
+current += (target - current) * <span class="s">0.05</span>;  <span class="c">// inertial — vortex camera</span></pre>
+    </section>
+
+    <!-- Components -->
+    <section class="panel">
+      <h2>Components</h2>
+      <div class="desc">Eight building blocks. Each is a self-contained HTML file under <code style="font-family:var(--vg-font-mono);background:var(--vg-c-soft);padding:1px 6px;border-radius:4px">components/</code> — open one, copy what you need.</div>
+      <div class="comp-grid">
+        <div class="comp" id="c-shell"><header><b>05 · Void shell</b><a href="./components/01-void-shell.html" target="_blank">open ↗</a></header><iframe src="./components/01-void-shell.html" loading="lazy"></iframe></div>
+        <div class="comp" id="c-pill"><header><b>06 · Ember pill</b><a href="./components/02-ember-pill.html" target="_blank">open ↗</a></header><iframe src="./components/02-ember-pill.html" loading="lazy"></iframe></div>
+        <div class="comp" id="c-poster"><header><b>07 · Poster tile</b><a href="./components/03-poster-tile.html" target="_blank">open ↗</a></header><iframe src="./components/03-poster-tile.html" loading="lazy"></iframe></div>
+        <div class="comp" id="c-cursor"><header><b>08 · Momentum cursor</b><a href="./components/04-momentum-cursor.html" target="_blank">open ↗</a></header><iframe src="./components/04-momentum-cursor.html" loading="lazy"></iframe></div>
+        <div class="comp" id="c-cap"><header><b>09 · Cap index</b><a href="./components/05-cap-index.html" target="_blank">open ↗</a></header><iframe src="./components/05-cap-index.html" loading="lazy"></iframe></div>
+        <div class="comp" id="c-mono"><header><b>10 · Mono readout</b><a href="./components/06-mono-readout.html" target="_blank">open ↗</a></header><iframe src="./components/06-mono-readout.html" loading="lazy"></iframe></div>
+        <div class="comp" id="c-strip"><header><b>11 · Vortex strip</b><a href="./components/07-vortex-strip.html" target="_blank">open ↗</a></header><iframe src="./components/07-vortex-strip.html" loading="lazy"></iframe></div>
+        <div class="comp" id="c-glow"><header><b>12 · Glow badge</b><a href="./components/08-glow-badge.html" target="_blank">open ↗</a></header><iframe src="./components/08-glow-badge.html" loading="lazy"></iframe></div>
+      </div>
+    </section>
+
+    <!-- Examples -->
+    <section class="panel">
+      <h2>Examples</h2>
+      <div class="desc">Same tokens carrying two surfaces. The original card on the left, an archive page derived from it on the right — same DNA, different content.</div>
+      <div class="example" id="ex-original" style="margin-bottom:14px"><header><b>13 · Original — J0SUKE Vortex card</b><a href="./examples/original.html" target="_blank">open ↗</a></header><iframe src="./examples/original.html" loading="lazy"></iframe></div>
+      <div class="example" id="ex-archive"><header><b>14 · Archive page (token-driven)</b><a href="./examples/archive-page.html" target="_blank">open ↗</a></header><iframe src="./examples/archive-page.html" loading="lazy" style="height:1400px"></iframe></div>
+    </section>
+
+    <!-- GitHub source tree -->
+    <section id="source" class="panel">
+      <h2>15 · GitHub 工程结构</h2>
+      <div class="desc">这张卡片的视觉效果直接取自 J0SUKE 的开源项目 vortex-gallery，使用 Three.js + GLSL + 600 instanced mesh 实现。下面是源仓库的工程结构：</div>
+      <div class="gh-bar">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+        <span class="repo"><b>J0SUKE</b> / vortex-gallery</span>
+        <a href="https://github.com/J0SUKE/vortex-gallery" target="_blank" rel="noreferrer">repo ↗</a>
+        <a href="https://vortex-gallery.vercel.app/" target="_blank" rel="noreferrer">live demo ↗</a>
+      </div>
+      <pre class="tree"><span class="dir">vortex-gallery/</span>
+├── <span class="dir">public/</span>
+│   └── <span class="dir">frames/512/</span>           <span class="cmt">// 20 张 512px 海报底图（atlas 拼接源）</span>
+│       ├── p1.jpg ... p13.jpg
+│       └── 14.jpg ... 20.jpg
+├── <span class="dir">src/</span>
+│   ├── <span class="dir">shaders/</span>
+│   │   ├── <a href="https://github.com/J0SUKE/vortex-gallery/blob/main/src/shaders/vertex.glsl" target="_blank" class="file">vertex.glsl</a>           <span class="cmt">// 圆柱排列 + 旋转 + zPos wrap</span>
+│   │   ├── <a href="https://github.com/J0SUKE/vortex-gallery/blob/main/src/shaders/fragment.glsl" target="_blank" class="file">fragment.glsl</a>         <span class="cmt">// atlas UV 采样</span>
+│   │   ├── <a href="https://github.com/J0SUKE/vortex-gallery/blob/main/src/shaders/center-vertex.glsl" target="_blank" class="file">center-vertex.glsl</a>    <span class="cmt">// 中心 plane 同步切图</span>
+│   │   └── <a href="https://github.com/J0SUKE/vortex-gallery/blob/main/src/shaders/center-fragment.glsl" target="_blank" class="file">center-fragment.glsl</a>
+│   ├── <a href="https://github.com/J0SUKE/vortex-gallery/blob/main/src/main.ts" target="_blank" class="file">main.ts</a>                   <span class="cmt">// App 入口 + RAF loop</span>
+│   ├── <a href="https://github.com/J0SUKE/vortex-gallery/blob/main/src/canvas.ts" target="_blank" class="file">canvas.ts</a>                 <span class="cmt">// THREE 场景 / 相机 / wheel 输入</span>
+│   ├── <a href="https://github.com/J0SUKE/vortex-gallery/blob/main/src/gallery.ts" target="_blank" class="file">gallery.ts</a>                <span class="cmt">// ★ 核心：600 instancedMesh + atlas 拼接</span>
+│   └── <a href="https://github.com/J0SUKE/vortex-gallery/blob/main/src/style.css" target="_blank" class="file">style.css</a>                 <span class="cmt">// 仅 reset + canvas 全屏</span>
+├── <a href="https://github.com/J0SUKE/vortex-gallery/blob/main/index.html" target="_blank" class="file">index.html</a>                    <span class="cmt">// canvas#webgl + Vite entry</span>
+├── <a href="https://github.com/J0SUKE/vortex-gallery/blob/main/package.json" target="_blank" class="file">package.json</a>                  <span class="cmt">// vite + three + gsap + normalize-wheel</span>
+└── <a href="https://github.com/J0SUKE/vortex-gallery/blob/main/vite.config.js" target="_blank" class="file">vite.config.js</a>                <span class="cmt">// vite-plugin-glsl</span></pre>
+      <div class="desc" style="margin-top:18px;margin-bottom:0">
+        <strong style="color:var(--vg-c-ink)">关键文件：</strong>
+        <code style="font-family:var(--vg-font-mono);background:var(--vg-c-soft);padding:1px 6px;border-radius:4px">src/gallery.ts</code> 是整张卡的灵魂 —— 600 个 BoxGeometry 实例排成 30×20 的圆柱阵列，atlas texture 把 20 张图拼成单张大图避免 texture binding 切换；<code style="font-family:var(--vg-font-mono);background:var(--vg-c-soft);padding:1px 6px;border-radius:4px">vertex.glsl</code> 用 quaternion rotation 让每个 mesh 朝向圆心；<code style="font-family:var(--vg-font-mono);background:var(--vg-c-soft);padding:1px 6px;border-radius:4px">canvas.ts</code> 接 wheel 事件后用 lerp 0.05 把 scrollY 平滑成相机 momentum。
+      </div>
+      <div style="display:flex;gap:8px;margin-top:18px">
+        <a class="copy-btn" href="https://github.com/J0SUKE/vortex-gallery" target="_blank">↗ 打开 GitHub repo</a>
+        <a class="copy-btn" href="https://vortex-gallery.vercel.app/" target="_blank">↗ 看 Live demo</a>
+        <a class="copy-btn" href="https://github.com/J0SUKE/vortex-gallery/archive/refs/heads/main.zip">↓ 下载源码 zip</a>
+      </div>
+    </section>
+
+    <!-- AI -->
+    <section id="ai" class="panel">
+      <h2>16 · For AI · Cursor / Claude rules</h2>
+      <div class="desc">把这段粘进 <code style="font-family:var(--vg-font-mono);background:var(--vg-c-soft);padding:1px 6px;border-radius:4px">.cursorrules</code> 或任意 LLM 系统提示词。让生成默认走 Vortex Gallery 风格 —— 不会跑出渐变、亮色、双重色调。</div>
+      <div class="ai-toolbar">
+        <button class="copy-btn" id="copyRule">📋 Copy rule</button>
+        <a class="copy-btn" href="./ai-prompt.md" target="_blank">↗ Open ai-prompt.md</a>
+      </div>
+      <pre class="code" id="ruleBlock">Use the Vortex Gallery design system for all UI in this project.
+
+- Page canvas is #0a0a0a (void). Never lighter than #1f1f1f for any background. No off-white. No gradients to lighter colors.
+- Surface depth scale: void #0a0a0a → depth #101010 → shell #161616 → soft #1f1f1f. Each tier is +6% black.
+- One ember accent only: #ff7a3d. Reserve for active state, primary CTA, "live", current item. Don't add a second saturated red/pink/purple.
+- Optional: sun #ffd24a for badges, ocean #3a78ff for links — only if the brief truly needs them.
+- Inter Tight 500 for hero / display / h1 / h2. Letter-spacing -0.04em on hero, -0.02em on h1/h2.
+- Inter for UI / body. Weights 400 / 500 only — never 700.
+- JetBrains Mono with `font-variant-numeric: tabular-nums` for every ticking or grid-aligned number.
+- Spacing: 4px grid (4/8/12/16/20/24/32/48/64). Never 5/7/10/15.
+- Radius: 20 (shell) / 14 (panel) / 10 (card) / 6 (tile) / 999 (pill). Five values only.
+- Don't use CSS transitions for wheel-driven values. Use lerp in requestAnimationFrame:
+  current += (target - current) * 0.05;  // vortex camera (inertial)
+  current += (target - current) * 0.10;  // default scroll
+  current += (target - current) * 0.18;  // cursor follow (snappy)
+- Easings: vortex cubic-bezier(0.16,1,0.3,1) / soft cubic-bezier(0.4,0,0.2,1).
+- Reuse classes from design-system.css before authoring new CSS:
+  .vg-shell .vg-panel .vg-tile .vg-pill .vg-pill--ember .vg-btn-ghost
+  .vg-hero .vg-display .vg-h1 .vg-h2 .vg-body .vg-cap .vg-index .vg-mono
+  .vg-poster .vg-dot .vg-rule
+
+If a request requires a light background, two saturated accents, bold UI headings, or CSS-transitioned wheel scroll — push back. Those break the system. Suggest a-record (warm/cream) or linear (gray/blue) instead.</pre>
+    </section>
+
+    <section id="tw" class="panel">
+      <h2>17 · For AI · Tailwind preset</h2>
+      <div class="desc">把 <code style="font-family:var(--vg-font-mono);background:var(--vg-c-soft);padding:1px 6px;border-radius:4px">tailwind-tokens.js</code> 作为 preset 引入，立刻获得 <code style="font-family:var(--vg-font-mono);background:var(--vg-c-soft);padding:1px 6px;border-radius:4px">bg-void</code>、<code style="font-family:var(--vg-font-mono);background:var(--vg-c-soft);padding:1px 6px;border-radius:4px">text-ember</code>、<code style="font-family:var(--vg-font-mono);background:var(--vg-c-soft);padding:1px 6px;border-radius:4px">rounded-shell</code>、<code style="font-family:var(--vg-font-mono);background:var(--vg-c-soft);padding:1px 6px;border-radius:4px">shadow-depth</code>。</div>
+      <pre class="code"><span class="c">// tailwind.config.js</span>
+<span class="k">module.exports</span> = {
+  <span class="k">presets</span>: [<span class="k">require</span>(<span class="s">'./tailwind-tokens.js'</span>)],
+  <span class="k">content</span>: [<span class="s">'./src/**/*.{html,js,ts,jsx,tsx}'</span>],
+};
+
+<span class="c">// then in your markup:</span>
+&lt;body <span class="k">class</span>=<span class="s">"bg-void text-ink min-h-screen"</span>&gt;
+  &lt;article <span class="k">class</span>=<span class="s">"bg-depth rounded-shell shadow-depth p-7"</span>&gt;
+    &lt;h1 <span class="k">class</span>=<span class="s">"text-hero font-display tracking-tight"</span>&gt;Footage,&lt;/h1&gt;
+  &lt;/article&gt;
+&lt;/body&gt;</pre>
+    </section>
+
+    <footer>
+      <span>Vortex Gallery · Design DNA inspiration kit · v1.0.0</span>
+      <span><a href="https://karosu3510.github.io/design-dna/" target="_blank">karosu3510.github.io/design-dna</a></span>
+    </footer>
+  </main>
+</div>
+
+<script>
+  // Active nav link based on scroll
+  var links = document.querySelectorAll('.nav-link');
+  var sections = Array.from(links).map(function(a){ var id = a.getAttribute('href').slice(1); return document.getElementById(id); });
+  function syncNav(){
+    var y = window.scrollY + 120;
+    var bestIdx = 0;
+    sections.forEach(function(s, i){ if(s && s.offsetTop <= y) bestIdx = i; });
+    links.forEach(function(a, i){ a.classList.toggle('active', i === bestIdx); });
+  }
+  window.addEventListener('scroll', syncNav, { passive: true });
+
+  // Copy rule
+  document.getElementById('copyRule').addEventListener('click', function(){
+    var txt = document.getElementById('ruleBlock').textContent;
+    navigator.clipboard.writeText(txt).then(function(){
+      var b = document.getElementById('copyRule');
+      var old = b.textContent;
+      b.textContent = '✓ Copied';
+      setTimeout(function(){ b.textContent = old; }, 1400);
+    });
+  });
+
+  // Download kit
+  document.getElementById('dlBtn').addEventListener('click', async function(){
+    var btn = this;
+    var orig = btn.innerHTML;
+    btn.innerHTML = '打包中…';
+    try{
+      if(typeof JSZip === 'undefined'){
+        await new Promise(function(res, rej){
+          var s = document.createElement('script');
+          s.src = 'https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js';
+          s.onload = res; s.onerror = rej; document.head.appendChild(s);
+        });
+      }
+      var zip = new JSZip();
+      var folder = zip.folder('vortex-gallery-kit');
+      var files = [
+        'README.md','design-system.md','design-system.css','design-tokens.json',
+        'ai-prompt.md','tailwind-tokens.js','index.html',
+        'components/01-void-shell.html','components/02-ember-pill.html','components/03-poster-tile.html',
+        'components/04-momentum-cursor.html','components/05-cap-index.html','components/06-mono-readout.html',
+        'components/07-vortex-strip.html','components/08-glow-badge.html',
+        'examples/original.html','examples/archive-page.html'
+      ];
+      await Promise.all(files.map(async function(f){
+        try{ var r = await fetch('./' + f, {cache:'no-cache'}); if(r.ok) folder.file(f, await r.text()); }catch(_){}
+      }));
+      var blob = await zip.generateAsync({type:'blob'});
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a'); a.href = url; a.download = 'vortex-gallery-kit.zip';
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      setTimeout(function(){ URL.revokeObjectURL(url); }, 1500);
+      btn.innerHTML = '✓ 已下载';
+      setTimeout(function(){ btn.innerHTML = orig; }, 1400);
+    }catch(err){
+      console.warn(err);
+      btn.innerHTML = '下载失败';
+      setTimeout(function(){ btn.innerHTML = orig; }, 1500);
+    }
+  });
+
+  // 去 WorkBuddy 开发
+  document.getElementById('wbBtn').addEventListener('click', async function(){
+    var btn = this;
+    var orig = btn.innerHTML;
+    var KIT_BASE = 'https://karosu3510.github.io/design-dna/kits/vortex-gallery/';
+    var prompt = [
+      '我要基于 Design DNA 中的 Vortex Gallery 设计系统继续开发。',
+      '',
+      '【素材包入口（请帮我读取这些文件作为视觉规范）】',
+      '- 设计系统总览：' + KIT_BASE + 'index.html',
+      '- design tokens（CSS 变量 + 组件类）：' + KIT_BASE + 'design-system.css',
+      '- design tokens（JSON）：' + KIT_BASE + 'design-tokens.json',
+      '- 完整文档：' + KIT_BASE + 'design-system.md',
+      '- AI 提示词与约束：' + KIT_BASE + 'ai-prompt.md',
+      '- Tailwind 预设：' + KIT_BASE + 'tailwind-tokens.js',
+      '- 组件示例（8 个独立 HTML）：' + KIT_BASE + 'components/',
+      '- 衍生用例（archive page）：' + KIT_BASE + 'examples/archive-page.html',
+      '- 原始效果（卡片本体）：https://karosu3510.github.io/design-dna/vortex-gallery.html',
+      '- GitHub 源工程：https://github.com/J0SUKE/vortex-gallery',
+      '',
+      '【视觉铁律（必须遵守）】',
+      '- 画布 #0a0a0a（void），任何背景不超过 #1f1f1f；不要奶白、不要纯白页底、不要朝亮色的渐变。',
+      '- 表面深度阶梯：void #0a0a0a → depth #101010 → shell #161616 → soft #1f1f1f，五层每阶 +6% 黑。',
+      '- 唯一允许的强色是 ember #ff7a3d，仅用于「active / primary CTA / 当前项 / live」；可选 sun #ffd24a 用于徽章、ocean #3a78ff 用于链接，绝不要第二个高饱和色。',
+      '- 字体：标题/Hero 用 Inter Tight 500（letter-spacing -0.04em on hero, -0.02em on h1/h2）；UI/body 用 Inter（仅 400/500，不要 700+）；任何会变化的数字用 JetBrains Mono + tabular-nums。',
+      '- 间距 4px grid：4/8/12/16/20/24/32/48/64；不要 5/7/10/15。',
+      '- 圆角阶梯只允许 20 / 14 / 10 / 6 / 999。',
+      '- 动效：滚动/wheel 驱动的值用 lerp + RAF（0.05 inertial / 0.10 balanced / 0.18 snappy），不要写在 CSS transition 里；普通 UI transition 用 `260ms cubic-bezier(.4,0,.2,1)`。',
+      '- 优先复用 .vg-shell / .vg-panel / .vg-pill / .vg-pill--ember / .vg-poster / .vg-dot / .vg-cap / .vg-mono / .vg-hero / .vg-display 再写新 CSS。',
+      '',
+      '【我要开发的目标】',
+      '（在这里描述你想做的页面或组件，例如："基于 Vortex Gallery 设计一个唱片厂牌的发行编年页，含发行年表、当前推荐、订阅 newsletter 三个模块"）',
+      '',
+      '【请按以下步骤执行】',
+      '1. 抓取上面 KIT_BASE 下的关键文件（design-system.css、design-system.md、ai-prompt.md），把视觉规范完整加载进上下文。',
+      '2. 给我一个简短方案概要（信息架构 + 用到的现有组件类 + 是否需要新组件），等我确认。',
+      '3. 我说「开干」之后，按 Vortex Gallery 的 token 体系生成代码。',
+    ].join('\n');
+
+    btn.innerHTML = '复制中…';
+    try{
+      await navigator.clipboard.writeText(prompt);
+      var iframe = document.createElement('iframe');
+      iframe.style.display='none';
+      iframe.src = 'codebuddy://codebuddy-ide';
+      document.body.appendChild(iframe);
+      setTimeout(function(){ try{ iframe.remove(); }catch(_){} }, 1500);
+      setTimeout(function(){
+        if(document.visibilityState === 'visible'){
+          window.open('https://www.codebuddy.cn/', '_blank', 'noopener');
+        }
+      }, 1200);
+      btn.innerHTML = '✓ 已复制 · 正在唤起 WorkBuddy';
+      setTimeout(function(){ btn.innerHTML = orig; }, 2400);
+    }catch(err){
+      try{
+        var ta = document.createElement('textarea');
+        ta.value = prompt; ta.style.position='fixed'; ta.style.opacity='0';
+        document.body.appendChild(ta); ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+        btn.innerHTML = '✓ 已复制（兜底）';
+        setTimeout(function(){ btn.innerHTML = orig; }, 2000);
+      }catch(_){
+        btn.innerHTML = '复制失败';
+        setTimeout(function(){ btn.innerHTML = orig; }, 1500);
+      }
+    }
+  });
+</script>
+</body>
+</html>
