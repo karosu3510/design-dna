@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>08 · Glow Badge</title>
+<link rel="stylesheet" href="../design-system.css">
+<style>html,body{margin:0;height:100%}body{background:var(--vg-c-void);color:var(--vg-c-ink);font-family:var(--vg-font-sans);display:grid;place-items:center;padding:48px;gap:32px}
+.row{display:flex;gap:14px;flex-wrap:wrap;align-items:center;justify-content:center}
+.b{display:inline-flex;align-items:center;gap:10px;padding:0 14px;height:30px;border-radius:999px;font-size:11px;letter-spacing:.18em;text-transform:uppercase;font-family:var(--vg-font-mono);font-weight:500}
+.b-live{background:transparent;color:var(--vg-c-ember);border:1px solid var(--vg-c-ember);box-shadow:0 0 24px rgba(255,122,61,.18)}
+.b-shell{background:var(--vg-c-shell);color:var(--vg-c-ink-2);border:1px solid var(--vg-c-line)}
+.b-sun{background:transparent;color:var(--vg-c-sun);border:1px solid rgba(255,210,74,.4)}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--vg-c-ember);box-shadow:0 0 12px rgba(255,122,61,.7);animation:pulse 1.6s ease-in-out infinite}
+.dot-grey{background:var(--vg-c-ink-3);box-shadow:none;animation:none}
+.dot-sun{background:var(--vg-c-sun);box-shadow:0 0 10px rgba(255,210,74,.5)}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.55;transform:scale(.85)}}
+.cap{font-family:var(--vg-font-mono);font-size:10px;letter-spacing:.24em;color:var(--vg-c-ink-3);text-transform:uppercase}
+.col{display:flex;flex-direction:column;align-items:center;gap:14px}
+</style></head>
+<body class="vg">
+<div class="col"><span class="cap">Active / Live</span>
+  <div class="row">
+    <span class="b b-live"><span class="dot"></span>Live</span>
+    <span class="b b-live"><span class="dot"></span>Recording</span>
+    <span class="b b-live"><span class="dot"></span>Now playing</span>
+  </div>
+</div>
+<div class="col"><span class="cap">Idle / Inactive</span>
+  <div class="row">
+    <span class="b b-shell"><span class="dot dot-grey"></span>Idle</span>
+    <span class="b b-shell"><span class="dot dot-grey"></span>Buffered</span>
+  </div>
+</div>
+<div class="col"><span class="cap">Highlight / Sun</span>
+  <div class="row">
+    <span class="b b-sun"><span class="dot dot-sun"></span>Featured</span>
+    <span class="b b-sun"><span class="dot dot-sun"></span>Vol I · 24</span>
+  </div>
+</div>
+</body></html>

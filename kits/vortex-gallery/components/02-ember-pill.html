@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>02 · Ember Pill</title>
+<link rel="stylesheet" href="../design-system.css">
+<style>html,body{margin:0;height:100%}body{background:var(--vg-c-void);color:var(--vg-c-ink);font-family:var(--vg-font-sans);display:grid;place-items:center;padding:48px;gap:18px}
+.row{display:flex;flex-direction:column;align-items:center;gap:16px}
+.row .label{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--vg-c-ink-3);font-family:var(--vg-font-mono)}
+.row .group{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.pill{display:inline-flex;align-items:center;gap:8px;height:32px;padding:0 16px;border-radius:999px;font-size:12px;font-weight:500;cursor:pointer;letter-spacing:-.005em;border:1px solid transparent;transition:background 260ms cubic-bezier(.4,0,.2,1),border-color 260ms cubic-bezier(.4,0,.2,1)}
+.p-ember{background:var(--vg-c-ember);color:#0a0a0a}
+.p-ember:hover{background:#ff8b54}
+.p-ghost{background:transparent;color:var(--vg-c-ink);border-color:var(--vg-c-line)}
+.p-ghost:hover{border-color:var(--vg-c-line-2);background:var(--vg-c-soft)}
+.p-shell{background:var(--vg-c-shell);color:var(--vg-c-ink);border-color:var(--vg-c-line)}
+.p-shell:hover{background:var(--vg-c-soft);border-color:var(--vg-c-line-2)}
+.svg{width:14px;height:14px;flex-shrink:0}
+</style></head>
+<body class="vg">
+<div class="row">
+  <span class="label">PRIMARY</span>
+  <div class="group">
+    <button class="pill p-ember">View archive
+      <svg class="svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+    </button>
+    <button class="pill p-ember">⏵ Play loop</button>
+  </div>
+</div>
+<div class="row">
+  <span class="label">SECONDARY</span>
+  <div class="group">
+    <button class="pill p-shell">Filter · all</button>
+    <button class="pill p-ghost">Subscribe</button>
+  </div>
+</div>
+</body></html>
