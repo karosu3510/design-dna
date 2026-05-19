@@ -14,7 +14,7 @@
 <meta property="og:title" content="Design DNA — endless designs, just scroll">
 <meta property="og:description" content="A curated feed of design inspiration. 1100×720 cards, real animations, no slop.">
 <!-- POSTER 缓存版本：每次替换 posters/*.jpg 时手动 +1，让浏览器立刻拉新图。 -->
-<script>window.POSTER_VERSION = '24';</script>
+<script>window.POSTER_VERSION = '25';</script>
 <!-- 大尺寸 stub 预览图 preload：让浏览器在主线程层就开始拉，等 iframe srcdoc 挂载时直接命中 HTTP cache，避免首次进卡 1-2s 白屏 -->
 <link rel="preload" as="image" href="cinematic-3d-scroll-preview.jpg?v=202605171322" fetchpriority="high">
 <link rel="preload" as="image" href="webgl-magazine-preview.jpg?v=202605161457" fetchpriority="high">
@@ -559,11 +559,12 @@
 <script defer src="./onscroll-filter-doc.js"></script>
 <script defer src="./lines-to-layout-doc.js"></script>
 <script defer src="./architecture-overview-doc.js"></script>
+<script defer src="./three-html-to-canvas-doc.js"></script>
 <!-- vercel-deploy removed 2026-05-17: 效果不达标 -->
 <!-- <script defer src="./vercel-deploy-doc.js"></script> -->
 <!-- flip-horizontal-lenis removed -->
 <!-- mono-x7 removed -->
 <!-- lumi removed -->
-<script defer src="./app.js?v=21"></script>
+<script defer src="./app.js?v=22"></script>
 </body>
 </html>

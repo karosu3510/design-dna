@@ -162,6 +162,7 @@ var HEAVY_GPU_SLUGS = new Set([
   'onscroll-filter',      // 7 张 SVG image + feTurbulence/feDisplacementMap 噪声滤镜，scroll-driven
   'lines-to-layout',      // GSAP Flip 大字行 → image 大图布局切换 + custom cursor
   'architecture-overview',// p5.js polar perlin loops + 60 圈 RAF + Linear-token UI
+  'three-html-to-canvas', // three.js GLTF + HTML→SVG foreignObject→CanvasTexture 投影 + Lenis 循环滚
 ]);
 
 function _loadFrame(card){
@@ -595,6 +596,7 @@ function openDetail(d, opts){
     'onscroll-filter',        // Codrops 长滚动页面，7 个 section 各 100vh+，iframe 嵌不下；Lenis 平滑滚 + ScrollTrigger 必须真 scroll
     'lines-to-layout',        // Codrops main 100vh + custom cursor + Flip 全屏布局切换，iframe scale 嵌不下
     'architecture-overview',  // 1100×720 居中卡 + body flex center + p5.js sketch 重绘，iframe scale 会偏离
+    'three-html-to-canvas',   // Vite-built dist + Lenis 循环滚 + 全屏 #app，必须真实 origin 跑 module js + GLB
   ]);
   if(d.styleLock && STANDALONE_SITE_SLUGS.has(d.styleLock) && d.externalUrl){
     // 加 ?v=POSTER_VERSION 破缓存，确保改过的真站点 HTML 立刻生效
@@ -1337,6 +1339,14 @@ function buildPinnedFor(styleId, headlineFallback){
       id:'d-architecture-overview', styleId:'architecture-overview', styleLabel:'Polar Perlin · Project Logs', sref:'variant-architecture-overview', prompt:'variant.com community card with polar perlin noise concentric rings + Linear deep canvas + Project Logs timeline', pinned:true,
       title:'Architecture Overview · Polar perlin rings', height:720, styleLock:'architecture-overview',
       doc: (typeof ARCHITECTURE_OVERVIEW_DOC !== 'undefined') ? ARCHITECTURE_OVERVIEW_DOC : '', externalUrl:'architecture-overview.html'
+    });
+  } catch(_){}
+  // Three HTML to Canvas — Cullen Webber: HTML→SVG foreignObject→CanvasTexture 投影到 GLTF 模型
+  try {
+    firstBatch.push({
+      id:'d-three-html-to-canvas', styleId:'three-html-to-canvas', styleLabel:'HTML projected on 3D', sref:'cullenwebber-three-html-to-canvas', prompt:'Cullen Webber three-html-to-canvas HTML foreignObject CanvasTexture projection on GLTF mesh with Lenis loop scroll', pinned:true,
+      title:'Three HTML To Canvas · DesignDNA Motion', height:720, styleLock:'three-html-to-canvas',
+      doc: (typeof THREE_HTML_TO_CANVAS_DOC !== 'undefined') ? THREE_HTML_TO_CANVAS_DOC : '', externalUrl:'three-html-to-canvas.html'
     });
   } catch(_){}
   // WebGL Magazine — source-based WebGL magazine carousel
