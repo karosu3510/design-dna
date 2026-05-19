@@ -746,32 +746,8 @@ window.addEventListener('popstate', ()=>{
   if(document.body.classList.contains('is-detail')) closeDetail({skipHash:true});
 });
 
-document.getElementById('dCopy').addEventListener('click', async ()=>{
-  if(!currentDesign) return;
-  try{ await navigator.clipboard.writeText(currentDesign.doc); flash(tr('copied')); }catch(e){ flash(tr('copyFailed')); }
-});
-document.getElementById('dSave').addEventListener('click', ()=>{
-  if(!currentDesign) return;
-  toggleSave(currentDesign);
-  flash(savedMap.has(currentDesign.id)?tr('favSaved'):tr('favRemoved'));
-});
-document.getElementById('dRemix').addEventListener('click', ()=>{
-  if(!currentDesign) return;
-  currentStyle = STYLES.find(s=>s.id===currentDesign.styleId);
-  srefLabel.textContent = currentStyle.id;
-  buildStyleChips();
-  closeDrawer();
-  regenerate();
-});
-document.getElementById('dMore').addEventListener('click', ()=>{
-  if(!currentDesign) return;
-  currentStyle = STYLES.find(s=>s.id===currentDesign.styleId);
-  promptEl.value = currentDesign.prompt;
-  srefLabel.textContent = currentStyle.id;
-  buildStyleChips();
-  closeDrawer();
-  regenerate();
-});
+// Detail top-action buttons (dCopy / dSave / dRemix / dMore) removed 2026-05-19
+// per karo's request — keep only the sref label in the detail header.
 
 function toggleSave(d, btn){
   if(savedMap.has(d.id)) savedMap.delete(d.id);
