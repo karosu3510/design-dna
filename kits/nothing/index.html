@@ -122,9 +122,9 @@
     <a class="nav-link" href="#ai"><span class="num">15</span>Cursor 提示词</a>
     <a class="nav-link" href="#tw"><span class="num">16</span>Tailwind 预设</a>
 
-    <button class="download-pill" id="dlBtn">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-      下载完整素材包
+    <button class="download-pill" id="dlBtn" title="复制 Ardot 邀请并打开协作链接">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+      去 Ardot 打开
     </button>
     <button class="wb-pill" id="wbBtn">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
@@ -318,42 +318,30 @@ If a request requires a third accent color, soft shadow, display serif, warm/cre
     });
   });
 
-  // download kit
+  // 去 Ardot 打开：复制邀请文本到剪贴板 + 打开 ardot 协作链接
   document.getElementById('dlBtn').addEventListener('click', async function(){
     var btn = this;
     var orig = btn.innerHTML;
-    btn.innerHTML = '打包中…';
+    var ARDOT_URL = 'https://ardot.tencent.com/file/684668388690623?node_id=57%3A63';
+    var inviteText = '【Ardot】邀请你加入文件《a.Record 设计风格》，点击链接立即协作：' + ARDOT_URL;
     try{
-      if(typeof JSZip === 'undefined'){
-        await new Promise(function(res, rej){
-          var s = document.createElement('script');
-          s.src = 'https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js';
-          s.onload = res; s.onerror = rej; document.head.appendChild(s);
-        });
+      // 1) 复制邀请文本
+      try{
+        await navigator.clipboard.writeText(inviteText);
+      }catch(_){
+        var ta = document.createElement('textarea');
+        ta.value = inviteText; ta.style.position='fixed'; ta.style.opacity='0';
+        document.body.appendChild(ta); ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
       }
-      var zip = new JSZip();
-      var folder = zip.folder('nothing-system-kit');
-      var files = [
-        'README.md','design-system.md','design-system.css','design-tokens.json',
-        'ai-prompt.md','tailwind-tokens.js','index.html',
-        'components/01-pixel-clock.html','components/02-module-card.html','components/03-glyph-matrix.html',
-        'components/04-vu-spectrum.html','components/05-radio-tuner.html','components/06-battery-bars.html',
-        'components/07-bus-row.html','components/08-stat-kv.html',
-        'examples/original.html','examples/changelog.html'
-      ];
-      await Promise.all(files.map(async function(f){
-        try{ var r = await fetch('./' + f, {cache:'no-cache'}); if(r.ok) folder.file(f, await r.text()); }catch(_){}
-      }));
-      var blob = await zip.generateAsync({type:'blob'});
-      var url = URL.createObjectURL(blob);
-      var a = document.createElement('a'); a.href = url; a.download = 'nothing-system-kit.zip';
-      document.body.appendChild(a); a.click(); document.body.removeChild(a);
-      setTimeout(function(){ URL.revokeObjectURL(url); }, 1500);
-      btn.innerHTML = '✓ 已下载';
-      setTimeout(function(){ btn.innerHTML = orig; }, 1400);
+      // 2) 打开 ardot 协作链接（新标签页）
+      window.open(ARDOT_URL, '_blank', 'noopener');
+      btn.innerHTML = '✓ 已复制邀请 · 正在打开 Ardot';
+      setTimeout(function(){ btn.innerHTML = orig; }, 2400);
     }catch(err){
       console.warn(err);
-      btn.innerHTML = '下载失败';
+      btn.innerHTML = '打开失败';
       setTimeout(function(){ btn.innerHTML = orig; }, 1500);
     }
   });
