@@ -1284,6 +1284,14 @@ function buildPinnedFor(styleId, headlineFallback){
       doc: (typeof A_RECORD_DOC !== 'undefined') ? A_RECORD_DOC : '', externalUrl:'a-record.html'
     });
   } catch(_){}
+  // ChatGPT — home page 1:1 replica (from chatgpt.com unauthenticated state)
+  try {
+    firstBatch.push({
+      id:'d-chatgpt-home', styleId:'chatgpt-home', styleLabel:'ChatGPT · Home', sref:'chatgpt-home-pin', prompt:'ChatGPT.com home empty state — true sprite icons + composer + sidebar (1:1 DOM replica)', pinned:true,
+      title:'ChatGPT · 准备好了，随时开始', height:720, styleLock:'chatgpt-home',
+      doc: (typeof CHATGPT_HOME_DOC !== 'undefined') ? CHATGPT_HOME_DOC : '', externalUrl:'chatgpt-home.html'
+    });
+  } catch(_){}
   // Vercel Deploy — removed 2026-05-17: 效果不达标
   // try {
   //   firstBatch.push({
