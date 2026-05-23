@@ -4,13 +4,18 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Design DNA — endless designs, just scroll</title>
-<!-- 站点 favicon：用 logo.png（青蛙）做主图标，加 apple-touch + og:image 一并兼容 Linear/Slack/iMessage 的 link preview -->
-<link rel="icon" type="image/png" href="logo.png?v=22" sizes="any">
-<link rel="apple-touch-icon" href="logo.png?v=22">
-<link rel="shortcut icon" href="logo.png?v=22">
-<meta property="og:image" content="https://karosu3510.github.io/design-dna/logo.png?v=22">
+<!-- 站点 favicon：黑底白蛙，多尺寸专用 PNG 兼容 Safari / iOS / Android / link preview -->
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=25">
+<link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=25">
+<link rel="icon" type="image/png" sizes="96x96" href="favicon-96.png?v=25">
+<link rel="icon" type="image/png" sizes="192x192" href="favicon-192.png?v=25">
+<link rel="icon" type="image/png" sizes="512x512" href="favicon-512.png?v=25">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=25">
+<link rel="shortcut icon" href="favicon.ico?v=25">
+<meta name="theme-color" content="#000000">
+<meta property="og:image" content="https://karosu3510.github.io/design-dna/favicon-512.png?v=25">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://karosu3510.github.io/design-dna/logo.png?v=22">
+<meta name="twitter:image" content="https://karosu3510.github.io/design-dna/favicon-512.png?v=25">
 <meta property="og:title" content="Design DNA — endless designs, just scroll">
 <meta property="og:description" content="A curated feed of design inspiration. 1100×720 cards, real animations, no slop.">
 <!-- POSTER 缓存版本：每次替换 posters/*.jpg 时手动 +1，让浏览器立刻拉新图。 -->
@@ -80,6 +85,30 @@
   @media (max-width:900px){
     .feed{grid-template-columns:repeat(2,minmax(0,1fr))}
     .feed > .card,.card.is-narrow{grid-column:span 1}
+  }
+  /* ─── Mobile (≤640px)：单列 + 隐藏 sidebar + 主区贴边 ─── */
+  /* 触发逻辑：max-width 640px OR 触屏无 hover（兜底 iPad mini 竖屏 / 大屏手机） */
+  @media (max-width:640px),(hover:none) and (pointer:coarse) and (max-width:820px){
+    :root{ --side-w:0px; }                              /* 让所有依赖 --side-w 的偏移自动归零 */
+    .sidebar{ display:none !important; }                /* 隐藏左侧 56px 操作栏 */
+    .style-drawer{ display:none !important; }           /* 关联展开抽屉一并隐藏（mobile 不可达） */
+    .saved-panel{ left:8px !important; right:8px !important; width:auto !important; max-width:none }
+    .user-pop{ left:8px !important; right:8px !important; width:auto !important }
+
+    .stage{ margin-left:0; padding:8px 8px 100px }      /* 主区贴边，留 prompt-dock 安全区 */
+    .feed{ grid-template-columns:1fr !important; gap:16px !important; grid-auto-rows:auto !important } /* 一行一张卡，16px 间距 */
+    .feed > .card,.card.is-narrow{ grid-column:span 1 }
+    .card{ border-radius:14px }                         /* 卡片小边角更指型化 */
+    .card-actions{ opacity:1 !important; transform:none !important; pointer-events:auto !important } /* 没有 hover，常驻显示 */
+    .card-fav{ opacity:1 !important; transform:none !important }
+
+    /* prompt-dock 改为左右贴边 + 安全区底部 */
+    .prompt-dock{
+      left:8px !important; right:8px !important; bottom:max(8px, env(safe-area-inset-bottom)) !important;
+      width:auto !important; transform:none !important; margin-left:0 !important
+    }
+    /* detail-view 不再避让 sidebar */
+    .detail-view{ left:0 !important }
   }
   .card{margin:0;background:var(--bg-card);border:1px solid var(--border);border-radius:10px;overflow:hidden;position:relative;cursor:pointer;transition:transform .2s ease,border-color .2s ease;animation:rise .5s ease both}
   @keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}

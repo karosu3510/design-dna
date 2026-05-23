@@ -162,7 +162,7 @@ var HEAVY_GPU_SLUGS = new Set([
   'onscroll-filter',      // 7 张 SVG image + feTurbulence/feDisplacementMap 噪声滤镜，scroll-driven
   'lines-to-layout',      // GSAP Flip 大字行 → image 大图布局切换 + custom cursor
   'architecture-overview',// p5.js polar perlin loops + 60 圈 RAF + Linear-token UI
-  'three-html-to-canvas', // three.js GLTF + foreignObject CanvasTexture 投影；feed 走 poster jpg，详情走 STANDALONE，feed 不会卡
+  'three-html-to-canvas', // three.js GLTF + HTML→SVG foreignObject→CanvasTexture 投影 + Lenis 循环滚
 ]);
 
 function _loadFrame(card){
@@ -1342,8 +1342,6 @@ function buildPinnedFor(styleId, headlineFallback){
     });
   } catch(_){}
   // Three HTML to Canvas — Cullen Webber: HTML→SVG foreignObject→CanvasTexture 投影到 GLTF 模型
-  // 性能策略：feed 走 HEAVY_GPU 路径（<img> 直挂 poster.jpg 零 GPU 开销），详情走 STANDALONE 整页跳，
-  // 这样 feed 永远不会因为这张卡卡顿（同 vortex / architecture-overview / cinematic 的机制）。
   try {
     firstBatch.push({
       id:'d-three-html-to-canvas', styleId:'three-html-to-canvas', styleLabel:'HTML projected on 3D', sref:'cullenwebber-three-html-to-canvas', prompt:'Cullen Webber three-html-to-canvas HTML foreignObject CanvasTexture projection on GLTF mesh with Lenis loop scroll', pinned:true,
