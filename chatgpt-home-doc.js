@@ -47,14 +47,14 @@ window.CHATGPT_HOME_DOC = `<!doctype html>
     width: 1100px; height: 720px;
     overflow: hidden;
     position: relative;
-    /* 灵感库 srcdoc 模式时 html 默认尺寸=容器 1100×720，背景就和 body 等宽，看起来一致 */
+    /* body 透明，让 html 米白背景透过；srcdoc 模式下 html 默认尺寸=容器，body 也是该尺寸，需要 body 自带米白 */
     background:
       radial-gradient(1200px 700px at 30% 20%, #f7f3ec 0%, transparent 60%),
       radial-gradient(900px 600px at 80% 90%, #efe9e0 0%, transparent 55%),
       linear-gradient(180deg, #efeae1 0%, #e7e0d4 100%);
   }
 body.stage-host { /* legacy class kept for compat */ }
-/* 居中 frame：1024×670，四周留呼吸空间，圆角 + 多层投影让 UI 漂浮 */
+/* 居中 frame：1024×670，UI 直接漂浮在米白背景上（不再加白卡底色） */
 .stage-frame {
   position: absolute;
   left: 50%; top: 50%;
@@ -62,7 +62,7 @@ body.stage-host { /* legacy class kept for compat */ }
   transform: translate(-50%, -50%);
   border-radius: 20px;
   overflow: hidden;
-  background: #ffffff;
+  /* 不设 background，UI 自带白色（main #fff + sidebar #f9f9f9）就是 frame 表面 */
   box-shadow:
     0 1px 0 rgba(255,255,255,0.9) inset,
     0 2px 4px rgba(40,38,32,0.04),
