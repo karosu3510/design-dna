@@ -29,9 +29,34 @@ window.CHATGPT_HOME_DOC = `<!doctype html>
   --text-tertiary: #8f8f8f;
 }</style>
 <style>
-  html, body { margin: 0; padding: 0; width: 1100px; height: 720px; overflow: hidden; background: var(--bg-primary); }
-body.stage-host { position: relative; }
-.stage-wrap { position: absolute; left: 0; top: 0; width: 1280px; height: 838px; transform: scale(0.859375); transform-origin: top left; overflow: hidden; }
+  html, body { margin: 0; padding: 0; width: 1100px; height: 720px; overflow: hidden; }
+body.stage-host {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* 柔和米白渐变背景 + 细噪点感，与白色 ChatGPT UI 形成层次 */
+  background:
+    radial-gradient(1200px 700px at 30% 20%, #f7f3ec 0%, transparent 60%),
+    radial-gradient(900px 600px at 80% 90%, #efe9e0 0%, transparent 55%),
+    linear-gradient(180deg, #efeae1 0%, #e7e0d4 100%);
+}
+.stage-wrap {
+  position: relative;
+  width: 1280px; height: 838px;
+  /* 缩放：取 1024/1280=0.8（先缩小看效果） */
+  transform: scale(0.78);
+  transform-origin: center center;
+  /* 圆角 + 多层投影：浅色 UI 漂浮于米色背景上 */
+  border-radius: 20px;
+  overflow: hidden;
+  background: #ffffff;
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.9) inset,
+    0 2px 4px rgba(40,38,32,0.04),
+    0 12px 28px rgba(40,38,32,0.10),
+    0 32px 80px rgba(40,38,32,0.14);
+}
   body {
     background: var(--bg-primary);
     color: var(--text-primary);
