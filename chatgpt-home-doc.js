@@ -258,7 +258,7 @@ body.stage-host { /* legacy class kept for compat */ }
   .main {
     display: flex;
     flex-direction: column;
-    background: var(--bg-primary);
+    background: transparent; /* 让 frame 外的米白渐变透过来 */
     overflow-y: auto;
     position: relative;
   }
