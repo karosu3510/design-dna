@@ -96,13 +96,8 @@
     .user-pop{ left:8px !important; right:8px !important; width:auto !important }
 
     .stage{ margin-left:0; padding:8px 8px 100px }      /* 主区贴边，留 prompt-dock 安全区 */
-    .feed{ grid-template-columns:1fr !important; gap:8px !important; grid-auto-rows:auto !important } /* 一行一张卡，紧凑 8px */
+    .feed{ grid-template-columns:1fr !important; gap:16px !important; grid-auto-rows:auto !important } /* 一行一张卡，16px 间距 */
     .feed > .card,.card.is-narrow{ grid-column:span 1 }
-    /* 关键：卡的"多余空白"是 iframe transform:scale 不缩 box → 父高度按 720 给。
-       这里给一个 fallback aspect-ratio（JS 会按每张卡真实 d.height 覆盖）。
-       has-scale 卡的内部 iframe 已经 absolute + transform-origin top left，正好贴合。 */
-    .card{ aspect-ratio:1100/720; height:auto !important; overflow:hidden }
-    .card.has-scale{ height:auto !important }
     .card{ border-radius:14px }                         /* 卡片小边角更指型化 */
     .card-actions{ opacity:1 !important; transform:none !important; pointer-events:auto !important } /* 没有 hover，常驻显示 */
     .card-fav{ opacity:1 !important; transform:none !important }
@@ -114,13 +109,6 @@
     }
     /* detail-view 不再避让 sidebar */
     .detail-view{ left:0 !important }
-
-    /* iOS Safari 加载 srcdoc 时若图未就绪会显示 broken-image ❓。
-       mobile 下：iframe/img 默认 opacity:0，靠 .card.is-live 揭开。
-       即使 srcdoc 慢/poster 404，永远只看到下面的 card-preview（渐变+标题）。 */
-    .card .card-frame:not(.card-frame--live){ opacity:0 !important }
-    .card.is-live .card-frame:not(.card-frame--live){ opacity:1 !important }
-    img.card-poster-fill[src=""]{ display:none !important }
   }
   .card{margin:0;background:var(--bg-card);border:1px solid var(--border);border-radius:10px;overflow:hidden;position:relative;cursor:pointer;transition:transform .2s ease,border-color .2s ease;animation:rise .5s ease both}
   @keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}

@@ -162,88 +162,17 @@ var HEAVY_GPU_SLUGS = new Set([
   'onscroll-filter',      // 7 张 SVG image + feTurbulence/feDisplacementMap 噪声滤镜，scroll-driven
   'lines-to-layout',      // GSAP Flip 大字行 → image 大图布局切换 + custom cursor
   'architecture-overview',// p5.js polar perlin loops + 60 圈 RAF + Linear-token UI
-  'three-html-to-canvas', // three.js GLTF + foreignObject CanvasTexture 投影；feed 走 poster jpg，详情走 STANDALONE，feed 不会卡
+  'three-html-to-canvas', // three.js GLTF + HTML→SVG foreignObject→CanvasTexture 投影 + Lenis 循环滚
 ]);
-
-// ─── Mobile guard（2026-05-23 v2）：保留动效但严格限制活跃 iframe 数。
-// iOS Safari 单 tab 内存约 250-300MB，多个 srcdoc iframe + RAF 同时跑会被 OOM kill
-// （表现 = "出现问题 / aw snap"）。策略：mobile 同时只有 1 张卡是 live iframe，
-// 其它全部走 poster jpg；滑动时"接力"——新卡进视口前先卸载老的。
-var IS_MOBILE_GUARD = (function(){
-  try{
-    if(matchMedia('(max-width:640px)').matches) return true;
-    if(matchMedia('(hover:none) and (pointer:coarse) and (max-width:820px)').matches) return true;
-  }catch(_){}
-  return false;
-})();
-var MOBILE_MAX_LIVE = 1;
-var _mobileLiveCards = []; // 当前在跑 iframe 的卡列表（mobile only）
-
-// 把卡降级回 poster <img>：销毁 iframe + 释放 contentWindow
-// 仅对"有 poster 的卡"调用（外链卡）—— dashboard 卡没 poster jpg，不能降级
-function _downgradeToPoster(card){
-  if(!card || !card.__loaded) return;
-  if(!card.__extUrl) return;  // dashboard 卡无 poster，禁止降级（会显示 broken-image ❓）
-  var slug = card.__slug || '';
-  // 已经是 img 不用动
-  if(card.__frame && card.__frame.tagName === 'IMG') return;
-  var img = document.createElement('img');
-  img.className = 'card-frame card-poster-fill';
-  img.alt = '';
-  img.loading = 'lazy';
-  img.decoding = 'async';
-  img.src = 'posters/' + slug + '.jpg?v=' + (window.POSTER_VERSION || '1');
-  if(card.__frame && card.__frame.parentNode){
-    card.__frame.parentNode.replaceChild(img, card.__frame);
-  } else {
-    card.appendChild(img);
-  }
-  card.__frame = img;
-  card.__loaded = false; // 允许下次再升级回 iframe
-  card.__revealed = false;
-  card.classList.remove('is-live');
-  // 立即让 img 可见（已经有 poster 了不需要 reveal 动画）
-  setTimeout(function(){ card.classList.add('is-live'); }, 50);
-}
-
-// mobile 接力：升级当前卡为 iframe 前，先把队列里旧的全降级为 jpg
-// 注：dashboard 卡（无 extUrl）不能降级（无 poster），靠 pause/resume 控制 RAF 即可
-function _mobilePromoteToIframe(card){
-  if(!IS_MOBILE_GUARD) return;
-  // 把不是当前的所有 live 卡降级（仅外链卡，dashboard 卡跳过 → 仍然 pause）
-  for(var i = _mobileLiveCards.length - 1; i >= 0; i--){
-    var c = _mobileLiveCards[i];
-    if(c !== card){
-      if(c.__extUrl){
-        _downgradeToPoster(c);
-      } else {
-        _pauseFrame(c);  // dashboard 卡只 pause RAF，不卸载 DOM
-      }
-      _mobileLiveCards.splice(i, 1);
-    }
-  }
-  if(_mobileLiveCards.indexOf(card) < 0) _mobileLiveCards.push(card);
-  // 超过 MAX 也强制降级最早的
-  while(_mobileLiveCards.length > MOBILE_MAX_LIVE){
-    var oldest = _mobileLiveCards.shift();
-    if(oldest.__extUrl) _downgradeToPoster(oldest);
-    else _pauseFrame(oldest);
-  }
-}
 
 function _loadFrame(card){
   if(!card || card.__loaded) return;
   card.__loaded = true;
   var slug = card.__slug || '';
-  // mobile 重 GPU 卡 → 永久 poster（不挂 iframe）
-  // mobile 轻量卡 → 走 iframe 但要先接力（卸载其它 live）
-  // desktop 重 GPU 卡 → 老逻辑 poster
-  // desktop 其它 → srcdoc + pauseScript
-  var isHeavy = HEAVY_GPU_SLUGS.has(slug);
-  var forceImg = isHeavy && (IS_MOBILE_GUARD || card.__extUrl);
-  // mobile 轻量卡进视口前接力（先卸老的）
-  if(IS_MOBILE_GUARD && !forceImg) _mobilePromoteToIframe(card);
-  if(forceImg){
+  // 重 GPU 卡 → 直接挂 <img>（零开销，不耗 RAF/GPU context）
+  // 其它外链卡 → 真 srcdoc + pauseScript（恢复动画）
+  // dashboard 卡 → 真 srcdoc + pauseScript
+  if(card.__extUrl && HEAVY_GPU_SLUGS.has(slug)){
     var img = document.createElement('img');
     img.className = 'card-frame card-poster-fill';
     img.alt = '';
@@ -254,14 +183,7 @@ function _loadFrame(card){
     img.src = 'posters/' + slug + '.jpg?v=' + (window.POSTER_VERSION || '1');
     // 重 GPU 卡用 <img>，浏览器有原生 decode → 等 onload 再揭开
     img.onload = function(){ _revealCard(card); };
-    img.onerror = function(){
-      // poster 文件不存在（dashboard 卡常发生）：藏掉 broken-image ❓
-      // 保留下面的 card-preview（渐变 + 标题 + shimmer）当兜底，并重置 __loaded 让 IO 下次能重试
-      img.style.display = 'none';
-      card.__loaded = false;
-      card.__revealed = false;
-      // 不调 _revealCard：保留 preview 显示
-    };
+    img.onerror = function(){ _revealCard(card); };
     if(card.__frame && card.__frame.parentNode){
       card.__frame.parentNode.replaceChild(img, card.__frame);
     } else {
@@ -321,8 +243,7 @@ var _liveObserver = ('IntersectionObserver' in window) ? new IntersectionObserve
       _pauseFrame(card);
     }
   });
-},{ rootMargin: IS_MOBILE_GUARD ? '50px 0px 50px 0px' : '300px 0px 300px 0px' }) : null;
-// mobile rootMargin 50px：接力策略下只允许"即将进视口"的预热，不预热整屏外
+},{ rootMargin:'300px 0px 300px 0px' }) : null;
 
 function buildStyleChips(){
   const row = document.getElementById('styleRow');
@@ -358,13 +279,6 @@ function makeCardEl(d){
     card.classList.add('is-narrow');
   }
 
-  // mobile 守护：用模板真实 1100×d.height 设 aspect-ratio，让卡容器和 iframe 物理盒子精确对齐
-  // 不依赖 CSS @media 写死的 1100/720（不同卡 d.height 可能 640/720/800）
-  if(IS_MOBILE_GUARD){
-    var ar = 1100 / (d.height || 720);
-    card.style.aspectRatio = ar.toFixed(4);
-  }
-
   // ─── 缩放路径（保持重构前一致）：所有 styleLock 卡都按 1100 逻辑宽渲染，
   // 外层 transform 缩到 1/3 列宽。让 dashboard / video poster 的视觉高度跟旧版一致。
   // ─── 挂载路径：dashboard（无 externalUrl）走 srcdoc；其余走 iframe.src（变体卡） ───
@@ -396,13 +310,6 @@ function makeCardEl(d){
   if(isScaled){
     frame.style.width = '1100px';
     frame.style.transformOrigin = 'top left';
-    // mobile 守护：直接用屏宽算 scale 立即应用（不等 applyRowSpan 的 cardW），
-    // 避免 iframe 挂上后短暂以 1100x720 物理大小绘制 → 用户看到 broken 视图
-    if(IS_MOBILE_GUARD){
-      var initW = Math.min(window.innerWidth || 393, 820) - 16; // 减去左右 padding 8+8
-      var initScale = Math.min(1, initW / 1100);
-      frame.style.transform = 'scale(' + initScale + ')';
-    }
   }
   card.__frame = frame;
   card.__loaded = false;
@@ -433,27 +340,6 @@ function makeCardEl(d){
   function applyRowSpan(){
     var cardW = card.clientWidth;
     var fallbackH = (d.height || 360) + 2;
-
-    // mobile 守护：让 CSS aspect-ratio 接管容器布局，跳过 inline gridRow/height
-    // 但 iframe 的 transform:scale 仍要算（否则 iframe 物理 1100x720 显示左上角小一块）
-    if(IS_MOBILE_GUARD){
-      card.style.gridRowEnd = '';
-      card.style.height = '';
-      card.style.alignSelf = '';
-      if(isScaled && cardW > 0){
-        var mScale = Math.min(1, cardW / LOGICAL_W);
-        var mTf = 'scale(' + mScale + ')';
-        card.__frameTransform = mTf;
-        if(card.__frame && card.__frame.tagName !== 'IMG'){
-          card.__frame.style.transform = mTf;
-          // mobile 把 iframe 高度设回模板真实物理高度，transform 缩到屏宽时刚好填满 aspect-ratio 容器
-          card.__frame.style.height = (d.height || 720) + 'px';
-        }
-      } else if(card.__frame && card.__frame.tagName !== 'IMG'){
-        card.__frame.style.transform = '';
-      }
-      return;
-    }
     var cardH;
     if(isScaled && cardW > 0){
       var scale = Math.min(1, cardW / LOGICAL_W);
@@ -1456,8 +1342,6 @@ function buildPinnedFor(styleId, headlineFallback){
     });
   } catch(_){}
   // Three HTML to Canvas — Cullen Webber: HTML→SVG foreignObject→CanvasTexture 投影到 GLTF 模型
-  // 性能策略：feed 走 HEAVY_GPU 路径（<img> 直挂 poster.jpg 零 GPU 开销），详情走 STANDALONE 整页跳，
-  // 这样 feed 永远不会因为这张卡卡顿（同 vortex / architecture-overview / cinematic 的机制）。
   try {
     firstBatch.push({
       id:'d-three-html-to-canvas', styleId:'three-html-to-canvas', styleLabel:'HTML projected on 3D', sref:'cullenwebber-three-html-to-canvas', prompt:'Cullen Webber three-html-to-canvas HTML foreignObject CanvasTexture projection on GLTF mesh with Lenis loop scroll', pinned:true,
