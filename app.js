@@ -358,6 +358,13 @@ function makeCardEl(d){
     card.classList.add('is-narrow');
   }
 
+  // mobile 守护：用模板真实 1100×d.height 设 aspect-ratio，让卡容器和 iframe 物理盒子精确对齐
+  // 不依赖 CSS @media 写死的 1100/720（不同卡 d.height 可能 640/720/800）
+  if(IS_MOBILE_GUARD){
+    var ar = 1100 / (d.height || 720);
+    card.style.aspectRatio = ar.toFixed(4);
+  }
+
   // ─── 缩放路径（保持重构前一致）：所有 styleLock 卡都按 1100 逻辑宽渲染，
   // 外层 transform 缩到 1/3 列宽。让 dashboard / video poster 的视觉高度跟旧版一致。
   // ─── 挂载路径：dashboard（无 externalUrl）走 srcdoc；其余走 iframe.src（变体卡） ───
@@ -417,18 +424,29 @@ function makeCardEl(d){
   //    缩放后 card 高度 = d.height * scale。
   // 3) grid span 用最终高度 ceil 到 16px 的整数倍。
   function applyRowSpan(){
-    // mobile 守护：让 CSS aspect-ratio 接管布局，跳过 inline gridRow/height 设置
-    // （inline style 优先级高于 @media，会覆盖我们写的 aspect-ratio + height:auto）
+    var cardW = card.clientWidth;
+    var fallbackH = (d.height || 360) + 2;
+
+    // mobile 守护：让 CSS aspect-ratio 接管容器布局，跳过 inline gridRow/height
+    // 但 iframe 的 transform:scale 仍要算（否则 iframe 物理 1100x720 显示左上角小一块）
     if(IS_MOBILE_GUARD){
       card.style.gridRowEnd = '';
       card.style.height = '';
       card.style.alignSelf = '';
-      // 仍然把 transform 给 iframe（如果还有的话），但 mobile 已经 forceImg 不挂 iframe，basically no-op
-      if(card.__frame && card.__frame.tagName !== 'IMG') card.__frame.style.transform = '';
+      if(isScaled && cardW > 0){
+        var mScale = Math.min(1, cardW / LOGICAL_W);
+        var mTf = 'scale(' + mScale + ')';
+        card.__frameTransform = mTf;
+        if(card.__frame && card.__frame.tagName !== 'IMG'){
+          card.__frame.style.transform = mTf;
+          // mobile 把 iframe 高度设回模板真实物理高度，transform 缩到屏宽时刚好填满 aspect-ratio 容器
+          card.__frame.style.height = (d.height || 720) + 'px';
+        }
+      } else if(card.__frame && card.__frame.tagName !== 'IMG'){
+        card.__frame.style.transform = '';
+      }
       return;
     }
-    var cardW = card.clientWidth;
-    var fallbackH = (d.height || 360) + 2;
     var cardH;
     if(isScaled && cardW > 0){
       var scale = Math.min(1, cardW / LOGICAL_W);
