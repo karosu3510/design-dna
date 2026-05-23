@@ -5,7 +5,29 @@ window.CHATGPT_HOME_DOC = `<!doctype html>
 <meta charset="utf-8">
 <title>ChatGPT · 1:1 Replica · 你好，Lingfeng</title>
 <!-- 真 ChatGPT CSS bundle (1.4MB Tailwind v4.2.2 编译产物 + 1009 个 :root token) -->
-<link rel="stylesheet" href="chatgpt-real.css">
+<style>:root {
+  --bg-elevated-primary: #fff;
+  --bg-elevated-secondary: #f9f9f9;
+  --bg-primary: #fff;
+  --bg-tertiary: #f3f3f3;
+  --border-default: #0d0d0d1a;
+  --border-extra-light: #0d0d0d0d;
+  --border-light: #0d0d0d0d;
+  --font-sans: "-apple-system-body", "ui-sans-serif", "-apple-system", "system-ui", "Segoe UI", "Helvetica", "Apple Color Emoji", "Arial", "sans-serif", "Segoe UI Emoji", "Segoe UI Symbol";
+  --icon-secondary: #5d5d5d;
+  --radius-2xl: 1rem;
+  --radius-md: .375rem;
+  --radius-xl: .75rem;
+  --sidebar-body-primary: #0d0d0d;
+  --sidebar-section-margin-top: 1.25rem;
+  --sidebar-surface-primary: #f9f9f9;
+  --sidebar-surface-secondary: #ececec;
+  --sidebar-title-primary: #28282880;
+  --sidebar-width: 260px;
+  --text-primary: #0d0d0d;
+  --text-secondary: #5d5d5d;
+  --text-tertiary: #8f8f8f;
+}</style>
 <style>
   html, body { margin: 0; padding: 0; width: 1100px; height: 720px; overflow: hidden; background: var(--bg-primary); }
 body.stage-host { position: relative; }
