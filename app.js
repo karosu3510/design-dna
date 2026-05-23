@@ -396,6 +396,13 @@ function makeCardEl(d){
   if(isScaled){
     frame.style.width = '1100px';
     frame.style.transformOrigin = 'top left';
+    // mobile 守护：直接用屏宽算 scale 立即应用（不等 applyRowSpan 的 cardW），
+    // 避免 iframe 挂上后短暂以 1100x720 物理大小绘制 → 用户看到 broken 视图
+    if(IS_MOBILE_GUARD){
+      var initW = Math.min(window.innerWidth || 393, 820) - 16; // 减去左右 padding 8+8
+      var initScale = Math.min(1, initW / 1100);
+      frame.style.transform = 'scale(' + initScale + ')';
+    }
   }
   card.__frame = frame;
   card.__loaded = false;
