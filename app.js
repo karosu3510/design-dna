@@ -180,8 +180,10 @@ var MOBILE_MAX_LIVE = 1;
 var _mobileLiveCards = []; // 当前在跑 iframe 的卡列表（mobile only）
 
 // 把卡降级回 poster <img>：销毁 iframe + 释放 contentWindow
+// 仅对"有 poster 的卡"调用（外链卡）—— dashboard 卡没 poster jpg，不能降级
 function _downgradeToPoster(card){
   if(!card || !card.__loaded) return;
+  if(!card.__extUrl) return;  // dashboard 卡无 poster，禁止降级（会显示 broken-image ❓）
   var slug = card.__slug || '';
   // 已经是 img 不用动
   if(card.__frame && card.__frame.tagName === 'IMG') return;
@@ -205,13 +207,18 @@ function _downgradeToPoster(card){
 }
 
 // mobile 接力：升级当前卡为 iframe 前，先把队列里旧的全降级为 jpg
+// 注：dashboard 卡（无 extUrl）不能降级（无 poster），靠 pause/resume 控制 RAF 即可
 function _mobilePromoteToIframe(card){
   if(!IS_MOBILE_GUARD) return;
-  // 把不是当前的所有 live 卡降级
+  // 把不是当前的所有 live 卡降级（仅外链卡，dashboard 卡跳过 → 仍然 pause）
   for(var i = _mobileLiveCards.length - 1; i >= 0; i--){
     var c = _mobileLiveCards[i];
     if(c !== card){
-      _downgradeToPoster(c);
+      if(c.__extUrl){
+        _downgradeToPoster(c);
+      } else {
+        _pauseFrame(c);  // dashboard 卡只 pause RAF，不卸载 DOM
+      }
       _mobileLiveCards.splice(i, 1);
     }
   }
@@ -219,7 +226,8 @@ function _mobilePromoteToIframe(card){
   // 超过 MAX 也强制降级最早的
   while(_mobileLiveCards.length > MOBILE_MAX_LIVE){
     var oldest = _mobileLiveCards.shift();
-    _downgradeToPoster(oldest);
+    if(oldest.__extUrl) _downgradeToPoster(oldest);
+    else _pauseFrame(oldest);
   }
 }
 
@@ -246,7 +254,14 @@ function _loadFrame(card){
     img.src = 'posters/' + slug + '.jpg?v=' + (window.POSTER_VERSION || '1');
     // 重 GPU 卡用 <img>，浏览器有原生 decode → 等 onload 再揭开
     img.onload = function(){ _revealCard(card); };
-    img.onerror = function(){ _revealCard(card); };
+    img.onerror = function(){
+      // poster 文件不存在（dashboard 卡常发生）：藏掉 broken-image ❓
+      // 保留下面的 card-preview（渐变 + 标题 + shimmer）当兜底，并重置 __loaded 让 IO 下次能重试
+      img.style.display = 'none';
+      card.__loaded = false;
+      card.__revealed = false;
+      // 不调 _revealCard：保留 preview 显示
+    };
     if(card.__frame && card.__frame.parentNode){
       card.__frame.parentNode.replaceChild(img, card.__frame);
     } else {
