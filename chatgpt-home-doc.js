@@ -29,7 +29,7 @@ window.CHATGPT_HOME_DOC = `<!doctype html>
   --text-tertiary: #8f8f8f;
 }</style>
 <style>
-  /* 浏览器直接打开时：html 撑满视口并铺米白背景，body 1100×720 居中 */
+  /* 浏览器直接打开时：html 撑满视口并铺米白背景 */
   html {
     margin: 0; padding: 0;
     min-height: 100%;
@@ -47,34 +47,14 @@ window.CHATGPT_HOME_DOC = `<!doctype html>
     width: 1100px; height: 720px;
     overflow: hidden;
     position: relative;
-    /* body 透明，让 html 米白背景透过；srcdoc 模式下 html 默认尺寸=容器，body 也是该尺寸，需要 body 自带米白 */
-    background:
-      radial-gradient(1200px 700px at 30% 20%, #f7f3ec 0%, transparent 60%),
-      radial-gradient(900px 600px at 80% 90%, #efe9e0 0%, transparent 55%),
-      linear-gradient(180deg, #efeae1 0%, #e7e0d4 100%);
   }
-body.stage-host { /* legacy class kept for compat */ }
-/* 居中 frame：1024×670，UI 直接漂浮在米白背景上（不再加白卡底色） */
-.stage-frame {
-  position: absolute;
-  left: 50%; top: 50%;
-  width: 1024px; height: 670px;
-  transform: translate(-50%, -50%);
-  border-radius: 20px;
-  overflow: hidden;
-  /* 不设 background，UI 自带白色（main #fff + sidebar #f9f9f9）就是 frame 表面 */
-  box-shadow:
-    0 1px 0 rgba(255,255,255,0.9) inset,
-    0 2px 4px rgba(40,38,32,0.04),
-    0 12px 28px rgba(40,38,32,0.10),
-    0 32px 80px rgba(40,38,32,0.14);
-}
-/* 真站 1280×838 等比缩 0.8 → 1024×670 正好填满 frame */
+body.stage-host { /* legacy */ }
+/* stage-wrap 直接占满 body：真站 1280×838 等比缩 1100/1280=0.859 → 1100×720 完全贴合 */
 .stage-wrap {
   position: absolute;
   left: 0; top: 0;
   width: 1280px; height: 838px;
-  transform: scale(0.8);
+  transform: scale(0.859375);
   transform-origin: top left;
 }
   body {
@@ -258,7 +238,7 @@ body.stage-host { /* legacy class kept for compat */ }
   .main {
     display: flex;
     flex-direction: column;
-    background: transparent; /* 让 frame 外的米白渐变透过来 */
+    background: var(--bg-primary);
     overflow-y: auto;
     position: relative;
   }
@@ -569,7 +549,7 @@ body.stage-host { /* legacy class kept for compat */ }
   }
 </style>
 </head>
-<body class="stage-host"><div class="stage-frame">
+<body class="stage-host">
 <svg xmlns="http://www.w3.org/2000/svg" style="display:none;position:absolute;width:0;height:0;" aria-hidden="true">
 <symbol id="002232" viewBox="0 0 20 20" fill-rule="evenodd" clip-rule="evenodd"><path d="M10 1.667a8.334 8.334 0 1 1 0 16.667 8.334 8.334 0 0 1 0-16.667M8.173 7.232a.666.666 0 0 0-.942.94L9.06 10l-1.828 1.828a.666.666 0 0 0 .942.94L10 10.94l1.828 1.828a.665.665 0 1 0 .94-.94L10.94 10l1.828-1.827.085-.105a.665.665 0 0 0-.92-.92l-.105.084L10 9.06z"/></symbol>
 <symbol id="003104" viewBox="0 0 20 20"><path d="M16.835 10c0-3.51-3.024-6.418-6.835-6.418S3.165 6.49 3.165 10c0 1.454.514 2.797 1.388 3.877.122.151.172.35.136.54-.095.508-.23 1.003-.384 1.487a13 13 0 0 0 1.823-.376l.126-.023a.67.67 0 0 1 .37.077 7.14 7.14 0 0 0 3.376.837c3.811 0 6.835-2.91 6.835-6.42m1.33 0c0 4.314-3.692 7.749-8.165 7.749a8.5 8.5 0 0 1-3.766-.873c-.92.242-1.865.393-2.86.455a.665.665 0 0 1-.661-.903l.207-.565c.162-.468.3-.933.402-1.402A7.45 7.45 0 0 1 1.835 10c0-4.315 3.692-7.748 8.165-7.748S18.165 5.685 18.165 10"/></symbol>
@@ -1353,7 +1333,6 @@ body.stage-host { /* legacy class kept for compat */ }
     </section>
   </main>
 
-</div>
 </div>
 </div>
 
