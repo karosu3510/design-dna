@@ -46,6 +46,13 @@
     width: 1100px; height: 720px;
     overflow: hidden;
     position: relative;
+    /* 卡片圆角：UI 整体被裁成圆角 */
+    border-radius: 20px;
+    box-shadow:
+      0 1px 0 rgba(255,255,255,0.9) inset,
+      0 2px 4px rgba(40,38,32,0.04),
+      0 12px 28px rgba(40,38,32,0.10),
+      0 32px 80px rgba(40,38,32,0.14);
   }
 body.stage-host { /* legacy */ }
 /* stage-wrap 直接占满 body：真站 1280×838 等比缩 1100/1280=0.859 → 1100×720 完全贴合 */
