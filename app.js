@@ -162,17 +162,32 @@ var HEAVY_GPU_SLUGS = new Set([
   'onscroll-filter',      // 7 张 SVG image + feTurbulence/feDisplacementMap 噪声滤镜，scroll-driven
   'lines-to-layout',      // GSAP Flip 大字行 → image 大图布局切换 + custom cursor
   'architecture-overview',// p5.js polar perlin loops + 60 圈 RAF + Linear-token UI
-  'three-html-to-canvas', // three.js GLTF + HTML→SVG foreignObject→CanvasTexture 投影 + Lenis 循环滚
+  'three-html-to-canvas', // three.js GLTF + foreignObject CanvasTexture 投影；feed 走 poster jpg，详情走 STANDALONE，feed 不会卡
 ]);
+
+// ─── Mobile guard（2026-05-23）：手机/触屏窄屏一律走 poster jpg，不挂 srcdoc iframe。
+// iOS Safari 单 tab 内存约 250-300MB，多个 srcdoc iframe + RAF 同时跑会被 OOM kill
+// 表现 = "出现问题 / aw, snap" 的根本原因。详情页打开时仍走 srcdoc，体验不变。
+var IS_MOBILE_GUARD = (function(){
+  try{
+    if(matchMedia('(max-width:640px)').matches) return true;
+    if(matchMedia('(hover:none) and (pointer:coarse) and (max-width:820px)').matches) return true;
+  }catch(_){}
+  return false;
+})();
 
 function _loadFrame(card){
   if(!card || card.__loaded) return;
   card.__loaded = true;
   var slug = card.__slug || '';
+  // mobile 守护：所有外链卡（含轻量）+ dashboard 卡 全部走 poster img，不挂 iframe
+  // dashboard 卡（无 extUrl）也有对应 poster：'posters/<slug>.jpg' 已有覆盖
+  var forceImg = IS_MOBILE_GUARD;
   // 重 GPU 卡 → 直接挂 <img>（零开销，不耗 RAF/GPU context）
+  // mobile 守护下 → 所有卡都走 <img>
   // 其它外链卡 → 真 srcdoc + pauseScript（恢复动画）
   // dashboard 卡 → 真 srcdoc + pauseScript
-  if(card.__extUrl && HEAVY_GPU_SLUGS.has(slug)){
+  if(forceImg || (card.__extUrl && HEAVY_GPU_SLUGS.has(slug))){
     var img = document.createElement('img');
     img.className = 'card-frame card-poster-fill';
     img.alt = '';
@@ -243,7 +258,8 @@ var _liveObserver = ('IntersectionObserver' in window) ? new IntersectionObserve
       _pauseFrame(card);
     }
   });
-},{ rootMargin:'300px 0px 300px 0px' }) : null;
+},{ rootMargin: IS_MOBILE_GUARD ? '0px' : '300px 0px 300px 0px' }) : null;
+// mobile 把 rootMargin 收到 0：只有真正进视口才载，避免一次激活 4-6 张卡叠加占用
 
 function buildStyleChips(){
   const row = document.getElementById('styleRow');
@@ -338,6 +354,16 @@ function makeCardEl(d){
   //    缩放后 card 高度 = d.height * scale。
   // 3) grid span 用最终高度 ceil 到 16px 的整数倍。
   function applyRowSpan(){
+    // mobile 守护：让 CSS aspect-ratio 接管布局，跳过 inline gridRow/height 设置
+    // （inline style 优先级高于 @media，会覆盖我们写的 aspect-ratio + height:auto）
+    if(IS_MOBILE_GUARD){
+      card.style.gridRowEnd = '';
+      card.style.height = '';
+      card.style.alignSelf = '';
+      // 仍然把 transform 给 iframe（如果还有的话），但 mobile 已经 forceImg 不挂 iframe，basically no-op
+      if(card.__frame && card.__frame.tagName !== 'IMG') card.__frame.style.transform = '';
+      return;
+    }
     var cardW = card.clientWidth;
     var fallbackH = (d.height || 360) + 2;
     var cardH;
@@ -1342,6 +1368,8 @@ function buildPinnedFor(styleId, headlineFallback){
     });
   } catch(_){}
   // Three HTML to Canvas — Cullen Webber: HTML→SVG foreignObject→CanvasTexture 投影到 GLTF 模型
+  // 性能策略：feed 走 HEAVY_GPU 路径（<img> 直挂 poster.jpg 零 GPU 开销），详情走 STANDALONE 整页跳，
+  // 这样 feed 永远不会因为这张卡卡顿（同 vortex / architecture-overview / cinematic 的机制）。
   try {
     firstBatch.push({
       id:'d-three-html-to-canvas', styleId:'three-html-to-canvas', styleLabel:'HTML projected on 3D', sref:'cullenwebber-three-html-to-canvas', prompt:'Cullen Webber three-html-to-canvas HTML foreignObject CanvasTexture projection on GLTF mesh with Lenis loop scroll', pinned:true,
