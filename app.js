@@ -165,9 +165,10 @@ var HEAVY_GPU_SLUGS = new Set([
   'three-html-to-canvas', // three.js GLTF + foreignObject CanvasTexture 投影；feed 走 poster jpg，详情走 STANDALONE，feed 不会卡
 ]);
 
-// ─── Mobile guard（2026-05-23）：手机/触屏窄屏一律走 poster jpg，不挂 srcdoc iframe。
+// ─── Mobile guard（2026-05-23 v2）：保留动效但严格限制活跃 iframe 数。
 // iOS Safari 单 tab 内存约 250-300MB，多个 srcdoc iframe + RAF 同时跑会被 OOM kill
-// 表现 = "出现问题 / aw, snap" 的根本原因。详情页打开时仍走 srcdoc，体验不变。
+// （表现 = "出现问题 / aw snap"）。策略：mobile 同时只有 1 张卡是 live iframe，
+// 其它全部走 poster jpg；滑动时"接力"——新卡进视口前先卸载老的。
 var IS_MOBILE_GUARD = (function(){
   try{
     if(matchMedia('(max-width:640px)').matches) return true;
@@ -175,19 +176,66 @@ var IS_MOBILE_GUARD = (function(){
   }catch(_){}
   return false;
 })();
+var MOBILE_MAX_LIVE = 1;
+var _mobileLiveCards = []; // 当前在跑 iframe 的卡列表（mobile only）
+
+// 把卡降级回 poster <img>：销毁 iframe + 释放 contentWindow
+function _downgradeToPoster(card){
+  if(!card || !card.__loaded) return;
+  var slug = card.__slug || '';
+  // 已经是 img 不用动
+  if(card.__frame && card.__frame.tagName === 'IMG') return;
+  var img = document.createElement('img');
+  img.className = 'card-frame card-poster-fill';
+  img.alt = '';
+  img.loading = 'lazy';
+  img.decoding = 'async';
+  img.src = 'posters/' + slug + '.jpg?v=' + (window.POSTER_VERSION || '1');
+  if(card.__frame && card.__frame.parentNode){
+    card.__frame.parentNode.replaceChild(img, card.__frame);
+  } else {
+    card.appendChild(img);
+  }
+  card.__frame = img;
+  card.__loaded = false; // 允许下次再升级回 iframe
+  card.__revealed = false;
+  card.classList.remove('is-live');
+  // 立即让 img 可见（已经有 poster 了不需要 reveal 动画）
+  setTimeout(function(){ card.classList.add('is-live'); }, 50);
+}
+
+// mobile 接力：升级当前卡为 iframe 前，先把队列里旧的全降级为 jpg
+function _mobilePromoteToIframe(card){
+  if(!IS_MOBILE_GUARD) return;
+  // 把不是当前的所有 live 卡降级
+  for(var i = _mobileLiveCards.length - 1; i >= 0; i--){
+    var c = _mobileLiveCards[i];
+    if(c !== card){
+      _downgradeToPoster(c);
+      _mobileLiveCards.splice(i, 1);
+    }
+  }
+  if(_mobileLiveCards.indexOf(card) < 0) _mobileLiveCards.push(card);
+  // 超过 MAX 也强制降级最早的
+  while(_mobileLiveCards.length > MOBILE_MAX_LIVE){
+    var oldest = _mobileLiveCards.shift();
+    _downgradeToPoster(oldest);
+  }
+}
 
 function _loadFrame(card){
   if(!card || card.__loaded) return;
   card.__loaded = true;
   var slug = card.__slug || '';
-  // mobile 守护：所有外链卡（含轻量）+ dashboard 卡 全部走 poster img，不挂 iframe
-  // dashboard 卡（无 extUrl）也有对应 poster：'posters/<slug>.jpg' 已有覆盖
-  var forceImg = IS_MOBILE_GUARD;
-  // 重 GPU 卡 → 直接挂 <img>（零开销，不耗 RAF/GPU context）
-  // mobile 守护下 → 所有卡都走 <img>
-  // 其它外链卡 → 真 srcdoc + pauseScript（恢复动画）
-  // dashboard 卡 → 真 srcdoc + pauseScript
-  if(forceImg || (card.__extUrl && HEAVY_GPU_SLUGS.has(slug))){
+  // mobile 重 GPU 卡 → 永久 poster（不挂 iframe）
+  // mobile 轻量卡 → 走 iframe 但要先接力（卸载其它 live）
+  // desktop 重 GPU 卡 → 老逻辑 poster
+  // desktop 其它 → srcdoc + pauseScript
+  var isHeavy = HEAVY_GPU_SLUGS.has(slug);
+  var forceImg = isHeavy && (IS_MOBILE_GUARD || card.__extUrl);
+  // mobile 轻量卡进视口前接力（先卸老的）
+  if(IS_MOBILE_GUARD && !forceImg) _mobilePromoteToIframe(card);
+  if(forceImg){
     var img = document.createElement('img');
     img.className = 'card-frame card-poster-fill';
     img.alt = '';
@@ -258,8 +306,8 @@ var _liveObserver = ('IntersectionObserver' in window) ? new IntersectionObserve
       _pauseFrame(card);
     }
   });
-},{ rootMargin: IS_MOBILE_GUARD ? '0px' : '300px 0px 300px 0px' }) : null;
-// mobile 把 rootMargin 收到 0：只有真正进视口才载，避免一次激活 4-6 张卡叠加占用
+},{ rootMargin: IS_MOBILE_GUARD ? '50px 0px 50px 0px' : '300px 0px 300px 0px' }) : null;
+// mobile rootMargin 50px：接力策略下只允许"即将进视口"的预热，不预热整屏外
 
 function buildStyleChips(){
   const row = document.getElementById('styleRow');
