@@ -96,8 +96,13 @@
     .user-pop{ left:8px !important; right:8px !important; width:auto !important }
 
     .stage{ margin-left:0; padding:8px 8px 100px }      /* 主区贴边，留 prompt-dock 安全区 */
-    .feed{ grid-template-columns:1fr !important; gap:16px !important; grid-auto-rows:auto !important } /* 一行一张卡，16px 间距 */
+    .feed{ grid-template-columns:1fr !important; gap:8px !important; grid-auto-rows:auto !important } /* 一行一张卡，紧凑 8px */
     .feed > .card,.card.is-narrow{ grid-column:span 1 }
+    /* 关键：卡的"多余空白"是 iframe transform:scale 不缩 box → 父高度按 720 给。
+       这里用 aspect-ratio 1100/720 强制让 .card 高度 = 屏宽 × 0.655，溢出隐藏。
+       has-scale 卡的内部 iframe 已经 absolute + transform-origin top left，正好贴合。 */
+    .card{ aspect-ratio:1100/720; height:auto !important; overflow:hidden }
+    .card.has-scale{ aspect-ratio:1100/720; height:auto !important }
     .card{ border-radius:14px }                         /* 卡片小边角更指型化 */
     .card-actions{ opacity:1 !important; transform:none !important; pointer-events:auto !important } /* 没有 hover，常驻显示 */
     .card-fav{ opacity:1 !important; transform:none !important }
