@@ -1080,7 +1080,7 @@
 
     <div class="nav-actions">
       <a class="btn" href="https://ardot.tencent.com/file/684668388690623?node_id=140%3A1" target="_blank" rel="noopener">去 Ardot 打开</a>
-      <a class="btn" href="https://www.codebuddy.cn" target="_blank" rel="noopener">去 WorkBuddy 开发</a>
+      <button class="btn" id="wbBtn">去 WorkBuddy 开发</button>
     </div>
   </aside>
 
@@ -4149,6 +4149,58 @@ grid.addEventListener('click', e => {
     window.addEventListener('resize', fit);
   }
 })();
+
+// 去 WorkBuddy 开发
+document.getElementById('wbBtn').addEventListener('click', async function(){
+  var btn = this;
+  var orig = btn.innerHTML;
+  var KIT_BASE = 'https://karosu3510.github.io/design-dna/kits/chatgpt-home/';
+  var prompt = [
+    '我要基于 Design DNA 中的 ChatGPT 设计系统继续开发。',
+    '',
+    '【素材包入口（请帮我读取这些文件作为视觉规范）】',
+    '- 设计系统总览：' + KIT_BASE + 'index.html',
+    '- 1:1 还原首页（含全部 sprite + token）：https://karosu3510.github.io/design-dna/chatgpt-home.html',
+    '',
+    '【视觉铁律（必须遵守）】',
+    '- 调色板：bg #f9f9f9 / surface #ffffff / ink #0d0d0d / ink-2 #3f3f3f / muted #8f8f8f / border rgba(13,13,13,0.08)',
+    '- 字体族：OpenAI Sans (优先) → Inter → system-ui；字号 14px body / 16px input / 24px h1',
+    '- 圆角阶梯：28px(composer/pill) / 18px(icon-btn) / 10px(card) / 8px(nav-item/btn) / 999px(tag)',
+    '- Sidebar 宽 260px，bg #f9f9f9；主区 bg #ffffff',
+    '- Icon 全部从 kit 内 sprite 用 <use href="#xxxxxx"/> 引用，绝不手画 SVG path',
+    '- Composer: 640×56 / radius 28 / shadow 0 3px 6px rgba(0,0,0,0.04), 0 4px 80px 8px rgba(0,0,0,0.04), 0 0 1px rgba(0,0,0,0.62)',
+    '- 间距 4px grid / padding sidebar 10px / nav gap 2px',
+    '',
+    '【我要开发的目标】',
+    '（在这里描述你想做的页面或组件）',
+    '',
+    '【请按以下步骤执行】',
+    '1. 抓取 KIT_BASE 下关键文件加载视觉规范。',
+    '2. 给方案概要等我确认。',
+    '3. 我说「开干」之后，再生成代码。',
+  ].join('\n');
+
+  btn.innerHTML = '复制中…';
+  try{
+    await navigator.clipboard.writeText(prompt);
+    var iframe = document.createElement('iframe');
+    iframe.style.display='none';
+    iframe.src = 'codebuddy://codebuddy-ide';
+    document.body.appendChild(iframe);
+    setTimeout(function(){ try{ iframe.remove(); }catch(_){} }, 1500);
+    setTimeout(function(){
+      if(document.visibilityState === 'visible'){
+        window.open('https://www.codebuddy.cn/', '_blank', 'noopener');
+      }
+    }, 1200);
+    btn.innerHTML = '✓ 已复制 · 正在唤起 WorkBuddy';
+    setTimeout(function(){ btn.innerHTML = orig; }, 2400);
+  }catch(err){
+    console.warn(err);
+    btn.innerHTML = '复制失败';
+    setTimeout(function(){ btn.innerHTML = orig; }, 1500);
+  }
+});
 </script>
 </body>
 </html>
