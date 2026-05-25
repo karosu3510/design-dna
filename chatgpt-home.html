@@ -262,6 +262,7 @@ body.stage-host { /* legacy */ }
   .main__top {
     /* 真站 #page-header 高 52px (--header-height = 13*0.25rem) / padding 8px / align center */
     height: 52px;
+    box-sizing: border-box;     /* padding 计入 52px，避免被撑成 68 让右侧按钮整体偏下 */
     display: flex;
     align-items: center;
     justify-content: space-between;
