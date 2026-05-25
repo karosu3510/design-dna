@@ -243,6 +243,95 @@
   .logo-card__meta { padding: 12px 16px; border-top: 1px solid var(--ds-border); }
   .logo-card__meta b { display: block; font-size: 13px; font-weight: 600; }
   .logo-card__meta code { font-size: 11px; padding: 0; background: transparent; color: var(--ds-muted); }
+
+/* 图标分类筛选样式 */
+.icon-filters {
+  display: flex;
+  gap: 8px;
+  margin: 12px 0 16px;
+  flex-wrap: wrap;
+}
+.filter-btn {
+  height: 32px;
+  padding: 0 14px;
+  background: transparent;
+  border: 1px solid rgba(13,13,13,0.15);
+  border-radius: 999px;
+  font-size: 13px;
+  color: #5d5d5d;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.filter-btn:hover {
+  background: rgba(13,13,13,0.04);
+  border-color: rgba(13,13,13,0.25);
+}
+.filter-btn.active {
+  background: #0d0d0d;
+  border-color: #0d0d0d;
+  color: #fff;
+}
+.icon-card[data-type="outline"] svg {
+  /* 线性图标默认样式 */
+}
+.icon-card[data-type="filled"] svg {
+  /* 面形图标默认样式 */
+}
+.icon-card[data-type="colorful"] svg {
+  /* 彩色图标默认样式 */
+}
+
+/* 主要页面 · Pages section */
+.pages-grid { display: grid; grid-template-columns: 1fr; gap: 16px; }
+.page-card {
+  background: var(--ds-surface);
+  border: 1px solid var(--ds-border);
+  border-radius: 12px;
+  overflow: hidden;
+}
+.page-card__title {
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--ds-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.page-card__title b { font-size: 14px; font-weight: 600; }
+.page-card__title span { font-size: 11px; color: var(--ds-muted); font-family: "SF Mono", monospace; }
+.page-card__stage {
+  position: relative;
+  width: 100%;
+  /* 真站 1280×838，按 100% 宽算 ratio = 838/1280 = 0.6547 */
+  aspect-ratio: 1280 / 838;
+  background: #fafafa;
+  overflow: hidden;
+}
+.page-card__stage iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1280px;
+  height: 838px;
+  border: 0;
+  transform-origin: 0 0;
+}
+.page-card__meta {
+  padding: 10px 18px;
+  border-top: 1px solid var(--ds-border);
+  font-size: 12px;
+  color: var(--ds-muted);
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.page-card__meta code {
+  font-family: "SF Mono", monospace;
+  font-size: 11px;
+  padding: 1px 6px;
+  background: rgba(13,13,13,0.04);
+  border-radius: 4px;
+}
 </style>
 </head>
 <body>
@@ -982,6 +1071,8 @@
     <a href="#c-tooltip">气泡提示</a>
     <h4>图标</h4>
     <a href="#icons">全部 703 个图标</a>
+    <h4>页面</h4>
+    <a href="#pages">主要页面</a>
   </aside>
 
   <main>
@@ -1805,2113 +1896,2119 @@
         <input id="icon-search" placeholder="搜索图标 ID（例如 55180d / 6be74c）" />
         <span class="count-pill" id="icon-count">703 / 703</span>
       </div>
-      <div class="icon-grid icon-grid--collapsed" id="icon-grid"><div class="icon-card" data-id="002232" title="#002232">
+      <div class="icon-filters">
+        <button class="filter-btn active" data-filter="all">全部</button>
+        <button class="filter-btn" data-filter="outline">线性图标</button>
+        <button class="filter-btn" data-filter="filled">面形图标</button>
+        <button class="filter-btn" data-filter="colorful">彩色图标</button>
+      </div>
+      <div class="icon-grid icon-grid--collapsed" id="icon-grid"><div class="icon-card" data-id="002232" data-type="unknown" title="#002232">
   <svg width="20" height="20"><use href="#002232"/></svg>
   <code>#002232</code>
-</div><div class="icon-card" data-id="003104" title="#003104">
+</div><div class="icon-card" data-id="003104" data-type="outline" title="#003104">
   <svg width="20" height="20"><use href="#003104"/></svg>
   <code>#003104</code>
-</div><div class="icon-card" data-id="00877b" title="#00877b">
+</div><div class="icon-card" data-id="00877b" data-type="unknown" title="#00877b">
   <svg width="20" height="20"><use href="#00877b"/></svg>
   <code>#00877b</code>
-</div><div class="icon-card" data-id="00b19a" title="#00b19a">
+</div><div class="icon-card" data-id="00b19a" data-type="unknown" title="#00b19a">
   <svg width="20" height="20"><use href="#00b19a"/></svg>
   <code>#00b19a</code>
-</div><div class="icon-card" data-id="00b7d6" title="#00b7d6">
+</div><div class="icon-card" data-id="00b7d6" data-type="unknown" title="#00b7d6">
   <svg width="20" height="20"><use href="#00b7d6"/></svg>
   <code>#00b7d6</code>
-</div><div class="icon-card" data-id="00da8b" title="#00da8b">
+</div><div class="icon-card" data-id="00da8b" data-type="unknown" title="#00da8b">
   <svg width="20" height="20"><use href="#00da8b"/></svg>
   <code>#00da8b</code>
-</div><div class="icon-card" data-id="00f12a" title="#00f12a">
+</div><div class="icon-card" data-id="00f12a" data-type="unknown" title="#00f12a">
   <svg width="20" height="20"><use href="#00f12a"/></svg>
   <code>#00f12a</code>
-</div><div class="icon-card" data-id="010734" title="#010734">
+</div><div class="icon-card" data-id="010734" data-type="unknown" title="#010734">
   <svg width="20" height="20"><use href="#010734"/></svg>
   <code>#010734</code>
-</div><div class="icon-card" data-id="014424" title="#014424">
+</div><div class="icon-card" data-id="014424" data-type="unknown" title="#014424">
   <svg width="20" height="20"><use href="#014424"/></svg>
   <code>#014424</code>
-</div><div class="icon-card" data-id="0155b9" title="#0155b9">
+</div><div class="icon-card" data-id="0155b9" data-type="unknown" title="#0155b9">
   <svg width="20" height="20"><use href="#0155b9"/></svg>
   <code>#0155b9</code>
-</div><div class="icon-card" data-id="016b45" title="#016b45">
+</div><div class="icon-card" data-id="016b45" data-type="unknown" title="#016b45">
   <svg width="20" height="20"><use href="#016b45"/></svg>
   <code>#016b45</code>
-</div><div class="icon-card" data-id="018b23" title="#018b23">
+</div><div class="icon-card" data-id="018b23" data-type="unknown" title="#018b23">
   <svg width="20" height="20"><use href="#018b23"/></svg>
   <code>#018b23</code>
-</div><div class="icon-card" data-id="01bab7" title="#01bab7">
+</div><div class="icon-card" data-id="01bab7" data-type="filled" title="#01bab7">
   <svg width="20" height="20"><use href="#01bab7"/></svg>
   <code>#01bab7</code>
-</div><div class="icon-card" data-id="020adf" title="#020adf">
+</div><div class="icon-card" data-id="020adf" data-type="unknown" title="#020adf">
   <svg width="20" height="20"><use href="#020adf"/></svg>
   <code>#020adf</code>
-</div><div class="icon-card" data-id="025c88" title="#025c88">
+</div><div class="icon-card" data-id="025c88" data-type="unknown" title="#025c88">
   <svg width="20" height="20"><use href="#025c88"/></svg>
   <code>#025c88</code>
-</div><div class="icon-card" data-id="03424d" title="#03424d">
+</div><div class="icon-card" data-id="03424d" data-type="unknown" title="#03424d">
   <svg width="20" height="20"><use href="#03424d"/></svg>
   <code>#03424d</code>
-</div><div class="icon-card" data-id="0350ab" title="#0350ab">
+</div><div class="icon-card" data-id="0350ab" data-type="unknown" title="#0350ab">
   <svg width="20" height="20"><use href="#0350ab"/></svg>
   <code>#0350ab</code>
-</div><div class="icon-card" data-id="03583c" title="#03583c">
+</div><div class="icon-card" data-id="03583c" data-type="unknown" title="#03583c">
   <svg width="20" height="20"><use href="#03583c"/></svg>
   <code>#03583c</code>
-</div><div class="icon-card" data-id="04619b" title="#04619b">
+</div><div class="icon-card" data-id="04619b" data-type="unknown" title="#04619b">
   <svg width="20" height="20"><use href="#04619b"/></svg>
   <code>#04619b</code>
-</div><div class="icon-card" data-id="04c0ac" title="#04c0ac">
+</div><div class="icon-card" data-id="04c0ac" data-type="unknown" title="#04c0ac">
   <svg width="20" height="20"><use href="#04c0ac"/></svg>
   <code>#04c0ac</code>
-</div><div class="icon-card" data-id="06188d" title="#06188d">
+</div><div class="icon-card" data-id="06188d" data-type="unknown" title="#06188d">
   <svg width="20" height="20"><use href="#06188d"/></svg>
   <code>#06188d</code>
-</div><div class="icon-card" data-id="0623c1" title="#0623c1">
+</div><div class="icon-card" data-id="0623c1" data-type="unknown" title="#0623c1">
   <svg width="20" height="20"><use href="#0623c1"/></svg>
   <code>#0623c1</code>
-</div><div class="icon-card" data-id="065728" title="#065728">
+</div><div class="icon-card" data-id="065728" data-type="unknown" title="#065728">
   <svg width="20" height="20"><use href="#065728"/></svg>
   <code>#065728</code>
-</div><div class="icon-card" data-id="067e94" title="#067e94">
+</div><div class="icon-card" data-id="067e94" data-type="unknown" title="#067e94">
   <svg width="20" height="20"><use href="#067e94"/></svg>
   <code>#067e94</code>
-</div><div class="icon-card" data-id="06ac52" title="#06ac52">
+</div><div class="icon-card" data-id="06ac52" data-type="unknown" title="#06ac52">
   <svg width="20" height="20"><use href="#06ac52"/></svg>
   <code>#06ac52</code>
-</div><div class="icon-card" data-id="070314" title="#070314">
+</div><div class="icon-card" data-id="070314" data-type="unknown" title="#070314">
   <svg width="20" height="20"><use href="#070314"/></svg>
   <code>#070314</code>
-</div><div class="icon-card" data-id="07d304" title="#07d304">
+</div><div class="icon-card" data-id="07d304" data-type="unknown" title="#07d304">
   <svg width="20" height="20"><use href="#07d304"/></svg>
   <code>#07d304</code>
-</div><div class="icon-card" data-id="07dc1a" title="#07dc1a">
+</div><div class="icon-card" data-id="07dc1a" data-type="unknown" title="#07dc1a">
   <svg width="20" height="20"><use href="#07dc1a"/></svg>
   <code>#07dc1a</code>
-</div><div class="icon-card" data-id="08238c" title="#08238c">
+</div><div class="icon-card" data-id="08238c" data-type="unknown" title="#08238c">
   <svg width="20" height="20"><use href="#08238c"/></svg>
   <code>#08238c</code>
-</div><div class="icon-card" data-id="08d779" title="#08d779">
+</div><div class="icon-card" data-id="08d779" data-type="unknown" title="#08d779">
   <svg width="20" height="20"><use href="#08d779"/></svg>
   <code>#08d779</code>
-</div><div class="icon-card" data-id="08f597" title="#08f597">
+</div><div class="icon-card" data-id="08f597" data-type="unknown" title="#08f597">
   <svg width="20" height="20"><use href="#08f597"/></svg>
   <code>#08f597</code>
-</div><div class="icon-card" data-id="0a0a1b" title="#0a0a1b">
+</div><div class="icon-card" data-id="0a0a1b" data-type="unknown" title="#0a0a1b">
   <svg width="20" height="20"><use href="#0a0a1b"/></svg>
   <code>#0a0a1b</code>
-</div><div class="icon-card" data-id="0a3d49" title="#0a3d49">
+</div><div class="icon-card" data-id="0a3d49" data-type="unknown" title="#0a3d49">
   <svg width="20" height="20"><use href="#0a3d49"/></svg>
   <code>#0a3d49</code>
-</div><div class="icon-card" data-id="0a459a" title="#0a459a">
+</div><div class="icon-card" data-id="0a459a" data-type="unknown" title="#0a459a">
   <svg width="20" height="20"><use href="#0a459a"/></svg>
   <code>#0a459a</code>
-</div><div class="icon-card" data-id="0aed53" title="#0aed53">
+</div><div class="icon-card" data-id="0aed53" data-type="unknown" title="#0aed53">
   <svg width="20" height="20"><use href="#0aed53"/></svg>
   <code>#0aed53</code>
-</div><div class="icon-card" data-id="0b7da1" title="#0b7da1">
+</div><div class="icon-card" data-id="0b7da1" data-type="unknown" title="#0b7da1">
   <svg width="20" height="20"><use href="#0b7da1"/></svg>
   <code>#0b7da1</code>
-</div><div class="icon-card" data-id="0b7e8d" title="#0b7e8d">
+</div><div class="icon-card" data-id="0b7e8d" data-type="unknown" title="#0b7e8d">
   <svg width="20" height="20"><use href="#0b7e8d"/></svg>
   <code>#0b7e8d</code>
-</div><div class="icon-card" data-id="0ba700" title="#0ba700">
+</div><div class="icon-card" data-id="0ba700" data-type="unknown" title="#0ba700">
   <svg width="20" height="20"><use href="#0ba700"/></svg>
   <code>#0ba700</code>
-</div><div class="icon-card" data-id="0c21a8" title="#0c21a8">
+</div><div class="icon-card" data-id="0c21a8" data-type="unknown" title="#0c21a8">
   <svg width="20" height="20"><use href="#0c21a8"/></svg>
   <code>#0c21a8</code>
-</div><div class="icon-card" data-id="0c7b3e" title="#0c7b3e">
+</div><div class="icon-card" data-id="0c7b3e" data-type="unknown" title="#0c7b3e">
   <svg width="20" height="20"><use href="#0c7b3e"/></svg>
   <code>#0c7b3e</code>
-</div><div class="icon-card" data-id="0cbba4" title="#0cbba4">
+</div><div class="icon-card" data-id="0cbba4" data-type="unknown" title="#0cbba4">
   <svg width="20" height="20"><use href="#0cbba4"/></svg>
   <code>#0cbba4</code>
-</div><div class="icon-card" data-id="0ccbd9" title="#0ccbd9">
+</div><div class="icon-card" data-id="0ccbd9" data-type="unknown" title="#0ccbd9">
   <svg width="20" height="20"><use href="#0ccbd9"/></svg>
   <code>#0ccbd9</code>
-</div><div class="icon-card" data-id="0cdb79" title="#0cdb79">
+</div><div class="icon-card" data-id="0cdb79" data-type="unknown" title="#0cdb79">
   <svg width="20" height="20"><use href="#0cdb79"/></svg>
   <code>#0cdb79</code>
-</div><div class="icon-card" data-id="0d48c6" title="#0d48c6">
+</div><div class="icon-card" data-id="0d48c6" data-type="unknown" title="#0d48c6">
   <svg width="20" height="20"><use href="#0d48c6"/></svg>
   <code>#0d48c6</code>
-</div><div class="icon-card" data-id="0de897" title="#0de897">
+</div><div class="icon-card" data-id="0de897" data-type="unknown" title="#0de897">
   <svg width="20" height="20"><use href="#0de897"/></svg>
   <code>#0de897</code>
-</div><div class="icon-card" data-id="0e5c42" title="#0e5c42">
+</div><div class="icon-card" data-id="0e5c42" data-type="unknown" title="#0e5c42">
   <svg width="20" height="20"><use href="#0e5c42"/></svg>
   <code>#0e5c42</code>
-</div><div class="icon-card" data-id="0eb3b9" title="#0eb3b9">
+</div><div class="icon-card" data-id="0eb3b9" data-type="unknown" title="#0eb3b9">
   <svg width="20" height="20"><use href="#0eb3b9"/></svg>
   <code>#0eb3b9</code>
-</div><div class="icon-card" data-id="0f07fb" title="#0f07fb">
+</div><div class="icon-card" data-id="0f07fb" data-type="unknown" title="#0f07fb">
   <svg width="20" height="20"><use href="#0f07fb"/></svg>
   <code>#0f07fb</code>
-</div><div class="icon-card" data-id="0f21eb" title="#0f21eb">
+</div><div class="icon-card" data-id="0f21eb" data-type="unknown" title="#0f21eb">
   <svg width="20" height="20"><use href="#0f21eb"/></svg>
   <code>#0f21eb</code>
-</div><div class="icon-card" data-id="0f3b2e" title="#0f3b2e">
+</div><div class="icon-card" data-id="0f3b2e" data-type="unknown" title="#0f3b2e">
   <svg width="20" height="20"><use href="#0f3b2e"/></svg>
   <code>#0f3b2e</code>
-</div><div class="icon-card" data-id="0f510f" title="#0f510f">
+</div><div class="icon-card" data-id="0f510f" data-type="unknown" title="#0f510f">
   <svg width="20" height="20"><use href="#0f510f"/></svg>
   <code>#0f510f</code>
-</div><div class="icon-card" data-id="0f7ec4" title="#0f7ec4">
+</div><div class="icon-card" data-id="0f7ec4" data-type="unknown" title="#0f7ec4">
   <svg width="20" height="20"><use href="#0f7ec4"/></svg>
   <code>#0f7ec4</code>
-</div><div class="icon-card" data-id="1018ef" title="#1018ef">
+</div><div class="icon-card" data-id="1018ef" data-type="unknown" title="#1018ef">
   <svg width="20" height="20"><use href="#1018ef"/></svg>
   <code>#1018ef</code>
-</div><div class="icon-card" data-id="102c34" title="#102c34">
+</div><div class="icon-card" data-id="102c34" data-type="unknown" title="#102c34">
   <svg width="20" height="20"><use href="#102c34"/></svg>
   <code>#102c34</code>
-</div><div class="icon-card" data-id="106fb0" title="#106fb0">
+</div><div class="icon-card" data-id="106fb0" data-type="unknown" title="#106fb0">
   <svg width="20" height="20"><use href="#106fb0"/></svg>
   <code>#106fb0</code>
-</div><div class="icon-card" data-id="110613" title="#110613">
+</div><div class="icon-card" data-id="110613" data-type="unknown" title="#110613">
   <svg width="20" height="20"><use href="#110613"/></svg>
   <code>#110613</code>
-</div><div class="icon-card" data-id="111434" title="#111434">
+</div><div class="icon-card" data-id="111434" data-type="unknown" title="#111434">
   <svg width="20" height="20"><use href="#111434"/></svg>
   <code>#111434</code>
-</div><div class="icon-card" data-id="115ad0" title="#115ad0">
+</div><div class="icon-card" data-id="115ad0" data-type="unknown" title="#115ad0">
   <svg width="20" height="20"><use href="#115ad0"/></svg>
   <code>#115ad0</code>
-</div><div class="icon-card" data-id="11c67b" title="#11c67b">
+</div><div class="icon-card" data-id="11c67b" data-type="unknown" title="#11c67b">
   <svg width="20" height="20"><use href="#11c67b"/></svg>
   <code>#11c67b</code>
-</div><div class="icon-card" data-id="11e9a6" title="#11e9a6">
+</div><div class="icon-card" data-id="11e9a6" data-type="unknown" title="#11e9a6">
   <svg width="20" height="20"><use href="#11e9a6"/></svg>
   <code>#11e9a6</code>
-</div><div class="icon-card" data-id="11f889" title="#11f889">
+</div><div class="icon-card" data-id="11f889" data-type="unknown" title="#11f889">
   <svg width="20" height="20"><use href="#11f889"/></svg>
   <code>#11f889</code>
-</div><div class="icon-card" data-id="127512" title="#127512">
+</div><div class="icon-card" data-id="127512" data-type="unknown" title="#127512">
   <svg width="20" height="20"><use href="#127512"/></svg>
   <code>#127512</code>
-</div><div class="icon-card" data-id="127a53" title="#127a53">
+</div><div class="icon-card" data-id="127a53" data-type="unknown" title="#127a53">
   <svg width="20" height="20"><use href="#127a53"/></svg>
   <code>#127a53</code>
-</div><div class="icon-card" data-id="12a5cf" title="#12a5cf">
+</div><div class="icon-card" data-id="12a5cf" data-type="unknown" title="#12a5cf">
   <svg width="20" height="20"><use href="#12a5cf"/></svg>
   <code>#12a5cf</code>
-</div><div class="icon-card" data-id="12dd20" title="#12dd20">
+</div><div class="icon-card" data-id="12dd20" data-type="unknown" title="#12dd20">
   <svg width="20" height="20"><use href="#12dd20"/></svg>
   <code>#12dd20</code>
-</div><div class="icon-card" data-id="13322a" title="#13322a">
+</div><div class="icon-card" data-id="13322a" data-type="unknown" title="#13322a">
   <svg width="20" height="20"><use href="#13322a"/></svg>
   <code>#13322a</code>
-</div><div class="icon-card" data-id="13baa5" title="#13baa5">
+</div><div class="icon-card" data-id="13baa5" data-type="unknown" title="#13baa5">
   <svg width="20" height="20"><use href="#13baa5"/></svg>
   <code>#13baa5</code>
-</div><div class="icon-card" data-id="13c505" title="#13c505">
+</div><div class="icon-card" data-id="13c505" data-type="unknown" title="#13c505">
   <svg width="20" height="20"><use href="#13c505"/></svg>
   <code>#13c505</code>
-</div><div class="icon-card" data-id="143e56" title="#143e56">
+</div><div class="icon-card" data-id="143e56" data-type="unknown" title="#143e56">
   <svg width="20" height="20"><use href="#143e56"/></svg>
   <code>#143e56</code>
-</div><div class="icon-card" data-id="148dc9" title="#148dc9">
+</div><div class="icon-card" data-id="148dc9" data-type="unknown" title="#148dc9">
   <svg width="20" height="20"><use href="#148dc9"/></svg>
   <code>#148dc9</code>
-</div><div class="icon-card" data-id="14ac53" title="#14ac53">
+</div><div class="icon-card" data-id="14ac53" data-type="unknown" title="#14ac53">
   <svg width="20" height="20"><use href="#14ac53"/></svg>
   <code>#14ac53</code>
-</div><div class="icon-card" data-id="155a34" title="#155a34">
+</div><div class="icon-card" data-id="155a34" data-type="unknown" title="#155a34">
   <svg width="20" height="20"><use href="#155a34"/></svg>
   <code>#155a34</code>
-</div><div class="icon-card" data-id="1680fc" title="#1680fc">
+</div><div class="icon-card" data-id="1680fc" data-type="unknown" title="#1680fc">
   <svg width="20" height="20"><use href="#1680fc"/></svg>
   <code>#1680fc</code>
-</div><div class="icon-card" data-id="1685a9" title="#1685a9">
+</div><div class="icon-card" data-id="1685a9" data-type="unknown" title="#1685a9">
   <svg width="20" height="20"><use href="#1685a9"/></svg>
   <code>#1685a9</code>
-</div><div class="icon-card" data-id="16cb28" title="#16cb28">
+</div><div class="icon-card" data-id="16cb28" data-type="unknown" title="#16cb28">
   <svg width="20" height="20"><use href="#16cb28"/></svg>
   <code>#16cb28</code>
-</div><div class="icon-card" data-id="172f95" title="#172f95">
+</div><div class="icon-card" data-id="172f95" data-type="unknown" title="#172f95">
   <svg width="20" height="20"><use href="#172f95"/></svg>
   <code>#172f95</code>
-</div><div class="icon-card" data-id="17450c" title="#17450c">
+</div><div class="icon-card" data-id="17450c" data-type="unknown" title="#17450c">
   <svg width="20" height="20"><use href="#17450c"/></svg>
   <code>#17450c</code>
-</div><div class="icon-card" data-id="1805fd" title="#1805fd">
+</div><div class="icon-card" data-id="1805fd" data-type="unknown" title="#1805fd">
   <svg width="20" height="20"><use href="#1805fd"/></svg>
   <code>#1805fd</code>
-</div><div class="icon-card" data-id="184473" title="#184473">
+</div><div class="icon-card" data-id="184473" data-type="unknown" title="#184473">
   <svg width="20" height="20"><use href="#184473"/></svg>
   <code>#184473</code>
-</div><div class="icon-card" data-id="18a427" title="#18a427">
+</div><div class="icon-card" data-id="18a427" data-type="unknown" title="#18a427">
   <svg width="20" height="20"><use href="#18a427"/></svg>
   <code>#18a427</code>
-</div><div class="icon-card" data-id="18ea99" title="#18ea99">
+</div><div class="icon-card" data-id="18ea99" data-type="unknown" title="#18ea99">
   <svg width="20" height="20"><use href="#18ea99"/></svg>
   <code>#18ea99</code>
-</div><div class="icon-card" data-id="19c64a" title="#19c64a">
+</div><div class="icon-card" data-id="19c64a" data-type="unknown" title="#19c64a">
   <svg width="20" height="20"><use href="#19c64a"/></svg>
   <code>#19c64a</code>
-</div><div class="icon-card" data-id="1a24f4" title="#1a24f4">
+</div><div class="icon-card" data-id="1a24f4" data-type="unknown" title="#1a24f4">
   <svg width="20" height="20"><use href="#1a24f4"/></svg>
   <code>#1a24f4</code>
-</div><div class="icon-card" data-id="1a3695" title="#1a3695">
+</div><div class="icon-card" data-id="1a3695" data-type="unknown" title="#1a3695">
   <svg width="20" height="20"><use href="#1a3695"/></svg>
   <code>#1a3695</code>
-</div><div class="icon-card" data-id="1af12c" title="#1af12c">
+</div><div class="icon-card" data-id="1af12c" data-type="unknown" title="#1af12c">
   <svg width="20" height="20"><use href="#1af12c"/></svg>
   <code>#1af12c</code>
-</div><div class="icon-card" data-id="1b87bb" title="#1b87bb">
+</div><div class="icon-card" data-id="1b87bb" data-type="unknown" title="#1b87bb">
   <svg width="20" height="20"><use href="#1b87bb"/></svg>
   <code>#1b87bb</code>
-</div><div class="icon-card" data-id="1bb519" title="#1bb519">
+</div><div class="icon-card" data-id="1bb519" data-type="unknown" title="#1bb519">
   <svg width="20" height="20"><use href="#1bb519"/></svg>
   <code>#1bb519</code>
-</div><div class="icon-card" data-id="1bf527" title="#1bf527">
+</div><div class="icon-card" data-id="1bf527" data-type="unknown" title="#1bf527">
   <svg width="20" height="20"><use href="#1bf527"/></svg>
   <code>#1bf527</code>
-</div><div class="icon-card" data-id="1c217a" title="#1c217a">
+</div><div class="icon-card" data-id="1c217a" data-type="unknown" title="#1c217a">
   <svg width="20" height="20"><use href="#1c217a"/></svg>
   <code>#1c217a</code>
-</div><div class="icon-card" data-id="1c5529" title="#1c5529">
+</div><div class="icon-card" data-id="1c5529" data-type="unknown" title="#1c5529">
   <svg width="20" height="20"><use href="#1c5529"/></svg>
   <code>#1c5529</code>
-</div><div class="icon-card" data-id="1c992a" title="#1c992a">
+</div><div class="icon-card" data-id="1c992a" data-type="unknown" title="#1c992a">
   <svg width="20" height="20"><use href="#1c992a"/></svg>
   <code>#1c992a</code>
-</div><div class="icon-card" data-id="1ca0f1" title="#1ca0f1">
+</div><div class="icon-card" data-id="1ca0f1" data-type="unknown" title="#1ca0f1">
   <svg width="20" height="20"><use href="#1ca0f1"/></svg>
   <code>#1ca0f1</code>
-</div><div class="icon-card" data-id="1ca8c5" title="#1ca8c5">
+</div><div class="icon-card" data-id="1ca8c5" data-type="unknown" title="#1ca8c5">
   <svg width="20" height="20"><use href="#1ca8c5"/></svg>
   <code>#1ca8c5</code>
-</div><div class="icon-card" data-id="1ca9b1" title="#1ca9b1">
+</div><div class="icon-card" data-id="1ca9b1" data-type="unknown" title="#1ca9b1">
   <svg width="20" height="20"><use href="#1ca9b1"/></svg>
   <code>#1ca9b1</code>
-</div><div class="icon-card" data-id="1df48f" title="#1df48f">
+</div><div class="icon-card" data-id="1df48f" data-type="unknown" title="#1df48f">
   <svg width="20" height="20"><use href="#1df48f"/></svg>
   <code>#1df48f</code>
-</div><div class="icon-card" data-id="1f2234" title="#1f2234">
+</div><div class="icon-card" data-id="1f2234" data-type="unknown" title="#1f2234">
   <svg width="20" height="20"><use href="#1f2234"/></svg>
   <code>#1f2234</code>
-</div><div class="icon-card" data-id="1f3bb2" title="#1f3bb2">
+</div><div class="icon-card" data-id="1f3bb2" data-type="unknown" title="#1f3bb2">
   <svg width="20" height="20"><use href="#1f3bb2"/></svg>
   <code>#1f3bb2</code>
-</div><div class="icon-card" data-id="1f5ad7" title="#1f5ad7">
+</div><div class="icon-card" data-id="1f5ad7" data-type="unknown" title="#1f5ad7">
   <svg width="20" height="20"><use href="#1f5ad7"/></svg>
   <code>#1f5ad7</code>
-</div><div class="icon-card" data-id="1f64b0" title="#1f64b0">
+</div><div class="icon-card" data-id="1f64b0" data-type="unknown" title="#1f64b0">
   <svg width="20" height="20"><use href="#1f64b0"/></svg>
   <code>#1f64b0</code>
-</div><div class="icon-card" data-id="1fa93b" title="#1fa93b">
+</div><div class="icon-card" data-id="1fa93b" data-type="unknown" title="#1fa93b">
   <svg width="20" height="20"><use href="#1fa93b"/></svg>
   <code>#1fa93b</code>
-</div><div class="icon-card" data-id="1ff328" title="#1ff328">
+</div><div class="icon-card" data-id="1ff328" data-type="unknown" title="#1ff328">
   <svg width="20" height="20"><use href="#1ff328"/></svg>
   <code>#1ff328</code>
-</div><div class="icon-card" data-id="2120a0" title="#2120a0">
+</div><div class="icon-card" data-id="2120a0" data-type="unknown" title="#2120a0">
   <svg width="20" height="20"><use href="#2120a0"/></svg>
   <code>#2120a0</code>
-</div><div class="icon-card" data-id="2126ae" title="#2126ae">
+</div><div class="icon-card" data-id="2126ae" data-type="unknown" title="#2126ae">
   <svg width="20" height="20"><use href="#2126ae"/></svg>
   <code>#2126ae</code>
-</div><div class="icon-card" data-id="223444" title="#223444">
+</div><div class="icon-card" data-id="223444" data-type="unknown" title="#223444">
   <svg width="20" height="20"><use href="#223444"/></svg>
   <code>#223444</code>
-</div><div class="icon-card" data-id="223c28" title="#223c28">
+</div><div class="icon-card" data-id="223c28" data-type="unknown" title="#223c28">
   <svg width="20" height="20"><use href="#223c28"/></svg>
   <code>#223c28</code>
-</div><div class="icon-card" data-id="22fb17" title="#22fb17">
+</div><div class="icon-card" data-id="22fb17" data-type="unknown" title="#22fb17">
   <svg width="20" height="20"><use href="#22fb17"/></svg>
   <code>#22fb17</code>
-</div><div class="icon-card" data-id="236489" title="#236489">
+</div><div class="icon-card" data-id="236489" data-type="unknown" title="#236489">
   <svg width="20" height="20"><use href="#236489"/></svg>
   <code>#236489</code>
-</div><div class="icon-card" data-id="23ce94" title="#23ce94">
+</div><div class="icon-card" data-id="23ce94" data-type="unknown" title="#23ce94">
   <svg width="20" height="20"><use href="#23ce94"/></svg>
   <code>#23ce94</code>
-</div><div class="icon-card" data-id="23d2ff" title="#23d2ff">
+</div><div class="icon-card" data-id="23d2ff" data-type="unknown" title="#23d2ff">
   <svg width="20" height="20"><use href="#23d2ff"/></svg>
   <code>#23d2ff</code>
-</div><div class="icon-card" data-id="23f3be" title="#23f3be">
+</div><div class="icon-card" data-id="23f3be" data-type="unknown" title="#23f3be">
   <svg width="20" height="20"><use href="#23f3be"/></svg>
   <code>#23f3be</code>
-</div><div class="icon-card" data-id="249d41" title="#249d41">
+</div><div class="icon-card" data-id="249d41" data-type="unknown" title="#249d41">
   <svg width="20" height="20"><use href="#249d41"/></svg>
   <code>#249d41</code>
-</div><div class="icon-card" data-id="24ee05" title="#24ee05">
+</div><div class="icon-card" data-id="24ee05" data-type="unknown" title="#24ee05">
   <svg width="20" height="20"><use href="#24ee05"/></svg>
   <code>#24ee05</code>
-</div><div class="icon-card" data-id="24f206" title="#24f206">
+</div><div class="icon-card" data-id="24f206" data-type="unknown" title="#24f206">
   <svg width="20" height="20"><use href="#24f206"/></svg>
   <code>#24f206</code>
-</div><div class="icon-card" data-id="25326d" title="#25326d">
+</div><div class="icon-card" data-id="25326d" data-type="unknown" title="#25326d">
   <svg width="20" height="20"><use href="#25326d"/></svg>
   <code>#25326d</code>
-</div><div class="icon-card" data-id="25e330" title="#25e330">
+</div><div class="icon-card" data-id="25e330" data-type="unknown" title="#25e330">
   <svg width="20" height="20"><use href="#25e330"/></svg>
   <code>#25e330</code>
-</div><div class="icon-card" data-id="25eafd" title="#25eafd">
+</div><div class="icon-card" data-id="25eafd" data-type="unknown" title="#25eafd">
   <svg width="20" height="20"><use href="#25eafd"/></svg>
   <code>#25eafd</code>
-</div><div class="icon-card" data-id="26485d" title="#26485d">
+</div><div class="icon-card" data-id="26485d" data-type="unknown" title="#26485d">
   <svg width="20" height="20"><use href="#26485d"/></svg>
   <code>#26485d</code>
-</div><div class="icon-card" data-id="266724" title="#266724">
+</div><div class="icon-card" data-id="266724" data-type="filled" title="#266724">
   <svg width="20" height="20"><use href="#266724"/></svg>
   <code>#266724</code>
-</div><div class="icon-card" data-id="284217" title="#284217">
+</div><div class="icon-card" data-id="284217" data-type="unknown" title="#284217">
   <svg width="20" height="20"><use href="#284217"/></svg>
   <code>#284217</code>
-</div><div class="icon-card" data-id="28a8a0" title="#28a8a0">
+</div><div class="icon-card" data-id="28a8a0" data-type="unknown" title="#28a8a0">
   <svg width="20" height="20"><use href="#28a8a0"/></svg>
   <code>#28a8a0</code>
-</div><div class="icon-card" data-id="28beb5" title="#28beb5">
+</div><div class="icon-card" data-id="28beb5" data-type="unknown" title="#28beb5">
   <svg width="20" height="20"><use href="#28beb5"/></svg>
   <code>#28beb5</code>
-</div><div class="icon-card" data-id="29679e" title="#29679e">
+</div><div class="icon-card" data-id="29679e" data-type="unknown" title="#29679e">
   <svg width="20" height="20"><use href="#29679e"/></svg>
   <code>#29679e</code>
-</div><div class="icon-card" data-id="29a5ec" title="#29a5ec">
+</div><div class="icon-card" data-id="29a5ec" data-type="unknown" title="#29a5ec">
   <svg width="20" height="20"><use href="#29a5ec"/></svg>
   <code>#29a5ec</code>
-</div><div class="icon-card" data-id="29b4e9" title="#29b4e9">
+</div><div class="icon-card" data-id="29b4e9" data-type="unknown" title="#29b4e9">
   <svg width="20" height="20"><use href="#29b4e9"/></svg>
   <code>#29b4e9</code>
-</div><div class="icon-card" data-id="29e159" title="#29e159">
+</div><div class="icon-card" data-id="29e159" data-type="unknown" title="#29e159">
   <svg width="20" height="20"><use href="#29e159"/></svg>
   <code>#29e159</code>
-</div><div class="icon-card" data-id="29f921" title="#29f921">
+</div><div class="icon-card" data-id="29f921" data-type="filled" title="#29f921">
   <svg width="20" height="20"><use href="#29f921"/></svg>
   <code>#29f921</code>
-</div><div class="icon-card" data-id="2a29bc" title="#2a29bc">
+</div><div class="icon-card" data-id="2a29bc" data-type="unknown" title="#2a29bc">
   <svg width="20" height="20"><use href="#2a29bc"/></svg>
   <code>#2a29bc</code>
-</div><div class="icon-card" data-id="2a6780" title="#2a6780">
+</div><div class="icon-card" data-id="2a6780" data-type="unknown" title="#2a6780">
   <svg width="20" height="20"><use href="#2a6780"/></svg>
   <code>#2a6780</code>
-</div><div class="icon-card" data-id="2d1e0a" title="#2d1e0a">
+</div><div class="icon-card" data-id="2d1e0a" data-type="unknown" title="#2d1e0a">
   <svg width="20" height="20"><use href="#2d1e0a"/></svg>
   <code>#2d1e0a</code>
-</div><div class="icon-card" data-id="2e54eb" title="#2e54eb">
+</div><div class="icon-card" data-id="2e54eb" data-type="unknown" title="#2e54eb">
   <svg width="20" height="20"><use href="#2e54eb"/></svg>
   <code>#2e54eb</code>
-</div><div class="icon-card" data-id="2f6add" title="#2f6add">
+</div><div class="icon-card" data-id="2f6add" data-type="unknown" title="#2f6add">
   <svg width="20" height="20"><use href="#2f6add"/></svg>
   <code>#2f6add</code>
-</div><div class="icon-card" data-id="2fdcf8" title="#2fdcf8">
+</div><div class="icon-card" data-id="2fdcf8" data-type="unknown" title="#2fdcf8">
   <svg width="20" height="20"><use href="#2fdcf8"/></svg>
   <code>#2fdcf8</code>
-</div><div class="icon-card" data-id="30127c" title="#30127c">
+</div><div class="icon-card" data-id="30127c" data-type="unknown" title="#30127c">
   <svg width="20" height="20"><use href="#30127c"/></svg>
   <code>#30127c</code>
-</div><div class="icon-card" data-id="304883" title="#304883">
+</div><div class="icon-card" data-id="304883" data-type="unknown" title="#304883">
   <svg width="20" height="20"><use href="#304883"/></svg>
   <code>#304883</code>
-</div><div class="icon-card" data-id="306b75" title="#306b75">
+</div><div class="icon-card" data-id="306b75" data-type="unknown" title="#306b75">
   <svg width="20" height="20"><use href="#306b75"/></svg>
   <code>#306b75</code>
-</div><div class="icon-card" data-id="308fea" title="#308fea">
+</div><div class="icon-card" data-id="308fea" data-type="unknown" title="#308fea">
   <svg width="20" height="20"><use href="#308fea"/></svg>
   <code>#308fea</code>
-</div><div class="icon-card" data-id="30bb7e" title="#30bb7e">
+</div><div class="icon-card" data-id="30bb7e" data-type="unknown" title="#30bb7e">
   <svg width="20" height="20"><use href="#30bb7e"/></svg>
   <code>#30bb7e</code>
-</div><div class="icon-card" data-id="30e002" title="#30e002">
+</div><div class="icon-card" data-id="30e002" data-type="unknown" title="#30e002">
   <svg width="20" height="20"><use href="#30e002"/></svg>
   <code>#30e002</code>
-</div><div class="icon-card" data-id="324919" title="#324919">
+</div><div class="icon-card" data-id="324919" data-type="unknown" title="#324919">
   <svg width="20" height="20"><use href="#324919"/></svg>
   <code>#324919</code>
-</div><div class="icon-card" data-id="327631" title="#327631">
+</div><div class="icon-card" data-id="327631" data-type="unknown" title="#327631">
   <svg width="20" height="20"><use href="#327631"/></svg>
   <code>#327631</code>
-</div><div class="icon-card" data-id="334d9b" title="#334d9b">
+</div><div class="icon-card" data-id="334d9b" data-type="unknown" title="#334d9b">
   <svg width="20" height="20"><use href="#334d9b"/></svg>
   <code>#334d9b</code>
-</div><div class="icon-card" data-id="33b585" title="#33b585">
+</div><div class="icon-card" data-id="33b585" data-type="unknown" title="#33b585">
   <svg width="20" height="20"><use href="#33b585"/></svg>
   <code>#33b585</code>
-</div><div class="icon-card" data-id="33ca9e" title="#33ca9e">
+</div><div class="icon-card" data-id="33ca9e" data-type="unknown" title="#33ca9e">
   <svg width="20" height="20"><use href="#33ca9e"/></svg>
   <code>#33ca9e</code>
-</div><div class="icon-card" data-id="34128b" title="#34128b">
+</div><div class="icon-card" data-id="34128b" data-type="unknown" title="#34128b">
   <svg width="20" height="20"><use href="#34128b"/></svg>
   <code>#34128b</code>
-</div><div class="icon-card" data-id="343d0f" title="#343d0f">
+</div><div class="icon-card" data-id="343d0f" data-type="unknown" title="#343d0f">
   <svg width="20" height="20"><use href="#343d0f"/></svg>
   <code>#343d0f</code>
-</div><div class="icon-card" data-id="3465a6" title="#3465a6">
+</div><div class="icon-card" data-id="3465a6" data-type="unknown" title="#3465a6">
   <svg width="20" height="20"><use href="#3465a6"/></svg>
   <code>#3465a6</code>
-</div><div class="icon-card" data-id="35fab2" title="#35fab2">
+</div><div class="icon-card" data-id="35fab2" data-type="unknown" title="#35fab2">
   <svg width="20" height="20"><use href="#35fab2"/></svg>
   <code>#35fab2</code>
-</div><div class="icon-card" data-id="36d8fa" title="#36d8fa">
+</div><div class="icon-card" data-id="36d8fa" data-type="unknown" title="#36d8fa">
   <svg width="20" height="20"><use href="#36d8fa"/></svg>
   <code>#36d8fa</code>
-</div><div class="icon-card" data-id="36e3f2" title="#36e3f2">
+</div><div class="icon-card" data-id="36e3f2" data-type="unknown" title="#36e3f2">
   <svg width="20" height="20"><use href="#36e3f2"/></svg>
   <code>#36e3f2</code>
-</div><div class="icon-card" data-id="38123a" title="#38123a">
+</div><div class="icon-card" data-id="38123a" data-type="unknown" title="#38123a">
   <svg width="20" height="20"><use href="#38123a"/></svg>
   <code>#38123a</code>
-</div><div class="icon-card" data-id="38bb33" title="#38bb33">
+</div><div class="icon-card" data-id="38bb33" data-type="unknown" title="#38bb33">
   <svg width="20" height="20"><use href="#38bb33"/></svg>
   <code>#38bb33</code>
-</div><div class="icon-card" data-id="38e54b" title="#38e54b">
+</div><div class="icon-card" data-id="38e54b" data-type="unknown" title="#38e54b">
   <svg width="20" height="20"><use href="#38e54b"/></svg>
   <code>#38e54b</code>
-</div><div class="icon-card" data-id="39a255" title="#39a255">
+</div><div class="icon-card" data-id="39a255" data-type="unknown" title="#39a255">
   <svg width="20" height="20"><use href="#39a255"/></svg>
   <code>#39a255</code>
-</div><div class="icon-card" data-id="39dcc8" title="#39dcc8">
+</div><div class="icon-card" data-id="39dcc8" data-type="unknown" title="#39dcc8">
   <svg width="20" height="20"><use href="#39dcc8"/></svg>
   <code>#39dcc8</code>
-</div><div class="icon-card" data-id="3a5c87" title="#3a5c87">
+</div><div class="icon-card" data-id="3a5c87" data-type="outline" title="#3a5c87">
   <svg width="20" height="20"><use href="#3a5c87"/></svg>
   <code>#3a5c87</code>
-</div><div class="icon-card" data-id="3a6152" title="#3a6152">
+</div><div class="icon-card" data-id="3a6152" data-type="unknown" title="#3a6152">
   <svg width="20" height="20"><use href="#3a6152"/></svg>
   <code>#3a6152</code>
-</div><div class="icon-card" data-id="3ad098" title="#3ad098">
+</div><div class="icon-card" data-id="3ad098" data-type="unknown" title="#3ad098">
   <svg width="20" height="20"><use href="#3ad098"/></svg>
   <code>#3ad098</code>
-</div><div class="icon-card" data-id="3b67f2" title="#3b67f2">
+</div><div class="icon-card" data-id="3b67f2" data-type="unknown" title="#3b67f2">
   <svg width="20" height="20"><use href="#3b67f2"/></svg>
   <code>#3b67f2</code>
-</div><div class="icon-card" data-id="3be151" title="#3be151">
+</div><div class="icon-card" data-id="3be151" data-type="unknown" title="#3be151">
   <svg width="20" height="20"><use href="#3be151"/></svg>
   <code>#3be151</code>
-</div><div class="icon-card" data-id="3c5754" title="#3c5754">
+</div><div class="icon-card" data-id="3c5754" data-type="unknown" title="#3c5754">
   <svg width="20" height="20"><use href="#3c5754"/></svg>
   <code>#3c5754</code>
-</div><div class="icon-card" data-id="3cf414" title="#3cf414">
+</div><div class="icon-card" data-id="3cf414" data-type="unknown" title="#3cf414">
   <svg width="20" height="20"><use href="#3cf414"/></svg>
   <code>#3cf414</code>
-</div><div class="icon-card" data-id="3d2fff" title="#3d2fff">
+</div><div class="icon-card" data-id="3d2fff" data-type="unknown" title="#3d2fff">
   <svg width="20" height="20"><use href="#3d2fff"/></svg>
   <code>#3d2fff</code>
-</div><div class="icon-card" data-id="3d94d0" title="#3d94d0">
+</div><div class="icon-card" data-id="3d94d0" data-type="unknown" title="#3d94d0">
   <svg width="20" height="20"><use href="#3d94d0"/></svg>
   <code>#3d94d0</code>
-</div><div class="icon-card" data-id="3df56a" title="#3df56a">
+</div><div class="icon-card" data-id="3df56a" data-type="unknown" title="#3df56a">
   <svg width="20" height="20"><use href="#3df56a"/></svg>
   <code>#3df56a</code>
-</div><div class="icon-card" data-id="3e04aa" title="#3e04aa">
+</div><div class="icon-card" data-id="3e04aa" data-type="unknown" title="#3e04aa">
   <svg width="20" height="20"><use href="#3e04aa"/></svg>
   <code>#3e04aa</code>
-</div><div class="icon-card" data-id="3e29a5" title="#3e29a5">
+</div><div class="icon-card" data-id="3e29a5" data-type="unknown" title="#3e29a5">
   <svg width="20" height="20"><use href="#3e29a5"/></svg>
   <code>#3e29a5</code>
-</div><div class="icon-card" data-id="3e498c" title="#3e498c">
+</div><div class="icon-card" data-id="3e498c" data-type="unknown" title="#3e498c">
   <svg width="20" height="20"><use href="#3e498c"/></svg>
   <code>#3e498c</code>
-</div><div class="icon-card" data-id="3eb2f9" title="#3eb2f9">
+</div><div class="icon-card" data-id="3eb2f9" data-type="unknown" title="#3eb2f9">
   <svg width="20" height="20"><use href="#3eb2f9"/></svg>
   <code>#3eb2f9</code>
-</div><div class="icon-card" data-id="3ee541" title="#3ee541">
+</div><div class="icon-card" data-id="3ee541" data-type="unknown" title="#3ee541">
   <svg width="20" height="20"><use href="#3ee541"/></svg>
   <code>#3ee541</code>
-</div><div class="icon-card" data-id="3f10a8" title="#3f10a8">
+</div><div class="icon-card" data-id="3f10a8" data-type="unknown" title="#3f10a8">
   <svg width="20" height="20"><use href="#3f10a8"/></svg>
   <code>#3f10a8</code>
-</div><div class="icon-card" data-id="3f1455" title="#3f1455">
+</div><div class="icon-card" data-id="3f1455" data-type="unknown" title="#3f1455">
   <svg width="20" height="20"><use href="#3f1455"/></svg>
   <code>#3f1455</code>
-</div><div class="icon-card" data-id="3f684d" title="#3f684d">
+</div><div class="icon-card" data-id="3f684d" data-type="unknown" title="#3f684d">
   <svg width="20" height="20"><use href="#3f684d"/></svg>
   <code>#3f684d</code>
-</div><div class="icon-card" data-id="40114f" title="#40114f">
+</div><div class="icon-card" data-id="40114f" data-type="unknown" title="#40114f">
   <svg width="20" height="20"><use href="#40114f"/></svg>
   <code>#40114f</code>
-</div><div class="icon-card" data-id="402281" title="#402281">
+</div><div class="icon-card" data-id="402281" data-type="unknown" title="#402281">
   <svg width="20" height="20"><use href="#402281"/></svg>
   <code>#402281</code>
-</div><div class="icon-card" data-id="407217" title="#407217">
+</div><div class="icon-card" data-id="407217" data-type="unknown" title="#407217">
   <svg width="20" height="20"><use href="#407217"/></svg>
   <code>#407217</code>
-</div><div class="icon-card" data-id="407870" title="#407870">
+</div><div class="icon-card" data-id="407870" data-type="unknown" title="#407870">
   <svg width="20" height="20"><use href="#407870"/></svg>
   <code>#407870</code>
-</div><div class="icon-card" data-id="40cad6" title="#40cad6">
+</div><div class="icon-card" data-id="40cad6" data-type="unknown" title="#40cad6">
   <svg width="20" height="20"><use href="#40cad6"/></svg>
   <code>#40cad6</code>
-</div><div class="icon-card" data-id="412b85" title="#412b85">
+</div><div class="icon-card" data-id="412b85" data-type="unknown" title="#412b85">
   <svg width="20" height="20"><use href="#412b85"/></svg>
   <code>#412b85</code>
-</div><div class="icon-card" data-id="416f0c" title="#416f0c">
+</div><div class="icon-card" data-id="416f0c" data-type="unknown" title="#416f0c">
   <svg width="20" height="20"><use href="#416f0c"/></svg>
   <code>#416f0c</code>
-</div><div class="icon-card" data-id="41a3c0" title="#41a3c0">
+</div><div class="icon-card" data-id="41a3c0" data-type="unknown" title="#41a3c0">
   <svg width="20" height="20"><use href="#41a3c0"/></svg>
   <code>#41a3c0</code>
-</div><div class="icon-card" data-id="422971" title="#422971">
+</div><div class="icon-card" data-id="422971" data-type="unknown" title="#422971">
   <svg width="20" height="20"><use href="#422971"/></svg>
   <code>#422971</code>
-</div><div class="icon-card" data-id="427dd9" title="#427dd9">
+</div><div class="icon-card" data-id="427dd9" data-type="unknown" title="#427dd9">
   <svg width="20" height="20"><use href="#427dd9"/></svg>
   <code>#427dd9</code>
-</div><div class="icon-card" data-id="43e704" title="#43e704">
+</div><div class="icon-card" data-id="43e704" data-type="unknown" title="#43e704">
   <svg width="20" height="20"><use href="#43e704"/></svg>
   <code>#43e704</code>
-</div><div class="icon-card" data-id="440bf3" title="#440bf3">
+</div><div class="icon-card" data-id="440bf3" data-type="unknown" title="#440bf3">
   <svg width="20" height="20"><use href="#440bf3"/></svg>
   <code>#440bf3</code>
-</div><div class="icon-card" data-id="444041" title="#444041">
+</div><div class="icon-card" data-id="444041" data-type="unknown" title="#444041">
   <svg width="20" height="20"><use href="#444041"/></svg>
   <code>#444041</code>
-</div><div class="icon-card" data-id="44c6db" title="#44c6db">
+</div><div class="icon-card" data-id="44c6db" data-type="outline" title="#44c6db">
   <svg width="20" height="20"><use href="#44c6db"/></svg>
   <code>#44c6db</code>
-</div><div class="icon-card" data-id="4505ef" title="#4505ef">
+</div><div class="icon-card" data-id="4505ef" data-type="unknown" title="#4505ef">
   <svg width="20" height="20"><use href="#4505ef"/></svg>
   <code>#4505ef</code>
-</div><div class="icon-card" data-id="450c88" title="#450c88">
+</div><div class="icon-card" data-id="450c88" data-type="unknown" title="#450c88">
   <svg width="20" height="20"><use href="#450c88"/></svg>
   <code>#450c88</code>
-</div><div class="icon-card" data-id="45582c" title="#45582c">
+</div><div class="icon-card" data-id="45582c" data-type="unknown" title="#45582c">
   <svg width="20" height="20"><use href="#45582c"/></svg>
   <code>#45582c</code>
-</div><div class="icon-card" data-id="455a38" title="#455a38">
+</div><div class="icon-card" data-id="455a38" data-type="unknown" title="#455a38">
   <svg width="20" height="20"><use href="#455a38"/></svg>
   <code>#455a38</code>
-</div><div class="icon-card" data-id="45d12f" title="#45d12f">
+</div><div class="icon-card" data-id="45d12f" data-type="unknown" title="#45d12f">
   <svg width="20" height="20"><use href="#45d12f"/></svg>
   <code>#45d12f</code>
-</div><div class="icon-card" data-id="46a9c5" title="#46a9c5">
+</div><div class="icon-card" data-id="46a9c5" data-type="unknown" title="#46a9c5">
   <svg width="20" height="20"><use href="#46a9c5"/></svg>
   <code>#46a9c5</code>
-</div><div class="icon-card" data-id="46ba13" title="#46ba13">
+</div><div class="icon-card" data-id="46ba13" data-type="unknown" title="#46ba13">
   <svg width="20" height="20"><use href="#46ba13"/></svg>
   <code>#46ba13</code>
-</div><div class="icon-card" data-id="46f45a" title="#46f45a">
+</div><div class="icon-card" data-id="46f45a" data-type="unknown" title="#46f45a">
   <svg width="20" height="20"><use href="#46f45a"/></svg>
   <code>#46f45a</code>
-</div><div class="icon-card" data-id="46f45a" title="#46f45a">
+</div><div class="icon-card" data-id="46f45a" data-type="unknown" title="#46f45a">
   <svg width="20" height="20"><use href="#46f45a"/></svg>
   <code>#46f45a</code>
-</div><div class="icon-card" data-id="481f90" title="#481f90">
+</div><div class="icon-card" data-id="481f90" data-type="unknown" title="#481f90">
   <svg width="20" height="20"><use href="#481f90"/></svg>
   <code>#481f90</code>
-</div><div class="icon-card" data-id="487c36" title="#487c36">
+</div><div class="icon-card" data-id="487c36" data-type="unknown" title="#487c36">
   <svg width="20" height="20"><use href="#487c36"/></svg>
   <code>#487c36</code>
-</div><div class="icon-card" data-id="48c914" title="#48c914">
+</div><div class="icon-card" data-id="48c914" data-type="unknown" title="#48c914">
   <svg width="20" height="20"><use href="#48c914"/></svg>
   <code>#48c914</code>
-</div><div class="icon-card" data-id="490370" title="#490370">
+</div><div class="icon-card" data-id="490370" data-type="unknown" title="#490370">
   <svg width="20" height="20"><use href="#490370"/></svg>
   <code>#490370</code>
-</div><div class="icon-card" data-id="49315d" title="#49315d">
+</div><div class="icon-card" data-id="49315d" data-type="unknown" title="#49315d">
   <svg width="20" height="20"><use href="#49315d"/></svg>
   <code>#49315d</code>
-</div><div class="icon-card" data-id="4944fe" title="#4944fe">
+</div><div class="icon-card" data-id="4944fe" data-type="unknown" title="#4944fe">
   <svg width="20" height="20"><use href="#4944fe"/></svg>
   <code>#4944fe</code>
-</div><div class="icon-card" data-id="498003" title="#498003">
+</div><div class="icon-card" data-id="498003" data-type="unknown" title="#498003">
   <svg width="20" height="20"><use href="#498003"/></svg>
   <code>#498003</code>
-</div><div class="icon-card" data-id="498a9e" title="#498a9e">
+</div><div class="icon-card" data-id="498a9e" data-type="unknown" title="#498a9e">
   <svg width="20" height="20"><use href="#498a9e"/></svg>
   <code>#498a9e</code>
-</div><div class="icon-card" data-id="4a730f" title="#4a730f">
+</div><div class="icon-card" data-id="4a730f" data-type="unknown" title="#4a730f">
   <svg width="20" height="20"><use href="#4a730f"/></svg>
   <code>#4a730f</code>
-</div><div class="icon-card" data-id="4a920d" title="#4a920d">
+</div><div class="icon-card" data-id="4a920d" data-type="unknown" title="#4a920d">
   <svg width="20" height="20"><use href="#4a920d"/></svg>
   <code>#4a920d</code>
-</div><div class="icon-card" data-id="4ac5bf" title="#4ac5bf">
+</div><div class="icon-card" data-id="4ac5bf" data-type="unknown" title="#4ac5bf">
   <svg width="20" height="20"><use href="#4ac5bf"/></svg>
   <code>#4ac5bf</code>
-</div><div class="icon-card" data-id="4b6013" title="#4b6013">
+</div><div class="icon-card" data-id="4b6013" data-type="unknown" title="#4b6013">
   <svg width="20" height="20"><use href="#4b6013"/></svg>
   <code>#4b6013</code>
-</div><div class="icon-card" data-id="4b649d" title="#4b649d">
+</div><div class="icon-card" data-id="4b649d" data-type="unknown" title="#4b649d">
   <svg width="20" height="20"><use href="#4b649d"/></svg>
   <code>#4b649d</code>
-</div><div class="icon-card" data-id="4bb189" title="#4bb189">
+</div><div class="icon-card" data-id="4bb189" data-type="unknown" title="#4bb189">
   <svg width="20" height="20"><use href="#4bb189"/></svg>
   <code>#4bb189</code>
-</div><div class="icon-card" data-id="4c2c39" title="#4c2c39">
+</div><div class="icon-card" data-id="4c2c39" data-type="unknown" title="#4c2c39">
   <svg width="20" height="20"><use href="#4c2c39"/></svg>
   <code>#4c2c39</code>
-</div><div class="icon-card" data-id="4c4881" title="#4c4881">
+</div><div class="icon-card" data-id="4c4881" data-type="unknown" title="#4c4881">
   <svg width="20" height="20"><use href="#4c4881"/></svg>
   <code>#4c4881</code>
-</div><div class="icon-card" data-id="4c4881" title="#4c4881">
+</div><div class="icon-card" data-id="4c4881" data-type="unknown" title="#4c4881">
   <svg width="20" height="20"><use href="#4c4881"/></svg>
   <code>#4c4881</code>
-</div><div class="icon-card" data-id="4d94ab" title="#4d94ab">
+</div><div class="icon-card" data-id="4d94ab" data-type="unknown" title="#4d94ab">
   <svg width="20" height="20"><use href="#4d94ab"/></svg>
   <code>#4d94ab</code>
-</div><div class="icon-card" data-id="4e1864" title="#4e1864">
+</div><div class="icon-card" data-id="4e1864" data-type="unknown" title="#4e1864">
   <svg width="20" height="20"><use href="#4e1864"/></svg>
   <code>#4e1864</code>
-</div><div class="icon-card" data-id="4e1aea" title="#4e1aea">
+</div><div class="icon-card" data-id="4e1aea" data-type="unknown" title="#4e1aea">
   <svg width="20" height="20"><use href="#4e1aea"/></svg>
   <code>#4e1aea</code>
-</div><div class="icon-card" data-id="4e7137" title="#4e7137">
+</div><div class="icon-card" data-id="4e7137" data-type="unknown" title="#4e7137">
   <svg width="20" height="20"><use href="#4e7137"/></svg>
   <code>#4e7137</code>
-</div><div class="icon-card" data-id="4eaf34" title="#4eaf34">
+</div><div class="icon-card" data-id="4eaf34" data-type="unknown" title="#4eaf34">
   <svg width="20" height="20"><use href="#4eaf34"/></svg>
   <code>#4eaf34</code>
-</div><div class="icon-card" data-id="504e1c" title="#504e1c">
+</div><div class="icon-card" data-id="504e1c" data-type="unknown" title="#504e1c">
   <svg width="20" height="20"><use href="#504e1c"/></svg>
   <code>#504e1c</code>
-</div><div class="icon-card" data-id="504e41" title="#504e41">
+</div><div class="icon-card" data-id="504e41" data-type="unknown" title="#504e41">
   <svg width="20" height="20"><use href="#504e41"/></svg>
   <code>#504e41</code>
-</div><div class="icon-card" data-id="5065a3" title="#5065a3">
+</div><div class="icon-card" data-id="5065a3" data-type="unknown" title="#5065a3">
   <svg width="20" height="20"><use href="#5065a3"/></svg>
   <code>#5065a3</code>
-</div><div class="icon-card" data-id="51753c" title="#51753c">
+</div><div class="icon-card" data-id="51753c" data-type="unknown" title="#51753c">
   <svg width="20" height="20"><use href="#51753c"/></svg>
   <code>#51753c</code>
-</div><div class="icon-card" data-id="518f55" title="#518f55">
+</div><div class="icon-card" data-id="518f55" data-type="unknown" title="#518f55">
   <svg width="20" height="20"><use href="#518f55"/></svg>
   <code>#518f55</code>
-</div><div class="icon-card" data-id="51a692" title="#51a692">
+</div><div class="icon-card" data-id="51a692" data-type="unknown" title="#51a692">
   <svg width="20" height="20"><use href="#51a692"/></svg>
   <code>#51a692</code>
-</div><div class="icon-card" data-id="51a692" title="#51a692">
+</div><div class="icon-card" data-id="51a692" data-type="unknown" title="#51a692">
   <svg width="20" height="20"><use href="#51a692"/></svg>
   <code>#51a692</code>
-</div><div class="icon-card" data-id="51d29d" title="#51d29d">
+</div><div class="icon-card" data-id="51d29d" data-type="unknown" title="#51d29d">
   <svg width="20" height="20"><use href="#51d29d"/></svg>
   <code>#51d29d</code>
-</div><div class="icon-card" data-id="524462" title="#524462">
+</div><div class="icon-card" data-id="524462" data-type="unknown" title="#524462">
   <svg width="20" height="20"><use href="#524462"/></svg>
   <code>#524462</code>
-</div><div class="icon-card" data-id="52bc20" title="#52bc20">
+</div><div class="icon-card" data-id="52bc20" data-type="unknown" title="#52bc20">
   <svg width="20" height="20"><use href="#52bc20"/></svg>
   <code>#52bc20</code>
-</div><div class="icon-card" data-id="52bdce" title="#52bdce">
+</div><div class="icon-card" data-id="52bdce" data-type="unknown" title="#52bdce">
   <svg width="20" height="20"><use href="#52bdce"/></svg>
   <code>#52bdce</code>
-</div><div class="icon-card" data-id="539c98" title="#539c98">
+</div><div class="icon-card" data-id="539c98" data-type="unknown" title="#539c98">
   <svg width="20" height="20"><use href="#539c98"/></svg>
   <code>#539c98</code>
-</div><div class="icon-card" data-id="53a0d8" title="#53a0d8">
+</div><div class="icon-card" data-id="53a0d8" data-type="unknown" title="#53a0d8">
   <svg width="20" height="20"><use href="#53a0d8"/></svg>
   <code>#53a0d8</code>
-</div><div class="icon-card" data-id="53da6c" title="#53da6c">
+</div><div class="icon-card" data-id="53da6c" data-type="unknown" title="#53da6c">
   <svg width="20" height="20"><use href="#53da6c"/></svg>
   <code>#53da6c</code>
-</div><div class="icon-card" data-id="53e928" title="#53e928">
+</div><div class="icon-card" data-id="53e928" data-type="unknown" title="#53e928">
   <svg width="20" height="20"><use href="#53e928"/></svg>
   <code>#53e928</code>
-</div><div class="icon-card" data-id="546a9a" title="#546a9a">
+</div><div class="icon-card" data-id="546a9a" data-type="unknown" title="#546a9a">
   <svg width="20" height="20"><use href="#546a9a"/></svg>
   <code>#546a9a</code>
-</div><div class="icon-card" data-id="547df2" title="#547df2">
+</div><div class="icon-card" data-id="547df2" data-type="unknown" title="#547df2">
   <svg width="20" height="20"><use href="#547df2"/></svg>
   <code>#547df2</code>
-</div><div class="icon-card" data-id="54bf3e" title="#54bf3e">
+</div><div class="icon-card" data-id="54bf3e" data-type="unknown" title="#54bf3e">
   <svg width="20" height="20"><use href="#54bf3e"/></svg>
   <code>#54bf3e</code>
-</div><div class="icon-card" data-id="54ca03" title="#54ca03">
+</div><div class="icon-card" data-id="54ca03" data-type="unknown" title="#54ca03">
   <svg width="20" height="20"><use href="#54ca03"/></svg>
   <code>#54ca03</code>
-</div><div class="icon-card" data-id="54f145" title="#54f145">
+</div><div class="icon-card" data-id="54f145" data-type="unknown" title="#54f145">
   <svg width="20" height="20"><use href="#54f145"/></svg>
   <code>#54f145</code>
-</div><div class="icon-card" data-id="55180d" title="#55180d">
+</div><div class="icon-card" data-id="55180d" data-type="outline" title="#55180d">
   <svg width="20" height="20"><use href="#55180d"/></svg>
   <code>#55180d</code>
-</div><div class="icon-card" data-id="554074" title="#554074">
+</div><div class="icon-card" data-id="554074" data-type="unknown" title="#554074">
   <svg width="20" height="20"><use href="#554074"/></svg>
   <code>#554074</code>
-</div><div class="icon-card" data-id="56c88b" title="#56c88b">
+</div><div class="icon-card" data-id="56c88b" data-type="unknown" title="#56c88b">
   <svg width="20" height="20"><use href="#56c88b"/></svg>
   <code>#56c88b</code>
-</div><div class="icon-card" data-id="56e5df" title="#56e5df">
+</div><div class="icon-card" data-id="56e5df" data-type="unknown" title="#56e5df">
   <svg width="20" height="20"><use href="#56e5df"/></svg>
   <code>#56e5df</code>
-</div><div class="icon-card" data-id="571451" title="#571451">
+</div><div class="icon-card" data-id="571451" data-type="unknown" title="#571451">
   <svg width="20" height="20"><use href="#571451"/></svg>
   <code>#571451</code>
-</div><div class="icon-card" data-id="576424" title="#576424">
+</div><div class="icon-card" data-id="576424" data-type="unknown" title="#576424">
   <svg width="20" height="20"><use href="#576424"/></svg>
   <code>#576424</code>
-</div><div class="icon-card" data-id="57c721" title="#57c721">
+</div><div class="icon-card" data-id="57c721" data-type="unknown" title="#57c721">
   <svg width="20" height="20"><use href="#57c721"/></svg>
   <code>#57c721</code>
-</div><div class="icon-card" data-id="581f44" title="#581f44">
+</div><div class="icon-card" data-id="581f44" data-type="unknown" title="#581f44">
   <svg width="20" height="20"><use href="#581f44"/></svg>
   <code>#581f44</code>
-</div><div class="icon-card" data-id="58efbb" title="#58efbb">
+</div><div class="icon-card" data-id="58efbb" data-type="unknown" title="#58efbb">
   <svg width="20" height="20"><use href="#58efbb"/></svg>
   <code>#58efbb</code>
-</div><div class="icon-card" data-id="5907b1" title="#5907b1">
+</div><div class="icon-card" data-id="5907b1" data-type="unknown" title="#5907b1">
   <svg width="20" height="20"><use href="#5907b1"/></svg>
   <code>#5907b1</code>
-</div><div class="icon-card" data-id="5922e2" title="#5922e2">
+</div><div class="icon-card" data-id="5922e2" data-type="unknown" title="#5922e2">
   <svg width="20" height="20"><use href="#5922e2"/></svg>
   <code>#5922e2</code>
-</div><div class="icon-card" data-id="594bd3" title="#594bd3">
+</div><div class="icon-card" data-id="594bd3" data-type="unknown" title="#594bd3">
   <svg width="20" height="20"><use href="#594bd3"/></svg>
   <code>#594bd3</code>
-</div><div class="icon-card" data-id="5979fc" title="#5979fc">
+</div><div class="icon-card" data-id="5979fc" data-type="unknown" title="#5979fc">
   <svg width="20" height="20"><use href="#5979fc"/></svg>
   <code>#5979fc</code>
-</div><div class="icon-card" data-id="59f270" title="#59f270">
+</div><div class="icon-card" data-id="59f270" data-type="unknown" title="#59f270">
   <svg width="20" height="20"><use href="#59f270"/></svg>
   <code>#59f270</code>
-</div><div class="icon-card" data-id="5a3913" title="#5a3913">
+</div><div class="icon-card" data-id="5a3913" data-type="unknown" title="#5a3913">
   <svg width="20" height="20"><use href="#5a3913"/></svg>
   <code>#5a3913</code>
-</div><div class="icon-card" data-id="5afc28" title="#5afc28">
+</div><div class="icon-card" data-id="5afc28" data-type="unknown" title="#5afc28">
   <svg width="20" height="20"><use href="#5afc28"/></svg>
   <code>#5afc28</code>
-</div><div class="icon-card" data-id="5b5192" title="#5b5192">
+</div><div class="icon-card" data-id="5b5192" data-type="unknown" title="#5b5192">
   <svg width="20" height="20"><use href="#5b5192"/></svg>
   <code>#5b5192</code>
-</div><div class="icon-card" data-id="5bb75d" title="#5bb75d">
+</div><div class="icon-card" data-id="5bb75d" data-type="unknown" title="#5bb75d">
   <svg width="20" height="20"><use href="#5bb75d"/></svg>
   <code>#5bb75d</code>
-</div><div class="icon-card" data-id="5bce33" title="#5bce33">
+</div><div class="icon-card" data-id="5bce33" data-type="unknown" title="#5bce33">
   <svg width="20" height="20"><use href="#5bce33"/></svg>
   <code>#5bce33</code>
-</div><div class="icon-card" data-id="5cb4b0" title="#5cb4b0">
+</div><div class="icon-card" data-id="5cb4b0" data-type="unknown" title="#5cb4b0">
   <svg width="20" height="20"><use href="#5cb4b0"/></svg>
   <code>#5cb4b0</code>
-</div><div class="icon-card" data-id="5ce07b" title="#5ce07b">
+</div><div class="icon-card" data-id="5ce07b" data-type="unknown" title="#5ce07b">
   <svg width="20" height="20"><use href="#5ce07b"/></svg>
   <code>#5ce07b</code>
-</div><div class="icon-card" data-id="5d12d5" title="#5d12d5">
+</div><div class="icon-card" data-id="5d12d5" data-type="unknown" title="#5d12d5">
   <svg width="20" height="20"><use href="#5d12d5"/></svg>
   <code>#5d12d5</code>
-</div><div class="icon-card" data-id="5d1739" title="#5d1739">
+</div><div class="icon-card" data-id="5d1739" data-type="unknown" title="#5d1739">
   <svg width="20" height="20"><use href="#5d1739"/></svg>
   <code>#5d1739</code>
-</div><div class="icon-card" data-id="5d3112" title="#5d3112">
+</div><div class="icon-card" data-id="5d3112" data-type="outline" title="#5d3112">
   <svg width="20" height="20"><use href="#5d3112"/></svg>
   <code>#5d3112</code>
-</div><div class="icon-card" data-id="5d3542" title="#5d3542">
+</div><div class="icon-card" data-id="5d3542" data-type="unknown" title="#5d3542">
   <svg width="20" height="20"><use href="#5d3542"/></svg>
   <code>#5d3542</code>
-</div><div class="icon-card" data-id="5d4173" title="#5d4173">
+</div><div class="icon-card" data-id="5d4173" data-type="unknown" title="#5d4173">
   <svg width="20" height="20"><use href="#5d4173"/></svg>
   <code>#5d4173</code>
-</div><div class="icon-card" data-id="5d7f10" title="#5d7f10">
+</div><div class="icon-card" data-id="5d7f10" data-type="unknown" title="#5d7f10">
   <svg width="20" height="20"><use href="#5d7f10"/></svg>
   <code>#5d7f10</code>
-</div><div class="icon-card" data-id="5d86df" title="#5d86df">
+</div><div class="icon-card" data-id="5d86df" data-type="unknown" title="#5d86df">
   <svg width="20" height="20"><use href="#5d86df"/></svg>
   <code>#5d86df</code>
-</div><div class="icon-card" data-id="5e46e0" title="#5e46e0">
+</div><div class="icon-card" data-id="5e46e0" data-type="unknown" title="#5e46e0">
   <svg width="20" height="20"><use href="#5e46e0"/></svg>
   <code>#5e46e0</code>
-</div><div class="icon-card" data-id="5ed5de" title="#5ed5de">
+</div><div class="icon-card" data-id="5ed5de" data-type="unknown" title="#5ed5de">
   <svg width="20" height="20"><use href="#5ed5de"/></svg>
   <code>#5ed5de</code>
-</div><div class="icon-card" data-id="5f66c3" title="#5f66c3">
+</div><div class="icon-card" data-id="5f66c3" data-type="unknown" title="#5f66c3">
   <svg width="20" height="20"><use href="#5f66c3"/></svg>
   <code>#5f66c3</code>
-</div><div class="icon-card" data-id="5fb567" title="#5fb567">
+</div><div class="icon-card" data-id="5fb567" data-type="unknown" title="#5fb567">
   <svg width="20" height="20"><use href="#5fb567"/></svg>
   <code>#5fb567</code>
-</div><div class="icon-card" data-id="608c49" title="#608c49">
+</div><div class="icon-card" data-id="608c49" data-type="unknown" title="#608c49">
   <svg width="20" height="20"><use href="#608c49"/></svg>
   <code>#608c49</code>
-</div><div class="icon-card" data-id="60ccb6" title="#60ccb6">
+</div><div class="icon-card" data-id="60ccb6" data-type="unknown" title="#60ccb6">
   <svg width="20" height="20"><use href="#60ccb6"/></svg>
   <code>#60ccb6</code>
-</div><div class="icon-card" data-id="61861c" title="#61861c">
+</div><div class="icon-card" data-id="61861c" data-type="unknown" title="#61861c">
   <svg width="20" height="20"><use href="#61861c"/></svg>
   <code>#61861c</code>
-</div><div class="icon-card" data-id="61ee0c" title="#61ee0c">
+</div><div class="icon-card" data-id="61ee0c" data-type="unknown" title="#61ee0c">
   <svg width="20" height="20"><use href="#61ee0c"/></svg>
   <code>#61ee0c</code>
-</div><div class="icon-card" data-id="623f58" title="#623f58">
+</div><div class="icon-card" data-id="623f58" data-type="unknown" title="#623f58">
   <svg width="20" height="20"><use href="#623f58"/></svg>
   <code>#623f58</code>
-</div><div class="icon-card" data-id="62b328" title="#62b328">
+</div><div class="icon-card" data-id="62b328" data-type="unknown" title="#62b328">
   <svg width="20" height="20"><use href="#62b328"/></svg>
   <code>#62b328</code>
-</div><div class="icon-card" data-id="630ca2" title="#630ca2">
+</div><div class="icon-card" data-id="630ca2" data-type="unknown" title="#630ca2">
   <svg width="20" height="20"><use href="#630ca2"/></svg>
   <code>#630ca2</code>
-</div><div class="icon-card" data-id="6335c3" title="#6335c3">
+</div><div class="icon-card" data-id="6335c3" data-type="unknown" title="#6335c3">
   <svg width="20" height="20"><use href="#6335c3"/></svg>
   <code>#6335c3</code>
-</div><div class="icon-card" data-id="644ce5" title="#644ce5">
+</div><div class="icon-card" data-id="644ce5" data-type="unknown" title="#644ce5">
   <svg width="20" height="20"><use href="#644ce5"/></svg>
   <code>#644ce5</code>
-</div><div class="icon-card" data-id="64bc39" title="#64bc39">
+</div><div class="icon-card" data-id="64bc39" data-type="unknown" title="#64bc39">
   <svg width="20" height="20"><use href="#64bc39"/></svg>
   <code>#64bc39</code>
-</div><div class="icon-card" data-id="658007" title="#658007">
+</div><div class="icon-card" data-id="658007" data-type="unknown" title="#658007">
   <svg width="20" height="20"><use href="#658007"/></svg>
   <code>#658007</code>
-</div><div class="icon-card" data-id="65e65f" title="#65e65f">
+</div><div class="icon-card" data-id="65e65f" data-type="unknown" title="#65e65f">
   <svg width="20" height="20"><use href="#65e65f"/></svg>
   <code>#65e65f</code>
-</div><div class="icon-card" data-id="665fb5" title="#665fb5">
+</div><div class="icon-card" data-id="665fb5" data-type="unknown" title="#665fb5">
   <svg width="20" height="20"><use href="#665fb5"/></svg>
   <code>#665fb5</code>
-</div><div class="icon-card" data-id="668c50" title="#668c50">
+</div><div class="icon-card" data-id="668c50" data-type="unknown" title="#668c50">
   <svg width="20" height="20"><use href="#668c50"/></svg>
   <code>#668c50</code>
-</div><div class="icon-card" data-id="6737a4" title="#6737a4">
+</div><div class="icon-card" data-id="6737a4" data-type="unknown" title="#6737a4">
   <svg width="20" height="20"><use href="#6737a4"/></svg>
   <code>#6737a4</code>
-</div><div class="icon-card" data-id="6795af" title="#6795af">
+</div><div class="icon-card" data-id="6795af" data-type="unknown" title="#6795af">
   <svg width="20" height="20"><use href="#6795af"/></svg>
   <code>#6795af</code>
-</div><div class="icon-card" data-id="680a3c" title="#680a3c">
+</div><div class="icon-card" data-id="680a3c" data-type="unknown" title="#680a3c">
   <svg width="20" height="20"><use href="#680a3c"/></svg>
   <code>#680a3c</code>
-</div><div class="icon-card" data-id="681078" title="#681078">
+</div><div class="icon-card" data-id="681078" data-type="unknown" title="#681078">
   <svg width="20" height="20"><use href="#681078"/></svg>
   <code>#681078</code>
-</div><div class="icon-card" data-id="68993d" title="#68993d">
+</div><div class="icon-card" data-id="68993d" data-type="unknown" title="#68993d">
   <svg width="20" height="20"><use href="#68993d"/></svg>
   <code>#68993d</code>
-</div><div class="icon-card" data-id="699e94" title="#699e94">
+</div><div class="icon-card" data-id="699e94" data-type="unknown" title="#699e94">
   <svg width="20" height="20"><use href="#699e94"/></svg>
   <code>#699e94</code>
-</div><div class="icon-card" data-id="69abde" title="#69abde">
+</div><div class="icon-card" data-id="69abde" data-type="unknown" title="#69abde">
   <svg width="20" height="20"><use href="#69abde"/></svg>
   <code>#69abde</code>
-</div><div class="icon-card" data-id="69ce10" title="#69ce10">
+</div><div class="icon-card" data-id="69ce10" data-type="unknown" title="#69ce10">
   <svg width="20" height="20"><use href="#69ce10"/></svg>
   <code>#69ce10</code>
-</div><div class="icon-card" data-id="6ab398" title="#6ab398">
+</div><div class="icon-card" data-id="6ab398" data-type="unknown" title="#6ab398">
   <svg width="20" height="20"><use href="#6ab398"/></svg>
   <code>#6ab398</code>
-</div><div class="icon-card" data-id="6ae0b5" title="#6ae0b5">
+</div><div class="icon-card" data-id="6ae0b5" data-type="unknown" title="#6ae0b5">
   <svg width="20" height="20"><use href="#6ae0b5"/></svg>
   <code>#6ae0b5</code>
-</div><div class="icon-card" data-id="6b0d8c" title="#6b0d8c">
+</div><div class="icon-card" data-id="6b0d8c" data-type="unknown" title="#6b0d8c">
   <svg width="20" height="20"><use href="#6b0d8c"/></svg>
   <code>#6b0d8c</code>
-</div><div class="icon-card" data-id="6b1f51" title="#6b1f51">
+</div><div class="icon-card" data-id="6b1f51" data-type="unknown" title="#6b1f51">
   <svg width="20" height="20"><use href="#6b1f51"/></svg>
   <code>#6b1f51</code>
-</div><div class="icon-card" data-id="6be2f1" title="#6be2f1">
+</div><div class="icon-card" data-id="6be2f1" data-type="unknown" title="#6be2f1">
   <svg width="20" height="20"><use href="#6be2f1"/></svg>
   <code>#6be2f1</code>
-</div><div class="icon-card" data-id="6be74c" title="#6be74c">
+</div><div class="icon-card" data-id="6be74c" data-type="filled" title="#6be74c">
   <svg width="20" height="20"><use href="#6be74c"/></svg>
   <code>#6be74c</code>
-</div><div class="icon-card" data-id="6c1687" title="#6c1687">
+</div><div class="icon-card" data-id="6c1687" data-type="unknown" title="#6c1687">
   <svg width="20" height="20"><use href="#6c1687"/></svg>
   <code>#6c1687</code>
-</div><div class="icon-card" data-id="6c3927" title="#6c3927">
+</div><div class="icon-card" data-id="6c3927" data-type="unknown" title="#6c3927">
   <svg width="20" height="20"><use href="#6c3927"/></svg>
   <code>#6c3927</code>
-</div><div class="icon-card" data-id="6d3f20" title="#6d3f20">
+</div><div class="icon-card" data-id="6d3f20" data-type="unknown" title="#6d3f20">
   <svg width="20" height="20"><use href="#6d3f20"/></svg>
   <code>#6d3f20</code>
-</div><div class="icon-card" data-id="6d5810" title="#6d5810">
+</div><div class="icon-card" data-id="6d5810" data-type="unknown" title="#6d5810">
   <svg width="20" height="20"><use href="#6d5810"/></svg>
   <code>#6d5810</code>
-</div><div class="icon-card" data-id="6d72eb" title="#6d72eb">
+</div><div class="icon-card" data-id="6d72eb" data-type="unknown" title="#6d72eb">
   <svg width="20" height="20"><use href="#6d72eb"/></svg>
   <code>#6d72eb</code>
-</div><div class="icon-card" data-id="6d87e1" title="#6d87e1">
+</div><div class="icon-card" data-id="6d87e1" data-type="unknown" title="#6d87e1">
   <svg width="20" height="20"><use href="#6d87e1"/></svg>
   <code>#6d87e1</code>
-</div><div class="icon-card" data-id="6deb96" title="#6deb96">
+</div><div class="icon-card" data-id="6deb96" data-type="unknown" title="#6deb96">
   <svg width="20" height="20"><use href="#6deb96"/></svg>
   <code>#6deb96</code>
-</div><div class="icon-card" data-id="6deef2" title="#6deef2">
+</div><div class="icon-card" data-id="6deef2" data-type="unknown" title="#6deef2">
   <svg width="20" height="20"><use href="#6deef2"/></svg>
   <code>#6deef2</code>
-</div><div class="icon-card" data-id="6e01b5" title="#6e01b5">
+</div><div class="icon-card" data-id="6e01b5" data-type="unknown" title="#6e01b5">
   <svg width="20" height="20"><use href="#6e01b5"/></svg>
   <code>#6e01b5</code>
-</div><div class="icon-card" data-id="6e8e3f" title="#6e8e3f">
+</div><div class="icon-card" data-id="6e8e3f" data-type="unknown" title="#6e8e3f">
   <svg width="20" height="20"><use href="#6e8e3f"/></svg>
   <code>#6e8e3f</code>
-</div><div class="icon-card" data-id="6e9bd1" title="#6e9bd1">
+</div><div class="icon-card" data-id="6e9bd1" data-type="unknown" title="#6e9bd1">
   <svg width="20" height="20"><use href="#6e9bd1"/></svg>
   <code>#6e9bd1</code>
-</div><div class="icon-card" data-id="6eabdf" title="#6eabdf">
+</div><div class="icon-card" data-id="6eabdf" data-type="unknown" title="#6eabdf">
   <svg width="20" height="20"><use href="#6eabdf"/></svg>
   <code>#6eabdf</code>
-</div><div class="icon-card" data-id="6eb585" title="#6eb585">
+</div><div class="icon-card" data-id="6eb585" data-type="unknown" title="#6eb585">
   <svg width="20" height="20"><use href="#6eb585"/></svg>
   <code>#6eb585</code>
-</div><div class="icon-card" data-id="6eb6ca" title="#6eb6ca">
+</div><div class="icon-card" data-id="6eb6ca" data-type="unknown" title="#6eb6ca">
   <svg width="20" height="20"><use href="#6eb6ca"/></svg>
   <code>#6eb6ca</code>
-</div><div class="icon-card" data-id="6ef7a4" title="#6ef7a4">
+</div><div class="icon-card" data-id="6ef7a4" data-type="unknown" title="#6ef7a4">
   <svg width="20" height="20"><use href="#6ef7a4"/></svg>
   <code>#6ef7a4</code>
-</div><div class="icon-card" data-id="6f369f" title="#6f369f">
+</div><div class="icon-card" data-id="6f369f" data-type="unknown" title="#6f369f">
   <svg width="20" height="20"><use href="#6f369f"/></svg>
   <code>#6f369f</code>
-</div><div class="icon-card" data-id="6fd435" title="#6fd435">
+</div><div class="icon-card" data-id="6fd435" data-type="unknown" title="#6fd435">
   <svg width="20" height="20"><use href="#6fd435"/></svg>
   <code>#6fd435</code>
-</div><div class="icon-card" data-id="6fef0e" title="#6fef0e">
+</div><div class="icon-card" data-id="6fef0e" data-type="unknown" title="#6fef0e">
   <svg width="20" height="20"><use href="#6fef0e"/></svg>
   <code>#6fef0e</code>
-</div><div class="icon-card" data-id="705604" title="#705604">
+</div><div class="icon-card" data-id="705604" data-type="unknown" title="#705604">
   <svg width="20" height="20"><use href="#705604"/></svg>
   <code>#705604</code>
-</div><div class="icon-card" data-id="70930d" title="#70930d">
+</div><div class="icon-card" data-id="70930d" data-type="unknown" title="#70930d">
   <svg width="20" height="20"><use href="#70930d"/></svg>
   <code>#70930d</code>
-</div><div class="icon-card" data-id="712359" title="#712359">
+</div><div class="icon-card" data-id="712359" data-type="unknown" title="#712359">
   <svg width="20" height="20"><use href="#712359"/></svg>
   <code>#712359</code>
-</div><div class="icon-card" data-id="715504" title="#715504">
+</div><div class="icon-card" data-id="715504" data-type="unknown" title="#715504">
   <svg width="20" height="20"><use href="#715504"/></svg>
   <code>#715504</code>
-</div><div class="icon-card" data-id="71a046" title="#71a046">
+</div><div class="icon-card" data-id="71a046" data-type="unknown" title="#71a046">
   <svg width="20" height="20"><use href="#71a046"/></svg>
   <code>#71a046</code>
-</div><div class="icon-card" data-id="720e1b" title="#720e1b">
+</div><div class="icon-card" data-id="720e1b" data-type="unknown" title="#720e1b">
   <svg width="20" height="20"><use href="#720e1b"/></svg>
   <code>#720e1b</code>
-</div><div class="icon-card" data-id="72343c" title="#72343c">
+</div><div class="icon-card" data-id="72343c" data-type="unknown" title="#72343c">
   <svg width="20" height="20"><use href="#72343c"/></svg>
   <code>#72343c</code>
-</div><div class="icon-card" data-id="723f70" title="#723f70">
+</div><div class="icon-card" data-id="723f70" data-type="unknown" title="#723f70">
   <svg width="20" height="20"><use href="#723f70"/></svg>
   <code>#723f70</code>
-</div><div class="icon-card" data-id="7258fc" title="#7258fc">
+</div><div class="icon-card" data-id="7258fc" data-type="unknown" title="#7258fc">
   <svg width="20" height="20"><use href="#7258fc"/></svg>
   <code>#7258fc</code>
-</div><div class="icon-card" data-id="726ecd" title="#726ecd">
+</div><div class="icon-card" data-id="726ecd" data-type="unknown" title="#726ecd">
   <svg width="20" height="20"><use href="#726ecd"/></svg>
   <code>#726ecd</code>
-</div><div class="icon-card" data-id="72fbec" title="#72fbec">
+</div><div class="icon-card" data-id="72fbec" data-type="unknown" title="#72fbec">
   <svg width="20" height="20"><use href="#72fbec"/></svg>
   <code>#72fbec</code>
-</div><div class="icon-card" data-id="730668" title="#730668">
+</div><div class="icon-card" data-id="730668" data-type="unknown" title="#730668">
   <svg width="20" height="20"><use href="#730668"/></svg>
   <code>#730668</code>
-</div><div class="icon-card" data-id="73314a" title="#73314a">
+</div><div class="icon-card" data-id="73314a" data-type="unknown" title="#73314a">
   <svg width="20" height="20"><use href="#73314a"/></svg>
   <code>#73314a</code>
-</div><div class="icon-card" data-id="73510e" title="#73510e">
+</div><div class="icon-card" data-id="73510e" data-type="unknown" title="#73510e">
   <svg width="20" height="20"><use href="#73510e"/></svg>
   <code>#73510e</code>
-</div><div class="icon-card" data-id="74187a" title="#74187a">
+</div><div class="icon-card" data-id="74187a" data-type="unknown" title="#74187a">
   <svg width="20" height="20"><use href="#74187a"/></svg>
   <code>#74187a</code>
-</div><div class="icon-card" data-id="74461b" title="#74461b">
+</div><div class="icon-card" data-id="74461b" data-type="unknown" title="#74461b">
   <svg width="20" height="20"><use href="#74461b"/></svg>
   <code>#74461b</code>
-</div><div class="icon-card" data-id="744c94" title="#744c94">
+</div><div class="icon-card" data-id="744c94" data-type="unknown" title="#744c94">
   <svg width="20" height="20"><use href="#744c94"/></svg>
   <code>#744c94</code>
-</div><div class="icon-card" data-id="74c13e" title="#74c13e">
+</div><div class="icon-card" data-id="74c13e" data-type="unknown" title="#74c13e">
   <svg width="20" height="20"><use href="#74c13e"/></svg>
   <code>#74c13e</code>
-</div><div class="icon-card" data-id="74cbae" title="#74cbae">
+</div><div class="icon-card" data-id="74cbae" data-type="unknown" title="#74cbae">
   <svg width="20" height="20"><use href="#74cbae"/></svg>
   <code>#74cbae</code>
-</div><div class="icon-card" data-id="758eef" title="#758eef">
+</div><div class="icon-card" data-id="758eef" data-type="unknown" title="#758eef">
   <svg width="20" height="20"><use href="#758eef"/></svg>
   <code>#758eef</code>
-</div><div class="icon-card" data-id="75d0c6" title="#75d0c6">
+</div><div class="icon-card" data-id="75d0c6" data-type="unknown" title="#75d0c6">
   <svg width="20" height="20"><use href="#75d0c6"/></svg>
   <code>#75d0c6</code>
-</div><div class="icon-card" data-id="75f49f" title="#75f49f">
+</div><div class="icon-card" data-id="75f49f" data-type="unknown" title="#75f49f">
   <svg width="20" height="20"><use href="#75f49f"/></svg>
   <code>#75f49f</code>
-</div><div class="icon-card" data-id="77bc5f" title="#77bc5f">
+</div><div class="icon-card" data-id="77bc5f" data-type="unknown" title="#77bc5f">
   <svg width="20" height="20"><use href="#77bc5f"/></svg>
   <code>#77bc5f</code>
-</div><div class="icon-card" data-id="77cde5" title="#77cde5">
+</div><div class="icon-card" data-id="77cde5" data-type="unknown" title="#77cde5">
   <svg width="20" height="20"><use href="#77cde5"/></svg>
   <code>#77cde5</code>
-</div><div class="icon-card" data-id="786e23" title="#786e23">
+</div><div class="icon-card" data-id="786e23" data-type="unknown" title="#786e23">
   <svg width="20" height="20"><use href="#786e23"/></svg>
   <code>#786e23</code>
-</div><div class="icon-card" data-id="787580" title="#787580">
+</div><div class="icon-card" data-id="787580" data-type="unknown" title="#787580">
   <svg width="20" height="20"><use href="#787580"/></svg>
   <code>#787580</code>
-</div><div class="icon-card" data-id="787c5a" title="#787c5a">
+</div><div class="icon-card" data-id="787c5a" data-type="unknown" title="#787c5a">
   <svg width="20" height="20"><use href="#787c5a"/></svg>
   <code>#787c5a</code>
-</div><div class="icon-card" data-id="7952fd" title="#7952fd">
+</div><div class="icon-card" data-id="7952fd" data-type="unknown" title="#7952fd">
   <svg width="20" height="20"><use href="#7952fd"/></svg>
   <code>#7952fd</code>
-</div><div class="icon-card" data-id="795e99" title="#795e99">
+</div><div class="icon-card" data-id="795e99" data-type="unknown" title="#795e99">
   <svg width="20" height="20"><use href="#795e99"/></svg>
   <code>#795e99</code>
-</div><div class="icon-card" data-id="79a7dc" title="#79a7dc">
+</div><div class="icon-card" data-id="79a7dc" data-type="unknown" title="#79a7dc">
   <svg width="20" height="20"><use href="#79a7dc"/></svg>
   <code>#79a7dc</code>
-</div><div class="icon-card" data-id="7a0ff2" title="#7a0ff2">
+</div><div class="icon-card" data-id="7a0ff2" data-type="unknown" title="#7a0ff2">
   <svg width="20" height="20"><use href="#7a0ff2"/></svg>
   <code>#7a0ff2</code>
-</div><div class="icon-card" data-id="7a26f6" title="#7a26f6">
+</div><div class="icon-card" data-id="7a26f6" data-type="unknown" title="#7a26f6">
   <svg width="20" height="20"><use href="#7a26f6"/></svg>
   <code>#7a26f6</code>
-</div><div class="icon-card" data-id="7a8230" title="#7a8230">
+</div><div class="icon-card" data-id="7a8230" data-type="unknown" title="#7a8230">
   <svg width="20" height="20"><use href="#7a8230"/></svg>
   <code>#7a8230</code>
-</div><div class="icon-card" data-id="7abde7" title="#7abde7">
+</div><div class="icon-card" data-id="7abde7" data-type="unknown" title="#7abde7">
   <svg width="20" height="20"><use href="#7abde7"/></svg>
   <code>#7abde7</code>
-</div><div class="icon-card" data-id="7ad2ce" title="#7ad2ce">
+</div><div class="icon-card" data-id="7ad2ce" data-type="unknown" title="#7ad2ce">
   <svg width="20" height="20"><use href="#7ad2ce"/></svg>
   <code>#7ad2ce</code>
-</div><div class="icon-card" data-id="7b34c5" title="#7b34c5">
+</div><div class="icon-card" data-id="7b34c5" data-type="unknown" title="#7b34c5">
   <svg width="20" height="20"><use href="#7b34c5"/></svg>
   <code>#7b34c5</code>
-</div><div class="icon-card" data-id="7b8fbf" title="#7b8fbf">
+</div><div class="icon-card" data-id="7b8fbf" data-type="unknown" title="#7b8fbf">
   <svg width="20" height="20"><use href="#7b8fbf"/></svg>
   <code>#7b8fbf</code>
-</div><div class="icon-card" data-id="7c5315" title="#7c5315">
+</div><div class="icon-card" data-id="7c5315" data-type="unknown" title="#7c5315">
   <svg width="20" height="20"><use href="#7c5315"/></svg>
   <code>#7c5315</code>
-</div><div class="icon-card" data-id="7cd510" title="#7cd510">
+</div><div class="icon-card" data-id="7cd510" data-type="unknown" title="#7cd510">
   <svg width="20" height="20"><use href="#7cd510"/></svg>
   <code>#7cd510</code>
-</div><div class="icon-card" data-id="7d8cba" title="#7d8cba">
+</div><div class="icon-card" data-id="7d8cba" data-type="unknown" title="#7d8cba">
   <svg width="20" height="20"><use href="#7d8cba"/></svg>
   <code>#7d8cba</code>
-</div><div class="icon-card" data-id="7e1c46" title="#7e1c46">
+</div><div class="icon-card" data-id="7e1c46" data-type="unknown" title="#7e1c46">
   <svg width="20" height="20"><use href="#7e1c46"/></svg>
   <code>#7e1c46</code>
-</div><div class="icon-card" data-id="7e3389" title="#7e3389">
+</div><div class="icon-card" data-id="7e3389" data-type="unknown" title="#7e3389">
   <svg width="20" height="20"><use href="#7e3389"/></svg>
   <code>#7e3389</code>
-</div><div class="icon-card" data-id="7e9abb" title="#7e9abb">
+</div><div class="icon-card" data-id="7e9abb" data-type="unknown" title="#7e9abb">
   <svg width="20" height="20"><use href="#7e9abb"/></svg>
   <code>#7e9abb</code>
-</div><div class="icon-card" data-id="7ed513" title="#7ed513">
+</div><div class="icon-card" data-id="7ed513" data-type="unknown" title="#7ed513">
   <svg width="20" height="20"><use href="#7ed513"/></svg>
   <code>#7ed513</code>
-</div><div class="icon-card" data-id="7ef0de" title="#7ef0de">
+</div><div class="icon-card" data-id="7ef0de" data-type="unknown" title="#7ef0de">
   <svg width="20" height="20"><use href="#7ef0de"/></svg>
   <code>#7ef0de</code>
-</div><div class="icon-card" data-id="7eff44" title="#7eff44">
+</div><div class="icon-card" data-id="7eff44" data-type="unknown" title="#7eff44">
   <svg width="20" height="20"><use href="#7eff44"/></svg>
   <code>#7eff44</code>
-</div><div class="icon-card" data-id="7f6536" title="#7f6536">
+</div><div class="icon-card" data-id="7f6536" data-type="unknown" title="#7f6536">
   <svg width="20" height="20"><use href="#7f6536"/></svg>
   <code>#7f6536</code>
-</div><div class="icon-card" data-id="7f9fd5" title="#7f9fd5">
+</div><div class="icon-card" data-id="7f9fd5" data-type="unknown" title="#7f9fd5">
   <svg width="20" height="20"><use href="#7f9fd5"/></svg>
   <code>#7f9fd5</code>
-</div><div class="icon-card" data-id="7fbf18" title="#7fbf18">
+</div><div class="icon-card" data-id="7fbf18" data-type="unknown" title="#7fbf18">
   <svg width="20" height="20"><use href="#7fbf18"/></svg>
   <code>#7fbf18</code>
-</div><div class="icon-card" data-id="7fbf18" title="#7fbf18">
+</div><div class="icon-card" data-id="7fbf18" data-type="unknown" title="#7fbf18">
   <svg width="20" height="20"><use href="#7fbf18"/></svg>
   <code>#7fbf18</code>
-</div><div class="icon-card" data-id="805f91" title="#805f91">
+</div><div class="icon-card" data-id="805f91" data-type="unknown" title="#805f91">
   <svg width="20" height="20"><use href="#805f91"/></svg>
   <code>#805f91</code>
-</div><div class="icon-card" data-id="80b059" title="#80b059">
+</div><div class="icon-card" data-id="80b059" data-type="unknown" title="#80b059">
   <svg width="20" height="20"><use href="#80b059"/></svg>
   <code>#80b059</code>
-</div><div class="icon-card" data-id="8138f8" title="#8138f8">
+</div><div class="icon-card" data-id="8138f8" data-type="unknown" title="#8138f8">
   <svg width="20" height="20"><use href="#8138f8"/></svg>
   <code>#8138f8</code>
-</div><div class="icon-card" data-id="817971" title="#817971">
+</div><div class="icon-card" data-id="817971" data-type="unknown" title="#817971">
   <svg width="20" height="20"><use href="#817971"/></svg>
   <code>#817971</code>
-</div><div class="icon-card" data-id="81b44f" title="#81b44f">
+</div><div class="icon-card" data-id="81b44f" data-type="unknown" title="#81b44f">
   <svg width="20" height="20"><use href="#81b44f"/></svg>
   <code>#81b44f</code>
-</div><div class="icon-card" data-id="81d4ea" title="#81d4ea">
+</div><div class="icon-card" data-id="81d4ea" data-type="unknown" title="#81d4ea">
   <svg width="20" height="20"><use href="#81d4ea"/></svg>
   <code>#81d4ea</code>
-</div><div class="icon-card" data-id="823528" title="#823528">
+</div><div class="icon-card" data-id="823528" data-type="unknown" title="#823528">
   <svg width="20" height="20"><use href="#823528"/></svg>
   <code>#823528</code>
-</div><div class="icon-card" data-id="823ad8" title="#823ad8">
+</div><div class="icon-card" data-id="823ad8" data-type="unknown" title="#823ad8">
   <svg width="20" height="20"><use href="#823ad8"/></svg>
   <code>#823ad8</code>
-</div><div class="icon-card" data-id="836f7a" title="#836f7a">
+</div><div class="icon-card" data-id="836f7a" data-type="outline" title="#836f7a">
   <svg width="20" height="20"><use href="#836f7a"/></svg>
   <code>#836f7a</code>
-</div><div class="icon-card" data-id="8371ac" title="#8371ac">
+</div><div class="icon-card" data-id="8371ac" data-type="unknown" title="#8371ac">
   <svg width="20" height="20"><use href="#8371ac"/></svg>
   <code>#8371ac</code>
-</div><div class="icon-card" data-id="83aab5" title="#83aab5">
+</div><div class="icon-card" data-id="83aab5" data-type="unknown" title="#83aab5">
   <svg width="20" height="20"><use href="#83aab5"/></svg>
   <code>#83aab5</code>
-</div><div class="icon-card" data-id="83d212" title="#83d212">
+</div><div class="icon-card" data-id="83d212" data-type="unknown" title="#83d212">
   <svg width="20" height="20"><use href="#83d212"/></svg>
   <code>#83d212</code>
-</div><div class="icon-card" data-id="83d2a2" title="#83d2a2">
+</div><div class="icon-card" data-id="83d2a2" data-type="unknown" title="#83d2a2">
   <svg width="20" height="20"><use href="#83d2a2"/></svg>
   <code>#83d2a2</code>
-</div><div class="icon-card" data-id="83edb7" title="#83edb7">
+</div><div class="icon-card" data-id="83edb7" data-type="unknown" title="#83edb7">
   <svg width="20" height="20"><use href="#83edb7"/></svg>
   <code>#83edb7</code>
-</div><div class="icon-card" data-id="85539c" title="#85539c">
+</div><div class="icon-card" data-id="85539c" data-type="unknown" title="#85539c">
   <svg width="20" height="20"><use href="#85539c"/></svg>
   <code>#85539c</code>
-</div><div class="icon-card" data-id="858d3a" title="#858d3a">
+</div><div class="icon-card" data-id="858d3a" data-type="unknown" title="#858d3a">
   <svg width="20" height="20"><use href="#858d3a"/></svg>
   <code>#858d3a</code>
-</div><div class="icon-card" data-id="85bc2e" title="#85bc2e">
+</div><div class="icon-card" data-id="85bc2e" data-type="unknown" title="#85bc2e">
   <svg width="20" height="20"><use href="#85bc2e"/></svg>
   <code>#85bc2e</code>
-</div><div class="icon-card" data-id="85f94b" title="#85f94b">
+</div><div class="icon-card" data-id="85f94b" data-type="outline" title="#85f94b">
   <svg width="20" height="20"><use href="#85f94b"/></svg>
   <code>#85f94b</code>
-</div><div class="icon-card" data-id="863841" title="#863841">
+</div><div class="icon-card" data-id="863841" data-type="unknown" title="#863841">
   <svg width="20" height="20"><use href="#863841"/></svg>
   <code>#863841</code>
-</div><div class="icon-card" data-id="865db3" title="#865db3">
+</div><div class="icon-card" data-id="865db3" data-type="unknown" title="#865db3">
   <svg width="20" height="20"><use href="#865db3"/></svg>
   <code>#865db3</code>
-</div><div class="icon-card" data-id="86811d" title="#86811d">
+</div><div class="icon-card" data-id="86811d" data-type="unknown" title="#86811d">
   <svg width="20" height="20"><use href="#86811d"/></svg>
   <code>#86811d</code>
-</div><div class="icon-card" data-id="86dc94" title="#86dc94">
+</div><div class="icon-card" data-id="86dc94" data-type="unknown" title="#86dc94">
   <svg width="20" height="20"><use href="#86dc94"/></svg>
   <code>#86dc94</code>
-</div><div class="icon-card" data-id="870c9a" title="#870c9a">
+</div><div class="icon-card" data-id="870c9a" data-type="unknown" title="#870c9a">
   <svg width="20" height="20"><use href="#870c9a"/></svg>
   <code>#870c9a</code>
-</div><div class="icon-card" data-id="87687d" title="#87687d">
+</div><div class="icon-card" data-id="87687d" data-type="unknown" title="#87687d">
   <svg width="20" height="20"><use href="#87687d"/></svg>
   <code>#87687d</code>
-</div><div class="icon-card" data-id="87fa24" title="#87fa24">
+</div><div class="icon-card" data-id="87fa24" data-type="unknown" title="#87fa24">
   <svg width="20" height="20"><use href="#87fa24"/></svg>
   <code>#87fa24</code>
-</div><div class="icon-card" data-id="891f0e" title="#891f0e">
+</div><div class="icon-card" data-id="891f0e" data-type="unknown" title="#891f0e">
   <svg width="20" height="20"><use href="#891f0e"/></svg>
   <code>#891f0e</code>
-</div><div class="icon-card" data-id="8936b2" title="#8936b2">
+</div><div class="icon-card" data-id="8936b2" data-type="unknown" title="#8936b2">
   <svg width="20" height="20"><use href="#8936b2"/></svg>
   <code>#8936b2</code>
-</div><div class="icon-card" data-id="89807c" title="#89807c">
+</div><div class="icon-card" data-id="89807c" data-type="unknown" title="#89807c">
   <svg width="20" height="20"><use href="#89807c"/></svg>
   <code>#89807c</code>
-</div><div class="icon-card" data-id="8c41f1" title="#8c41f1">
+</div><div class="icon-card" data-id="8c41f1" data-type="unknown" title="#8c41f1">
   <svg width="20" height="20"><use href="#8c41f1"/></svg>
   <code>#8c41f1</code>
-</div><div class="icon-card" data-id="8da4e5" title="#8da4e5">
+</div><div class="icon-card" data-id="8da4e5" data-type="unknown" title="#8da4e5">
   <svg width="20" height="20"><use href="#8da4e5"/></svg>
   <code>#8da4e5</code>
-</div><div class="icon-card" data-id="8ea31d" title="#8ea31d">
+</div><div class="icon-card" data-id="8ea31d" data-type="unknown" title="#8ea31d">
   <svg width="20" height="20"><use href="#8ea31d"/></svg>
   <code>#8ea31d</code>
-</div><div class="icon-card" data-id="8ed617" title="#8ed617">
+</div><div class="icon-card" data-id="8ed617" data-type="unknown" title="#8ed617">
   <svg width="20" height="20"><use href="#8ed617"/></svg>
   <code>#8ed617</code>
-</div><div class="icon-card" data-id="8ee2e9" title="#8ee2e9">
+</div><div class="icon-card" data-id="8ee2e9" data-type="unknown" title="#8ee2e9">
   <svg width="20" height="20"><use href="#8ee2e9"/></svg>
   <code>#8ee2e9</code>
-</div><div class="icon-card" data-id="8f3ef6" title="#8f3ef6">
+</div><div class="icon-card" data-id="8f3ef6" data-type="unknown" title="#8f3ef6">
   <svg width="20" height="20"><use href="#8f3ef6"/></svg>
   <code>#8f3ef6</code>
-</div><div class="icon-card" data-id="9075e2" title="#9075e2">
+</div><div class="icon-card" data-id="9075e2" data-type="unknown" title="#9075e2">
   <svg width="20" height="20"><use href="#9075e2"/></svg>
   <code>#9075e2</code>
-</div><div class="icon-card" data-id="917f75" title="#917f75">
+</div><div class="icon-card" data-id="917f75" data-type="unknown" title="#917f75">
   <svg width="20" height="20"><use href="#917f75"/></svg>
   <code>#917f75</code>
-</div><div class="icon-card" data-id="9254a2" title="#9254a2">
+</div><div class="icon-card" data-id="9254a2" data-type="unknown" title="#9254a2">
   <svg width="20" height="20"><use href="#9254a2"/></svg>
   <code>#9254a2</code>
-</div><div class="icon-card" data-id="92c0d7" title="#92c0d7">
+</div><div class="icon-card" data-id="92c0d7" data-type="unknown" title="#92c0d7">
   <svg width="20" height="20"><use href="#92c0d7"/></svg>
   <code>#92c0d7</code>
-</div><div class="icon-card" data-id="93a043" title="#93a043">
+</div><div class="icon-card" data-id="93a043" data-type="unknown" title="#93a043">
   <svg width="20" height="20"><use href="#93a043"/></svg>
   <code>#93a043</code>
-</div><div class="icon-card" data-id="93ce8f" title="#93ce8f">
+</div><div class="icon-card" data-id="93ce8f" data-type="unknown" title="#93ce8f">
   <svg width="20" height="20"><use href="#93ce8f"/></svg>
   <code>#93ce8f</code>
-</div><div class="icon-card" data-id="93deaf" title="#93deaf">
+</div><div class="icon-card" data-id="93deaf" data-type="unknown" title="#93deaf">
   <svg width="20" height="20"><use href="#93deaf"/></svg>
   <code>#93deaf</code>
-</div><div class="icon-card" data-id="94324b" title="#94324b">
+</div><div class="icon-card" data-id="94324b" data-type="unknown" title="#94324b">
   <svg width="20" height="20"><use href="#94324b"/></svg>
   <code>#94324b</code>
-</div><div class="icon-card" data-id="95386c" title="#95386c">
+</div><div class="icon-card" data-id="95386c" data-type="unknown" title="#95386c">
   <svg width="20" height="20"><use href="#95386c"/></svg>
   <code>#95386c</code>
-</div><div class="icon-card" data-id="961be9" title="#961be9">
+</div><div class="icon-card" data-id="961be9" data-type="unknown" title="#961be9">
   <svg width="20" height="20"><use href="#961be9"/></svg>
   <code>#961be9</code>
-</div><div class="icon-card" data-id="9717a9" title="#9717a9">
+</div><div class="icon-card" data-id="9717a9" data-type="unknown" title="#9717a9">
   <svg width="20" height="20"><use href="#9717a9"/></svg>
   <code>#9717a9</code>
-</div><div class="icon-card" data-id="973008" title="#973008">
+</div><div class="icon-card" data-id="973008" data-type="unknown" title="#973008">
   <svg width="20" height="20"><use href="#973008"/></svg>
   <code>#973008</code>
-</div><div class="icon-card" data-id="973657" title="#973657">
+</div><div class="icon-card" data-id="973657" data-type="unknown" title="#973657">
   <svg width="20" height="20"><use href="#973657"/></svg>
   <code>#973657</code>
-</div><div class="icon-card" data-id="974afd" title="#974afd">
+</div><div class="icon-card" data-id="974afd" data-type="unknown" title="#974afd">
   <svg width="20" height="20"><use href="#974afd"/></svg>
   <code>#974afd</code>
-</div><div class="icon-card" data-id="975ff3" title="#975ff3">
+</div><div class="icon-card" data-id="975ff3" data-type="unknown" title="#975ff3">
   <svg width="20" height="20"><use href="#975ff3"/></svg>
   <code>#975ff3</code>
-</div><div class="icon-card" data-id="9779e8" title="#9779e8">
+</div><div class="icon-card" data-id="9779e8" data-type="unknown" title="#9779e8">
   <svg width="20" height="20"><use href="#9779e8"/></svg>
   <code>#9779e8</code>
-</div><div class="icon-card" data-id="97a688" title="#97a688">
+</div><div class="icon-card" data-id="97a688" data-type="unknown" title="#97a688">
   <svg width="20" height="20"><use href="#97a688"/></svg>
   <code>#97a688</code>
-</div><div class="icon-card" data-id="97c95c" title="#97c95c">
+</div><div class="icon-card" data-id="97c95c" data-type="unknown" title="#97c95c">
   <svg width="20" height="20"><use href="#97c95c"/></svg>
   <code>#97c95c</code>
-</div><div class="icon-card" data-id="97e404" title="#97e404">
+</div><div class="icon-card" data-id="97e404" data-type="unknown" title="#97e404">
   <svg width="20" height="20"><use href="#97e404"/></svg>
   <code>#97e404</code>
-</div><div class="icon-card" data-id="984817" title="#984817">
+</div><div class="icon-card" data-id="984817" data-type="unknown" title="#984817">
   <svg width="20" height="20"><use href="#984817"/></svg>
   <code>#984817</code>
-</div><div class="icon-card" data-id="986bec" title="#986bec">
+</div><div class="icon-card" data-id="986bec" data-type="unknown" title="#986bec">
   <svg width="20" height="20"><use href="#986bec"/></svg>
   <code>#986bec</code>
-</div><div class="icon-card" data-id="9928c1" title="#9928c1">
+</div><div class="icon-card" data-id="9928c1" data-type="unknown" title="#9928c1">
   <svg width="20" height="20"><use href="#9928c1"/></svg>
   <code>#9928c1</code>
-</div><div class="icon-card" data-id="9940b1" title="#9940b1">
+</div><div class="icon-card" data-id="9940b1" data-type="unknown" title="#9940b1">
   <svg width="20" height="20"><use href="#9940b1"/></svg>
   <code>#9940b1</code>
-</div><div class="icon-card" data-id="99561c" title="#99561c">
+</div><div class="icon-card" data-id="99561c" data-type="unknown" title="#99561c">
   <svg width="20" height="20"><use href="#99561c"/></svg>
   <code>#99561c</code>
-</div><div class="icon-card" data-id="9957d3" title="#9957d3">
+</div><div class="icon-card" data-id="9957d3" data-type="unknown" title="#9957d3">
   <svg width="20" height="20"><use href="#9957d3"/></svg>
   <code>#9957d3</code>
-</div><div class="icon-card" data-id="995f68" title="#995f68">
+</div><div class="icon-card" data-id="995f68" data-type="unknown" title="#995f68">
   <svg width="20" height="20"><use href="#995f68"/></svg>
   <code>#995f68</code>
-</div><div class="icon-card" data-id="99989e" title="#99989e">
+</div><div class="icon-card" data-id="99989e" data-type="unknown" title="#99989e">
   <svg width="20" height="20"><use href="#99989e"/></svg>
   <code>#99989e</code>
-</div><div class="icon-card" data-id="99ca6a" title="#99ca6a">
+</div><div class="icon-card" data-id="99ca6a" data-type="unknown" title="#99ca6a">
   <svg width="20" height="20"><use href="#99ca6a"/></svg>
   <code>#99ca6a</code>
-</div><div class="icon-card" data-id="99ee5d" title="#99ee5d">
+</div><div class="icon-card" data-id="99ee5d" data-type="unknown" title="#99ee5d">
   <svg width="20" height="20"><use href="#99ee5d"/></svg>
   <code>#99ee5d</code>
-</div><div class="icon-card" data-id="99fdcc" title="#99fdcc">
+</div><div class="icon-card" data-id="99fdcc" data-type="unknown" title="#99fdcc">
   <svg width="20" height="20"><use href="#99fdcc"/></svg>
   <code>#99fdcc</code>
-</div><div class="icon-card" data-id="9a5d2b" title="#9a5d2b">
+</div><div class="icon-card" data-id="9a5d2b" data-type="unknown" title="#9a5d2b">
   <svg width="20" height="20"><use href="#9a5d2b"/></svg>
   <code>#9a5d2b</code>
-</div><div class="icon-card" data-id="9be88f" title="#9be88f">
+</div><div class="icon-card" data-id="9be88f" data-type="unknown" title="#9be88f">
   <svg width="20" height="20"><use href="#9be88f"/></svg>
   <code>#9be88f</code>
-</div><div class="icon-card" data-id="9cc2d2" title="#9cc2d2">
+</div><div class="icon-card" data-id="9cc2d2" data-type="unknown" title="#9cc2d2">
   <svg width="20" height="20"><use href="#9cc2d2"/></svg>
   <code>#9cc2d2</code>
-</div><div class="icon-card" data-id="9d9a00" title="#9d9a00">
+</div><div class="icon-card" data-id="9d9a00" data-type="unknown" title="#9d9a00">
   <svg width="20" height="20"><use href="#9d9a00"/></svg>
   <code>#9d9a00</code>
-</div><div class="icon-card" data-id="9e0f78" title="#9e0f78">
+</div><div class="icon-card" data-id="9e0f78" data-type="unknown" title="#9e0f78">
   <svg width="20" height="20"><use href="#9e0f78"/></svg>
   <code>#9e0f78</code>
-</div><div class="icon-card" data-id="9e2e1a" title="#9e2e1a">
+</div><div class="icon-card" data-id="9e2e1a" data-type="unknown" title="#9e2e1a">
   <svg width="20" height="20"><use href="#9e2e1a"/></svg>
   <code>#9e2e1a</code>
-</div><div class="icon-card" data-id="9efea5" title="#9efea5">
+</div><div class="icon-card" data-id="9efea5" data-type="unknown" title="#9efea5">
   <svg width="20" height="20"><use href="#9efea5"/></svg>
   <code>#9efea5</code>
-</div><div class="icon-card" data-id="9f5f6f" title="#9f5f6f">
+</div><div class="icon-card" data-id="9f5f6f" data-type="unknown" title="#9f5f6f">
   <svg width="20" height="20"><use href="#9f5f6f"/></svg>
   <code>#9f5f6f</code>
-</div><div class="icon-card" data-id="9f891f" title="#9f891f">
+</div><div class="icon-card" data-id="9f891f" data-type="unknown" title="#9f891f">
   <svg width="20" height="20"><use href="#9f891f"/></svg>
   <code>#9f891f</code>
-</div><div class="icon-card" data-id="9ff701" title="#9ff701">
+</div><div class="icon-card" data-id="9ff701" data-type="unknown" title="#9ff701">
   <svg width="20" height="20"><use href="#9ff701"/></svg>
   <code>#9ff701</code>
-</div><div class="icon-card" data-id="a02f63" title="#a02f63">
+</div><div class="icon-card" data-id="a02f63" data-type="unknown" title="#a02f63">
   <svg width="20" height="20"><use href="#a02f63"/></svg>
   <code>#a02f63</code>
-</div><div class="icon-card" data-id="a043c1" title="#a043c1">
+</div><div class="icon-card" data-id="a043c1" data-type="unknown" title="#a043c1">
   <svg width="20" height="20"><use href="#a043c1"/></svg>
   <code>#a043c1</code>
-</div><div class="icon-card" data-id="a04f47" title="#a04f47">
+</div><div class="icon-card" data-id="a04f47" data-type="unknown" title="#a04f47">
   <svg width="20" height="20"><use href="#a04f47"/></svg>
   <code>#a04f47</code>
-</div><div class="icon-card" data-id="a13852" title="#a13852">
+</div><div class="icon-card" data-id="a13852" data-type="unknown" title="#a13852">
   <svg width="20" height="20"><use href="#a13852"/></svg>
   <code>#a13852</code>
-</div><div class="icon-card" data-id="a18104" title="#a18104">
+</div><div class="icon-card" data-id="a18104" data-type="unknown" title="#a18104">
   <svg width="20" height="20"><use href="#a18104"/></svg>
   <code>#a18104</code>
-</div><div class="icon-card" data-id="a18c10" title="#a18c10">
+</div><div class="icon-card" data-id="a18c10" data-type="unknown" title="#a18c10">
   <svg width="20" height="20"><use href="#a18c10"/></svg>
   <code>#a18c10</code>
-</div><div class="icon-card" data-id="a19261" title="#a19261">
+</div><div class="icon-card" data-id="a19261" data-type="unknown" title="#a19261">
   <svg width="20" height="20"><use href="#a19261"/></svg>
   <code>#a19261</code>
-</div><div class="icon-card" data-id="a1b037" title="#a1b037">
+</div><div class="icon-card" data-id="a1b037" data-type="unknown" title="#a1b037">
   <svg width="20" height="20"><use href="#a1b037"/></svg>
   <code>#a1b037</code>
-</div><div class="icon-card" data-id="a1b037" title="#a1b037">
+</div><div class="icon-card" data-id="a1b037" data-type="unknown" title="#a1b037">
   <svg width="20" height="20"><use href="#a1b037"/></svg>
   <code>#a1b037</code>
-</div><div class="icon-card" data-id="a1bba7" title="#a1bba7">
+</div><div class="icon-card" data-id="a1bba7" data-type="unknown" title="#a1bba7">
   <svg width="20" height="20"><use href="#a1bba7"/></svg>
   <code>#a1bba7</code>
-</div><div class="icon-card" data-id="a20836" title="#a20836">
+</div><div class="icon-card" data-id="a20836" data-type="unknown" title="#a20836">
   <svg width="20" height="20"><use href="#a20836"/></svg>
   <code>#a20836</code>
-</div><div class="icon-card" data-id="a225a7" title="#a225a7">
+</div><div class="icon-card" data-id="a225a7" data-type="unknown" title="#a225a7">
   <svg width="20" height="20"><use href="#a225a7"/></svg>
   <code>#a225a7</code>
-</div><div class="icon-card" data-id="a32732" title="#a32732">
+</div><div class="icon-card" data-id="a32732" data-type="unknown" title="#a32732">
   <svg width="20" height="20"><use href="#a32732"/></svg>
   <code>#a32732</code>
-</div><div class="icon-card" data-id="a35cb5" title="#a35cb5">
+</div><div class="icon-card" data-id="a35cb5" data-type="unknown" title="#a35cb5">
   <svg width="20" height="20"><use href="#a35cb5"/></svg>
   <code>#a35cb5</code>
-</div><div class="icon-card" data-id="a35fbc" title="#a35fbc">
+</div><div class="icon-card" data-id="a35fbc" data-type="unknown" title="#a35fbc">
   <svg width="20" height="20"><use href="#a35fbc"/></svg>
   <code>#a35fbc</code>
-</div><div class="icon-card" data-id="a4763e" title="#a4763e">
+</div><div class="icon-card" data-id="a4763e" data-type="unknown" title="#a4763e">
   <svg width="20" height="20"><use href="#a4763e"/></svg>
   <code>#a4763e</code>
-</div><div class="icon-card" data-id="a52240" title="#a52240">
+</div><div class="icon-card" data-id="a52240" data-type="unknown" title="#a52240">
   <svg width="20" height="20"><use href="#a52240"/></svg>
   <code>#a52240</code>
-</div><div class="icon-card" data-id="a54b3f" title="#a54b3f">
+</div><div class="icon-card" data-id="a54b3f" data-type="unknown" title="#a54b3f">
   <svg width="20" height="20"><use href="#a54b3f"/></svg>
   <code>#a54b3f</code>
-</div><div class="icon-card" data-id="a55dfb" title="#a55dfb">
+</div><div class="icon-card" data-id="a55dfb" data-type="unknown" title="#a55dfb">
   <svg width="20" height="20"><use href="#a55dfb"/></svg>
   <code>#a55dfb</code>
-</div><div class="icon-card" data-id="a5b9af" title="#a5b9af">
+</div><div class="icon-card" data-id="a5b9af" data-type="unknown" title="#a5b9af">
   <svg width="20" height="20"><use href="#a5b9af"/></svg>
   <code>#a5b9af</code>
-</div><div class="icon-card" data-id="a5ca7f" title="#a5ca7f">
+</div><div class="icon-card" data-id="a5ca7f" data-type="unknown" title="#a5ca7f">
   <svg width="20" height="20"><use href="#a5ca7f"/></svg>
   <code>#a5ca7f</code>
-</div><div class="icon-card" data-id="a5db9a" title="#a5db9a">
+</div><div class="icon-card" data-id="a5db9a" data-type="unknown" title="#a5db9a">
   <svg width="20" height="20"><use href="#a5db9a"/></svg>
   <code>#a5db9a</code>
-</div><div class="icon-card" data-id="a5ec30" title="#a5ec30">
+</div><div class="icon-card" data-id="a5ec30" data-type="unknown" title="#a5ec30">
   <svg width="20" height="20"><use href="#a5ec30"/></svg>
   <code>#a5ec30</code>
-</div><div class="icon-card" data-id="a5ed6c" title="#a5ed6c">
+</div><div class="icon-card" data-id="a5ed6c" data-type="unknown" title="#a5ed6c">
   <svg width="20" height="20"><use href="#a5ed6c"/></svg>
   <code>#a5ed6c</code>
-</div><div class="icon-card" data-id="a5fb30" title="#a5fb30">
+</div><div class="icon-card" data-id="a5fb30" data-type="unknown" title="#a5fb30">
   <svg width="20" height="20"><use href="#a5fb30"/></svg>
   <code>#a5fb30</code>
-</div><div class="icon-card" data-id="a68d9b" title="#a68d9b">
+</div><div class="icon-card" data-id="a68d9b" data-type="unknown" title="#a68d9b">
   <svg width="20" height="20"><use href="#a68d9b"/></svg>
   <code>#a68d9b</code>
-</div><div class="icon-card" data-id="a6ce99" title="#a6ce99">
+</div><div class="icon-card" data-id="a6ce99" data-type="unknown" title="#a6ce99">
   <svg width="20" height="20"><use href="#a6ce99"/></svg>
   <code>#a6ce99</code>
-</div><div class="icon-card" data-id="a88f67" title="#a88f67">
+</div><div class="icon-card" data-id="a88f67" data-type="unknown" title="#a88f67">
   <svg width="20" height="20"><use href="#a88f67"/></svg>
   <code>#a88f67</code>
-</div><div class="icon-card" data-id="a8b882" title="#a8b882">
+</div><div class="icon-card" data-id="a8b882" data-type="unknown" title="#a8b882">
   <svg width="20" height="20"><use href="#a8b882"/></svg>
   <code>#a8b882</code>
-</div><div class="icon-card" data-id="a8c6bd" title="#a8c6bd">
+</div><div class="icon-card" data-id="a8c6bd" data-type="unknown" title="#a8c6bd">
   <svg width="20" height="20"><use href="#a8c6bd"/></svg>
   <code>#a8c6bd</code>
-</div><div class="icon-card" data-id="a8e439" title="#a8e439">
+</div><div class="icon-card" data-id="a8e439" data-type="unknown" title="#a8e439">
   <svg width="20" height="20"><use href="#a8e439"/></svg>
   <code>#a8e439</code>
-</div><div class="icon-card" data-id="a9308d" title="#a9308d">
+</div><div class="icon-card" data-id="a9308d" data-type="unknown" title="#a9308d">
   <svg width="20" height="20"><use href="#a9308d"/></svg>
   <code>#a9308d</code>
-</div><div class="icon-card" data-id="a93d00" title="#a93d00">
+</div><div class="icon-card" data-id="a93d00" data-type="unknown" title="#a93d00">
   <svg width="20" height="20"><use href="#a93d00"/></svg>
   <code>#a93d00</code>
-</div><div class="icon-card" data-id="a94b02" title="#a94b02">
+</div><div class="icon-card" data-id="a94b02" data-type="unknown" title="#a94b02">
   <svg width="20" height="20"><use href="#a94b02"/></svg>
   <code>#a94b02</code>
-</div><div class="icon-card" data-id="a98799" title="#a98799">
+</div><div class="icon-card" data-id="a98799" data-type="unknown" title="#a98799">
   <svg width="20" height="20"><use href="#a98799"/></svg>
   <code>#a98799</code>
-</div><div class="icon-card" data-id="a9cb45" title="#a9cb45">
+</div><div class="icon-card" data-id="a9cb45" data-type="unknown" title="#a9cb45">
   <svg width="20" height="20"><use href="#a9cb45"/></svg>
   <code>#a9cb45</code>
-</div><div class="icon-card" data-id="a9e984" title="#a9e984">
+</div><div class="icon-card" data-id="a9e984" data-type="unknown" title="#a9e984">
   <svg width="20" height="20"><use href="#a9e984"/></svg>
   <code>#a9e984</code>
-</div><div class="icon-card" data-id="aa142c" title="#aa142c">
+</div><div class="icon-card" data-id="aa142c" data-type="unknown" title="#aa142c">
   <svg width="20" height="20"><use href="#aa142c"/></svg>
   <code>#aa142c</code>
-</div><div class="icon-card" data-id="aa2e8a" title="#aa2e8a">
+</div><div class="icon-card" data-id="aa2e8a" data-type="unknown" title="#aa2e8a">
   <svg width="20" height="20"><use href="#aa2e8a"/></svg>
   <code>#aa2e8a</code>
-</div><div class="icon-card" data-id="ab0e8b" title="#ab0e8b">
+</div><div class="icon-card" data-id="ab0e8b" data-type="outline" title="#ab0e8b">
   <svg width="20" height="20"><use href="#ab0e8b"/></svg>
   <code>#ab0e8b</code>
-</div><div class="icon-card" data-id="aba6eb" title="#aba6eb">
+</div><div class="icon-card" data-id="aba6eb" data-type="unknown" title="#aba6eb">
   <svg width="20" height="20"><use href="#aba6eb"/></svg>
   <code>#aba6eb</code>
-</div><div class="icon-card" data-id="abb4e6" title="#abb4e6">
+</div><div class="icon-card" data-id="abb4e6" data-type="unknown" title="#abb4e6">
   <svg width="20" height="20"><use href="#abb4e6"/></svg>
   <code>#abb4e6</code>
-</div><div class="icon-card" data-id="ac37b7" title="#ac37b7">
+</div><div class="icon-card" data-id="ac37b7" data-type="filled" title="#ac37b7">
   <svg width="20" height="20"><use href="#ac37b7"/></svg>
   <code>#ac37b7</code>
-</div><div class="icon-card" data-id="ac4202" title="#ac4202">
+</div><div class="icon-card" data-id="ac4202" data-type="outline" title="#ac4202">
   <svg width="20" height="20"><use href="#ac4202"/></svg>
   <code>#ac4202</code>
-</div><div class="icon-card" data-id="ac6d36" title="#ac6d36">
+</div><div class="icon-card" data-id="ac6d36" data-type="outline" title="#ac6d36">
   <svg width="20" height="20"><use href="#ac6d36"/></svg>
   <code>#ac6d36</code>
-</div><div class="icon-card" data-id="ac75b2" title="#ac75b2">
+</div><div class="icon-card" data-id="ac75b2" data-type="unknown" title="#ac75b2">
   <svg width="20" height="20"><use href="#ac75b2"/></svg>
   <code>#ac75b2</code>
-</div><div class="icon-card" data-id="ac89a7" title="#ac89a7">
+</div><div class="icon-card" data-id="ac89a7" data-type="unknown" title="#ac89a7">
   <svg width="20" height="20"><use href="#ac89a7"/></svg>
   <code>#ac89a7</code>
-</div><div class="icon-card" data-id="aca4ae" title="#aca4ae">
+</div><div class="icon-card" data-id="aca4ae" data-type="unknown" title="#aca4ae">
   <svg width="20" height="20"><use href="#aca4ae"/></svg>
   <code>#aca4ae</code>
-</div><div class="icon-card" data-id="acfde3" title="#acfde3">
+</div><div class="icon-card" data-id="acfde3" data-type="unknown" title="#acfde3">
   <svg width="20" height="20"><use href="#acfde3"/></svg>
   <code>#acfde3</code>
-</div><div class="icon-card" data-id="ad5af8" title="#ad5af8">
+</div><div class="icon-card" data-id="ad5af8" data-type="unknown" title="#ad5af8">
   <svg width="20" height="20"><use href="#ad5af8"/></svg>
   <code>#ad5af8</code>
-</div><div class="icon-card" data-id="ad9f61" title="#ad9f61">
+</div><div class="icon-card" data-id="ad9f61" data-type="unknown" title="#ad9f61">
   <svg width="20" height="20"><use href="#ad9f61"/></svg>
   <code>#ad9f61</code>
-</div><div class="icon-card" data-id="ae5822" title="#ae5822">
+</div><div class="icon-card" data-id="ae5822" data-type="unknown" title="#ae5822">
   <svg width="20" height="20"><use href="#ae5822"/></svg>
   <code>#ae5822</code>
-</div><div class="icon-card" data-id="af461a" title="#af461a">
+</div><div class="icon-card" data-id="af461a" data-type="unknown" title="#af461a">
   <svg width="20" height="20"><use href="#af461a"/></svg>
   <code>#af461a</code>
-</div><div class="icon-card" data-id="b06de3" title="#b06de3">
+</div><div class="icon-card" data-id="b06de3" data-type="unknown" title="#b06de3">
   <svg width="20" height="20"><use href="#b06de3"/></svg>
   <code>#b06de3</code>
-</div><div class="icon-card" data-id="b0d0b9" title="#b0d0b9">
+</div><div class="icon-card" data-id="b0d0b9" data-type="unknown" title="#b0d0b9">
   <svg width="20" height="20"><use href="#b0d0b9"/></svg>
   <code>#b0d0b9</code>
-</div><div class="icon-card" data-id="b11823" title="#b11823">
+</div><div class="icon-card" data-id="b11823" data-type="unknown" title="#b11823">
   <svg width="20" height="20"><use href="#b11823"/></svg>
   <code>#b11823</code>
-</div><div class="icon-card" data-id="b132c0" title="#b132c0">
+</div><div class="icon-card" data-id="b132c0" data-type="unknown" title="#b132c0">
   <svg width="20" height="20"><use href="#b132c0"/></svg>
   <code>#b132c0</code>
-</div><div class="icon-card" data-id="b140e7" title="#b140e7">
+</div><div class="icon-card" data-id="b140e7" data-type="unknown" title="#b140e7">
   <svg width="20" height="20"><use href="#b140e7"/></svg>
   <code>#b140e7</code>
-</div><div class="icon-card" data-id="b17b56" title="#b17b56">
+</div><div class="icon-card" data-id="b17b56" data-type="unknown" title="#b17b56">
   <svg width="20" height="20"><use href="#b17b56"/></svg>
   <code>#b17b56</code>
-</div><div class="icon-card" data-id="b26965" title="#b26965">
+</div><div class="icon-card" data-id="b26965" data-type="unknown" title="#b26965">
   <svg width="20" height="20"><use href="#b26965"/></svg>
   <code>#b26965</code>
-</div><div class="icon-card" data-id="b2a555" title="#b2a555">
+</div><div class="icon-card" data-id="b2a555" data-type="unknown" title="#b2a555">
   <svg width="20" height="20"><use href="#b2a555"/></svg>
   <code>#b2a555</code>
-</div><div class="icon-card" data-id="b2b0b8" title="#b2b0b8">
+</div><div class="icon-card" data-id="b2b0b8" data-type="unknown" title="#b2b0b8">
   <svg width="20" height="20"><use href="#b2b0b8"/></svg>
   <code>#b2b0b8</code>
-</div><div class="icon-card" data-id="b30c2a" title="#b30c2a">
+</div><div class="icon-card" data-id="b30c2a" data-type="unknown" title="#b30c2a">
   <svg width="20" height="20"><use href="#b30c2a"/></svg>
   <code>#b30c2a</code>
-</div><div class="icon-card" data-id="b4cae7" title="#b4cae7">
+</div><div class="icon-card" data-id="b4cae7" data-type="unknown" title="#b4cae7">
   <svg width="20" height="20"><use href="#b4cae7"/></svg>
   <code>#b4cae7</code>
-</div><div class="icon-card" data-id="b52db3" title="#b52db3">
+</div><div class="icon-card" data-id="b52db3" data-type="unknown" title="#b52db3">
   <svg width="20" height="20"><use href="#b52db3"/></svg>
   <code>#b52db3</code>
-</div><div class="icon-card" data-id="b5aa0b" title="#b5aa0b">
+</div><div class="icon-card" data-id="b5aa0b" data-type="unknown" title="#b5aa0b">
   <svg width="20" height="20"><use href="#b5aa0b"/></svg>
   <code>#b5aa0b</code>
-</div><div class="icon-card" data-id="b624fa" title="#b624fa">
+</div><div class="icon-card" data-id="b624fa" data-type="unknown" title="#b624fa">
   <svg width="20" height="20"><use href="#b624fa"/></svg>
   <code>#b624fa</code>
-</div><div class="icon-card" data-id="b64c08" title="#b64c08">
+</div><div class="icon-card" data-id="b64c08" data-type="unknown" title="#b64c08">
   <svg width="20" height="20"><use href="#b64c08"/></svg>
   <code>#b64c08</code>
-</div><div class="icon-card" data-id="b6a09f" title="#b6a09f">
+</div><div class="icon-card" data-id="b6a09f" data-type="unknown" title="#b6a09f">
   <svg width="20" height="20"><use href="#b6a09f"/></svg>
   <code>#b6a09f</code>
-</div><div class="icon-card" data-id="b6e0e5" title="#b6e0e5">
+</div><div class="icon-card" data-id="b6e0e5" data-type="unknown" title="#b6e0e5">
   <svg width="20" height="20"><use href="#b6e0e5"/></svg>
   <code>#b6e0e5</code>
-</div><div class="icon-card" data-id="b791bf" title="#b791bf">
+</div><div class="icon-card" data-id="b791bf" data-type="unknown" title="#b791bf">
   <svg width="20" height="20"><use href="#b791bf"/></svg>
   <code>#b791bf</code>
-</div><div class="icon-card" data-id="b7a3ee" title="#b7a3ee">
+</div><div class="icon-card" data-id="b7a3ee" data-type="unknown" title="#b7a3ee">
   <svg width="20" height="20"><use href="#b7a3ee"/></svg>
   <code>#b7a3ee</code>
-</div><div class="icon-card" data-id="b81341" title="#b81341">
+</div><div class="icon-card" data-id="b81341" data-type="unknown" title="#b81341">
   <svg width="20" height="20"><use href="#b81341"/></svg>
   <code>#b81341</code>
-</div><div class="icon-card" data-id="b834c9" title="#b834c9">
+</div><div class="icon-card" data-id="b834c9" data-type="unknown" title="#b834c9">
   <svg width="20" height="20"><use href="#b834c9"/></svg>
   <code>#b834c9</code>
-</div><div class="icon-card" data-id="b8cfd1" title="#b8cfd1">
+</div><div class="icon-card" data-id="b8cfd1" data-type="unknown" title="#b8cfd1">
   <svg width="20" height="20"><use href="#b8cfd1"/></svg>
   <code>#b8cfd1</code>
-</div><div class="icon-card" data-id="b93165" title="#b93165">
+</div><div class="icon-card" data-id="b93165" data-type="unknown" title="#b93165">
   <svg width="20" height="20"><use href="#b93165"/></svg>
   <code>#b93165</code>
-</div><div class="icon-card" data-id="b97717" title="#b97717">
+</div><div class="icon-card" data-id="b97717" data-type="unknown" title="#b97717">
   <svg width="20" height="20"><use href="#b97717"/></svg>
   <code>#b97717</code>
-</div><div class="icon-card" data-id="b995b8" title="#b995b8">
+</div><div class="icon-card" data-id="b995b8" data-type="unknown" title="#b995b8">
   <svg width="20" height="20"><use href="#b995b8"/></svg>
   <code>#b995b8</code>
-</div><div class="icon-card" data-id="b9ef21" title="#b9ef21">
+</div><div class="icon-card" data-id="b9ef21" data-type="unknown" title="#b9ef21">
   <svg width="20" height="20"><use href="#b9ef21"/></svg>
   <code>#b9ef21</code>
-</div><div class="icon-card" data-id="ba3792" title="#ba3792">
+</div><div class="icon-card" data-id="ba3792" data-type="outline" title="#ba3792">
   <svg width="20" height="20"><use href="#ba3792"/></svg>
   <code>#ba3792</code>
-</div><div class="icon-card" data-id="ba3a96" title="#ba3a96">
+</div><div class="icon-card" data-id="ba3a96" data-type="unknown" title="#ba3a96">
   <svg width="20" height="20"><use href="#ba3a96"/></svg>
   <code>#ba3a96</code>
-</div><div class="icon-card" data-id="ba8eb2" title="#ba8eb2">
+</div><div class="icon-card" data-id="ba8eb2" data-type="unknown" title="#ba8eb2">
   <svg width="20" height="20"><use href="#ba8eb2"/></svg>
   <code>#ba8eb2</code>
-</div><div class="icon-card" data-id="ba9b0d" title="#ba9b0d">
+</div><div class="icon-card" data-id="ba9b0d" data-type="unknown" title="#ba9b0d">
   <svg width="20" height="20"><use href="#ba9b0d"/></svg>
   <code>#ba9b0d</code>
-</div><div class="icon-card" data-id="baa5ea" title="#baa5ea">
+</div><div class="icon-card" data-id="baa5ea" data-type="unknown" title="#baa5ea">
   <svg width="20" height="20"><use href="#baa5ea"/></svg>
   <code>#baa5ea</code>
-</div><div class="icon-card" data-id="bb27a0" title="#bb27a0">
+</div><div class="icon-card" data-id="bb27a0" data-type="unknown" title="#bb27a0">
   <svg width="20" height="20"><use href="#bb27a0"/></svg>
   <code>#bb27a0</code>
-</div><div class="icon-card" data-id="bb892c" title="#bb892c">
+</div><div class="icon-card" data-id="bb892c" data-type="unknown" title="#bb892c">
   <svg width="20" height="20"><use href="#bb892c"/></svg>
   <code>#bb892c</code>
-</div><div class="icon-card" data-id="bbf3a9" title="#bbf3a9">
+</div><div class="icon-card" data-id="bbf3a9" data-type="unknown" title="#bbf3a9">
   <svg width="20" height="20"><use href="#bbf3a9"/></svg>
   <code>#bbf3a9</code>
-</div><div class="icon-card" data-id="bc480f" title="#bc480f">
+</div><div class="icon-card" data-id="bc480f" data-type="unknown" title="#bc480f">
   <svg width="20" height="20"><use href="#bc480f"/></svg>
   <code>#bc480f</code>
-</div><div class="icon-card" data-id="bc9381" title="#bc9381">
+</div><div class="icon-card" data-id="bc9381" data-type="unknown" title="#bc9381">
   <svg width="20" height="20"><use href="#bc9381"/></svg>
   <code>#bc9381</code>
-</div><div class="icon-card" data-id="bd0092" title="#bd0092">
+</div><div class="icon-card" data-id="bd0092" data-type="unknown" title="#bd0092">
   <svg width="20" height="20"><use href="#bd0092"/></svg>
   <code>#bd0092</code>
-</div><div class="icon-card" data-id="bde0a5" title="#bde0a5">
+</div><div class="icon-card" data-id="bde0a5" data-type="unknown" title="#bde0a5">
   <svg width="20" height="20"><use href="#bde0a5"/></svg>
   <code>#bde0a5</code>
-</div><div class="icon-card" data-id="bdfbba" title="#bdfbba">
+</div><div class="icon-card" data-id="bdfbba" data-type="unknown" title="#bdfbba">
   <svg width="20" height="20"><use href="#bdfbba"/></svg>
   <code>#bdfbba</code>
-</div><div class="icon-card" data-id="be4859" title="#be4859">
+</div><div class="icon-card" data-id="be4859" data-type="unknown" title="#be4859">
   <svg width="20" height="20"><use href="#be4859"/></svg>
   <code>#be4859</code>
-</div><div class="icon-card" data-id="beb129" title="#beb129">
+</div><div class="icon-card" data-id="beb129" data-type="unknown" title="#beb129">
   <svg width="20" height="20"><use href="#beb129"/></svg>
   <code>#beb129</code>
-</div><div class="icon-card" data-id="c02928" title="#c02928">
+</div><div class="icon-card" data-id="c02928" data-type="unknown" title="#c02928">
   <svg width="20" height="20"><use href="#c02928"/></svg>
   <code>#c02928</code>
-</div><div class="icon-card" data-id="c12fa6" title="#c12fa6">
+</div><div class="icon-card" data-id="c12fa6" data-type="unknown" title="#c12fa6">
   <svg width="20" height="20"><use href="#c12fa6"/></svg>
   <code>#c12fa6</code>
-</div><div class="icon-card" data-id="c15039" title="#c15039">
+</div><div class="icon-card" data-id="c15039" data-type="unknown" title="#c15039">
   <svg width="20" height="20"><use href="#c15039"/></svg>
   <code>#c15039</code>
-</div><div class="icon-card" data-id="c158a9" title="#c158a9">
+</div><div class="icon-card" data-id="c158a9" data-type="unknown" title="#c158a9">
   <svg width="20" height="20"><use href="#c158a9"/></svg>
   <code>#c158a9</code>
-</div><div class="icon-card" data-id="c1b20a" title="#c1b20a">
+</div><div class="icon-card" data-id="c1b20a" data-type="unknown" title="#c1b20a">
   <svg width="20" height="20"><use href="#c1b20a"/></svg>
   <code>#c1b20a</code>
-</div><div class="icon-card" data-id="c1e6c4" title="#c1e6c4">
+</div><div class="icon-card" data-id="c1e6c4" data-type="unknown" title="#c1e6c4">
   <svg width="20" height="20"><use href="#c1e6c4"/></svg>
   <code>#c1e6c4</code>
-</div><div class="icon-card" data-id="c1e7bf" title="#c1e7bf">
+</div><div class="icon-card" data-id="c1e7bf" data-type="unknown" title="#c1e7bf">
   <svg width="20" height="20"><use href="#c1e7bf"/></svg>
   <code>#c1e7bf</code>
-</div><div class="icon-card" data-id="c24a00" title="#c24a00">
+</div><div class="icon-card" data-id="c24a00" data-type="unknown" title="#c24a00">
   <svg width="20" height="20"><use href="#c24a00"/></svg>
   <code>#c24a00</code>
-</div><div class="icon-card" data-id="c2a895" title="#c2a895">
+</div><div class="icon-card" data-id="c2a895" data-type="unknown" title="#c2a895">
   <svg width="20" height="20"><use href="#c2a895"/></svg>
   <code>#c2a895</code>
-</div><div class="icon-card" data-id="c31c21" title="#c31c21">
+</div><div class="icon-card" data-id="c31c21" data-type="unknown" title="#c31c21">
   <svg width="20" height="20"><use href="#c31c21"/></svg>
   <code>#c31c21</code>
-</div><div class="icon-card" data-id="c3e073" title="#c3e073">
+</div><div class="icon-card" data-id="c3e073" data-type="unknown" title="#c3e073">
   <svg width="20" height="20"><use href="#c3e073"/></svg>
   <code>#c3e073</code>
-</div><div class="icon-card" data-id="c42337" title="#c42337">
+</div><div class="icon-card" data-id="c42337" data-type="unknown" title="#c42337">
   <svg width="20" height="20"><use href="#c42337"/></svg>
   <code>#c42337</code>
-</div><div class="icon-card" data-id="c4235a" title="#c4235a">
+</div><div class="icon-card" data-id="c4235a" data-type="unknown" title="#c4235a">
   <svg width="20" height="20"><use href="#c4235a"/></svg>
   <code>#c4235a</code>
-</div><div class="icon-card" data-id="c50c3b" title="#c50c3b">
+</div><div class="icon-card" data-id="c50c3b" data-type="unknown" title="#c50c3b">
   <svg width="20" height="20"><use href="#c50c3b"/></svg>
   <code>#c50c3b</code>
-</div><div class="icon-card" data-id="c511c1" title="#c511c1">
+</div><div class="icon-card" data-id="c511c1" data-type="unknown" title="#c511c1">
   <svg width="20" height="20"><use href="#c511c1"/></svg>
   <code>#c511c1</code>
-</div><div class="icon-card" data-id="c57a76" title="#c57a76">
+</div><div class="icon-card" data-id="c57a76" data-type="unknown" title="#c57a76">
   <svg width="20" height="20"><use href="#c57a76"/></svg>
   <code>#c57a76</code>
-</div><div class="icon-card" data-id="c63066" title="#c63066">
+</div><div class="icon-card" data-id="c63066" data-type="unknown" title="#c63066">
   <svg width="20" height="20"><use href="#c63066"/></svg>
   <code>#c63066</code>
-</div><div class="icon-card" data-id="c6470e" title="#c6470e">
+</div><div class="icon-card" data-id="c6470e" data-type="unknown" title="#c6470e">
   <svg width="20" height="20"><use href="#c6470e"/></svg>
   <code>#c6470e</code>
-</div><div class="icon-card" data-id="c64d6e" title="#c64d6e">
+</div><div class="icon-card" data-id="c64d6e" data-type="unknown" title="#c64d6e">
   <svg width="20" height="20"><use href="#c64d6e"/></svg>
   <code>#c64d6e</code>
-</div><div class="icon-card" data-id="c69244" title="#c69244">
+</div><div class="icon-card" data-id="c69244" data-type="unknown" title="#c69244">
   <svg width="20" height="20"><use href="#c69244"/></svg>
   <code>#c69244</code>
-</div><div class="icon-card" data-id="c6a95f" title="#c6a95f">
+</div><div class="icon-card" data-id="c6a95f" data-type="unknown" title="#c6a95f">
   <svg width="20" height="20"><use href="#c6a95f"/></svg>
   <code>#c6a95f</code>
-</div><div class="icon-card" data-id="c6db2f" title="#c6db2f">
+</div><div class="icon-card" data-id="c6db2f" data-type="unknown" title="#c6db2f">
   <svg width="20" height="20"><use href="#c6db2f"/></svg>
   <code>#c6db2f</code>
-</div><div class="icon-card" data-id="c7795b" title="#c7795b">
+</div><div class="icon-card" data-id="c7795b" data-type="unknown" title="#c7795b">
   <svg width="20" height="20"><use href="#c7795b"/></svg>
   <code>#c7795b</code>
-</div><div class="icon-card" data-id="c7ea4d" title="#c7ea4d">
+</div><div class="icon-card" data-id="c7ea4d" data-type="unknown" title="#c7ea4d">
   <svg width="20" height="20"><use href="#c7ea4d"/></svg>
   <code>#c7ea4d</code>
-</div><div class="icon-card" data-id="c8202a" title="#c8202a">
+</div><div class="icon-card" data-id="c8202a" data-type="unknown" title="#c8202a">
   <svg width="20" height="20"><use href="#c8202a"/></svg>
   <code>#c8202a</code>
-</div><div class="icon-card" data-id="c8839f" title="#c8839f">
+</div><div class="icon-card" data-id="c8839f" data-type="outline" title="#c8839f">
   <svg width="20" height="20"><use href="#c8839f"/></svg>
   <code>#c8839f</code>
-</div><div class="icon-card" data-id="c93ee6" title="#c93ee6">
+</div><div class="icon-card" data-id="c93ee6" data-type="unknown" title="#c93ee6">
   <svg width="20" height="20"><use href="#c93ee6"/></svg>
   <code>#c93ee6</code>
-</div><div class="icon-card" data-id="c94b71" title="#c94b71">
+</div><div class="icon-card" data-id="c94b71" data-type="unknown" title="#c94b71">
   <svg width="20" height="20"><use href="#c94b71"/></svg>
   <code>#c94b71</code>
-</div><div class="icon-card" data-id="c9b2a2" title="#c9b2a2">
+</div><div class="icon-card" data-id="c9b2a2" data-type="unknown" title="#c9b2a2">
   <svg width="20" height="20"><use href="#c9b2a2"/></svg>
   <code>#c9b2a2</code>
-</div><div class="icon-card" data-id="c9d737" title="#c9d737">
+</div><div class="icon-card" data-id="c9d737" data-type="unknown" title="#c9d737">
   <svg width="20" height="20"><use href="#c9d737"/></svg>
   <code>#c9d737</code>
-</div><div class="icon-card" data-id="caa797" title="#caa797">
+</div><div class="icon-card" data-id="caa797" data-type="unknown" title="#caa797">
   <svg width="20" height="20"><use href="#caa797"/></svg>
   <code>#caa797</code>
-</div><div class="icon-card" data-id="cba78c" title="#cba78c">
+</div><div class="icon-card" data-id="cba78c" data-type="unknown" title="#cba78c">
   <svg width="20" height="20"><use href="#cba78c"/></svg>
   <code>#cba78c</code>
-</div><div class="icon-card" data-id="cc387d" title="#cc387d">
+</div><div class="icon-card" data-id="cc387d" data-type="unknown" title="#cc387d">
   <svg width="20" height="20"><use href="#cc387d"/></svg>
   <code>#cc387d</code>
-</div><div class="icon-card" data-id="cc779d" title="#cc779d">
+</div><div class="icon-card" data-id="cc779d" data-type="unknown" title="#cc779d">
   <svg width="20" height="20"><use href="#cc779d"/></svg>
   <code>#cc779d</code>
-</div><div class="icon-card" data-id="cc931d" title="#cc931d">
+</div><div class="icon-card" data-id="cc931d" data-type="unknown" title="#cc931d">
   <svg width="20" height="20"><use href="#cc931d"/></svg>
   <code>#cc931d</code>
-</div><div class="icon-card" data-id="cc98dd" title="#cc98dd">
+</div><div class="icon-card" data-id="cc98dd" data-type="unknown" title="#cc98dd">
   <svg width="20" height="20"><use href="#cc98dd"/></svg>
   <code>#cc98dd</code>
-</div><div class="icon-card" data-id="cc98dd" title="#cc98dd">
+</div><div class="icon-card" data-id="cc98dd" data-type="unknown" title="#cc98dd">
   <svg width="20" height="20"><use href="#cc98dd"/></svg>
   <code>#cc98dd</code>
-</div><div class="icon-card" data-id="ccc4f5" title="#ccc4f5">
+</div><div class="icon-card" data-id="ccc4f5" data-type="unknown" title="#ccc4f5">
   <svg width="20" height="20"><use href="#ccc4f5"/></svg>
   <code>#ccc4f5</code>
-</div><div class="icon-card" data-id="ccfd18" title="#ccfd18">
+</div><div class="icon-card" data-id="ccfd18" data-type="unknown" title="#ccfd18">
   <svg width="20" height="20"><use href="#ccfd18"/></svg>
   <code>#ccfd18</code>
-</div><div class="icon-card" data-id="cdfe73" title="#cdfe73">
+</div><div class="icon-card" data-id="cdfe73" data-type="unknown" title="#cdfe73">
   <svg width="20" height="20"><use href="#cdfe73"/></svg>
   <code>#cdfe73</code>
-</div><div class="icon-card" data-id="ce3544" title="#ce3544">
+</div><div class="icon-card" data-id="ce3544" data-type="unknown" title="#ce3544">
   <svg width="20" height="20"><use href="#ce3544"/></svg>
   <code>#ce3544</code>
-</div><div class="icon-card" data-id="ce92af" title="#ce92af">
+</div><div class="icon-card" data-id="ce92af" data-type="unknown" title="#ce92af">
   <svg width="20" height="20"><use href="#ce92af"/></svg>
   <code>#ce92af</code>
-</div><div class="icon-card" data-id="ceb190" title="#ceb190">
+</div><div class="icon-card" data-id="ceb190" data-type="unknown" title="#ceb190">
   <svg width="20" height="20"><use href="#ceb190"/></svg>
   <code>#ceb190</code>
-</div><div class="icon-card" data-id="cf3864" title="#cf3864">
+</div><div class="icon-card" data-id="cf3864" data-type="unknown" title="#cf3864">
   <svg width="20" height="20"><use href="#cf3864"/></svg>
   <code>#cf3864</code>
-</div><div class="icon-card" data-id="d019da" title="#d019da">
+</div><div class="icon-card" data-id="d019da" data-type="unknown" title="#d019da">
   <svg width="20" height="20"><use href="#d019da"/></svg>
   <code>#d019da</code>
-</div><div class="icon-card" data-id="d03bce" title="#d03bce">
+</div><div class="icon-card" data-id="d03bce" data-type="unknown" title="#d03bce">
   <svg width="20" height="20"><use href="#d03bce"/></svg>
   <code>#d03bce</code>
-</div><div class="icon-card" data-id="d09e06" title="#d09e06">
+</div><div class="icon-card" data-id="d09e06" data-type="unknown" title="#d09e06">
   <svg width="20" height="20"><use href="#d09e06"/></svg>
   <code>#d09e06</code>
-</div><div class="icon-card" data-id="d0e761" title="#d0e761">
+</div><div class="icon-card" data-id="d0e761" data-type="unknown" title="#d0e761">
   <svg width="20" height="20"><use href="#d0e761"/></svg>
   <code>#d0e761</code>
-</div><div class="icon-card" data-id="d0ed6d" title="#d0ed6d">
+</div><div class="icon-card" data-id="d0ed6d" data-type="unknown" title="#d0ed6d">
   <svg width="20" height="20"><use href="#d0ed6d"/></svg>
   <code>#d0ed6d</code>
-</div><div class="icon-card" data-id="d134c1" title="#d134c1">
+</div><div class="icon-card" data-id="d134c1" data-type="unknown" title="#d134c1">
   <svg width="20" height="20"><use href="#d134c1"/></svg>
   <code>#d134c1</code>
-</div><div class="icon-card" data-id="d13764" title="#d13764">
+</div><div class="icon-card" data-id="d13764" data-type="outline" title="#d13764">
   <svg width="20" height="20"><use href="#d13764"/></svg>
   <code>#d13764</code>
-</div><div class="icon-card" data-id="d1628d" title="#d1628d">
+</div><div class="icon-card" data-id="d1628d" data-type="unknown" title="#d1628d">
   <svg width="20" height="20"><use href="#d1628d"/></svg>
   <code>#d1628d</code>
-</div><div class="icon-card" data-id="d2412b" title="#d2412b">
+</div><div class="icon-card" data-id="d2412b" data-type="unknown" title="#d2412b">
   <svg width="20" height="20"><use href="#d2412b"/></svg>
   <code>#d2412b</code>
-</div><div class="icon-card" data-id="d28ccf" title="#d28ccf">
+</div><div class="icon-card" data-id="d28ccf" data-type="unknown" title="#d28ccf">
   <svg width="20" height="20"><use href="#d28ccf"/></svg>
   <code>#d28ccf</code>
-</div><div class="icon-card" data-id="d2ae81" title="#d2ae81">
+</div><div class="icon-card" data-id="d2ae81" data-type="unknown" title="#d2ae81">
   <svg width="20" height="20"><use href="#d2ae81"/></svg>
   <code>#d2ae81</code>
-</div><div class="icon-card" data-id="d3152e" title="#d3152e">
+</div><div class="icon-card" data-id="d3152e" data-type="unknown" title="#d3152e">
   <svg width="20" height="20"><use href="#d3152e"/></svg>
   <code>#d3152e</code>
-</div><div class="icon-card" data-id="d3876b" title="#d3876b">
+</div><div class="icon-card" data-id="d3876b" data-type="outline" title="#d3876b">
   <svg width="20" height="20"><use href="#d3876b"/></svg>
   <code>#d3876b</code>
-</div><div class="icon-card" data-id="d423bc" title="#d423bc">
+</div><div class="icon-card" data-id="d423bc" data-type="unknown" title="#d423bc">
   <svg width="20" height="20"><use href="#d423bc"/></svg>
   <code>#d423bc</code>
-</div><div class="icon-card" data-id="d436f0" title="#d436f0">
+</div><div class="icon-card" data-id="d436f0" data-type="unknown" title="#d436f0">
   <svg width="20" height="20"><use href="#d436f0"/></svg>
   <code>#d436f0</code>
-</div><div class="icon-card" data-id="d4bd76" title="#d4bd76">
+</div><div class="icon-card" data-id="d4bd76" data-type="unknown" title="#d4bd76">
   <svg width="20" height="20"><use href="#d4bd76"/></svg>
   <code>#d4bd76</code>
-</div><div class="icon-card" data-id="d50cc8" title="#d50cc8">
+</div><div class="icon-card" data-id="d50cc8" data-type="unknown" title="#d50cc8">
   <svg width="20" height="20"><use href="#d50cc8"/></svg>
   <code>#d50cc8</code>
-</div><div class="icon-card" data-id="d66a94" title="#d66a94">
+</div><div class="icon-card" data-id="d66a94" data-type="unknown" title="#d66a94">
   <svg width="20" height="20"><use href="#d66a94"/></svg>
   <code>#d66a94</code>
-</div><div class="icon-card" data-id="d6b1ab" title="#d6b1ab">
+</div><div class="icon-card" data-id="d6b1ab" data-type="unknown" title="#d6b1ab">
   <svg width="20" height="20"><use href="#d6b1ab"/></svg>
   <code>#d6b1ab</code>
-</div><div class="icon-card" data-id="d6f274" title="#d6f274">
+</div><div class="icon-card" data-id="d6f274" data-type="unknown" title="#d6f274">
   <svg width="20" height="20"><use href="#d6f274"/></svg>
   <code>#d6f274</code>
-</div><div class="icon-card" data-id="d7281f" title="#d7281f">
+</div><div class="icon-card" data-id="d7281f" data-type="unknown" title="#d7281f">
   <svg width="20" height="20"><use href="#d7281f"/></svg>
   <code>#d7281f</code>
-</div><div class="icon-card" data-id="d74cb8" title="#d74cb8">
+</div><div class="icon-card" data-id="d74cb8" data-type="unknown" title="#d74cb8">
   <svg width="20" height="20"><use href="#d74cb8"/></svg>
   <code>#d74cb8</code>
-</div><div class="icon-card" data-id="d80a4c" title="#d80a4c">
+</div><div class="icon-card" data-id="d80a4c" data-type="unknown" title="#d80a4c">
   <svg width="20" height="20"><use href="#d80a4c"/></svg>
   <code>#d80a4c</code>
-</div><div class="icon-card" data-id="d80cb7" title="#d80cb7">
+</div><div class="icon-card" data-id="d80cb7" data-type="unknown" title="#d80cb7">
   <svg width="20" height="20"><use href="#d80cb7"/></svg>
   <code>#d80cb7</code>
-</div><div class="icon-card" data-id="d8dcbc" title="#d8dcbc">
+</div><div class="icon-card" data-id="d8dcbc" data-type="unknown" title="#d8dcbc">
   <svg width="20" height="20"><use href="#d8dcbc"/></svg>
   <code>#d8dcbc</code>
-</div><div class="icon-card" data-id="d9d515" title="#d9d515">
+</div><div class="icon-card" data-id="d9d515" data-type="unknown" title="#d9d515">
   <svg width="20" height="20"><use href="#d9d515"/></svg>
   <code>#d9d515</code>
-</div><div class="icon-card" data-id="dace10" title="#dace10">
+</div><div class="icon-card" data-id="dace10" data-type="unknown" title="#dace10">
   <svg width="20" height="20"><use href="#dace10"/></svg>
   <code>#dace10</code>
-</div><div class="icon-card" data-id="dad971" title="#dad971">
+</div><div class="icon-card" data-id="dad971" data-type="unknown" title="#dad971">
   <svg width="20" height="20"><use href="#dad971"/></svg>
   <code>#dad971</code>
-</div><div class="icon-card" data-id="db3b6c" title="#db3b6c">
+</div><div class="icon-card" data-id="db3b6c" data-type="unknown" title="#db3b6c">
   <svg width="20" height="20"><use href="#db3b6c"/></svg>
   <code>#db3b6c</code>
-</div><div class="icon-card" data-id="dbf5ab" title="#dbf5ab">
+</div><div class="icon-card" data-id="dbf5ab" data-type="unknown" title="#dbf5ab">
   <svg width="20" height="20"><use href="#dbf5ab"/></svg>
   <code>#dbf5ab</code>
-</div><div class="icon-card" data-id="dc0712" title="#dc0712">
+</div><div class="icon-card" data-id="dc0712" data-type="unknown" title="#dc0712">
   <svg width="20" height="20"><use href="#dc0712"/></svg>
   <code>#dc0712</code>
-</div><div class="icon-card" data-id="dc11f1" title="#dc11f1">
+</div><div class="icon-card" data-id="dc11f1" data-type="unknown" title="#dc11f1">
   <svg width="20" height="20"><use href="#dc11f1"/></svg>
   <code>#dc11f1</code>
-</div><div class="icon-card" data-id="dc4375" title="#dc4375">
+</div><div class="icon-card" data-id="dc4375" data-type="unknown" title="#dc4375">
   <svg width="20" height="20"><use href="#dc4375"/></svg>
   <code>#dc4375</code>
-</div><div class="icon-card" data-id="dc5723" title="#dc5723">
+</div><div class="icon-card" data-id="dc5723" data-type="unknown" title="#dc5723">
   <svg width="20" height="20"><use href="#dc5723"/></svg>
   <code>#dc5723</code>
-</div><div class="icon-card" data-id="dc94ab" title="#dc94ab">
+</div><div class="icon-card" data-id="dc94ab" data-type="unknown" title="#dc94ab">
   <svg width="20" height="20"><use href="#dc94ab"/></svg>
   <code>#dc94ab</code>
-</div><div class="icon-card" data-id="dcac0b" title="#dcac0b">
+</div><div class="icon-card" data-id="dcac0b" data-type="unknown" title="#dcac0b">
   <svg width="20" height="20"><use href="#dcac0b"/></svg>
   <code>#dcac0b</code>
-</div><div class="icon-card" data-id="dd0e68" title="#dd0e68">
+</div><div class="icon-card" data-id="dd0e68" data-type="unknown" title="#dd0e68">
   <svg width="20" height="20"><use href="#dd0e68"/></svg>
   <code>#dd0e68</code>
-</div><div class="icon-card" data-id="de2679" title="#de2679">
+</div><div class="icon-card" data-id="de2679" data-type="unknown" title="#de2679">
   <svg width="20" height="20"><use href="#de2679"/></svg>
   <code>#de2679</code>
-</div><div class="icon-card" data-id="de51fb" title="#de51fb">
+</div><div class="icon-card" data-id="de51fb" data-type="unknown" title="#de51fb">
   <svg width="20" height="20"><use href="#de51fb"/></svg>
   <code>#de51fb</code>
-</div><div class="icon-card" data-id="deeed5" title="#deeed5">
+</div><div class="icon-card" data-id="deeed5" data-type="unknown" title="#deeed5">
   <svg width="20" height="20"><use href="#deeed5"/></svg>
   <code>#deeed5</code>
-</div><div class="icon-card" data-id="e01b66" title="#e01b66">
+</div><div class="icon-card" data-id="e01b66" data-type="unknown" title="#e01b66">
   <svg width="20" height="20"><use href="#e01b66"/></svg>
   <code>#e01b66</code>
-</div><div class="icon-card" data-id="e04414" title="#e04414">
+</div><div class="icon-card" data-id="e04414" data-type="unknown" title="#e04414">
   <svg width="20" height="20"><use href="#e04414"/></svg>
   <code>#e04414</code>
-</div><div class="icon-card" data-id="e13340" title="#e13340">
+</div><div class="icon-card" data-id="e13340" data-type="unknown" title="#e13340">
   <svg width="20" height="20"><use href="#e13340"/></svg>
   <code>#e13340</code>
-</div><div class="icon-card" data-id="e13f29" title="#e13f29">
+</div><div class="icon-card" data-id="e13f29" data-type="unknown" title="#e13f29">
   <svg width="20" height="20"><use href="#e13f29"/></svg>
   <code>#e13f29</code>
-</div><div class="icon-card" data-id="e1b0fc" title="#e1b0fc">
+</div><div class="icon-card" data-id="e1b0fc" data-type="unknown" title="#e1b0fc">
   <svg width="20" height="20"><use href="#e1b0fc"/></svg>
   <code>#e1b0fc</code>
-</div><div class="icon-card" data-id="e1fdc1" title="#e1fdc1">
+</div><div class="icon-card" data-id="e1fdc1" data-type="unknown" title="#e1fdc1">
   <svg width="20" height="20"><use href="#e1fdc1"/></svg>
   <code>#e1fdc1</code>
-</div><div class="icon-card" data-id="e202fd" title="#e202fd">
+</div><div class="icon-card" data-id="e202fd" data-type="unknown" title="#e202fd">
   <svg width="20" height="20"><use href="#e202fd"/></svg>
   <code>#e202fd</code>
-</div><div class="icon-card" data-id="e29fb0" title="#e29fb0">
+</div><div class="icon-card" data-id="e29fb0" data-type="unknown" title="#e29fb0">
   <svg width="20" height="20"><use href="#e29fb0"/></svg>
   <code>#e29fb0</code>
-</div><div class="icon-card" data-id="e2d0e9" title="#e2d0e9">
+</div><div class="icon-card" data-id="e2d0e9" data-type="unknown" title="#e2d0e9">
   <svg width="20" height="20"><use href="#e2d0e9"/></svg>
   <code>#e2d0e9</code>
-</div><div class="icon-card" data-id="e300c8" title="#e300c8">
+</div><div class="icon-card" data-id="e300c8" data-type="unknown" title="#e300c8">
   <svg width="20" height="20"><use href="#e300c8"/></svg>
   <code>#e300c8</code>
-</div><div class="icon-card" data-id="e353bf" title="#e353bf">
+</div><div class="icon-card" data-id="e353bf" data-type="unknown" title="#e353bf">
   <svg width="20" height="20"><use href="#e353bf"/></svg>
   <code>#e353bf</code>
-</div><div class="icon-card" data-id="e3745b" title="#e3745b">
+</div><div class="icon-card" data-id="e3745b" data-type="unknown" title="#e3745b">
   <svg width="20" height="20"><use href="#e3745b"/></svg>
   <code>#e3745b</code>
-</div><div class="icon-card" data-id="e3af55" title="#e3af55">
+</div><div class="icon-card" data-id="e3af55" data-type="unknown" title="#e3af55">
   <svg width="20" height="20"><use href="#e3af55"/></svg>
   <code>#e3af55</code>
-</div><div class="icon-card" data-id="e3f28f" title="#e3f28f">
+</div><div class="icon-card" data-id="e3f28f" data-type="unknown" title="#e3f28f">
   <svg width="20" height="20"><use href="#e3f28f"/></svg>
   <code>#e3f28f</code>
-</div><div class="icon-card" data-id="e43eb6" title="#e43eb6">
+</div><div class="icon-card" data-id="e43eb6" data-type="unknown" title="#e43eb6">
   <svg width="20" height="20"><use href="#e43eb6"/></svg>
   <code>#e43eb6</code>
-</div><div class="icon-card" data-id="e45ab3" title="#e45ab3">
+</div><div class="icon-card" data-id="e45ab3" data-type="unknown" title="#e45ab3">
   <svg width="20" height="20"><use href="#e45ab3"/></svg>
   <code>#e45ab3</code>
-</div><div class="icon-card" data-id="e47eba" title="#e47eba">
+</div><div class="icon-card" data-id="e47eba" data-type="unknown" title="#e47eba">
   <svg width="20" height="20"><use href="#e47eba"/></svg>
   <code>#e47eba</code>
-</div><div class="icon-card" data-id="e51fba" title="#e51fba">
+</div><div class="icon-card" data-id="e51fba" data-type="outline" title="#e51fba">
   <svg width="20" height="20"><use href="#e51fba"/></svg>
   <code>#e51fba</code>
-</div><div class="icon-card" data-id="e5c54e" title="#e5c54e">
+</div><div class="icon-card" data-id="e5c54e" data-type="unknown" title="#e5c54e">
   <svg width="20" height="20"><use href="#e5c54e"/></svg>
   <code>#e5c54e</code>
-</div><div class="icon-card" data-id="e60167" title="#e60167">
+</div><div class="icon-card" data-id="e60167" data-type="unknown" title="#e60167">
   <svg width="20" height="20"><use href="#e60167"/></svg>
   <code>#e60167</code>
-</div><div class="icon-card" data-id="e6a16c" title="#e6a16c">
+</div><div class="icon-card" data-id="e6a16c" data-type="unknown" title="#e6a16c">
   <svg width="20" height="20"><use href="#e6a16c"/></svg>
   <code>#e6a16c</code>
-</div><div class="icon-card" data-id="e6c4c4" title="#e6c4c4">
+</div><div class="icon-card" data-id="e6c4c4" data-type="unknown" title="#e6c4c4">
   <svg width="20" height="20"><use href="#e6c4c4"/></svg>
   <code>#e6c4c4</code>
-</div><div class="icon-card" data-id="e717cc" title="#e717cc">
+</div><div class="icon-card" data-id="e717cc" data-type="unknown" title="#e717cc">
   <svg width="20" height="20"><use href="#e717cc"/></svg>
   <code>#e717cc</code>
-</div><div class="icon-card" data-id="e765a3" title="#e765a3">
+</div><div class="icon-card" data-id="e765a3" data-type="unknown" title="#e765a3">
   <svg width="20" height="20"><use href="#e765a3"/></svg>
   <code>#e765a3</code>
-</div><div class="icon-card" data-id="e7a7d8" title="#e7a7d8">
+</div><div class="icon-card" data-id="e7a7d8" data-type="unknown" title="#e7a7d8">
   <svg width="20" height="20"><use href="#e7a7d8"/></svg>
   <code>#e7a7d8</code>
-</div><div class="icon-card" data-id="e85a81" title="#e85a81">
+</div><div class="icon-card" data-id="e85a81" data-type="unknown" title="#e85a81">
   <svg width="20" height="20"><use href="#e85a81"/></svg>
   <code>#e85a81</code>
-</div><div class="icon-card" data-id="e862af" title="#e862af">
+</div><div class="icon-card" data-id="e862af" data-type="unknown" title="#e862af">
   <svg width="20" height="20"><use href="#e862af"/></svg>
   <code>#e862af</code>
-</div><div class="icon-card" data-id="e8b942" title="#e8b942">
+</div><div class="icon-card" data-id="e8b942" data-type="unknown" title="#e8b942">
   <svg width="20" height="20"><use href="#e8b942"/></svg>
   <code>#e8b942</code>
-</div><div class="icon-card" data-id="e91ac9" title="#e91ac9">
+</div><div class="icon-card" data-id="e91ac9" data-type="unknown" title="#e91ac9">
   <svg width="20" height="20"><use href="#e91ac9"/></svg>
   <code>#e91ac9</code>
-</div><div class="icon-card" data-id="e93014" title="#e93014">
+</div><div class="icon-card" data-id="e93014" data-type="unknown" title="#e93014">
   <svg width="20" height="20"><use href="#e93014"/></svg>
   <code>#e93014</code>
-</div><div class="icon-card" data-id="e93014" title="#e93014">
+</div><div class="icon-card" data-id="e93014" data-type="unknown" title="#e93014">
   <svg width="20" height="20"><use href="#e93014"/></svg>
   <code>#e93014</code>
-</div><div class="icon-card" data-id="ebc49a" title="#ebc49a">
+</div><div class="icon-card" data-id="ebc49a" data-type="unknown" title="#ebc49a">
   <svg width="20" height="20"><use href="#ebc49a"/></svg>
   <code>#ebc49a</code>
-</div><div class="icon-card" data-id="ebf7db" title="#ebf7db">
+</div><div class="icon-card" data-id="ebf7db" data-type="unknown" title="#ebf7db">
   <svg width="20" height="20"><use href="#ebf7db"/></svg>
   <code>#ebf7db</code>
-</div><div class="icon-card" data-id="ec1eeb" title="#ec1eeb">
+</div><div class="icon-card" data-id="ec1eeb" data-type="unknown" title="#ec1eeb">
   <svg width="20" height="20"><use href="#ec1eeb"/></svg>
   <code>#ec1eeb</code>
-</div><div class="icon-card" data-id="ec5b2b" title="#ec5b2b">
+</div><div class="icon-card" data-id="ec5b2b" data-type="unknown" title="#ec5b2b">
   <svg width="20" height="20"><use href="#ec5b2b"/></svg>
   <code>#ec5b2b</code>
-</div><div class="icon-card" data-id="ec66f0" title="#ec66f0">
+</div><div class="icon-card" data-id="ec66f0" data-type="unknown" title="#ec66f0">
   <svg width="20" height="20"><use href="#ec66f0"/></svg>
   <code>#ec66f0</code>
-</div><div class="icon-card" data-id="ecc9af" title="#ecc9af">
+</div><div class="icon-card" data-id="ecc9af" data-type="unknown" title="#ecc9af">
   <svg width="20" height="20"><use href="#ecc9af"/></svg>
   <code>#ecc9af</code>
-</div><div class="icon-card" data-id="ece952" title="#ece952">
+</div><div class="icon-card" data-id="ece952" data-type="unknown" title="#ece952">
   <svg width="20" height="20"><use href="#ece952"/></svg>
   <code>#ece952</code>
-</div><div class="icon-card" data-id="ed328f" title="#ed328f">
+</div><div class="icon-card" data-id="ed328f" data-type="unknown" title="#ed328f">
   <svg width="20" height="20"><use href="#ed328f"/></svg>
   <code>#ed328f</code>
-</div><div class="icon-card" data-id="edbcb1" title="#edbcb1">
+</div><div class="icon-card" data-id="edbcb1" data-type="unknown" title="#edbcb1">
   <svg width="20" height="20"><use href="#edbcb1"/></svg>
   <code>#edbcb1</code>
-</div><div class="icon-card" data-id="edfc2f" title="#edfc2f">
+</div><div class="icon-card" data-id="edfc2f" data-type="unknown" title="#edfc2f">
   <svg width="20" height="20"><use href="#edfc2f"/></svg>
   <code>#edfc2f</code>
-</div><div class="icon-card" data-id="ee0f3c" title="#ee0f3c">
+</div><div class="icon-card" data-id="ee0f3c" data-type="unknown" title="#ee0f3c">
   <svg width="20" height="20"><use href="#ee0f3c"/></svg>
   <code>#ee0f3c</code>
-</div><div class="icon-card" data-id="ee1f3e" title="#ee1f3e">
+</div><div class="icon-card" data-id="ee1f3e" data-type="unknown" title="#ee1f3e">
   <svg width="20" height="20"><use href="#ee1f3e"/></svg>
   <code>#ee1f3e</code>
-</div><div class="icon-card" data-id="ee3fea" title="#ee3fea">
+</div><div class="icon-card" data-id="ee3fea" data-type="unknown" title="#ee3fea">
   <svg width="20" height="20"><use href="#ee3fea"/></svg>
   <code>#ee3fea</code>
-</div><div class="icon-card" data-id="eed976" title="#eed976">
+</div><div class="icon-card" data-id="eed976" data-type="unknown" title="#eed976">
   <svg width="20" height="20"><use href="#eed976"/></svg>
   <code>#eed976</code>
-</div><div class="icon-card" data-id="eee0f5" title="#eee0f5">
+</div><div class="icon-card" data-id="eee0f5" data-type="unknown" title="#eee0f5">
   <svg width="20" height="20"><use href="#eee0f5"/></svg>
   <code>#eee0f5</code>
-</div><div class="icon-card" data-id="eeea71" title="#eeea71">
+</div><div class="icon-card" data-id="eeea71" data-type="unknown" title="#eeea71">
   <svg width="20" height="20"><use href="#eeea71"/></svg>
   <code>#eeea71</code>
-</div><div class="icon-card" data-id="eef637" title="#eef637">
+</div><div class="icon-card" data-id="eef637" data-type="unknown" title="#eef637">
   <svg width="20" height="20"><use href="#eef637"/></svg>
   <code>#eef637</code>
-</div><div class="icon-card" data-id="efede7" title="#efede7">
+</div><div class="icon-card" data-id="efede7" data-type="unknown" title="#efede7">
   <svg width="20" height="20"><use href="#efede7"/></svg>
   <code>#efede7</code>
-</div><div class="icon-card" data-id="f095f1" title="#f095f1">
+</div><div class="icon-card" data-id="f095f1" data-type="unknown" title="#f095f1">
   <svg width="20" height="20"><use href="#f095f1"/></svg>
   <code>#f095f1</code>
-</div><div class="icon-card" data-id="f0ee98" title="#f0ee98">
+</div><div class="icon-card" data-id="f0ee98" data-type="unknown" title="#f0ee98">
   <svg width="20" height="20"><use href="#f0ee98"/></svg>
   <code>#f0ee98</code>
-</div><div class="icon-card" data-id="f12cba" title="#f12cba">
+</div><div class="icon-card" data-id="f12cba" data-type="unknown" title="#f12cba">
   <svg width="20" height="20"><use href="#f12cba"/></svg>
   <code>#f12cba</code>
-</div><div class="icon-card" data-id="f14449" title="#f14449">
+</div><div class="icon-card" data-id="f14449" data-type="unknown" title="#f14449">
   <svg width="20" height="20"><use href="#f14449"/></svg>
   <code>#f14449</code>
-</div><div class="icon-card" data-id="f19d6a" title="#f19d6a">
+</div><div class="icon-card" data-id="f19d6a" data-type="unknown" title="#f19d6a">
   <svg width="20" height="20"><use href="#f19d6a"/></svg>
   <code>#f19d6a</code>
-</div><div class="icon-card" data-id="f300da" title="#f300da">
+</div><div class="icon-card" data-id="f300da" data-type="unknown" title="#f300da">
   <svg width="20" height="20"><use href="#f300da"/></svg>
   <code>#f300da</code>
-</div><div class="icon-card" data-id="f37870" title="#f37870">
+</div><div class="icon-card" data-id="f37870" data-type="unknown" title="#f37870">
   <svg width="20" height="20"><use href="#f37870"/></svg>
   <code>#f37870</code>
-</div><div class="icon-card" data-id="f5b15f" title="#f5b15f">
+</div><div class="icon-card" data-id="f5b15f" data-type="unknown" title="#f5b15f">
   <svg width="20" height="20"><use href="#f5b15f"/></svg>
   <code>#f5b15f</code>
-</div><div class="icon-card" data-id="f5bdae" title="#f5bdae">
+</div><div class="icon-card" data-id="f5bdae" data-type="unknown" title="#f5bdae">
   <svg width="20" height="20"><use href="#f5bdae"/></svg>
   <code>#f5bdae</code>
-</div><div class="icon-card" data-id="f5c817" title="#f5c817">
+</div><div class="icon-card" data-id="f5c817" data-type="unknown" title="#f5c817">
   <svg width="20" height="20"><use href="#f5c817"/></svg>
   <code>#f5c817</code>
-</div><div class="icon-card" data-id="f64f60" title="#f64f60">
+</div><div class="icon-card" data-id="f64f60" data-type="unknown" title="#f64f60">
   <svg width="20" height="20"><use href="#f64f60"/></svg>
   <code>#f64f60</code>
-</div><div class="icon-card" data-id="f6c722" title="#f6c722">
+</div><div class="icon-card" data-id="f6c722" data-type="unknown" title="#f6c722">
   <svg width="20" height="20"><use href="#f6c722"/></svg>
   <code>#f6c722</code>
-</div><div class="icon-card" data-id="f6d0e2" title="#f6d0e2">
+</div><div class="icon-card" data-id="f6d0e2" data-type="unknown" title="#f6d0e2">
   <svg width="20" height="20"><use href="#f6d0e2"/></svg>
   <code>#f6d0e2</code>
-</div><div class="icon-card" data-id="f72107" title="#f72107">
+</div><div class="icon-card" data-id="f72107" data-type="unknown" title="#f72107">
   <svg width="20" height="20"><use href="#f72107"/></svg>
   <code>#f72107</code>
-</div><div class="icon-card" data-id="f734b8" title="#f734b8">
+</div><div class="icon-card" data-id="f734b8" data-type="unknown" title="#f734b8">
   <svg width="20" height="20"><use href="#f734b8"/></svg>
   <code>#f734b8</code>
-</div><div class="icon-card" data-id="f735f6" title="#f735f6">
+</div><div class="icon-card" data-id="f735f6" data-type="unknown" title="#f735f6">
   <svg width="20" height="20"><use href="#f735f6"/></svg>
   <code>#f735f6</code>
-</div><div class="icon-card" data-id="f74000" title="#f74000">
+</div><div class="icon-card" data-id="f74000" data-type="unknown" title="#f74000">
   <svg width="20" height="20"><use href="#f74000"/></svg>
   <code>#f74000</code>
-</div><div class="icon-card" data-id="f7f872" title="#f7f872">
+</div><div class="icon-card" data-id="f7f872" data-type="unknown" title="#f7f872">
   <svg width="20" height="20"><use href="#f7f872"/></svg>
   <code>#f7f872</code>
-</div><div class="icon-card" data-id="f899a8" title="#f899a8">
+</div><div class="icon-card" data-id="f899a8" data-type="unknown" title="#f899a8">
   <svg width="20" height="20"><use href="#f899a8"/></svg>
   <code>#f899a8</code>
-</div><div class="icon-card" data-id="f8aa74" title="#f8aa74">
+</div><div class="icon-card" data-id="f8aa74" data-type="unknown" title="#f8aa74">
   <svg width="20" height="20"><use href="#f8aa74"/></svg>
   <code>#f8aa74</code>
-</div><div class="icon-card" data-id="fa1dbd" title="#fa1dbd">
+</div><div class="icon-card" data-id="fa1dbd" data-type="unknown" title="#fa1dbd">
   <svg width="20" height="20"><use href="#fa1dbd"/></svg>
   <code>#fa1dbd</code>
-</div><div class="icon-card" data-id="fa6359" title="#fa6359">
+</div><div class="icon-card" data-id="fa6359" data-type="unknown" title="#fa6359">
   <svg width="20" height="20"><use href="#fa6359"/></svg>
   <code>#fa6359</code>
-</div><div class="icon-card" data-id="fa90cf" title="#fa90cf">
+</div><div class="icon-card" data-id="fa90cf" data-type="unknown" title="#fa90cf">
   <svg width="20" height="20"><use href="#fa90cf"/></svg>
   <code>#fa90cf</code>
-</div><div class="icon-card" data-id="fbb6c7" title="#fbb6c7">
+</div><div class="icon-card" data-id="fbb6c7" data-type="unknown" title="#fbb6c7">
   <svg width="20" height="20"><use href="#fbb6c7"/></svg>
   <code>#fbb6c7</code>
-</div><div class="icon-card" data-id="fc336f" title="#fc336f">
+</div><div class="icon-card" data-id="fc336f" data-type="unknown" title="#fc336f">
   <svg width="20" height="20"><use href="#fc336f"/></svg>
   <code>#fc336f</code>
-</div><div class="icon-card" data-id="fd4904" title="#fd4904">
+</div><div class="icon-card" data-id="fd4904" data-type="unknown" title="#fd4904">
   <svg width="20" height="20"><use href="#fd4904"/></svg>
   <code>#fd4904</code>
-</div><div class="icon-card" data-id="fd5f48" title="#fd5f48">
+</div><div class="icon-card" data-id="fd5f48" data-type="unknown" title="#fd5f48">
   <svg width="20" height="20"><use href="#fd5f48"/></svg>
   <code>#fd5f48</code>
-</div><div class="icon-card" data-id="fd84c9" title="#fd84c9">
+</div><div class="icon-card" data-id="fd84c9" data-type="unknown" title="#fd84c9">
   <svg width="20" height="20"><use href="#fd84c9"/></svg>
   <code>#fd84c9</code>
-</div><div class="icon-card" data-id="fd9513" title="#fd9513">
+</div><div class="icon-card" data-id="fd9513" data-type="unknown" title="#fd9513">
   <svg width="20" height="20"><use href="#fd9513"/></svg>
   <code>#fd9513</code>
-</div><div class="icon-card" data-id="fe2f0f" title="#fe2f0f">
+</div><div class="icon-card" data-id="fe2f0f" data-type="unknown" title="#fe2f0f">
   <svg width="20" height="20"><use href="#fe2f0f"/></svg>
   <code>#fe2f0f</code>
-</div><div class="icon-card" data-id="fe66e1" title="#fe66e1">
+</div><div class="icon-card" data-id="fe66e1" data-type="unknown" title="#fe66e1">
   <svg width="20" height="20"><use href="#fe66e1"/></svg>
   <code>#fe66e1</code>
-</div><div class="icon-card" data-id="fec800" title="#fec800">
+</div><div class="icon-card" data-id="fec800" data-type="unknown" title="#fec800">
   <svg width="20" height="20"><use href="#fec800"/></svg>
   <code>#fec800</code>
-</div><div class="icon-card" data-id="fed502" title="#fed502">
+</div><div class="icon-card" data-id="fed502" data-type="unknown" title="#fed502">
   <svg width="20" height="20"><use href="#fed502"/></svg>
   <code>#fed502</code>
-</div><div class="icon-card" data-id="fefa27" title="#fefa27">
+</div><div class="icon-card" data-id="fefa27" data-type="unknown" title="#fefa27">
   <svg width="20" height="20"><use href="#fefa27"/></svg>
   <code>#fefa27</code>
-</div><div class="icon-card" data-id="ff4d09" title="#ff4d09">
+</div><div class="icon-card" data-id="ff4d09" data-type="unknown" title="#ff4d09">
   <svg width="20" height="20"><use href="#ff4d09"/></svg>
   <code>#ff4d09</code>
-</div><div class="icon-card" data-id="ff7596" title="#ff7596">
+</div><div class="icon-card" data-id="ff7596" data-type="unknown" title="#ff7596">
   <svg width="20" height="20"><use href="#ff7596"/></svg>
   <code>#ff7596</code>
-</div><div class="icon-card" data-id="fff852" title="#fff852">
+</div><div class="icon-card" data-id="fff852" data-type="unknown" title="#fff852">
   <svg width="20" height="20"><use href="#fff852"/></svg>
   <code>#fff852</code>
 </div></div>
@@ -3922,7 +4019,30 @@
         </button>
       </div>
     </section>
+
+    <section id="pages">
+      <h2>主要页面 <span class="count" style="font-size:14px;color:var(--ds-muted);font-weight:400">(1)</span></h2>
+      <p class="section-desc">基于本 kit 的 token 与 sprite，1:1 还原的 ChatGPT 真站首页。stage 为 1280×838，等比缩放至当前内容区宽度。</p>
+
+      <div class="pages-grid">
+        <div class="page-card">
+          <div class="page-card__title">
+            <b>ChatGPT Home · 首页</b>
+            <span>1280 × 838 · stage-host · sidebar 260 · composer 768</span>
+          </div>
+          <div class="page-card__stage" id="page-home-stage">
+            <iframe src="../../chatgpt-home.html" loading="lazy" title="ChatGPT Home Page" id="page-home-frame"></iframe>
+          </div>
+          <div class="page-card__meta">
+            <span>Sidebar：<code>--sidebar-surface-primary</code> + 5 menu rows</span>
+            <span>Hero：OpenAI 花瓣 <code>#55180d</code> + 标题</span>
+            <span>Composer：<code>#6be74c</code> · <code>#29f921</code> · <code>#44c6db</code></span>
+          </div>
+        </div>
+      </div>
+    </section>
   </main>
+
 </div>
 
 <script>
@@ -3936,6 +4056,32 @@ const cards = [...grid.querySelectorAll('.icon-card')];
 const total = cards.length;
 let expanded = false;
 
+// 分类筛选
+const filterBtns = document.querySelectorAll('.filter-btn');
+let currentFilter = 'all';
+
+filterBtns.forEach(btn => {
+  btn.addEventListener('click', () => {
+    filterBtns.forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentFilter = btn.dataset.filter;
+    applyFilter();
+  });
+});
+
+function applyFilter() {
+  const q = search.value.trim().toLowerCase();
+  let n = 0;
+  cards.forEach(c => {
+    const typeMatch = currentFilter === 'all' || c.dataset.type === currentFilter || (currentFilter === 'colorful' && c.dataset.type === 'unknown');
+    const searchMatch = !q || c.dataset.id.toLowerCase().includes(q);
+    const hit = typeMatch && searchMatch;
+    c.classList.toggle('hidden', !hit);
+    if (hit) n++;
+  });
+  counter.textContent = n + ' / ' + total;
+}
+
 function setExpanded(v) {
   expanded = v;
   grid.classList.toggle('icon-grid--collapsed', !v);
@@ -3945,21 +4091,15 @@ function setExpanded(v) {
 }
 
 search.addEventListener('input', () => {
-  const q = search.value.trim().toLowerCase();
-  let n = 0;
-  cards.forEach(c => {
-    const hit = !q || c.dataset.id.toLowerCase().includes(q);
-    c.classList.toggle('hidden', !hit);
-    if (hit) n++;
-  });
-  counter.textContent = n + ' / ' + total;
+  applyFilter();
   // 搜索时自动展开 + 隐藏「查看更多」按钮
+  const q = search.value.trim();
   if (q) {
     grid.classList.remove('icon-grid--collapsed');
     moreWrap.style.display = 'none';
   } else {
     moreWrap.style.display = 'flex';
-    setExpanded(expanded); // 恢复用户上次展开/收起状态
+    setExpanded(expanded);
   }
 });
 
@@ -3981,6 +4121,25 @@ grid.addEventListener('click', e => {
     setTimeout(() => card.classList.remove('copied'), 800);
   });
 });
+
+// 主要页面 · Pages — iframe 自适应等比缩放（1280×838 → 当前 stage 宽度）
+(function () {
+  const stage = document.getElementById('page-home-stage');
+  const frame = document.getElementById('page-home-frame');
+  if (!stage || !frame) return;
+  const fit = () => {
+    const w = stage.clientWidth;
+    if (!w) return;
+    const scale = w / 1280;
+    frame.style.transform = `scale(${scale})`;
+  };
+  fit();
+  if ('ResizeObserver' in window) {
+    new ResizeObserver(fit).observe(stage);
+  } else {
+    window.addEventListener('resize', fit);
+  }
+})();
 </script>
 </body>
 </html>
