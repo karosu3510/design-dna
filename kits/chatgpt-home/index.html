@@ -47,6 +47,10 @@
     border-radius: 8px; font-size: 13px;
   }
   aside a:hover { background: rgba(13,13,13,0.04); color: var(--ds-ink); }
+  aside .nav-actions { margin-top: 32px; padding-top: 16px; border-top: 1px solid var(--ds-border); display: flex; flex-direction: column; gap: 8px; }
+  aside .nav-actions .btn { display: flex; align-items: center; justify-content: center; gap: 6px; padding: 8px 12px; border-radius: 8px; font-size: 12px; font-weight: 500; text-decoration: none; cursor: pointer; border: 1px solid var(--ds-border-strong); background: var(--ds-surface); color: var(--ds-ink); transition: background 0.15s, border-color 0.15s; }
+  aside .nav-actions .btn:hover { background: rgba(13,13,13,0.04); border-color: var(--ds-ink); }
+  aside .nav-actions .btn svg { width: 14px; height: 14px; flex-shrink: 0; }
   main { padding: 56px 64px 96px; max-width: 1280px; }
   header.hero { margin-bottom: 56px; padding-bottom: 32px; border-bottom: 1px solid var(--ds-border); }
   .tag { display:inline-block; font-size:11px; font-weight:500; letter-spacing:0.4px; color:var(--ds-accent); background:var(--ds-accent-soft); padding:4px 10px; border-radius:999px; text-transform:uppercase; }
@@ -1073,6 +1077,17 @@
     <a href="#icons">全部 703 个图标</a>
     <h4>页面</h4>
     <a href="#pages">主要页面</a>
+
+    <div class="nav-actions">
+      <a class="btn" href="https://ardot.tencent.com/file/684668388690623?node_id=140%3A1" target="_blank" rel="noopener">
+        <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8 1.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13M.5 8a7.5 7.5 0 1 1 15 0 7.5 7.5 0 0 1-15 0" fill="currentColor"/><path d="M5.5 5h2v6h-2V5zm3 0h2v6h-2V5z" fill="currentColor"/></svg>
+        去 Ardot 打开
+      </a>
+      <a class="btn" href="https://www.codebuddy.cn" target="_blank" rel="noopener">
+        <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 3.5L10.5 8 6 12.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        去 WorkBuddy 开发
+      </a>
+    </div>
   </aside>
 
   <main>
