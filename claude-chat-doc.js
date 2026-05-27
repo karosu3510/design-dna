@@ -202,6 +202,7 @@ body {
   justify-content: center;
   position: relative;
   min-width: 0;
+  background: #ffffff;
 }
 
 /* Top bar */
