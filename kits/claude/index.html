@@ -109,6 +109,18 @@ body {
 }
 
 /* ─── Kit Layout ─── */
+.kit-layout { display: grid; grid-template-columns: 220px 1fr; min-height: 100vh; }
+.kit-sidebar { position: sticky; top: 0; align-self: flex-start; height: 100vh; border-right: 1px solid var(--border-100); padding: 32px 16px 20px; overflow-y: auto; background: var(--bg-100); display: flex; flex-direction: column; }
+.kit-sidebar .brand { font-size: 15px; font-weight: 700; margin-bottom: 24px; padding-left: 8px; font-family: var(--font-serif, Georgia, serif); }
+.kit-sidebar h4 { font-size: 11px; color: var(--text-400); text-transform: uppercase; letter-spacing: 0.5px; margin: 20px 0 6px; font-weight: 500; padding-left: 8px; }
+.kit-sidebar a { display: block; padding: 6px 8px; color: var(--text-200); text-decoration: none; border-radius: 6px; font-size: 13px; }
+.kit-sidebar a:hover { background: var(--bg-200); color: var(--text-100); }
+.kit-sidebar .sidebar-footer { margin-top: auto; padding-top: 16px; border-top: 1px solid var(--border-100); display: flex; flex-direction: column; gap: 8px; }
+.kit-sidebar .sidebar-btn { display: flex; align-items: center; justify-content: center; gap: 6px; padding: 8px 12px; border-radius: 8px; font-size: 12px; font-weight: 500; text-decoration: none; cursor: pointer; border: 1px solid var(--border-200); background: #fff; color: var(--text-100); transition: background 0.15s; }
+.kit-sidebar .sidebar-btn:hover { background: var(--bg-200); }
+.kit-sidebar .sidebar-btn--accent { background: var(--accent-main); color: #fff; border-color: transparent; }
+.kit-sidebar .sidebar-btn--accent:hover { opacity: 0.9; }
+
 .kit-container {
   max-width: 1200px;
   margin: 0 auto;
@@ -981,6 +993,26 @@ body {
   </symbol>
 </svg>
 
+<div class="kit-layout">
+  <aside class="kit-sidebar">
+    <div class="brand">Claude Kit</div>
+    <h4>Token</h4>
+    <a href="#colors">颜色</a>
+    <a href="#typography">字体</a>
+    <a href="#spacing">间距</a>
+    <a href="#radius">圆角</a>
+    <h4>设计</h4>
+    <a href="#logo">Logo</a>
+    <a href="#components">组件</a>
+    <a href="#icons">图标</a>
+    <a href="#css-vars">CSS 变量</a>
+    <div class="sidebar-footer">
+      <a class="sidebar-btn" href="../../claude-chat-replica.html" target="_blank">查看 1:1 还原</a>
+      <a class="sidebar-btn sidebar-btn--accent" href="../../" target="_blank">返回灵感库</a>
+    </div>
+  </aside>
+  <main>
+
 <div class="kit-container">
 
   <!-- ─── HEADER ─── -->
@@ -1839,6 +1871,9 @@ function showToast(msg) {
   toast._timeout = setTimeout(() => toast.classList.remove('show'), 2000);
 }
 </script>
+
+  </main>
+</div>
 
 </body>
 </html>
