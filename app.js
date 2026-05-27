@@ -385,7 +385,7 @@ function makeCardEl(d){
   // 新增 kit 后只需要在这个 Set 里加 slug。
   // slug 解析优先用 styleLock（处理 buildPinnedFor 生成的动态 id 如 d4ax 这类情况），
   // 退化时再用 id 去掉 'd-' 前缀（处理静态 pinned 卡片如 'd-a-record'）。
-  const KIT_AVAILABLE = new Set(['a-record','nothing','retro-ascii','mercury','vortex-gallery','chatgpt-home']);
+  const KIT_AVAILABLE = new Set(['a-record','nothing','retro-ascii','mercury','vortex-gallery','chatgpt-home','claude-chat']);
   const _slug = d.styleLock || (d.id||'').replace(/^d-/, '');
   if(KIT_AVAILABLE.has(_slug)){
     const fav = document.createElement('button');
