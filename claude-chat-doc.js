@@ -7,6 +7,7 @@ window.CLAUDE_CHAT_DOC = `<!DOCTYPE html>
 <title>Claude</title>
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { background: #ffffff; }
 
 :root {
   --bg-100: #f8f8f6;
