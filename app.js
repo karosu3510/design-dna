@@ -385,7 +385,7 @@ function makeCardEl(d){
   // 新增 kit 后只需要在这个 Set 里加 slug。
   // slug 解析优先用 styleLock（处理 buildPinnedFor 生成的动态 id 如 d4ax 这类情况），
   // 退化时再用 id 去掉 'd-' 前缀（处理静态 pinned 卡片如 'd-a-record'）。
-  const KIT_AVAILABLE = new Set(['a-record','nothing','retro-ascii','mercury','vortex-gallery','chatgpt-home','claude-chat']);
+  const KIT_AVAILABLE = new Set(['a-record','nothing','retro-ascii','mercury','vortex-gallery','chatgpt-home','claude-chat','claude-chat']);
   const _slug = d.styleLock || (d.id||'').replace(/^d-/, '');
   if(KIT_AVAILABLE.has(_slug)){
     const fav = document.createElement('button');
@@ -1289,8 +1289,8 @@ function buildPinnedFor(styleId, headlineFallback){
   // ChatGPT — home page 1:1 replica (from chatgpt.com unauthenticated state)
   try {
     firstBatch.push({
-      id:'d-chatgpt-home', styleId:'chatgpt-home', styleLabel:'ChatGPT · Home', sref:'chatgpt-home-pin', prompt:'ChatGPT.com home empty state — true sprite icons + composer + sidebar (1:1 DOM replica)', pinned:true,
-      title:'ChatGPT · 准备好了，随时开始', height:720, styleLock:'chatgpt-home',
+      id:'d-chatgpt-home','claude-chat', styleId:'chatgpt-home', styleLabel:'ChatGPT · Home', sref:'chatgpt-home-pin', prompt:'ChatGPT.com home empty state — true sprite icons + composer + sidebar (1:1 DOM replica)', pinned:true,
+      title:'ChatGPT · 准备好了，随时开始', height:720, styleLock:'chatgpt-home','claude-chat',
       doc: (typeof CHATGPT_HOME_DOC !== 'undefined') ? CHATGPT_HOME_DOC : '', externalUrl:'chatgpt-home.html',
       // 提取 DNA 跳到全图标 + 设计系统页（带 #icons 锚点直达图标章节）
       dnaUrl: './kits/chatgpt-home/index.html#icons'
