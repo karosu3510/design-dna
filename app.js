@@ -1301,6 +1301,7 @@ function buildPinnedFor(styleId, headlineFallback){
       id:'d-claude-chat', styleId:'claude-chat', styleLabel:'Claude · Chat', sref:'claude-chat-pin', prompt:'Claude.ai home empty state — sidebar + composer + suggestion chips (1:1 DOM replica)', pinned:true,
       title:'Claude · Afternoon, karo', height:720, styleLock:'claude-chat',
       doc: (typeof CLAUDE_CHAT_DOC !== 'undefined') ? CLAUDE_CHAT_DOC : '', externalUrl:'claude-chat-replica.html',
+      dnaUrl: './kits/claude/index.html'
     });
   } catch(_){}
   // Vercel Deploy — removed 2026-05-17: 效果不达标
